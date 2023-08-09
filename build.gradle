@@ -9,20 +9,19 @@ sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
+    maven { url "https://maven.google.com" }
     maven{ url 'https://www.jitpack.io' }
 }
 
 ext{
-    //the build number that this mod is made for
-    mindustryVersion = 'v145'
+    mindustryVersion = 'v143.1'
     jabelVersion = "93fde537c7"
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
 
-//java 8 backwards compatibility flag
 allprojects{
     tasks.withType(JavaCompile){
-        options.compilerArgs.addAll(['--release', '8'])
+        options.compilerArgs.addAll(['--release', '16'])
     }
 }
 
