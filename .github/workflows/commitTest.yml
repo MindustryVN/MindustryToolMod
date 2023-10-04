@@ -5,6 +5,8 @@ on: [push]
 jobs:
   buildJar:
     runs-on: ubuntu-latest
+    
+    name: Deploy
 
     steps:
     - uses: actions/checkout@v2

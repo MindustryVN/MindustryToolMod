@@ -1,7 +1,6 @@
 package main;
 
 import arc.*;
-import arc.util.*;
 import main.ui.SchematicDialog;
 import mindustry.Vars;
 import mindustry.game.EventType.*;
@@ -12,11 +11,12 @@ public class Main extends Mod {
     public Main() {
         Events.on(ClientLoadEvent.class, e -> {
             SchematicDialog schematicDialog = new SchematicDialog();
-            Vars.ui.menufrag.addButton("Schematic browser", () -> schematicDialog.show());
+            Vars.ui.menufrag.addButton("Schematics", () -> schematicDialog.show());
         });
     }
 
     @Override
     public void loadContent() {
+
     }
 }

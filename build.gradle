@@ -1,15 +1,14 @@
 apply plugin: "java"
 
-version '1.0'
+version '1.1'
 
-targetCompatibility = 8
-sourceCompatibility = JavaVersion.VERSION_16
+targetCompatibility = 16
+sourceCompatibility = 16
 
 sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
-    maven { url "https://maven.google.com" }
     maven{ url 'https://www.jitpack.io' }
 }
 
@@ -21,7 +20,7 @@ ext{
 
 allprojects{
     tasks.withType(JavaCompile){
-        options.compilerArgs.addAll(['--release', '8'])
+        options.compilerArgs.addAll(['--release', '16'])
     }
 }
 
@@ -45,11 +44,11 @@ task jarAndroid{
     dependsOn "jar"
 
     doLast{
-        if(!sdkRoot || !new File(sdkRoot).exists()) throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.");
+        if(!sdkRoot || !new File(sdkRoot).exists()) throw new Exception("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.");
 
         def platformRoot = new File("$sdkRoot/platforms/").listFiles().sort().reverse().find{ f -> new File(f, "android.jar").exists()}
 
-        if(!platformRoot) throw new GradleException("No android.jar found. Ensure that you have an Android platform installed.")
+        if(!platformRoot) throw new Exception("No android.jar found. Ensure that you have an Android platform installed.")
 
         //collect dependencies needed for desugaring
         def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")]).collect{ "--classpath $it.path" }.join(" ")
