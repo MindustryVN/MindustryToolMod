@@ -1,6 +1,6 @@
 package main.ui;
 
-public class SchematicListing {
+public class SchematicData {
     public String id;
     public String name;
     public String authorId;

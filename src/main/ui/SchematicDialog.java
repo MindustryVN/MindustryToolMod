@@ -1,117 +1,285 @@
 package main.ui;
 
 import arc.Core;
-import arc.func.Cons;
-import arc.graphics.Pixmap;
-import arc.graphics.Texture;
-import arc.graphics.Texture.TextureFilter;
-import arc.graphics.g2d.TextureRegion;
+import arc.graphics.Color;
+import arc.scene.ui.Label;
+import arc.scene.ui.ScrollPane;
+import arc.scene.ui.TextButton;
+import arc.scene.ui.TextField;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Scl;
+import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
-import arc.util.Http;
-import arc.util.Log;
-import arc.util.Nullable;
+import arc.util.Align;
+import mindustry.gen.Icon;
 import mindustry.gen.Tex;
-import mindustry.io.JsonIO;
-import mindustry.ui.BorderImage;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.function.Consumer;
+
 public class SchematicDialog extends BaseDialog {
 
-    private @Nullable Seq<SchematicListing> schematicList;
+    private final List<String> sorts = Arrays.asList("time_1", "time_-1", "like_1");
 
-    private ObjectMap<String, TextureRegion> schematicImageCache = new ObjectMap<>();
+    private Seq<SchematicData> schematics = new Seq<>();
+
+    private final float IMAGE_SIZE = 196;
+    private final float INFO_TABLE_HEIGHT = 60;
+
+    private String sort = "time_1";
+    private List<String> selectedTags = Arrays.asList("");
+
+    private String search = "";
+
+    TextField searchField;
+
+    private List<String> schematicTags = new ArrayList<>();
+
+    private boolean showSortDropdown = false;
+
+    private PagingRequest<SchematicData> request;
+    private ObjectMap<String, String> options = new ObjectMap<String, String>();
 
     public SchematicDialog() {
-        super("@schematic.browser");
-        rebuildBrowser();
+        super("Schematic Browser");
+
+        request = new PagingRequest<>(SchematicData.class, "http://localhost:8080/api/v2/schematic");
+        options.put("sort", sort);
+
+        request.setOptions(options);
+        request.getPage(this::handleSchematicResult);
+
+        setItemPerPage();
+
+        shown(this::SchematicBrowser);
+
+        onResize(() -> {
+            setItemPerPage();
+            SchematicBrowser();
+        });
     }
 
-    public void rebuildBrowser() {
+    private void setItemPerPage() {
+
+        int columns = (int) (Core.graphics.getWidth() / Scl.scl(IMAGE_SIZE)) - 1;
+        int rows = (int) (Core.graphics.getHeight() / Scl.scl(IMAGE_SIZE + INFO_TABLE_HEIGHT * 2));
+        int itemPerPage = Math.max(columns * rows, 20);
+
+        request.setItemPerPage(itemPerPage);
+    }
+
+    private void SchematicBrowser() {
+        options.put("sort", sort);
+
+        if (selectedTags.size() > 0)
+            options.put("tags", Arrays.toString(selectedTags.toArray()));
+
+        request.setOptions(options);
+
         clear();
-
-        table(con -> {
-            button("Reload", () -> rebuildBrowser());
-        }).bottom();
-
         addCloseButton();
-        getSchematicList(schematics -> {
-            clear();
-            addCloseButton();
+        SearchBar();
+        row();
+        SchematicContainer();
+        row();
+        Footer();
+    }
 
-            for (SchematicListing schematic : schematics) {
-                button(con -> {
-                    con.margin(0);
-                    con.left();
-                    con.add(getSchematicImage(schematic));
-                }, Styles.flatBordert, () -> {
+    private void handleSearchResult(String result) {
+        search = result;
+        SchematicBrowser();
+    }
 
-                }).size(64f).pad(4f * 2f);
+    private void SearchBar() {
+        table(searchBar -> {
+            searchBar.table(searchBarWrapper -> {
+                searchBarWrapper.left();
+                searchBarWrapper.image(Icon.zoom);
+                searchField = searchBarWrapper.field(search, this::handleSearchResult)
+                        .growX()
+                        .get();
 
+                searchField.setMessageText("@schematic.search");
+            }).fillX().expandX().padBottom(4);
+
+            searchBar.button(sort, () -> {
+                showSortDropdown = !showSortDropdown;
+                SchematicBrowser();
+            })
+                    .width(100);
+
+            Consumer<String> handleDropdownPress = (sortString) -> {
+                sort = sortString;
+                showSortDropdown = false;
+                SchematicBrowser();
+            };
+
+            if (showSortDropdown) {
+                searchBar.stack(new Table(Tex.pane, dropdown -> {
+                    dropdown.setPosition(searchBar.x - 100, searchBar.y);
+                    dropdown.setWidth(100);
+                    dropdown.setHeight((sorts.size() - 1) * 20);
+                    dropdown.toFront();
+
+                    dropdown.visible(() -> true);
+
+                    for (String sortString : sorts.stream().filter(s -> !s.equals(sort)).toList()) {
+                        dropdown.button(sortString, () -> handleDropdownPress.accept(sortString))
+                                .width(100)
+                                .height(20)
+                                .row();
+                    }
+                }));
+            }
+
+        }).fillX()
+                .expandX()
+                .marginLeft(8)
+                .marginRight(8);
+
+        row();
+        pane(tagBar -> {
+            for (String tag : schematicTags.stream().filter(s -> s.contains(search)).toList()) {
+                tagBar.button(tag, Styles.nonet, () -> {
+                    selectedTags.add(tag);
+                });
             }
         });
+    }
+
+    private Cell<TextButton> Error(Table parent) {
+        var error = parent.button("There is an error, reload?", Styles.nonet, () -> request.getPage(this::handleSchematicResult));
+
+        return error.center()
+                .labelAlign(0)
+                .expand()
+                .fill();
+    }
+
+    private Cell<Label> Loading(Table parent) {
+        return parent.labelWrap("Loading")
+                .center()
+                .labelAlign(0)
+                .expand()
+                .fill();
+    }
+
+    private Cell<ScrollPane> SchematicScrollContainer(Table parent) {
+        return parent.pane(container -> {
+            float sum = 0;
+
+            for (var schematic : schematics) {
+                if (sum + Scl.scl(IMAGE_SIZE) >= Core.graphics.getWidth()) {
+                    container.row();
+                    sum = 0;
+                }
+
+                var button = container.table(schematicPreview -> {
+                    schematicPreview.table(Tex.pane, buttonContainer -> {
+                        buttonContainer.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematic))
+                                .marginLeft(16)
+                                .marginRight(16);
+
+                        buttonContainer.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematic))
+                                .marginLeft(16)
+                                .marginRight(16).pad(4);
+
+                    }).fillX().height(INFO_TABLE_HEIGHT);
+
+                    schematicPreview.row();
+                    schematicPreview.button(image -> image.add(new SchematicImage(schematic.id)), Styles.nonet, () -> {
+                        // Image click callback
+                    }).size(IMAGE_SIZE);
+                    schematicPreview.row();
+
+                    schematicPreview.table(Tex.pane, t -> {
+                        Label label = t.add(schematic.name)
+                                .style(Styles.outlineLabel)
+                                .color(Color.white)
+                                .top()
+                                .growX()
+                                .maxWidth(196)
+                                .get();
+
+                        label.setEllipsis(true);
+                        label.setAlignment(Align.center);
+
+                    }).width(196).height(INFO_TABLE_HEIGHT);
+                }).margin(4);
+
+                sum += button.prefWidth();
+            }
+            container.top();
+        })
+                .pad(20)
+                .scrollY(true)
+                .expand()
+                .fill();
 
     }
 
-    public BorderImage getSchematicImage(SchematicListing schematic) {
-        return new BorderImage() {
-            TextureRegion last;
+    private void Footer() {
+        table(footer -> {
+            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult))
+                    .margin(4)
+                    .pad(4)
+                    .width(100)
+                    .disabled(request.isLoading() || request.getPage() == 0);
 
-            {
-                setDrawable(Tex.nomap);
-                pad = Scl.scl(4f);
-            }
+            footer.labelWrap(String.valueOf(request.getPage() + 1))
+                    .width(50)
+                    .style(Styles.outlineLabel)
+                    .labelAlign(0)
+                    .margin(4)
+                    .center();
 
-            @Override
-            public void draw() {
-                super.draw();
-                try {
-                    if (!schematicImageCache.containsKey(schematic.id)) {
-                        schematicImageCache.put(schematic.id, Core.atlas.find("nomap"));
-                        Http.get(String.format(
-                                "https://mindustry-tool-backend.onrender.com/api/v2/schematic/%s/image",
-                                schematic.id))//
-                                .timeout(120000)//
-                                .submit(res -> {
-                                    Pixmap pix = new Pixmap(res.getResultAsString());
-                                    var tex = new Texture(pix);
-                                    tex.setFilter(TextureFilter.linear);
-                                    schematicImageCache.put(schematic.id, new TextureRegion(tex));
-                                    pix.dispose();
-                                });
-                    }
-                    var next = schematicImageCache.get(schematic.id);
-                    if (last != next) {
-                        last = next;
-                        setDrawable(next);
-                    }
-                }
+            footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult))
+                    .margin(4)
+                    .pad(4)
+                    .width(100)
+                    .disabled(request.isLoading() || request.hasMore() == false);
 
-                catch (Exception e) {
-                    Log.err(e);
-                }
-            }
-        };
+            footer.bottom();
+        });
     }
 
-    @SuppressWarnings("unchecked")
-    public static void getSchematicList(Cons<Seq<SchematicListing>> listener) {
-        try {
-            Log.info("Load schematics");
-            Http.get("https://mindustry-tool-backend.onrender.com/api/v2/schematic?tags=&sort=time:1&page=0&items=20")
-                    .timeout(1200000)
-                    .submit(response -> {
-                        String data = response.getResultAsString();
-                        Core.app.post(() -> {
-                            var schematicList = JsonIO.json.fromJson(Seq.class, SchematicListing.class, data);
-                            Log.info("Loaded " + schematicList.size + " schematics");
-                            listener.get(schematicList);
-                        });
-                    });
-        } catch (Exception e) {
-            Log.err(e);
-        }
+    private Cell<Table> SchematicContainer() {
+        return table(container -> {
+            if (request.isError()) {
+                Error(container);
+                return;
+            }
+
+            if (request.isLoading()) {
+                Loading(container);
+                return;
+            }
+
+            SchematicScrollContainer(container);
+        })
+                .expand()
+                .fill()
+                .margin(10)
+                .top();
+    }
+
+    private void handleSchematicResult(Seq<SchematicData> schematics) {
+        if (schematics != null)
+            this.schematics = schematics;
+
+        SchematicBrowser();
+    }
+
+    private void handleCopySchematic(SchematicData schematic) {
+
+    }
+
+    private void handleDownloadSchematic(SchematicData schematic) {
+
     }
 }
