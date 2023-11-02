@@ -1,4 +1,4 @@
-package main.ui;
+package main.gui;
 
 import arc.Core;
 import arc.graphics.Pixmap;

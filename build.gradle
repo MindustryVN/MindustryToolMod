@@ -1,34 +1,39 @@
 apply plugin: "java"
 
-version '1.1'
-
-targetCompatibility = 16
-sourceCompatibility = 16
+version '1.0'
 
 sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
+    maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url 'https://www.jitpack.io' }
 }
 
+java{
+    targetCompatibility = 17
+    sourceCompatibility = JavaVersion.VERSION_17
+}
+
 ext{
-    mindustryVersion = 'v143.1'
+    //the build number that this mod is made for
+    mindustryVersion = 'v145'
     jabelVersion = "93fde537c7"
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
 
+//java 8 backwards compatibility flag
 allprojects{
     tasks.withType(JavaCompile){
-        options.compilerArgs.addAll(['--release', '16'])
+        options.compilerArgs.addAll(['--release', '17'])
     }
 }
 
 dependencies{
-    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
-    compileOnly "com.github.Anuken.MindustryJitpack:core:$mindustryVersion"
-
     implementation 'org.apache.httpcomponents:httpclient:4.5.2'
+
+    compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
+    compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
 
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
@@ -62,9 +67,8 @@ task jarAndroid{
 }
 
 jar{
-    archiveFileName = "${project.archivesBaseName}Desktop.jar"
+    archiveFileName = "${base.archivesBaseName}Desktop.jar"
     duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
-
 
     from{
         configurations.runtimeClasspath.collect{ it.isDirectory() ? it : zipTree(it) }
@@ -82,7 +86,7 @@ jar{
 task deploy(type: Jar){
     dependsOn jarAndroid
     dependsOn jar
-    archiveFileName = "${project.archivesBaseName}.jar"
+    archiveFileName = "${base.archivesBaseName}.jar"
 
     from{ [zipTree("$buildDir/libs/${project.archivesBaseName}Desktop.jar"), zipTree("$buildDir/libs/${project.archivesBaseName}Android.jar")] }
 

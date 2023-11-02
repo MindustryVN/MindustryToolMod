@@ -1,4 +1,4 @@
-package main.ui;
+package main.data;
 
 public class SchematicData {
     public String id;

@@ -1,7 +1,7 @@
 package main;
 
 import arc.*;
-import main.ui.SchematicDialog;
+import main.gui.SchematicDialog;
 import mindustry.Vars;
 import mindustry.game.EventType.*;
 import mindustry.gen.Icon;
@@ -14,10 +14,5 @@ public class Main extends Mod {
             SchematicDialog schematicDialog = new SchematicDialog();
             Vars.ui.menufrag.addButton("Schematics", Icon.infoCircle, () -> schematicDialog.show());
         });
-    }
-
-    @Override
-    public void loadContent() {
-
     }
 }

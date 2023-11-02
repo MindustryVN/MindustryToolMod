@@ -1,4 +1,4 @@
-package main.ui;
+package main.gui;
 
 import arc.Core;
 import arc.graphics.Color;
@@ -12,6 +12,8 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
+import main.data.SchematicData;
+import main.net.PagingRequest;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.ui.Styles;
