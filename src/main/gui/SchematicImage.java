@@ -9,6 +9,7 @@ import arc.struct.ObjectMap;
 import arc.util.Http;
 import arc.util.Scaling;
 import arc.util.Http.HttpResponse;
+import main.config.Config;
 import mindustry.gen.Tex;
 import mindustry.ui.BorderImage;
 
@@ -35,7 +36,7 @@ public class SchematicImage extends BorderImage {
         var schematicImage = schematicImageCache.get(schematicId);
         if (schematicImage == null) {
             schematicImageCache.put(schematicId, Core.atlas.find("nomap"));
-            Http.get(String.format("http://localhost:8080/api/v2/schematic/%s/image", schematicId))//
+            Http.get(Config.API_URL + String.format("schematic/%s/image", schematicId))//
                     .timeout(120000)//
                     .submit(this::handleSchematicImageResult);
 

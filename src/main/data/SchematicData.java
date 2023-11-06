@@ -13,5 +13,4 @@ public class SchematicData {
     public ItemRequirement[] requirement;
     public String verifyAdmin;
     public String time;
-
 }

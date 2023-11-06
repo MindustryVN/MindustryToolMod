@@ -1,7 +1,6 @@
 package main.net;
 
 import java.net.URI;
-import java.net.URISyntaxException;
 
 import org.apache.http.client.utils.URIBuilder;
 
@@ -16,11 +15,12 @@ import mindustry.io.JsonIO;
 
 public class PagingRequest<T> {
 
+    private volatile boolean isLoading = false;
     private boolean hasMore = true;
-    private boolean isLoading = true;
     private boolean isError = false;
+    private String error = "";
 
-    private int itemPerPage = 30;
+    private int itemPerPage = 20;
 
     private int page = 0;
 
@@ -34,7 +34,9 @@ public class PagingRequest<T> {
         this.clazz = clazz;
     }
 
-    public void getPage(Cons<Seq<T>> listener) {
+    public synchronized void getPage(Cons<Seq<T>> listener) {
+        if (isLoading)
+            return;
 
         isError = false;
         isLoading = true;
@@ -44,56 +46,69 @@ public class PagingRequest<T> {
                     .setParameter("page", String.valueOf(page))
                     .setParameter("items", String.valueOf(itemPerPage));
 
-            options.forEach(entry -> builder.setParameter(entry.key, entry.value));
+            options.forEach(entry -> {
+                builder.setParameter(entry.key, entry.value);
+            });
 
             URI uri = builder.build();
 
             listener.get(null);
             Http.get(uri.toString())
                     .timeout(1200000)
-                    .error(error -> {
-                        isLoading = false;
-                        isError = true;
-                        listener.get(null);
-                    })
-                    .submit(response -> handleResult(response,itemPerPage, listener));
-        } catch (URISyntaxException e) {
-            Log.err(e);
-
-            isLoading = false;
-            isError = true;
+                    .error(error -> handleError(listener, error))
+                    .submit(response -> handleResult(response, itemPerPage, listener));
+        } catch (Exception e) {
+            handleError(listener, e);
         }
     }
 
-    public void setOptions(ObjectMap<String, String> options) {
+    public synchronized void handleError(Cons<Seq<T>> listener, Throwable e) {
+        Log.err(e);
+        error = e.getMessage();
+
+        isLoading = false;
+        isError = true;
+
+        listener.get(null);
+    }
+
+    public synchronized void setPage(int page) {
+        this.page = page;
+    }
+
+    public synchronized void setOptions(ObjectMap<String, String> options) {
         this.options = options;
     }
 
-    public int getItemPerPage() {
+    public synchronized int getItemPerPage() {
         return itemPerPage;
     }
 
-    public void setItemPerPage(int itemPerPage) {
+    public synchronized void setItemPerPage(int itemPerPage) {
         this.itemPerPage = itemPerPage;
     }
 
-    public boolean hasMore() {
+    public synchronized boolean hasMore() {
         return hasMore;
     }
 
-    public boolean isLoading() {
+    public synchronized boolean isLoading() {
         return isLoading;
     }
 
-    public boolean isError() {
+    public synchronized boolean isError() {
         return isError;
     }
 
-    public int getPage() {
+    public synchronized String getError() {
+        return error;
+    }
+
+    public synchronized int getPage() {
         return page;
     }
 
-    public void nextPage(Cons<Seq<T>> listener) {
+    public synchronized void nextPage(Cons<Seq<T>> listener) {
         if (isLoading)
             return;
 
@@ -104,7 +119,7 @@ public class PagingRequest<T> {
         getPage(listener);
     }
 
-    public void previousPage(Cons<Seq<T>> listener) {
+    public synchronized void previousPage(Cons<Seq<T>> listener) {
         if (isLoading)
             return;
 
@@ -116,7 +131,7 @@ public class PagingRequest<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private void handleResult(HttpResponse response,int itemPerPage, Cons<Seq<T>> listener) {
+    private synchronized void handleResult(HttpResponse response, int itemPerPage, Cons<Seq<T>> listener) {
         isLoading = false;
         isError = false;
 
@@ -124,10 +139,7 @@ public class PagingRequest<T> {
         Core.app.post(() -> {
             var schems = JsonIO.json.fromJson(Seq.class, clazz, data);
 
-            if (schems.size == itemPerPage)
-                hasMore = true;
-            else
-                hasMore = false;
+            hasMore = schems.size != 0;
 
             listener.get(schems);
         });
