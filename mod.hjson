@@ -8,8 +8,10 @@ main: "main.Main"
 
 description: "A Mindustry Java mod."
 
-version: 1.0
+version: 1.1
 
 minGameVersion: 140
 
 java: true
+
+hidden: true
