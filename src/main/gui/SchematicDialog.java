@@ -70,14 +70,13 @@ public class SchematicDialog extends BaseDialog {
             }
         });
 
-        shown(this::SchematicBrowser);
-
         onResize(() -> {
             setItemPerPage();
             SchematicBrowser();
         });
 
-        request.getPage(this::handleSchematicResult);
+        shown(() -> request.getPage(this::handleSchematicResult));
+        shown(this::SchematicBrowser);
     }
 
     private void setItemPerPage() {

@@ -8,6 +8,7 @@ import arc.Core;
 import arc.func.Cons;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
+import arc.struct.ObjectMap.Entry;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.Http.HttpResponse;
@@ -46,9 +47,8 @@ public class PagingRequest<T> {
                     .setParameter("page", String.valueOf(page))
                     .setParameter("items", String.valueOf(itemPerPage));
 
-            options.forEach(entry -> {
+            for (Entry<String, String> entry : options.entries())
                 builder.setParameter(entry.key, entry.value);
-            });
 
             URI uri = builder.build();
 
