@@ -2,6 +2,7 @@ package main.gui;
 
 import arc.Core;
 import arc.graphics.Color;
+import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.TextButton;
@@ -110,9 +111,9 @@ public class SchematicDialog extends BaseDialog {
     private void SearchBar() {
         table(searchBar -> {
             searchBar.button("@back", Icon.leftSmall, this::hide)//
-                    .width(200)
-                    .marginLeft(4)
-                    .marginRight(4);
+                    .width(150)
+                    .padLeft(2)
+                    .padRight(2);
 
             searchBar.table(searchBarWrapper -> {
                 searchBarWrapper.left();
@@ -128,18 +129,18 @@ public class SchematicDialog extends BaseDialog {
             })
                     .fillX()
                     .expandX()
-                    .padBottom(4)
-                    .marginLeft(4)
-                    .marginRight(4);
+                    .padBottom(2)
+                    .padLeft(2)
+                    .padRight(2);
 
             searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig)))
-                    .marginLeft(4)
-                    .marginRight(4)
+                    .padLeft(2)
+                    .padRight(2)
                     .width(60);
 
             searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)))
-                    .marginLeft(4)
-                    .marginRight(4)
+                    .padLeft(2)
+                    .padRight(2)
                     .width(60);
 
         })
@@ -192,41 +193,43 @@ public class SchematicDialog extends BaseDialog {
                     container.row();
                     sum = 0;
                 }
+                Button[] button = { null };
+                button[0] = container.button(schematicPreview -> {
+                    schematicPreview.top();
+                    schematicPreview.margin(0f);
+                    schematicPreview.table(buttons -> {
+                        buttons.center();
+                        buttons.defaults().size(50f);
+                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematic))
+                                .padLeft(2)
+                                .padRight(2);
+                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematic))
+                                .padLeft(2)
+                                .padRight(2);
 
-                var button = container.table(schematicPreview -> {
-                    schematicPreview.table(Tex.pane, buttonContainer -> {
-                        buttonContainer.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematic))
-                                .marginLeft(16)
-                                .marginRight(16);
-
-                        buttonContainer.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematic))
-                                .marginLeft(16)
-                                .marginRight(16).pad(4);
-
-                    }).fillX().height(INFO_TABLE_HEIGHT);
+                    }).growX().height(50f);
 
                     schematicPreview.row();
-                    schematicPreview.button(image -> image.add(new SchematicImage(schematic.id)), //
-                            Styles.nonet,
-                            () -> infoDialog.show(schematic)).size(IMAGE_SIZE);
-                    schematicPreview.row();
+                    schematicPreview.stack(new SchematicImage(schematic.id), new Table(schematicName -> {
+                        schematicName.top();
+                        schematicName.table(Styles.black3, c -> {
+                            Label label = c.add(schematic.name).style(Styles.outlineLabel).color(Color.white).top()
+                                    .growX()
+                                    .width(200f - 8f).get();
+                            label.setEllipsis(true);
+                            label.setAlignment(Align.center);
+                        }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
+                    })).size(200f);
+                }, () -> {
+                    if (button[0].childrenPressed())
+                        return;
+                    infoDialog.show(schematic);
 
-                    schematicPreview.table(Tex.pane, t -> {
-                        Label label = t.add(schematic.name)
-                                .style(Styles.outlineLabel)
-                                .color(Color.white)
-                                .top()
-                                .growX()
-                                .maxWidth(196)
-                                .get();
+                }).pad(4).style(Styles.flati).get();
 
-                        label.setEllipsis(true);
-                        label.setAlignment(Align.center);
+                button[0].getStyle().up = Tex.pane;
 
-                    }).width(196).height(INFO_TABLE_HEIGHT);
-                }).margin(4);
-
-                sum += button.prefWidth();
+                sum += button[0].getPrefWidth();
             }
             container.top();
         })
