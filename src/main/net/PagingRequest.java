@@ -55,15 +55,15 @@ public class PagingRequest<T> {
             listener.get(null);
             Http.get(uri.toString())
                     .timeout(1200000)
-                    .error(error -> handleError(listener, error))
+                    .error(error -> handleError(listener, error, uri.toString()))
                     .submit(response -> handleResult(response, itemPerPage, listener));
         } catch (Exception e) {
-            handleError(listener, e);
+            handleError(listener, e, url);
         }
     }
 
-    public synchronized void handleError(Cons<Seq<T>> listener, Throwable e) {
-        Log.err(e);
+    public synchronized void handleError(Cons<Seq<T>> listener, Throwable e, String url) {
+        Log.err(url, e);
         error = e.getMessage();
 
         isLoading = false;

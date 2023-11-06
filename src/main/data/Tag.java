@@ -32,12 +32,12 @@ public class Tag {
     private static void getTag(TagName tag, Cons<Seq<Tag>> listener) {
         Http.get(Config.API_URL + "tag/" + tag.value())
                 .timeout(1200000)
-                .error(error -> handleError(listener, error))
+                .error(error -> handleError(listener, error, Config.API_URL + "tag/" + tag.value()))
                 .submit(response -> handleResult(response, listener));
     }
 
-    public static void handleError(Cons<Seq<Tag>> listener, Throwable error) {
-        Log.err(error);
+    public static void handleError(Cons<Seq<Tag>> listener, Throwable error, String url) {
+        Log.err(url, error);
         listener.get(new Seq<>());
     }
 

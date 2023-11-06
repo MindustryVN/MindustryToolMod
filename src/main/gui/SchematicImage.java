@@ -7,6 +7,7 @@ import arc.graphics.Texture.TextureFilter;
 import arc.graphics.g2d.TextureRegion;
 import arc.struct.ObjectMap;
 import arc.util.Http;
+import arc.util.Log;
 import arc.util.Scaling;
 import arc.util.Http.HttpResponse;
 import main.config.Config;
@@ -38,8 +39,8 @@ public class SchematicImage extends BorderImage {
             schematicImageCache.put(schematicId, Core.atlas.find("nomap"));
             Http.get(Config.API_URL + String.format("schematic/%s/image", schematicId))//
                     .timeout(120000)//
+                    .error(error -> Log.err(error))
                     .submit(this::handleSchematicImageResult);
-
         }
 
         var currentImage = schematicImageCache.get(schematicId);

@@ -13,6 +13,7 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
 import arc.util.Http;
+import arc.util.Log;
 import arc.util.Strings;
 import main.config.Config;
 import main.data.SchematicData;
@@ -294,6 +295,7 @@ public class SchematicDialog extends BaseDialog {
     private void getSchematicData(SchematicData schematic, Consumer<String> consumer) {
         Core.app.post(() -> Http.get(Config.API_URL + String.format("schematic/%s/data", schematic.id))//
                 .timeout(120000)//
+                .error(error -> Log.err(error))
                 .submit(result -> consumer.accept(result.getResultAsString())));
     }
 
