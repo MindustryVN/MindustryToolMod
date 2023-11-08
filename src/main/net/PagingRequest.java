@@ -51,8 +51,8 @@ public class PagingRequest<T> {
                 builder.setParameter(entry.key, entry.value);
 
             URI uri = builder.build();
-
             listener.get(null);
+
             Http.get(uri.toString())
                     .timeout(1200000)
                     .error(error -> handleError(listener, error, uri.toString()))

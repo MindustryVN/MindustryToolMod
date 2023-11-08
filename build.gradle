@@ -31,7 +31,7 @@ allprojects{
 
 dependencies{
     implementation 'org.apache.httpcomponents:httpclient:4.5.2'
-
+ 
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
 

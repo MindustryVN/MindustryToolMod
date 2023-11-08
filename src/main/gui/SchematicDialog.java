@@ -75,8 +75,7 @@ public class SchematicDialog extends BaseDialog {
             setItemPerPage();
             SchematicBrowser();
         });
-
-        shown(() -> request.getPage(this::handleSchematicResult));
+        request.getPage(this::handleSchematicResult);
         shown(this::SchematicBrowser);
     }
 
@@ -164,7 +163,7 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<TextButton> Error(Table parent) {
-        var error = parent.button(String.format("There is an error, reload? (%s)", request.getError()), Styles.nonet,
+        Cell<TextButton> error = parent.button(String.format("There is an error, reload? (%s)", request.getError()), Styles.nonet,
                 () -> request.getPage(this::handleSchematicResult));
 
         return error.center()
@@ -188,7 +187,7 @@ public class SchematicDialog extends BaseDialog {
         return parent.pane(container -> {
             float sum = 0;
 
-            for (var schematic : schematics) {
+            for (SchematicData schematic : schematics) {
                 if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
@@ -246,20 +245,26 @@ public class SchematicDialog extends BaseDialog {
                     .margin(4)
                     .pad(4)
                     .width(100)
-                    .disabled(request.isLoading() || request.getPage() == 0);
+                    .disabled(request.isLoading() || request.getPage() == 0 || request.isError())
+                    .height(40);
 
-            footer.labelWrap(String.valueOf(request.getPage() + 1))
-                    .width(50)
-                    .style(Styles.outlineLabel)
-                    .labelAlign(0)
-                    .margin(4)
-                    .center();
+            footer.table(Tex.buttonDisabled, table -> {
+                table.labelWrap(String.valueOf(request.getPage() + 1))
+                        .width(50)
+                        .style(Styles.defaultLabel)
+                        .labelAlign(0)
+                        .center()
+                        .fill();
+            })
+                    .pad(4)
+                    .height(40);
 
             footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult))
                     .margin(4)
                     .pad(4)
                     .width(100)
-                    .disabled(request.isLoading() || request.hasMore() == false);
+                    .disabled(request.isLoading() || request.hasMore() == false || request.isError())
+                    .height(40);
 
             footer.bottom();
         }).expandX().fillX();
