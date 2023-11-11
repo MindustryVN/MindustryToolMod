@@ -30,7 +30,7 @@ public class Tag {
     }
 
     private static void getTag(TagName tag, Cons<Seq<Tag>> listener) {
-        Http.get(Config.API_URL + "tag/" + tag.value())
+        Http.get(Config.API_URL + "tags/" + tag.value())
                 .timeout(1200000)
                 .error(error -> handleError(listener, error, Config.API_URL + "tag/" + tag.value()))
                 .submit(response -> handleResult(response, listener));

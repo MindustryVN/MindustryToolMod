@@ -54,7 +54,7 @@ public class SchematicDialog extends BaseDialog {
     public SchematicDialog() {
         super("Schematic Browser");
 
-        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematic");
+        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematics");
 
         setItemPerPage();
 
@@ -300,7 +300,7 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private void getSchematicData(SchematicData schematic, Consumer<String> consumer) {
-        Core.app.post(() -> Http.get(Config.API_URL + String.format("schematic/%s/data", schematic.id))//
+        Core.app.post(() -> Http.get(Config.API_URL + String.format("schematics/%s/data", schematic.id))//
                 .timeout(120000)//
                 .error(error -> Log.err(error))
                 .submit(result -> consumer.accept(result.getResultAsString())));

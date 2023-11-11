@@ -37,7 +37,7 @@ public class SchematicImage extends BorderImage {
         var schematicImage = schematicImageCache.get(schematicId);
         if (schematicImage == null) {
             schematicImageCache.put(schematicId, Core.atlas.find("nomap"));
-            Http.get(Config.API_URL + String.format("schematic/%s/image", schematicId))//
+            Http.get(Config.API_URL + String.format("schematics/%s/image", schematicId))//
                     .timeout(120000)//
                     .error(error -> Log.err(error))
                     .submit(this::handleSchematicImageResult);
