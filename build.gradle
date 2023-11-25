@@ -2,12 +2,12 @@ apply plugin: "java"
 
 version '1.0'
 
-sourceSets.main.java.srcDirs = ["src"]
+sourceSets.main.java.srcDirs += ["src"]
 
 repositories{
     mavenCentral()
-    maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url 'https://www.jitpack.io' }
+    maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
 }
 
 java{
@@ -17,7 +17,7 @@ java{
 
 ext{
     //the build number that this mod is made for
-    mindustryVersion = 'v145'
+    mindustryVersion = 'v146'
     jabelVersion = "93fde537c7"
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
