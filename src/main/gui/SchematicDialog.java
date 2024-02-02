@@ -13,12 +13,11 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
-import arc.util.Http;
-import arc.util.Log;
 import arc.util.Strings;
 import main.config.Config;
 import main.data.SchematicData;
 import main.data.SearchConfig;
+import main.net.API;
 import main.net.PagingRequest;
 import mindustry.Vars;
 import mindustry.game.Schematic;
@@ -27,8 +26,6 @@ import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
-
-import java.util.function.Consumer;
 
 import static mindustry.Vars.*;
 
@@ -163,7 +160,8 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<TextButton> Error(Table parent) {
-        Cell<TextButton> error = parent.button(String.format("There is an error, reload? (%s)", request.getError()), Styles.nonet,
+        Cell<TextButton> error = parent.button(String.format("There is an error, reload? (%s)", request.getError()),
+                Styles.nonet,
                 () -> request.getPage(this::handleSchematicResult));
 
         return error.center()
@@ -299,22 +297,15 @@ public class SchematicDialog extends BaseDialog {
         SchematicBrowser();
     }
 
-    private void getSchematicData(SchematicData schematic, Consumer<String> consumer) {
-        Core.app.post(() -> Http.get(Config.API_URL + String.format("schematics/%s/data", schematic.id))//
-                .timeout(120000)//
-                .error(error -> Log.err(error))
-                .submit(result -> consumer.accept(result.getResultAsString())));
-    }
-
     private void handleCopySchematic(SchematicData schematic) {
-        getSchematicData(schematic, result -> {
+        API.getSchematicData(schematic.id, result -> {
             Core.app.setClipboardText(result);
             ui.showInfoFade("@copied");
         });
     }
 
     private void handleDownloadSchematic(SchematicData schematic) {
-        getSchematicData(schematic, result -> {
+        API.getSchematicData(schematic.id, result -> {
             Schematic s = Schematics.readBase64(result);
             s.removeSteamID();
             Vars.schematics.add(s);

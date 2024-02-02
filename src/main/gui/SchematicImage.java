@@ -1,63 +1,102 @@
 package main.gui;
 
 import arc.Core;
-import arc.graphics.Pixmap;
+import arc.graphics.Color;
 import arc.graphics.Texture;
-import arc.graphics.Texture.TextureFilter;
+import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.Lines;
 import arc.graphics.g2d.TextureRegion;
-import arc.struct.ObjectMap;
-import arc.util.Http;
-import arc.util.Log;
+import arc.scene.style.TextureRegionDrawable;
+import arc.scene.ui.Button;
+import arc.scene.ui.Image;
+import arc.scene.ui.layout.Scl;
 import arc.util.Scaling;
-import arc.util.Http.HttpResponse;
-import main.config.Config;
+import main.net.API;
+import mindustry.game.Schematic;
+import mindustry.game.Schematics;
+import mindustry.gen.Icon;
 import mindustry.gen.Tex;
-import mindustry.ui.BorderImage;
+import mindustry.graphics.Pal;
 
-public class SchematicImage extends BorderImage {
+import static mindustry.Vars.*;
+
+public class SchematicImage extends Image {
+
+    boolean set;
 
     public float scaling = 16f;
 
+    public float thickness = 4f;
+    public Color borderColor = Pal.gray;
+
+    private Schematic schematic;
+    private Texture lastTexture;
+
     public final String schematicId;
 
-    private static ObjectMap<String, TextureRegion> schematicImageCache = new ObjectMap<>();
-    private TextureRegion lastImage;
-
     public SchematicImage(String schematicId) {
+        super(Tex.clear);
         this.schematicId = schematicId;
 
         setScaling(Scaling.fit);
         setDrawable(Tex.nomap);
+
+        API.getSchematicData(schematicId, (data) -> {
+            schematic = Schematics.readBase64(data);
+
+            if (schematics.hasPreview(schematic)) {
+                setPreview();
+                set = true;
+            }
+        });
+
     }
 
     @Override
     public void draw() {
-        super.draw();
-
-        var schematicImage = schematicImageCache.get(schematicId);
-        if (schematicImage == null) {
-            schematicImageCache.put(schematicId, Core.atlas.find("nomap"));
-            Http.get(Config.API_URL + String.format("schematics/%s/image", schematicId))//
-                    .timeout(120000)//
-                    .error(error -> Log.err(error))
-                    .submit(this::handleSchematicImageResult);
+        if (schematic == null) {
+            setDrawable(Core.atlas.find("nomap"));
+            return;
         }
 
-        var currentImage = schematicImageCache.get(schematicId);
-        if (lastImage != currentImage) {
-            lastImage = currentImage;
-            setDrawable(currentImage);
+        boolean checked = parent.parent instanceof Button
+                && ((Button) parent.parent).isOver();
+
+        boolean wasSet = set;
+        if (!set) {
+            Core.app.post(this::setPreview);
+            set = true;
+        } else if (lastTexture != null && lastTexture.isDisposed()) {
+            set = wasSet = false;
         }
+
+        Texture background = Core.assets.get("sprites/schematic-background.png", Texture.class);
+        TextureRegion region = Draw.wrap(background);
+        float xr = width / scaling;
+        float yr = height / scaling;
+        region.setU2(xr);
+        region.setV2(yr);
+        Draw.color();
+        Draw.alpha(parentAlpha);
+        Draw.rect(region, x + width / 2f, y + height / 2f, width, height);
+
+        if (wasSet) {
+            super.draw();
+        } else {
+            Draw.rect(Icon.refresh.getRegion(), x + width / 2f, y + height / 2f, width / 4f, height / 4f);
+        }
+
+        Draw.color(checked ? Pal.accent : borderColor);
+        Draw.alpha(parentAlpha);
+        Lines.stroke(Scl.scl(thickness));
+        Lines.rect(x, y, width, height);
+        Draw.reset();
     }
 
-    private void handleSchematicImageResult(HttpResponse imageResult) {
-        Pixmap pix = new Pixmap(imageResult.getResult());
-        Core.app.post(() -> {
-            var texture = new Texture(pix);
-            texture.setFilter(TextureFilter.linear);
-            schematicImageCache.put(schematicId, new TextureRegion(texture));
-            pix.dispose();
-        });
-
+    private void setPreview() {
+        TextureRegionDrawable draw = new TextureRegionDrawable(
+                new TextureRegion(lastTexture = schematics.getPreview(schematic)));
+        setDrawable(draw);
+        setScaling(Scaling.fit);
     }
 }
