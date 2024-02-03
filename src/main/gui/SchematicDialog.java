@@ -20,8 +20,6 @@ import main.data.SearchConfig;
 import main.net.API;
 import main.net.PagingRequest;
 import mindustry.Vars;
-import mindustry.game.Schematic;
-import mindustry.game.Schematics;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.ui.Styles;
@@ -34,7 +32,7 @@ public class SchematicDialog extends BaseDialog {
     private final SchematicInfoDialog infoDialog = new SchematicInfoDialog();
     private final SchematicFilterDialog filterDialog = new SchematicFilterDialog();
 
-    private Seq<SchematicData> schematics = new Seq<>();
+    private Seq<SchematicData> schematicsData = new Seq<>();
 
     private final float IMAGE_SIZE = 196;
     private final float INFO_TABLE_HEIGHT = 60;
@@ -179,13 +177,13 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<ScrollPane> SchematicScrollContainer(Table parent) {
-        if (schematics.size == 0)
+        if (schematicsData.size == 0)
             return parent.pane(container -> container.add("No result"));
 
         return parent.pane(container -> {
             float sum = 0;
 
-            for (SchematicData schematic : schematics) {
+            for (SchematicData schematic : schematicsData) {
                 if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
@@ -290,23 +288,22 @@ public class SchematicDialog extends BaseDialog {
 
     private void handleSchematicResult(Seq<SchematicData> schematics) {
         if (schematics != null)
-            this.schematics = schematics;
+            this.schematicsData = schematics;
         else
-            this.schematics.clear();
+            this.schematicsData.clear();
 
         SchematicBrowser();
     }
 
     private void handleCopySchematic(SchematicData schematic) {
-        API.getSchematicData(schematic.id, result -> {
-            Core.app.setClipboardText(result);
+        API.getSchematicData(schematic.id, s -> {
+            Core.app.setClipboardText(schematics.writeBase64(s));
             ui.showInfoFade("@copied");
         });
     }
 
     private void handleDownloadSchematic(SchematicData schematic) {
-        API.getSchematicData(schematic.id, result -> {
-            Schematic s = Schematics.readBase64(result);
+        API.getSchematicData(schematic.id, s -> {
             s.removeSteamID();
             Vars.schematics.add(s);
             Vars.ui.schematics.hide();
