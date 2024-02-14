@@ -1,4 +1,4 @@
-package main.data;
+package mindytool.data;
 
 public enum TagName {
     schematic("schematic-search-tag"),

@@ -1,4 +1,6 @@
-package main.data;
+package mindytool.data;
+
+import mindytool.config.Config;
 
 import arc.Core;
 import arc.func.Cons;
@@ -6,7 +8,6 @@ import arc.struct.Seq;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.Http.HttpResponse;
-import main.config.Config;
 import mindustry.io.JsonIO;
 
 public class Tag {

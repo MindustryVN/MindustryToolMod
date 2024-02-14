@@ -1,12 +1,12 @@
-package main.gui;
+package mindytool.gui;
+
+import mindytool.config.Config;
+import mindytool.data.SearchConfig;
+import mindytool.data.Tag;
 
 import arc.Core;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextButton.TextButtonStyle;
-import arc.util.Strings;
-import main.config.Config;
-import main.data.SearchConfig;
-import main.data.Tag;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
@@ -27,13 +27,15 @@ public class SchematicFilterDialog extends BaseDialog {
         cont.clear();
         cont.pane(table -> {
             table.defaults().minSize(200, 50);
-            table.table(Styles.black, text -> text.add(Strings.capitalize("Sort")).left());
+            table.table(Styles.black, text -> text.add(Core.bundle.format("messages.sort")).left());
 
             var buttonGroup = new ButtonGroup<>();
             table.pane(valueTable -> {
                 valueTable.defaults().size(200, 50);
                 for (var sort : Config.sorts) {
-                    valueTable.button(Strings.capitalize(sort.getName()), style, () -> searchConfig.setSort(sort))///
+                    valueTable
+                            .button(Core.bundle.format("tags.values." + sort.getName()), style,
+                                    () -> searchConfig.setSort(sort))///
                             .group(buttonGroup)
                             .checked(sort.equals(searchConfig.getSort()));
                 }
@@ -46,13 +48,14 @@ public class SchematicFilterDialog extends BaseDialog {
 
             Tag.schematic(schematicTags -> {
                 for (var tag : schematicTags) {
-                    table.table(Styles.black, text -> text.add(Strings.capitalize(tag.name))).top();
+                    table.table(Styles.black, text -> text.add(Core.bundle.format("tags.categories." + tag.name)))
+                            .top();
                     table.pane(valueTable -> {
                         valueTable.defaults().size(200, 50);
                         for (int i = 0; i < tag.value.length; i++) {
                             var value = tag.value[i];
                             valueTable
-                                    .button(Strings.capitalize(value), style,
+                                    .button(Core.bundle.format("tags.values." + value), style,
                                             () -> searchConfig.setTag(tag.name + "_" + value))
                                     .checked(searchConfig.containTag(tag.name + "_" + value));
 

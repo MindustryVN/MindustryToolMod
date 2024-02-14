@@ -1,11 +1,11 @@
-package main.net;
+package mindytool.config;
 
 import arc.struct.ObjectMap;
 import arc.util.serialization.Base64Coder;
 import mindustry.game.Schematic;
 import mindustry.game.Schematics;
 
-public class API {
+public class Utils {
 
     public static ObjectMap<String, Schematic> schematicData = new ObjectMap<>();
 

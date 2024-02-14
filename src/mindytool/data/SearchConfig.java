@@ -1,9 +1,8 @@
-package main.data;
+package mindytool.data;
 
+import mindytool.config.Config;
 import java.util.ArrayList;
 import java.util.List;
-
-import main.config.Config;
 
 public class SearchConfig {
     private List<String> selectedTags = new ArrayList<>();

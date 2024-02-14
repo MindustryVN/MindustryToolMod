@@ -1,4 +1,4 @@
-package main.data;
+package mindytool.data;
 
 public class Sort {
     private final String name;

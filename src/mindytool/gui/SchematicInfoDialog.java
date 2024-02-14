@@ -1,7 +1,9 @@
-package main.gui;
+package mindytool.gui;
 
 import static mindustry.Vars.state;
 
+import mindytool.data.ItemRequirement;
+import mindytool.data.SchematicData;
 import java.security.InvalidParameterException;
 
 import arc.Core;
@@ -9,10 +11,8 @@ import arc.graphics.Color;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Align;
-import main.data.ItemRequirement;
-import main.data.SchematicData;
-import main.net.API;
 import mindustry.Vars;
+import mindustry.game.Schematic;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
@@ -31,21 +31,19 @@ public class SchematicInfoDialog extends BaseDialog {
         addCloseListener();
     }
 
-    public void show(SchematicData schematic) {
+    public void show(Schematic schematic, SchematicData data) {
         if (schematic == null) {
             throw new InvalidParameterException("Schematic can not be null");
         }
         cont.clear();
 
-        title.setText("[[" + Core.bundle.get("schematic") + "] " + schematic.name);
-        cont.add(Core.bundle.format("schematic.info", schematic.width, schematic.height,
-                schematic.width * schematic.height))
+        title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name);
+        cont.add(Core.bundle.format("message.like", data.like))
                 .color(Color.lightGray).row();
+        cont.add(new SchematicImage(schematic)).maxSize(800).row();
+        cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
 
-        cont.add(new SchematicImage(API.readSchematic(schematic.data))).maxSize(800).row();
-        cont.table(tags -> buildTags(schematic, tags, false)).fillX().left().row();
-
-        ItemSeq arr = toItemSeq(schematic.requirement);
+        ItemSeq arr = toItemSeq(data.requirement);
         cont.table(r -> {
             int i = 0;
             for (ItemStack s : arr) {

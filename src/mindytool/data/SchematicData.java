@@ -1,4 +1,4 @@
-package main.data;
+package mindytool.data;
 
 public class SchematicData {
     public String id;

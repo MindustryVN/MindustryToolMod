@@ -1,4 +1,4 @@
-package main.net;
+package mindytool.net;
 
 import java.net.URI;
 

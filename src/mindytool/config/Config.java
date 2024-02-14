@@ -1,9 +1,8 @@
-package main.config;
+package mindytool.config;
 
+import mindytool.data.Sort;
 import java.util.Arrays;
 import java.util.List;
-
-import main.data.Sort;
 
 public class Config {
 
@@ -17,8 +16,10 @@ public class Config {
     public static final String API_URL = DEV ? DEV_URL : PROD_URL;
     public static final String IMAGE_URL = "https://res.cloudinary.com/dyx7yui8u/image/upload/v1703328847/";
 
+    public static final String REPO_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/releases/latest";
+
     public static final List<Sort> sorts = Arrays.asList(//
             new Sort("newest", "time_1"), //
             new Sort("oldest", "time_-1"),
-            new Sort("most liked", "like_1"));
+            new Sort("most-like", "like_1"));
 }

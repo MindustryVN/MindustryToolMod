@@ -1,4 +1,4 @@
-package main.gui;
+package mindytool.gui;
 
 import arc.Core;
 import arc.graphics.Color;
@@ -15,11 +15,6 @@ import arc.struct.Seq;
 import arc.util.Align;
 import arc.util.Log;
 import arc.util.Strings;
-import main.config.Config;
-import main.data.SchematicData;
-import main.data.SearchConfig;
-import main.net.API;
-import main.net.PagingRequest;
 import mindustry.Vars;
 import mindustry.game.Schematic;
 import mindustry.gen.Icon;
@@ -28,6 +23,12 @@ import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 
 import static mindustry.Vars.*;
+
+import mindytool.config.Config;
+import mindytool.config.Utils;
+import mindytool.data.SchematicData;
+import mindytool.data.SearchConfig;
+import mindytool.net.PagingRequest;
 
 public class SchematicDialog extends BaseDialog {
 
@@ -99,7 +100,7 @@ public class SchematicDialog extends BaseDialog {
             clear();
             addCloseButton();
             table(container -> Error(container,
-                    "Please contact mod creator for fix if this keep happening to you:\n Error: " + ex.getMessage()));
+                    Core.bundle.format("messages.error") + "\n Error: " + ex.getMessage()));
             Log.err(ex);
         }
     }
@@ -180,7 +181,7 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<Label> Loading(Table parent) {
-        return parent.labelWrap("Loading")
+        return parent.labelWrap(Core.bundle.format("messages.loading"))
                 .center()
                 .labelAlign(0)
                 .expand()
@@ -189,16 +190,19 @@ public class SchematicDialog extends BaseDialog {
 
     private Cell<ScrollPane> SchematicScrollContainer(Table parent) {
         if (schematicsData.size == 0)
-            return parent.pane(container -> container.add("No result"));
+            return parent.pane(container -> container.add("message.no-result"));
 
         return parent.pane(container -> {
             float sum = 0;
 
-            for (SchematicData schematic : schematicsData) {
+            for (SchematicData schematicData : schematicsData) {
                 if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
                 }
+
+                var schematic = Utils.readSchematic(schematicData.data);
+
                 Button[] button = { null };
                 button[0] = container.button(schematicPreview -> {
                     schematicPreview.top();
@@ -206,21 +210,27 @@ public class SchematicDialog extends BaseDialog {
                     schematicPreview.table(buttons -> {
                         buttons.center();
                         buttons.defaults().size(50f);
-                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematic))
+                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(
+                                schematicData))
                                 .padLeft(2)
                                 .padRight(2);
-                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematic))
+                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(
+                                schematicData))
                                 .padLeft(2)
                                 .padRight(2);
+
+                        buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematic, schematicData))
+                                .tooltip("@info.title");
 
                     }).growX().height(50f);
 
                     schematicPreview.row();
                     schematicPreview
-                            .stack(new SchematicImage(API.readSchematic(schematic.data)), new Table(schematicName -> {
+                            .stack(new SchematicImage(schematic), new Table(schematicName -> {
                                 schematicName.top();
                                 schematicName.table(Styles.black3, c -> {
-                                    Label label = c.add(schematic.name).style(Styles.outlineLabel).color(Color.white)
+                                    Label label = c.add(
+                                            schematicData.name).style(Styles.outlineLabel).color(Color.white)
                                             .top()
                                             .growX()
                                             .width(200f - 8f).get();
@@ -231,7 +241,17 @@ public class SchematicDialog extends BaseDialog {
                 }, () -> {
                     if (button[0].childrenPressed())
                         return;
-                    infoDialog.show(schematic);
+
+                    if (state.isMenu()) {
+                        infoDialog.show(schematic, schematicData);
+                    } else {
+                        if (!state.rules.schematicsAllowed) {
+                            ui.showInfo("@schematic.disabled");
+                        } else {
+                            control.input.useSchematic(schematic);
+                            hide();
+                        }
+                    }
 
                 }).pad(4).style(Styles.flati).get();
 
@@ -309,17 +329,15 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private void handleCopySchematic(SchematicData schematic) {
-        Schematic s = API.readSchematic(schematic.data);
+        Schematic s = Utils.readSchematic(schematic.data);
         Core.app.setClipboardText(schematics.writeBase64(s));
         ui.showInfoFade("@copied");
     }
 
     private void handleDownloadSchematic(SchematicData schematic) {
-        Schematic s = API.readSchematic(schematic.data);
+        Schematic s = Utils.readSchematic(schematic.data);
         s.removeSteamID();
         Vars.schematics.add(s);
-        Vars.ui.schematics.hide();
-        Vars.ui.schematics.show();
         ui.showInfoFade("@schematic.saved");
     }
 }

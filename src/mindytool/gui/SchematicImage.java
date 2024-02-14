@@ -1,4 +1,4 @@
-package main.gui;
+package mindytool.gui;
 
 import arc.Core;
 import arc.graphics.Color;
