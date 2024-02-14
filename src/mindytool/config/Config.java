@@ -6,7 +6,7 @@ import java.util.List;
 
 public class Config {
 
-    private static final String DEV_URL = "http://localhost:8080/api/v3/";
+    private static final String DEV_URL = "https://api.mindustry-tool.app/api/v3/";
     // private static final String DEV_URL = "http://localhost:8080/api/v3/";
     private static final String PROD_URL = "https://api.mindustry-tool.app/api/v3/";
     // private static final String PROD_URL =
