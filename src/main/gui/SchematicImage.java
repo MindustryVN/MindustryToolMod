@@ -10,9 +10,7 @@ import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.Button;
 import arc.scene.ui.Image;
 import arc.scene.ui.layout.Scl;
-import arc.util.Log;
 import arc.util.Scaling;
-import main.net.API;
 import mindustry.game.Schematic;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
@@ -21,44 +19,23 @@ import mindustry.graphics.Pal;
 import static mindustry.Vars.*;
 
 public class SchematicImage extends Image {
-
-    boolean set;
-
     public float scaling = 16f;
-
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
 
+    private Schematic schematic;
     private Texture lastTexture;
-    private boolean isLoading = false;
+    boolean set;
 
-    public final String schematicId;
-
-    public SchematicImage(String schematicId) {
+    public SchematicImage(Schematic s) {
         super(Tex.clear);
-        this.schematicId = schematicId;
-
         setScaling(Scaling.fit);
-        setDrawable(Tex.nomap);
-        init();
-    }
+        schematic = s;
 
-    public synchronized void init() {
-        if (isLoading) {
-            return;
+        if (schematics.hasPreview(s)) {
+            setPreview();
+            set = true;
         }
-
-        isLoading = true;
-        API.getSchematicData(schematicId, (schematic) -> {
-            try {
-                isLoading = false;
-                set = true;
-                Core.app.post(() -> setPreview(schematic));
-            } catch (Exception e) {
-                Log.err(e);
-                Log.err(schematic.toString());
-            }
-        });
     }
 
     @Override
@@ -68,7 +45,8 @@ public class SchematicImage extends Image {
 
         boolean wasSet = set;
         if (!set) {
-            Core.app.post(this::init);
+            Core.app.post(this::setPreview);
+            set = true;
         } else if (lastTexture != null && lastTexture.isDisposed()) {
             set = wasSet = false;
         }
@@ -85,9 +63,7 @@ public class SchematicImage extends Image {
 
         if (wasSet) {
             super.draw();
-        }
-
-        if (isLoading) {
+        } else {
             Draw.rect(Icon.refresh.getRegion(), x + width / 2f, y + height / 2f, width / 4f, height / 4f);
         }
 
@@ -98,12 +74,10 @@ public class SchematicImage extends Image {
         Draw.reset();
     }
 
-    private synchronized void setPreview(Schematic schematic) {
-        if (schematic != null) {
-            TextureRegionDrawable draw = new TextureRegionDrawable(
-                    new TextureRegion(lastTexture = schematics.getPreview(schematic)));
-            setDrawable(draw);
-            setScaling(Scaling.fit);
-        }
+    private void setPreview() {
+        TextureRegionDrawable draw = new TextureRegionDrawable(
+                new TextureRegion(lastTexture = schematics.getPreview(schematic)));
+        setDrawable(draw);
+        setScaling(Scaling.fit);
     }
 }

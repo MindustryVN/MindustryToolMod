@@ -12,5 +12,5 @@ public class SchematicData {
     public String[] tags;
     public ItemRequirement[] requirement;
     public String verifyAdmin;
-    public String time;
+    public String createdAt;
 }

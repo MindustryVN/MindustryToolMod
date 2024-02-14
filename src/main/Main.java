@@ -8,11 +8,16 @@ import mindustry.gen.Icon;
 import mindustry.mod.*;
 
 public class Main extends Mod {
+    SchematicDialog schematicDialog;
 
     public Main() {
         Events.on(ClientLoadEvent.class, e -> {
-            SchematicDialog schematicDialog = new SchematicDialog();
-            Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> schematicDialog.show());
+            Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
+                if (schematicDialog == null) {
+                    schematicDialog = new SchematicDialog();
+                }
+                schematicDialog.show();
+            });
         });
     }
 }

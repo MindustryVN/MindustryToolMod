@@ -13,6 +13,7 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
+import arc.util.Log;
 import arc.util.Strings;
 import main.config.Config;
 import main.data.SchematicData;
@@ -20,6 +21,7 @@ import main.data.SearchConfig;
 import main.net.API;
 import main.net.PagingRequest;
 import mindustry.Vars;
+import mindustry.game.Schematic;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.ui.Styles;
@@ -49,7 +51,7 @@ public class SchematicDialog extends BaseDialog {
     public SchematicDialog() {
         super("Schematic Browser");
 
-        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematics");
+        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematics/mod");
 
         setItemPerPage();
 
@@ -84,13 +86,22 @@ public class SchematicDialog extends BaseDialog {
 
     private void SchematicBrowser() {
         clear();
-        addCloseButton();
-        row();
-        SearchBar();
-        row();
-        SchematicContainer();
-        row();
-        Footer();
+
+        try {
+            addCloseButton();
+            row();
+            SearchBar();
+            row();
+            SchematicContainer();
+            row();
+            Footer();
+        } catch (Exception ex) {
+            clear();
+            addCloseButton();
+            table(container -> Error(container,
+                    "Please contact mod creator for fix if this keep happening to you:\n Error: " + ex.getMessage()));
+            Log.err(ex);
+        }
     }
 
     public void loadingWrapper(Runnable action) {
@@ -157,8 +168,8 @@ public class SchematicDialog extends BaseDialog {
         }).scrollY(false);
     }
 
-    private Cell<TextButton> Error(Table parent) {
-        Cell<TextButton> error = parent.button(String.format("There is an error, reload? (%s)", request.getError()),
+    private Cell<TextButton> Error(Table parent, String message) {
+        Cell<TextButton> error = parent.button(message,
                 Styles.nonet,
                 () -> request.getPage(this::handleSchematicResult));
 
@@ -205,16 +216,18 @@ public class SchematicDialog extends BaseDialog {
                     }).growX().height(50f);
 
                     schematicPreview.row();
-                    schematicPreview.stack(new SchematicImage(schematic.id), new Table(schematicName -> {
-                        schematicName.top();
-                        schematicName.table(Styles.black3, c -> {
-                            Label label = c.add(schematic.name).style(Styles.outlineLabel).color(Color.white).top()
-                                    .growX()
-                                    .width(200f - 8f).get();
-                            label.setEllipsis(true);
-                            label.setAlignment(Align.center);
-                        }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
-                    })).size(200f);
+                    schematicPreview
+                            .stack(new SchematicImage(API.readSchematic(schematic.data)), new Table(schematicName -> {
+                                schematicName.top();
+                                schematicName.table(Styles.black3, c -> {
+                                    Label label = c.add(schematic.name).style(Styles.outlineLabel).color(Color.white)
+                                            .top()
+                                            .growX()
+                                            .width(200f - 8f).get();
+                                    label.setEllipsis(true);
+                                    label.setAlignment(Align.center);
+                                }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
+                            })).size(200f);
                 }, () -> {
                     if (button[0].childrenPressed())
                         return;
@@ -274,7 +287,7 @@ public class SchematicDialog extends BaseDialog {
             }
 
             if (request.isError()) {
-                Error(container);
+                Error(container, String.format("There is an error, reload? (%s)", request.getError()));
                 return;
             }
 
@@ -296,19 +309,17 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private void handleCopySchematic(SchematicData schematic) {
-        API.getSchematicData(schematic.id, s -> {
-            Core.app.setClipboardText(schematics.writeBase64(s));
-            ui.showInfoFade("@copied");
-        });
+        Schematic s = API.readSchematic(schematic.data);
+        Core.app.setClipboardText(schematics.writeBase64(s));
+        ui.showInfoFade("@copied");
     }
 
     private void handleDownloadSchematic(SchematicData schematic) {
-        API.getSchematicData(schematic.id, s -> {
-            s.removeSteamID();
-            Vars.schematics.add(s);
-            Vars.ui.schematics.hide();
-            Vars.ui.schematics.show();
-            ui.showInfoFade("@schematic.saved");
-        });
+        Schematic s = API.readSchematic(schematic.data);
+        s.removeSteamID();
+        Vars.schematics.add(s);
+        Vars.ui.schematics.hide();
+        Vars.ui.schematics.show();
+        ui.showInfoFade("@schematic.saved");
     }
 }

@@ -45,7 +45,7 @@ public class PagingRequest<T> {
         try {
             URIBuilder builder = new URIBuilder(url)
                     .setParameter("page", String.valueOf(page))
-                    .setParameter("items", String.valueOf(itemPerPage));
+                    .setParameter("items", String.valueOf(Math.min(itemPerPage, 100)));
 
             for (Entry<String, String> entry : options.entries())
                 builder.setParameter(entry.key, entry.value);

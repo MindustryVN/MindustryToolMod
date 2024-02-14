@@ -2,6 +2,8 @@ package main.gui;
 
 import static mindustry.Vars.state;
 
+import java.security.InvalidParameterException;
+
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.ui.layout.Table;
@@ -9,6 +11,7 @@ import arc.struct.Seq;
 import arc.util.Align;
 import main.data.ItemRequirement;
 import main.data.SchematicData;
+import main.net.API;
 import mindustry.Vars;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
@@ -29,6 +32,9 @@ public class SchematicInfoDialog extends BaseDialog {
     }
 
     public void show(SchematicData schematic) {
+        if (schematic == null) {
+            throw new InvalidParameterException("Schematic can not be null");
+        }
         cont.clear();
 
         title.setText("[[" + Core.bundle.get("schematic") + "] " + schematic.name);
@@ -36,7 +42,7 @@ public class SchematicInfoDialog extends BaseDialog {
                 schematic.width * schematic.height))
                 .color(Color.lightGray).row();
 
-        cont.add(new SchematicImage(schematic.id)).maxSize(800).row();
+        cont.add(new SchematicImage(API.readSchematic(schematic.data))).maxSize(800).row();
         cont.table(tags -> buildTags(schematic, tags, false)).fillX().left().row();
 
         ItemSeq arr = toItemSeq(schematic.requirement);
@@ -75,12 +81,17 @@ public class SchematicInfoDialog extends BaseDialog {
         container.clearChildren();
         container.left();
 
+        if (schematic.tags == null) {
+            return;
+        }
+
         if (hasName)
             container.add("@schematic.tags").padRight(4);
 
         container.pane(scrollPane -> {
             scrollPane.left();
             scrollPane.defaults().pad(3).height(42);
+
             for (var tag : schematic.tags)
                 scrollPane.table(Tex.button, i -> i.add(tag).padRight(4).height(42).labelAlign(Align.center));
 
@@ -89,6 +100,10 @@ public class SchematicInfoDialog extends BaseDialog {
 
     public ItemSeq toItemSeq(ItemRequirement[] requirement) {
         Seq<ItemStack> seq = new Seq<>();
+
+        if (requirement == null) {
+            return new ItemSeq(seq);
+        }
 
         for (var req : requirement) {
             seq.add(new ItemStack(
