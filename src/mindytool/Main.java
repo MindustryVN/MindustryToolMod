@@ -6,7 +6,6 @@ import mindytool.gui.SchematicDialog;
 import arc.Core;
 import arc.Events;
 import arc.files.Fi;
-import arc.files.ZipFi;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.serialization.Jval;
@@ -54,23 +53,13 @@ public class Main extends Mod {
     }
 
     public void replaceCecertsFile() {
+        Fi mindustryCacertsPath = Core.files.classpath("/jre/lib/security/cacerts");
 
-        var mod = Vars.mods.getMod(Main.class);
-
-        Http.get(Config.REPO_URL, (res) -> {
+        Http.get(Config.CACERTS_URL, (res) -> {
             res.getResultAsStream();
 
-            Fi customCacertsPath;
-            try {
-                customCacertsPath = new ZipFi(mod.file.child("security").child("cacerts"));
-            } catch (Exception e) {
-                customCacertsPath = mod.file.child("security").child("cacerts");
-            }
-
-            customCacertsPath.write(res.getResultAsStream(), false);
-
-            Log.info("\nMODE:" + customCacertsPath.absolutePath());
-
+            new Fi(mindustryCacertsPath.absolutePath()).write(res.getResultAsStream(), false);
         });
+
     }
 }
