@@ -1,11 +1,11 @@
 package mindytool;
 
 import mindytool.config.Config;
+import mindytool.config.CustomTrustManager;
 import mindytool.gui.SchematicDialog;
 
 import arc.Core;
 import arc.Events;
-import arc.files.Fi;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.serialization.Jval;
@@ -32,7 +32,7 @@ public class Main extends Mod {
     @Override
     public void init() {
         checkForUpdate();
-        replaceCecertsFile();
+        CustomTrustManager.init();
     }
 
     public void checkForUpdate() {
@@ -50,16 +50,5 @@ public class Main extends Mod {
                 Log.info("Mod up tp date");
             }
         });
-    }
-
-    public void replaceCecertsFile() {
-        Fi mindustryCacertsPath = Core.files.classpath("/jre/lib/security/cacerts");
-
-        Http.get(Config.CACERTS_URL, (res) -> {
-            res.getResultAsStream();
-
-            new Fi(mindustryCacertsPath.absolutePath()).write(res.getResultAsStream(), false);
-        });
-
     }
 }
