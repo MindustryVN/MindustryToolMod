@@ -14,6 +14,8 @@ import javax.net.ssl.TrustManagerFactory;
 import arc.func.*;
 import arc.struct.*;
 import arc.util.io.*;
+import arc.util.serialization.Base64Coder;
+import arc.util.serialization.Jval;
 
 import java.io.*;
 import java.net.*;
@@ -28,41 +30,35 @@ import arc.util.Threads;
 
 public class Https {
 
-    private static SSLSocketFactory sslSocketFactory;
+    private static SSLSocketFactory defaultSslSocketFactory;
     private static X509Certificate cert;
-
-    {
-        Http.get(Config.CACERTS_URL).block((res) -> {
-            cert = (X509Certificate) CertificateFactory.getInstance("X509")
-                    .generateCertificate(res.getResultAsStream());
-
-            KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
-            trustStore.setCertificateEntry("mindustry-tool", cert);
-
-            sslSocketFactory = createSslSocketFactory(trustStore);
-        });
-    }
 
     /** Utility class for making HTTP requests. */
     protected static ExecutorService exec = Threads.unboundedExecutor("HTTPS", 1);
 
     private static void getCert(ConsT<SSLSocketFactory, Exception> success) throws Exception {
         if (cert == null) {
-            Http.get(Config.CACERTS_URL).block((res) -> {
+            Http.get(Config.CACERT_URL).block((res) -> {
+                Jval json = Jval.read(res.getResultAsString());
+                String content = json.getString("content").replace("\n", "");
+                byte[] bytes = Base64Coder.decode(content);
+                InputStream in = new ByteArrayInputStream(bytes);
+
                 cert = (X509Certificate) CertificateFactory.getInstance("X509")
-                        .generateCertificate(res.getResultAsStream());
+                        .generateCertificate(in);
 
                 KeyStore trustStore = KeyStore.getInstance(KeyStore.getDefaultType());
+                trustStore.load(null, null);
+
                 trustStore.setCertificateEntry("mindustry-tool", cert);
 
-                sslSocketFactory = createSslSocketFactory(trustStore);
+                defaultSslSocketFactory = createSslSocketFactory(trustStore);
 
-                success.get(sslSocketFactory);
+                success.get(defaultSslSocketFactory);
             });
         } else {
-            success.get(sslSocketFactory);
+            success.get(defaultSslSocketFactory);
         }
-
     }
 
     private static SSLSocketFactory createSslSocketFactory(KeyStore trustStore) throws GeneralSecurityException {
@@ -344,82 +340,91 @@ public class Https {
 
         /** Blocks until this request is done. */
         public void block(ConsT<HttpsResponse, Exception> success) {
-            if (url == null) {
-                errorHandler.get(new ArcRuntimeException("can't process a HTTP request without URL set"));
-                return;
-            }
-
             try {
-                URL url;
+                getCert(sslSocketFactory -> {
 
-                if (method == HttpMethod.GET) {
-                    String queryString = "";
-                    String value = content;
-                    if (value != null && !"".equals(value))
-                        queryString = "?" + value;
-                    url = new URL(this.url + queryString);
-                } else {
-                    url = new URL(this.url);
-                }
-
-                HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
-
-                boolean doingOutPut = method == HttpMethod.POST || method == HttpMethod.PUT;
-                connection.setDoOutput(doingOutPut);
-                connection.setDoInput(true);
-                connection.setRequestMethod(method.toString());
-                connection.setSSLSocketFactory(sslSocketFactory);
-                HttpURLConnection.setFollowRedirects(followRedirects);
-
-                headers.each(connection::addRequestProperty);
-
-                connection.setConnectTimeout(timeout);
-                connection.setReadTimeout(timeout);
-
-                try {
-
-                    if (doingOutPut) {
-
-                        if (content != null) {
-                            try (OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream(),
-                                    Strings.utf8)) {
-                                writer.write(content);
-                            }
-                        } else {
-                            if (contentStream != null) {
-                                try (OutputStream os = connection.getOutputStream()) {
-                                    Streams.copy(contentStream, os);
-                                }
-                            }
-                        }
+                    if (url == null) {
+                        errorHandler.get(new ArcRuntimeException("can't process a HTTP request without URL set"));
+                        return;
                     }
-
-                    connection.connect();
 
                     try {
-                        int code = connection.getResponseCode();
+                        URL url;
 
-                        if (code >= 400) {
-                            HttpStatus status = HttpStatus.byCode(code);
-                            errorHandler.get(new HttpStatusException(
-                                    "HTTP request failed with error: " + code + " (" + status + ", URL = " + url + ")",
-                                    status, new HttpsResponse(connection)));
+                        if (method == HttpMethod.GET) {
+                            String queryString = "";
+                            String value = content;
+                            if (value != null && !"".equals(value))
+                                queryString = "?" + value;
+                            url = new URL(this.url + queryString);
                         } else {
-                            success.get(new HttpsResponse(connection));
+                            url = new URL(this.url);
                         }
 
-                    } finally {
-                        connection.disconnect();
-                    }
+                        HttpsURLConnection connection = (HttpsURLConnection) url.openConnection();
 
-                } catch (Throwable e) {
-                    connection.disconnect();
-                    errorHandler.get(e);
-                }
-            } catch (Throwable e) {
+                        boolean doingOutPut = method == HttpMethod.POST || method == HttpMethod.PUT;
+                        connection.setDoOutput(doingOutPut);
+                        connection.setDoInput(true);
+                        connection.setRequestMethod(method.toString());
+                        connection.setSSLSocketFactory(sslSocketFactory);
+                        HttpURLConnection.setFollowRedirects(followRedirects);
+
+                        headers.each(connection::addRequestProperty);
+
+                        connection.setConnectTimeout(timeout);
+                        connection.setReadTimeout(timeout);
+
+                        try {
+
+                            if (doingOutPut) {
+
+                                if (content != null) {
+                                    try (OutputStreamWriter writer = new OutputStreamWriter(
+                                            connection.getOutputStream(),
+                                            Strings.utf8)) {
+                                        writer.write(content);
+                                    }
+                                } else {
+                                    if (contentStream != null) {
+                                        try (OutputStream os = connection.getOutputStream()) {
+                                            Streams.copy(contentStream, os);
+                                        }
+                                    }
+                                }
+                            }
+
+                            connection.connect();
+
+                            try {
+                                int code = connection.getResponseCode();
+
+                                if (code >= 400) {
+                                    HttpStatus status = HttpStatus.byCode(code);
+                                    errorHandler.get(new HttpStatusException(
+                                            "HTTP request failed with error: " + code + " (" + status + ", URL = " + url
+                                                    + ")",
+                                            status, new HttpsResponse(connection)));
+                                } else {
+                                    success.get(new HttpsResponse(connection));
+                                }
+
+                            } finally {
+                                connection.disconnect();
+                            }
+
+                        } catch (Throwable e) {
+                            connection.disconnect();
+                            errorHandler.get(e);
+                        }
+                    } catch (Throwable e) {
+                        errorHandler.get(e);
+                    }
+                });
+            } catch (Exception e) {
                 errorHandler.get(e);
             }
-        }
+        };
     }
 
     /** Exception returned when a 4xx or 5xx error is encountered. */
