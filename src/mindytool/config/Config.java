@@ -17,6 +17,7 @@ public class Config {
     public static final String IMAGE_URL = "https://res.cloudinary.com/dyx7yui8u/image/upload/v1703328847/";
 
     public static final String REPO_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/releases/latest";
+    public static final String CACERTS_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/contents/assets/security/cacerts";
 
     public static final List<Sort> sorts = Arrays.asList(//
             new Sort("newest", "time_1"), //

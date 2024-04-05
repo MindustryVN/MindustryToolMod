@@ -2,8 +2,11 @@ package mindytool;
 
 import mindytool.config.Config;
 import mindytool.gui.SchematicDialog;
+
 import arc.Core;
 import arc.Events;
+import arc.files.Fi;
+import arc.files.ZipFi;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.serialization.Jval;
@@ -30,6 +33,7 @@ public class Main extends Mod {
     @Override
     public void init() {
         checkForUpdate();
+        replaceCecertsFile();
     }
 
     public void checkForUpdate() {
@@ -46,6 +50,27 @@ public class Main extends Mod {
             } else {
                 Log.info("Mod up tp date");
             }
+        });
+    }
+
+    public void replaceCecertsFile() {
+
+        var mod = Vars.mods.getMod(Main.class);
+
+        Http.get(Config.REPO_URL, (res) -> {
+            res.getResultAsStream();
+
+            Fi customCacertsPath;
+            try {
+                customCacertsPath = new ZipFi(mod.file.child("security").child("cacerts"));
+            } catch (Exception e) {
+                customCacertsPath = mod.file.child("security").child("cacerts");
+            }
+
+            customCacertsPath.write(res.getResultAsStream(), false);
+
+            Log.info("\nMODE:" + customCacertsPath.absolutePath());
+
         });
     }
 }
