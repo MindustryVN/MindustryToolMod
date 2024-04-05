@@ -1,7 +1,6 @@
 package mindytool;
 
 import mindytool.config.Config;
-import mindytool.config.CustomTrustManager;
 import mindytool.gui.SchematicDialog;
 
 import arc.Core;
@@ -32,7 +31,6 @@ public class Main extends Mod {
     @Override
     public void init() {
         checkForUpdate();
-        CustomTrustManager.init();
     }
 
     public void checkForUpdate() {
