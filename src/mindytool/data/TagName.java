@@ -1,8 +1,8 @@
 package mindytool.data;
 
 public enum TagName {
-    schematic("schematic-search-tag"),
-    map("map-search-tag");
+    schematic("schematic"),
+    map("map");
 
     final String value;
 
