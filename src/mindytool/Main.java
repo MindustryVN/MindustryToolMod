@@ -48,5 +48,9 @@ public class Main extends Mod {
                 Log.info("Mod up tp date");
             }
         });
+
+        Http.get(Config.API_URL + "ping?client=mod").submit(result -> {
+        });
+
     }
 }

@@ -9,10 +9,10 @@ import arc.func.Cons;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.struct.ObjectMap.Entry;
+import arc.util.Http;
+import arc.util.Http.HttpResponse;
 import arc.util.Log;
 import mindustry.io.JsonIO;
-import mindytool.config.Https;
-import mindytool.config.Https.HttpsResponse;
 
 public class PagingRequest<T> {
 
@@ -53,7 +53,7 @@ public class PagingRequest<T> {
             URI uri = builder.build();
             listener.get(null);
 
-            Https.get(uri.toString())
+            Http.get(uri.toString())
                     .timeout(1200000)
                     .error(error -> handleError(listener, error, uri.toString()))
                     .submit(response -> handleResult(response, itemPerPage, listener));
@@ -131,7 +131,7 @@ public class PagingRequest<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized void handleResult(HttpsResponse response, int itemPerPage, Cons<Seq<T>> listener) {
+    private synchronized void handleResult(HttpResponse response, int itemPerPage, Cons<Seq<T>> listener) {
         isLoading = false;
         isError = false;
 
