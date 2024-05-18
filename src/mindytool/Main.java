@@ -50,6 +50,7 @@ public class Main extends Mod {
         });
 
         Http.get(Config.API_URL + "ping?client=mod").submit(result -> {
+            Log.info("Ping");
         });
 
     }

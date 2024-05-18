@@ -99,8 +99,7 @@ public class SchematicDialog extends BaseDialog {
         } catch (Exception ex) {
             clear();
             addCloseButton();
-            table(container -> Error(container,
-                    Core.bundle.format("messages.error") + "\n Error: " + ex.getMessage()));
+            table(container -> Error(container, Core.bundle.format("messages.error") + "\n Error: " + ex.getMessage()));
             Log.err(ex);
         }
     }
@@ -117,9 +116,7 @@ public class SchematicDialog extends BaseDialog {
     private void SearchBar() {
         table(searchBar -> {
             searchBar.button("@back", Icon.leftSmall, this::hide)//
-                    .width(150)
-                    .padLeft(2)
-                    .padRight(2);
+                    .width(150).padLeft(2).padRight(2);
 
             searchBar.table(searchBarWrapper -> {
                 searchBarWrapper.left();
@@ -127,31 +124,18 @@ public class SchematicDialog extends BaseDialog {
                     search = result;
                     options.put("name", result);
                     request.setPage(0);
-                })
-                        .growX()
-                        .get();
+                }).growX().get();
 
                 searchField.setMessageText("@schematic.search");
-            })
-                    .fillX()
-                    .expandX()
-                    .padBottom(2)
-                    .padLeft(2)
-                    .padRight(2);
+            }).fillX().expandX().padBottom(2).padLeft(2).padRight(2);
 
-            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig)))
-                    .padLeft(2)
-                    .padRight(2)
-                    .width(60);
+            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2)
+                    .padRight(2).width(60);
 
             searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)))
-                    .padLeft(2)
-                    .padRight(2)
-                    .width(60);
+                    .padLeft(2).padRight(2).width(60);
 
-        })
-                .fillX()
-                .expandX();
+        }).fillX().expandX();
 
         row();
         pane(tagBar -> {
@@ -170,22 +154,14 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<TextButton> Error(Table parent, String message) {
-        Cell<TextButton> error = parent.button(message,
-                Styles.nonet,
+        Cell<TextButton> error = parent.button(message, Styles.nonet,
                 () -> request.getPage(this::handleSchematicResult));
 
-        return error.center()
-                .labelAlign(0)
-                .expand()
-                .fill();
+        return error.center().labelAlign(0).expand().fill();
     }
 
     private Cell<Label> Loading(Table parent) {
-        return parent.labelWrap(Core.bundle.format("messages.loading"))
-                .center()
-                .labelAlign(0)
-                .expand()
-                .fill();
+        return parent.labelWrap(Core.bundle.format("messages.loading")).center().labelAlign(0).expand().fill();
     }
 
     private Cell<ScrollPane> SchematicScrollContainer(Table parent) {
@@ -210,14 +186,10 @@ public class SchematicDialog extends BaseDialog {
                     schematicPreview.table(buttons -> {
                         buttons.center();
                         buttons.defaults().size(50f);
-                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(
-                                schematicData))
-                                .padLeft(2)
+                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData)).padLeft(2)
                                 .padRight(2);
-                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(
-                                schematicData))
-                                .padLeft(2)
-                                .padRight(2);
+                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
+                                .padLeft(2).padRight(2);
 
                         buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematic, schematicData))
                                 .tooltip("@info.title");
@@ -225,19 +197,15 @@ public class SchematicDialog extends BaseDialog {
                     }).growX().height(50f);
 
                     schematicPreview.row();
-                    schematicPreview
-                            .stack(new SchematicImage(schematic), new Table(schematicName -> {
-                                schematicName.top();
-                                schematicName.table(Styles.black3, c -> {
-                                    Label label = c.add(
-                                            schematicData.name).style(Styles.outlineLabel).color(Color.white)
-                                            .top()
-                                            .growX()
-                                            .width(200f - 8f).get();
-                                    label.setEllipsis(true);
-                                    label.setAlignment(Align.center);
-                                }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
-                            })).size(200f);
+                    schematicPreview.stack(new SchematicImage(schematic), new Table(schematicName -> {
+                        schematicName.top();
+                        schematicName.table(Styles.black3, c -> {
+                            Label label = c.add(schematicData.name).style(Styles.outlineLabel).color(Color.white).top()
+                                    .growX().width(200f - 8f).get();
+                            label.setEllipsis(true);
+                            label.setAlignment(Align.center);
+                        }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
+                    })).size(200f);
                 }, () -> {
                     if (button[0].childrenPressed())
                         return;
@@ -260,40 +228,22 @@ public class SchematicDialog extends BaseDialog {
                 sum += button[0].getPrefWidth();
             }
             container.top();
-        })
-                .pad(20)
-                .scrollY(true)
-                .expand()
-                .fill();
+        }).pad(20).scrollY(true).expand().fill();
 
     }
 
     private void Footer() {
         table(footer -> {
-            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult))
-                    .margin(4)
-                    .pad(4)
-                    .width(100)
-                    .disabled(request.isLoading() || request.getPage() == 0 || request.isError())
-                    .height(40);
+            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult)).margin(4).pad(4)
+                    .width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
 
             footer.table(Tex.buttonDisabled, table -> {
-                table.labelWrap(String.valueOf(request.getPage() + 1))
-                        .width(50)
-                        .style(Styles.defaultLabel)
-                        .labelAlign(0)
-                        .center()
-                        .fill();
-            })
-                    .pad(4)
-                    .height(40);
+                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel)
+                        .labelAlign(0).center().fill();
+            }).pad(4).height(40);
 
-            footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult))
-                    .margin(4)
-                    .pad(4)
-                    .width(100)
-                    .disabled(request.isLoading() || request.hasMore() == false || request.isError())
-                    .height(40);
+            footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult)).margin(4).pad(4).width(100)
+                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
         }).expandX().fillX();
@@ -312,11 +262,7 @@ public class SchematicDialog extends BaseDialog {
             }
 
             SchematicScrollContainer(container);
-        })
-                .expand()
-                .fill()
-                .margin(10)
-                .top();
+        }).expand().fill().margin(10).top();
     }
 
     private void handleSchematicResult(Seq<SchematicData> schematics) {
@@ -336,6 +282,7 @@ public class SchematicDialog extends BaseDialog {
 
     private void handleDownloadSchematic(SchematicData schematic) {
         Schematic s = Utils.readSchematic(schematic.data);
+        s.labels.add(schematic.tags);
         s.removeSteamID();
         Vars.schematics.add(s);
         ui.showInfoFade("@schematic.saved");
