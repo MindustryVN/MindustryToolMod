@@ -80,9 +80,9 @@ public class SchematicDialog extends BaseDialog {
     private void setItemPerPage() {
         int columns = (int) (Core.graphics.getWidth() / Scl.scl(IMAGE_SIZE)) - 1;
         int rows = (int) (Core.graphics.getHeight() / Scl.scl(IMAGE_SIZE + INFO_TABLE_HEIGHT * 2));
-        int itemPerPage = Math.max(columns * rows, 20);
+        int size = Math.max(columns * rows, 20);
 
-        request.setItemPerPage(itemPerPage);
+        request.setItemPerPage(size);
     }
 
     private void SchematicBrowser() {

@@ -21,7 +21,7 @@ public class PagingRequest<T> {
     private boolean isError = false;
     private String error = "";
 
-    private int itemPerPage = 20;
+    private int size = 20;
 
     private int page = 0;
 
@@ -43,9 +43,8 @@ public class PagingRequest<T> {
         isLoading = true;
 
         try {
-            URIBuilder builder = new URIBuilder(url)
-                    .setParameter("page", String.valueOf(page))
-                    .setParameter("items", String.valueOf(Math.min(itemPerPage, 100)));
+            URIBuilder builder = new URIBuilder(url).setParameter("page", String.valueOf(page)).setParameter("size",
+                    String.valueOf(Math.min(size, 100)));
 
             for (Entry<String, String> entry : options.entries())
                 builder.setParameter(entry.key, entry.value);
@@ -53,10 +52,8 @@ public class PagingRequest<T> {
             URI uri = builder.build();
             listener.get(null);
 
-            Http.get(uri.toString())
-                    .timeout(1200000)
-                    .error(error -> handleError(listener, error, uri.toString()))
-                    .submit(response -> handleResult(response, itemPerPage, listener));
+            Http.get(uri.toString()).timeout(1200000).error(error -> handleError(listener, error, uri.toString()))
+                    .submit(response -> handleResult(response, size, listener));
         } catch (Exception e) {
             handleError(listener, e, url);
         }
@@ -81,11 +78,11 @@ public class PagingRequest<T> {
     }
 
     public synchronized int getItemPerPage() {
-        return itemPerPage;
+        return size;
     }
 
-    public synchronized void setItemPerPage(int itemPerPage) {
-        this.itemPerPage = itemPerPage;
+    public synchronized void setItemPerPage(int size) {
+        this.size = size;
     }
 
     public synchronized boolean hasMore() {
@@ -131,7 +128,7 @@ public class PagingRequest<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized void handleResult(HttpResponse response, int itemPerPage, Cons<Seq<T>> listener) {
+    private synchronized void handleResult(HttpResponse response, int size, Cons<Seq<T>> listener) {
         isLoading = false;
         isError = false;
 
