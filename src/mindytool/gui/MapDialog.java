@@ -1,6 +1,7 @@
 package mindytool.gui;
 
 import arc.Core;
+import arc.files.Fi;
 import arc.graphics.Color;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
@@ -13,10 +14,10 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
+import arc.util.Http;
 import arc.util.Log;
 import arc.util.Strings;
 import mindustry.Vars;
-import mindustry.game.Schematic;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.ui.Styles;
@@ -25,19 +26,17 @@ import mindustry.ui.dialogs.BaseDialog;
 import static mindustry.Vars.*;
 
 import mindytool.config.Config;
-import mindytool.config.Utils;
-import mindytool.data.SchematicData;
+import mindytool.data.MapData;
 import mindytool.data.SearchConfig;
 import mindytool.data.TagService;
 import mindytool.net.PagingRequest;
 
-public class SchematicDialog extends BaseDialog {
+public class MapDialog extends BaseDialog {
 
-    private final SchematicInfoDialog infoDialog = new SchematicInfoDialog();
-    private final FilterDialog filterDialog = new FilterDialog(
-            (tag) -> TagService.getTag(group -> tag.get(group.schematic)));
+    private final MapInfoDialog infoDialog = new MapInfoDialog();
+    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.map)));
 
-    private Seq<SchematicData> schematicsData = new Seq<>();
+    private Seq<MapData> mapsData = new Seq<>();
 
     private final float IMAGE_SIZE = 196;
     private final float INFO_TABLE_HEIGHT = 60;
@@ -48,13 +47,13 @@ public class SchematicDialog extends BaseDialog {
 
     TextField searchField;
 
-    private PagingRequest<SchematicData> request;
+    private PagingRequest<MapData> request;
     private ObjectMap<String, String> options = new ObjectMap<String, String>();
 
-    public SchematicDialog() {
-        super("Schematic Browser");
+    public MapDialog() {
+        super("Map Browser");
 
-        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematics/mod");
+        request = new PagingRequest<>(MapData.class, Config.API_URL + "maps");
 
         setItemPerPage();
 
@@ -67,16 +66,16 @@ public class SchematicDialog extends BaseDialog {
                 options.put("tags", searchConfig.getSelectedTagsString());
                 options.put("sort", searchConfig.getSort().getValue());
                 request.setPage(0);
-                request.getPage(this::handleSchematicResult);
+                request.getPage(this::handleMapResult);
             }
         });
 
         onResize(() -> {
             setItemPerPage();
-            SchematicBrowser();
+            MapBrowser();
         });
-        request.getPage(this::handleSchematicResult);
-        shown(this::SchematicBrowser);
+        request.getPage(this::handleMapResult);
+        shown(this::MapBrowser);
     }
 
     private void setItemPerPage() {
@@ -87,7 +86,7 @@ public class SchematicDialog extends BaseDialog {
         request.setItemPerPage(size);
     }
 
-    private void SchematicBrowser() {
+    private void MapBrowser() {
         clear();
 
         try {
@@ -95,7 +94,7 @@ public class SchematicDialog extends BaseDialog {
             row();
             SearchBar();
             row();
-            SchematicContainer();
+            MapContainer();
             row();
             Footer();
         } catch (Exception ex) {
@@ -128,13 +127,13 @@ public class SchematicDialog extends BaseDialog {
                     request.setPage(0);
                 }).growX().get();
 
-                searchField.setMessageText("@schematic.search");
+                searchField.setMessageText("@map.search");
             }).fillX().expandX().padBottom(2).padLeft(2).padRight(2);
 
             searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2)
                     .padRight(2).width(60);
 
-            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)))
+            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleMapResult)))
                     .padLeft(2).padRight(2).width(60);
 
         }).fillX().expandX();
@@ -148,7 +147,7 @@ public class SchematicDialog extends BaseDialog {
                         searchConfig.getSelectedTags().remove(tag);
                         options.put("tags", searchConfig.getSelectedTagsString());
                         request.setPage(0);
-                        SchematicBrowser();
+                        MapBrowser();
                     }).margin(4);
                 });
             }
@@ -156,8 +155,7 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<TextButton> Error(Table parent, String message) {
-        Cell<TextButton> error = parent.button(message, Styles.nonet,
-                () -> request.getPage(this::handleSchematicResult));
+        Cell<TextButton> error = parent.button(message, Styles.nonet, () -> request.getPage(this::handleMapResult));
 
         return error.center().labelAlign(0).expand().fill();
     }
@@ -166,62 +164,44 @@ public class SchematicDialog extends BaseDialog {
         return parent.labelWrap(Core.bundle.format("messages.loading")).center().labelAlign(0).expand().fill();
     }
 
-    private Cell<ScrollPane> SchematicScrollContainer(Table parent) {
-        if (schematicsData.size == 0)
+    private Cell<ScrollPane> MapScrollContainer(Table parent) {
+        if (mapsData.size == 0)
             return parent.pane(container -> container.add("message.no-result"));
 
         return parent.pane(container -> {
             float sum = 0;
 
-            for (SchematicData schematicData : schematicsData) {
+            for (MapData mapData : mapsData) {
                 if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
                 }
 
-                var schematic = Utils.readSchematic(schematicData.data);
-
                 Button[] button = { null };
-                button[0] = container.button(schematicPreview -> {
-                    schematicPreview.top();
-                    schematicPreview.margin(0f);
-                    schematicPreview.table(buttons -> {
+                button[0] = container.button(mapPreview -> {
+                    mapPreview.top();
+                    mapPreview.margin(0f);
+                    mapPreview.table(buttons -> {
                         buttons.center();
                         buttons.defaults().size(50f);
-                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData)).padLeft(2)
+                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadMap(mapData)).padLeft(2)
                                 .padRight(2);
-                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
-                                .padLeft(2).padRight(2);
 
-                        buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematic, schematicData))
-                                .tooltip("@info.title");
+                        buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(mapData)).tooltip("@info.title");
 
                     }).growX().height(50f);
 
-                    schematicPreview.row();
-                    schematicPreview.stack(new SchematicImage(schematic), new Table(schematicName -> {
-                        schematicName.top();
-                        schematicName.table(Styles.black3, c -> {
-                            Label label = c.add(schematicData.name).style(Styles.outlineLabel).color(Color.white).top()
+                    mapPreview.row();
+                    mapPreview.stack(new MapImage(mapData), new Table(mapName -> {
+                        mapName.top();
+                        mapName.table(Styles.black3, c -> {
+                            Label label = c.add(mapData.name).style(Styles.outlineLabel).color(Color.white).top()
                                     .growX().width(200f - 8f).get();
                             label.setEllipsis(true);
                             label.setAlignment(Align.center);
                         }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
                     })).size(200f);
                 }, () -> {
-                    if (button[0].childrenPressed())
-                        return;
-
-                    if (state.isMenu()) {
-                        infoDialog.show(schematic, schematicData);
-                    } else {
-                        if (!state.rules.schematicsAllowed) {
-                            ui.showInfo("@schematic.disabled");
-                        } else {
-                            control.input.useSchematic(schematic);
-                            hide();
-                        }
-                    }
 
                 }).pad(4).style(Styles.flati).get();
 
@@ -236,22 +216,22 @@ public class SchematicDialog extends BaseDialog {
 
     private void Footer() {
         table(footer -> {
-            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult)).margin(4).pad(4)
-                    .width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
+            footer.button(Icon.left, () -> request.previousPage(this::handleMapResult)).margin(4).pad(4).width(100)
+                    .disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
 
             footer.table(Tex.buttonDisabled, table -> {
                 table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel)
                         .labelAlign(0).center().fill();
             }).pad(4).height(40);
 
-            footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult)).margin(4).pad(4).width(100)
+            footer.button(Icon.right, () -> request.nextPage(this::handleMapResult)).margin(4).pad(4).width(100)
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
         }).expandX().fillX();
     }
 
-    private Cell<Table> SchematicContainer() {
+    private Cell<Table> MapContainer() {
         return table(container -> {
             if (request.isLoading()) {
                 Loading(container);
@@ -263,30 +243,26 @@ public class SchematicDialog extends BaseDialog {
                 return;
             }
 
-            SchematicScrollContainer(container);
+            MapScrollContainer(container);
         }).expand().fill().margin(10).top();
     }
 
-    private void handleSchematicResult(Seq<SchematicData> schematics) {
-        if (schematics != null)
-            this.schematicsData = schematics;
+    private void handleMapResult(Seq<MapData> maps) {
+        if (maps != null)
+            this.mapsData = maps;
         else
-            this.schematicsData.clear();
+            this.mapsData.clear();
 
-        SchematicBrowser();
+        MapBrowser();
     }
 
-    private void handleCopySchematic(SchematicData schematic) {
-        Schematic s = Utils.readSchematic(schematic.data);
-        Core.app.setClipboardText(schematics.writeBase64(s));
-        ui.showInfoFade("@copied");
-    }
-
-    private void handleDownloadSchematic(SchematicData schematic) {
-        Schematic s = Utils.readSchematic(schematic.data);
-        s.labels.add(schematic.tags);
-        s.removeSteamID();
-        Vars.schematics.add(s);
-        ui.showInfoFade("@schematic.saved");
+    private void handleDownloadMap(MapData map) {
+        Http.get(Config.API_URL + "maps/" + map.id + "/download").block(result -> {
+            byte[] content = result.getResult();
+            Fi mapFile = Vars.customMapDirectory.child(map.id);
+            mapFile.writeBytes(content);
+            Vars.maps.importMap(mapFile);
+            ui.showInfoFade("@map.saved");
+        });
     }
 }

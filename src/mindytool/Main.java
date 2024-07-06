@@ -1,6 +1,7 @@
 package mindytool;
 
 import mindytool.config.Config;
+import mindytool.gui.MapDialog;
 import mindytool.gui.SchematicDialog;
 
 import arc.Core;
@@ -15,6 +16,7 @@ import mindustry.mod.*;
 
 public class Main extends Mod {
     SchematicDialog schematicDialog;
+    MapDialog mapDialog;
 
     public Main() {
         Events.on(ClientLoadEvent.class, e -> {
@@ -24,6 +26,13 @@ public class Main extends Mod {
                     schematicDialog = new SchematicDialog();
                 }
                 schematicDialog.show();
+            });
+
+            Vars.ui.menufrag.addButton("Browse", Icon.menu, () -> {
+                if (mapDialog == null) {
+                    mapDialog = new MapDialog();
+                }
+                mapDialog.show();
             });
         });
     }
@@ -43,7 +52,8 @@ public class Main extends Mod {
             if (!latestVersion.equals(currentVersion)) {
                 Log.info("Mod require update, current version: " + currentVersion + ", latest version: "
                         + latestVersion);
-                Vars.ui.showInfo(Core.bundle.format("messages.new-version", currentVersion, latestVersion));
+                Vars.ui.showInfo(Core.bundle.format("messages.new-version", currentVersion, latestVersion)
+                        + "\nDiscord: https://discord.gg/72324gpuCd");
             } else {
                 Log.info("Mod up tp date");
             }
