@@ -6,12 +6,12 @@ sourceSets.main.java.srcDirs = ["src"]
 
 repositories{
     mavenCentral()
+    google()
     maven{ url "https://raw.githubusercontent.com/Zelaux/MindustryRepo/master/repository" }
     maven{ url 'https://www.jitpack.io' }
 }
 
 java{
-    targetCompatibility = 8
     sourceCompatibility = JavaVersion.VERSION_17
 }
 
@@ -35,7 +35,7 @@ dependencies{
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     
-    implementation 'org.apache.httpcomponents:httpclient:4.5.2'
+    implementation 'org.apache.httpcomponents:httpclient:4.5.14'
 
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
