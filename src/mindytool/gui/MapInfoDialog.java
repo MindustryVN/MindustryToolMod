@@ -27,7 +27,7 @@ public class MapInfoDialog extends BaseDialog {
         cont.clear();
 
         title.setText("[[" + Core.bundle.get("map") + "] " + data.name);
-        cont.add(Core.bundle.format("message.like", data.like)).color(Color.lightGray).row();
+        cont.add(Core.bundle.format("message.like", data.likes)).color(Color.lightGray).row();
         cont.add(new MapImage(data)).maxSize(800).row();
         cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
 
