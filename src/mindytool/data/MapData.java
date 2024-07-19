@@ -6,7 +6,7 @@ public class MapData {
     public String authorId;
     public String data;
     public String[] tags;
-    public long like = 0;
+    public Long likes = 0l;
     public String verifyAdmin;
     public int width;
     public int height;
