@@ -11,6 +11,6 @@ public class SchematicData {
     public int height;
     public String[] tags;
     public ItemRequirement[] requirement;
-    public String verfierId;
+    public String verifierId;
     public String createdAt;
 }
