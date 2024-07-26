@@ -52,8 +52,8 @@ public class FilterDialog extends BaseDialog {
                             .top();
                     table.pane(valueTable -> {
                         valueTable.defaults().size(200, 50);
-                        for (int i = 0; i < tag.value.length; i++) {
-                            var value = tag.value[i];
+                        for (int i = 0; i < tag.values.length; i++) {
+                            var value = tag.values[i];
                             valueTable
                                     .button(Core.bundle.format("tags.values." + value), style,
                                             () -> searchConfig.setTag(tag.name + "_" + value))
