@@ -3,7 +3,7 @@ package mindytool.data;
 public class SchematicData {
     public String id;
     public String name;
-    public String authorId;
+    public String userId;
     public String description;
     public String data;
     public int like;

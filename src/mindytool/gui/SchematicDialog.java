@@ -202,7 +202,7 @@ public class SchematicDialog extends BaseDialog {
                     schematicPreview.stack(new SchematicImage(schematic), new Table(schematicName -> {
                         schematicName.top();
                         schematicName.table(Styles.black3, c -> {
-                            Label label = c.add(schematicData.name).style(Styles.outlineLabel).color(Color.white).top()
+                            Label label = c.add(schematic.name()).style(Styles.outlineLabel).color(Color.white).top()
                                     .growX().width(200f - 8f).get();
                             label.setEllipsis(true);
                             label.setAlignment(Align.center);
