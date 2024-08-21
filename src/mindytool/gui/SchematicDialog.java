@@ -179,55 +179,59 @@ public class SchematicDialog extends BaseDialog {
                     sum = 0;
                 }
 
-                var schematic = Utils.readSchematic(schematicData.data);
+                try {
 
-                Button[] button = { null };
-                button[0] = container.button(schematicPreview -> {
-                    schematicPreview.top();
-                    schematicPreview.margin(0f);
-                    schematicPreview.table(buttons -> {
-                        buttons.center();
-                        buttons.defaults().size(50f);
-                        buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData)).padLeft(2)
-                                .padRight(2);
-                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
-                                .padLeft(2).padRight(2);
+                    var schematic = Utils.readSchematic(schematicData.data);
 
-                        buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematic, schematicData))
-                                .tooltip("@info.title");
+                    Button[] button = { null };
+                    button[0] = container.button(schematicPreview -> {
+                        schematicPreview.top();
+                        schematicPreview.margin(0f);
+                        schematicPreview.table(buttons -> {
+                            buttons.center();
+                            buttons.defaults().size(50f);
+                            buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData))
+                                    .padLeft(2).padRight(2);
+                            buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
+                                    .padLeft(2).padRight(2);
 
-                    }).growX().height(50f);
+                            buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematic, schematicData))
+                                    .tooltip("@info.title");
 
-                    schematicPreview.row();
-                    schematicPreview.stack(new SchematicImage(schematic), new Table(schematicName -> {
-                        schematicName.top();
-                        schematicName.table(Styles.black3, c -> {
-                            Label label = c.add(schematic.name()).style(Styles.outlineLabel).color(Color.white).top()
-                                    .growX().width(200f - 8f).get();
-                            label.setEllipsis(true);
-                            label.setAlignment(Align.center);
-                        }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
-                    })).size(200f);
-                }, () -> {
-                    if (button[0].childrenPressed())
-                        return;
+                        }).growX().height(50f);
 
-                    if (state.isMenu()) {
-                        infoDialog.show(schematic, schematicData);
-                    } else {
-                        if (!state.rules.schematicsAllowed) {
-                            ui.showInfo("@schematic.disabled");
+                        schematicPreview.row();
+                        schematicPreview.stack(new SchematicImage(schematic), new Table(schematicName -> {
+                            schematicName.top();
+                            schematicName.table(Styles.black3, c -> {
+                                Label label = c.add(schematic.name()).style(Styles.outlineLabel).color(Color.white)
+                                        .top().growX().width(200f - 8f).get();
+                                label.setEllipsis(true);
+                                label.setAlignment(Align.center);
+                            }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
+                        })).size(200f);
+                    }, () -> {
+                        if (button[0].childrenPressed())
+                            return;
+
+                        if (state.isMenu()) {
+                            infoDialog.show(schematic, schematicData);
                         } else {
-                            control.input.useSchematic(schematic);
-                            hide();
+                            if (!state.rules.schematicsAllowed) {
+                                ui.showInfo("@schematic.disabled");
+                            } else {
+                                control.input.useSchematic(schematic);
+                                hide();
+                            }
                         }
-                    }
 
-                }).pad(4).style(Styles.flati).get();
+                    }).pad(4).style(Styles.flati).get();
 
-                button[0].getStyle().up = Tex.pane;
+                    button[0].getStyle().up = Tex.pane;
 
-                sum += button[0].getPrefWidth();
+                    sum += button[0].getPrefWidth();
+                } catch (Exception e) {
+                }
             }
             container.top();
         }).pad(20).scrollY(true).expand().fill();
