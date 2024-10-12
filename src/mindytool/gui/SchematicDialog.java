@@ -252,6 +252,7 @@ public class SchematicDialog extends BaseDialog {
                 ui.showTextInput("@select-page", "", "", input -> {
                     try {
                         request.setPage(Integer.parseInt(input));
+                        shown(this::SchematicBrowser);
                     } catch (Exception e) {
                         ui.showInfo("Invalid input");
                     }

@@ -228,6 +228,7 @@ public class MapDialog extends BaseDialog {
                 ui.showTextInput("@select-page", "", "", input -> {
                     try {
                         request.setPage(Integer.parseInt(input));
+                        shown(this::MapBrowser);
                     } catch (Exception e) {
                         ui.showInfo("Invalid input");
                     }
