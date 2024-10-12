@@ -18,8 +18,11 @@ public class Config {
 
     public static final String REPO_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/releases/latest";
 
+    public static final String WEB_URL = "https://mindustry-tool.app";
+    public static final String UPLOAD_SCHEMATIC_URL = WEB_URL + "/upload/schematic";
+    public static final String UPLOAD_MAP_URL = WEB_URL + "/upload/map";
+
     public static final List<Sort> sorts = Arrays.asList(//
             new Sort("newest", "time_1"), //
-            new Sort("oldest", "time_-1"),
-            new Sort("most-like", "like_1"));
+            new Sort("oldest", "time_-1"), new Sort("most-like", "like_1"));
 }

@@ -248,7 +248,27 @@ public class SchematicDialog extends BaseDialog {
                         .labelAlign(0).center().fill();
             }).pad(4).height(40);
 
-            footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult)).margin(4).pad(4).width(100)
+            footer.button(Icon.edit, () -> {
+                ui.showTextInput("@select-page", "", "", input -> {
+                    try {
+                        request.setPage(Integer.parseInt(input));
+                    } catch (Exception e) {
+                        ui.showInfo("Invalid input");
+                    }
+                });
+            })//
+                    .margin(4)//
+                    .pad(4)//
+                    .width(100)//
+                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+
+            footer.button(Icon.right, () -> request.nextPage(this::handleSchematicResult))//
+                    .margin(4)//
+                    .pad(4)//
+                    .width(100)//
+                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+
+            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100)
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
