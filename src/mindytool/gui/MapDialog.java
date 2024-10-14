@@ -242,7 +242,7 @@ public class MapDialog extends BaseDialog {
             footer.button(Icon.right, () -> request.nextPage(this::handleMapResult)).margin(4).pad(4).width(100)
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
-            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100)
+            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_MAP_URL)).margin(4).pad(4).width(100)
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
