@@ -40,7 +40,7 @@ public class MapImage extends Image {
         // culling
         if (!textureCache.containsKey(mapData.id)) {
             textureCache.put(mapData.id, lastTexture = Core.atlas.find("nomap"));
-            Http.get(Config.IMAGE_URL + "maps/" + mapData.id + ".png", res -> {
+            Http.get(Config.IMAGE_URL + "maps/" + mapData.id + ".webp", res -> {
                 Pixmap pix = new Pixmap(res.getResult());
                 Core.app.post(() -> {
                     try {
