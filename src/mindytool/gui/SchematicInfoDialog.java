@@ -4,7 +4,6 @@ import static mindustry.Vars.state;
 
 import mindytool.data.ItemRequirement;
 import mindytool.data.SchematicData;
-import java.security.InvalidParameterException;
 
 import arc.Core;
 import arc.graphics.Color;
@@ -12,7 +11,6 @@ import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Align;
 import mindustry.Vars;
-import mindustry.game.Schematic;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
@@ -31,10 +29,7 @@ public class SchematicInfoDialog extends BaseDialog {
         addCloseListener();
     }
 
-    public void show(Schematic schematic, SchematicData data) {
-        if (schematic == null) {
-            throw new InvalidParameterException("Schematic can not be null");
-        }
+    public void show(SchematicData data) {
         cont.clear();
 
         title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name);

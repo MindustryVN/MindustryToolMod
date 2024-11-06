@@ -1,6 +1,7 @@
 package mindytool.gui;
 
 import arc.Core;
+import arc.func.Cons;
 import arc.graphics.Color;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
@@ -13,8 +14,10 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
+import arc.util.Http;
 import arc.util.Log;
 import arc.util.Strings;
+import arc.util.serialization.Base64Coder;
 import mindustry.Vars;
 import mindustry.game.Schematic;
 import mindustry.gen.Icon;
@@ -181,8 +184,6 @@ public class SchematicDialog extends BaseDialog {
 
                 try {
 
-                    var schematic = Utils.readSchematic(schematicData.data);
-
                     Button[] button = { null };
                     button[0] = container.button(schematicPreview -> {
                         schematicPreview.top();
@@ -195,7 +196,7 @@ public class SchematicDialog extends BaseDialog {
                             buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
                                     .padLeft(2).padRight(2);
 
-                            buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematic, schematicData))
+                            buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematicData))
                                     .tooltip("@info.title");
 
                         }).growX().height(50f);
@@ -204,7 +205,7 @@ public class SchematicDialog extends BaseDialog {
                         schematicPreview.stack(new SchematicImage(schematicData), new Table(schematicName -> {
                             schematicName.top();
                             schematicName.table(Styles.black3, c -> {
-                                Label label = c.add(schematic.name()).style(Styles.outlineLabel).color(Color.white)
+                                Label label = c.add(schematicData.name).style(Styles.outlineLabel).color(Color.white)
                                         .top().growX().width(200f - 8f).get();
                                 label.setEllipsis(true);
                                 label.setAlignment(Align.center);
@@ -215,12 +216,13 @@ public class SchematicDialog extends BaseDialog {
                             return;
 
                         if (state.isMenu()) {
-                            infoDialog.show(schematic, schematicData);
+                            infoDialog.show(schematicData);
                         } else {
                             if (!state.rules.schematicsAllowed) {
                                 ui.showInfo("@schematic.disabled");
                             } else {
-                                control.input.useSchematic(schematic);
+                                handleDownloadSchematicData(schematicData,
+                                        data -> control.input.useSchematic(Utils.readSchematic(data)));
                                 hide();
                             }
                         }
@@ -302,16 +304,28 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private void handleCopySchematic(SchematicData schematic) {
-        Schematic s = Utils.readSchematic(schematic.data);
-        Core.app.setClipboardText(schematics.writeBase64(s));
-        ui.showInfoFade("@copied");
+        handleDownloadSchematicData(schematic, data -> {
+            Schematic s = Utils.readSchematic(data);
+            Core.app.setClipboardText(schematics.writeBase64(s));
+            ui.showInfoFade("@copied");
+        });
     }
 
     private void handleDownloadSchematic(SchematicData schematic) {
-        Schematic s = Utils.readSchematic(schematic.data);
-        s.labels.add(schematic.tags);
-        s.removeSteamID();
-        Vars.schematics.add(s);
-        ui.showInfoFade("@schematic.saved");
+        handleDownloadSchematicData(schematic, data -> {
+            Schematic s = Utils.readSchematic(data);
+            s.labels.add(schematic.tags);
+            s.removeSteamID();
+            Vars.schematics.add(s);
+            ui.showInfoFade("@schematic.saved");
+        });
+    }
+
+    private void handleDownloadSchematicData(SchematicData data, Cons<String> cons) {
+        Http.get(Config.API_URL + "schematics/" + data.id + "/download").block(result -> {
+            byte[] content = result.getResult();
+
+            cons.get(new String(Base64Coder.encode(content)));
+        });
     }
 }

@@ -5,7 +5,6 @@ public class SchematicData {
     public String name;
     public String userId;
     public String description;
-    public String data;
     public int like;
     public int width;
     public int height;
