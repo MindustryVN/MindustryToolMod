@@ -38,9 +38,8 @@ public class SchematicInfoDialog extends BaseDialog {
         cont.clear();
 
         title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name);
-        cont.add(Core.bundle.format("message.like", data.like))
-                .color(Color.lightGray).row();
-        cont.add(new SchematicImage(schematic)).maxSize(800).row();
+        cont.add(Core.bundle.format("message.like", data.like)).color(Color.lightGray).row();
+        cont.add(new SchematicImage(data)).maxSize(800).row();
         cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
 
         ItemSeq arr = toItemSeq(data.requirement);
@@ -50,9 +49,7 @@ public class SchematicInfoDialog extends BaseDialog {
                 r.image(s.item.uiIcon).left().size(iconMed);
                 r.label(() -> {
                     Building core = player.core();
-                    if (core == null
-                            || state.isMenu()
-                            || state.rules.infiniteResources
+                    if (core == null || state.isMenu() || state.rules.infiniteResources
                             || core.items.has(s.item, s.amount))
                         return "[lightgray]" + s.amount;
 
@@ -104,8 +101,7 @@ public class SchematicInfoDialog extends BaseDialog {
         }
 
         for (var req : requirement) {
-            seq.add(new ItemStack(
-                    Vars.content.items().find(i -> i.name.toLowerCase().equals(req.name.toLowerCase())),
+            seq.add(new ItemStack(Vars.content.items().find(i -> i.name.toLowerCase().equals(req.name.toLowerCase())),
                     req.amount));
         }
 

@@ -201,7 +201,7 @@ public class SchematicDialog extends BaseDialog {
                         }).growX().height(50f);
 
                         schematicPreview.row();
-                        schematicPreview.stack(new SchematicImage(schematic), new Table(schematicName -> {
+                        schematicPreview.stack(new SchematicImage(schematicData), new Table(schematicName -> {
                             schematicName.top();
                             schematicName.table(Styles.black3, c -> {
                                 Label label = c.add(schematic.name()).style(Styles.outlineLabel).color(Color.white)

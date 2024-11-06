@@ -2,82 +2,65 @@ package mindytool.gui;
 
 import arc.Core;
 import arc.graphics.Color;
+import arc.graphics.Pixmap;
 import arc.graphics.Texture;
-import arc.graphics.g2d.Draw;
-import arc.graphics.g2d.Lines;
+import arc.graphics.Texture.TextureFilter;
 import arc.graphics.g2d.TextureRegion;
-import arc.scene.style.TextureRegionDrawable;
-import arc.scene.ui.Button;
 import arc.scene.ui.Image;
-import arc.scene.ui.layout.Scl;
+import arc.struct.ObjectMap;
+import arc.util.Http;
+import arc.util.Log;
 import arc.util.Scaling;
-import mindustry.game.Schematic;
-import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
-
-import static mindustry.Vars.*;
+import mindytool.config.Config;
+import mindytool.data.SchematicData;
 
 public class SchematicImage extends Image {
     public float scaling = 16f;
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
 
-    private Schematic schematic;
-    private Texture lastTexture;
-    boolean set;
+    private SchematicData schematicData;
+    private TextureRegion lastTexture;
 
-    public SchematicImage(Schematic s) {
+    private static ObjectMap<String, TextureRegion> textureCache = new ObjectMap<>();
+
+    public SchematicImage(SchematicData schematicData) {
         super(Tex.clear);
         setScaling(Scaling.fit);
-        schematic = s;
-
-        if (schematics.hasPreview(s)) {
-            setPreview();
-            set = true;
-        }
+        this.schematicData = schematicData;
     }
 
     @Override
     public void draw() {
-        boolean checked = parent.parent instanceof Button
-                && ((Button) parent.parent).isOver();
+        super.draw();
 
-        boolean wasSet = set;
-        if (!set) {
-            Core.app.post(this::setPreview);
-            set = true;
-        } else if (lastTexture != null && lastTexture.isDisposed()) {
-            set = wasSet = false;
+        // textures are only requested when the rendering happens; this assists with
+        // culling
+        if (!textureCache.containsKey(schematicData.id)) {
+            textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
+            Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".webp", res -> {
+                Pixmap pix = new Pixmap(res.getResult());
+                Core.app.post(() -> {
+                    try {
+                        var tex = new Texture(pix);
+                        tex.setFilter(TextureFilter.linear);
+                        textureCache.put(schematicData.id, new TextureRegion(tex));
+                        pix.dispose();
+                    } catch (Exception e) {
+                        Log.err(e);
+                    }
+                });
+            }, err -> {
+                Log.err(err);
+            });
         }
 
-        Texture background = Core.assets.get("sprites/schematic-background.png", Texture.class);
-        TextureRegion region = Draw.wrap(background);
-        float xr = width / scaling;
-        float yr = height / scaling;
-        region.setU2(xr);
-        region.setV2(yr);
-        Draw.color();
-        Draw.alpha(parentAlpha);
-        Draw.rect(region, x + width / 2f, y + height / 2f, width, height);
-
-        if (wasSet) {
-            super.draw();
-        } else {
-            Draw.rect(Icon.refresh.getRegion(), x + width / 2f, y + height / 2f, width / 4f, height / 4f);
+        var next = textureCache.get(schematicData.id);
+        if (lastTexture != next) {
+            lastTexture = next;
+            setDrawable(next);
         }
-
-        Draw.color(checked ? Pal.accent : borderColor);
-        Draw.alpha(parentAlpha);
-        Lines.stroke(Scl.scl(thickness));
-        Lines.rect(x, y, width, height);
-        Draw.reset();
-    }
-
-    private void setPreview() {
-        TextureRegionDrawable draw = new TextureRegionDrawable(
-                new TextureRegion(lastTexture = schematics.getPreview(schematic)));
-        setDrawable(draw);
-        setScaling(Scaling.fit);
     }
 }
