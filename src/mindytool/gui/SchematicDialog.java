@@ -54,7 +54,7 @@ public class SchematicDialog extends BaseDialog {
     public SchematicDialog() {
         super("Schematic Browser");
 
-        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematics/mod");
+        request = new PagingRequest<>(SchematicData.class, Config.API_URL + "schematics");
 
         setItemPerPage();
 
