@@ -8,7 +8,7 @@ main: "mindytool.Main"
 
 description: "A online schematic browser"
 
-version: v1.8.7
+version: v1.8.8
 
 minGameVersion: 140
 

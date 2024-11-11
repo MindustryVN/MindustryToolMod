@@ -14,7 +14,7 @@ public class Config {
     private static final String ENV = System.getenv("ENV");
     public static final boolean DEV = (ENV != null && ENV.equals("DEV"));
     public static final String API_URL = DEV ? DEV_URL : PROD_URL;
-    public static final String IMAGE_URL = "https://res.cloudinary.com/diuvht7dq/image/upload/v1683651720/";
+    public static final String IMAGE_URL = "https://image.mindustry-tool.app/";
 
     public static final String REPO_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/releases/latest";
 
