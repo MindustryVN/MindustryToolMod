@@ -14,7 +14,6 @@ import arc.util.Scaling;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindytool.config.Config;
-import mindytool.config.Utils;
 import mindytool.data.MapData;
 
 public class MapImage extends Image {
@@ -35,33 +34,38 @@ public class MapImage extends Image {
 
     @Override
     public void draw() {
-        super.draw();
+        try {
 
-        // textures are only requested when the rendering happens; this assists with
-        // culling
-        if (!textureCache.containsKey(mapData.id)) {
-            textureCache.put(mapData.id, lastTexture = Core.atlas.find("nomap"));
-            Http.get(Config.IMAGE_URL + "maps/" + mapData.id + ".webp", res -> {
-                Pixmap pix = new Pixmap(Utils.webpToPng(res.getResultAsStream()));
-                Core.app.post(() -> {
-                    try {
-                        var tex = new Texture(pix);
-                        tex.setFilter(TextureFilter.linear);
-                        textureCache.put(mapData.id, new TextureRegion(tex));
-                        pix.dispose();
-                    } catch (Exception e) {
-                        Log.err(e);
-                    }
+            super.draw();
+
+            // textures are only requested when the rendering happens; this assists with
+            // culling
+            if (!textureCache.containsKey(mapData.id)) {
+                textureCache.put(mapData.id, lastTexture = Core.atlas.find("nomap"));
+                Http.get(Config.IMAGE_URL + "maps/" + mapData.id + ".jpeg", res -> {
+                    Pixmap pix = new Pixmap(res.getResult());
+                    Core.app.post(() -> {
+                        try {
+                            var tex = new Texture(pix);
+                            tex.setFilter(TextureFilter.linear);
+                            textureCache.put(mapData.id, new TextureRegion(tex));
+                        } catch (Exception e) {
+                            Log.err(e);
+                        }
+                    });
+                    pix.dispose();
+                }, err -> {
+                    Log.err(err);
                 });
-            }, err -> {
-                Log.err(err);
-            });
-        }
+            }
 
-        var next = textureCache.get(mapData.id);
-        if (lastTexture != next) {
-            lastTexture = next;
-            setDrawable(next);
+            var next = textureCache.get(mapData.id);
+            if (lastTexture != next) {
+                lastTexture = next;
+                setDrawable(next);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }

@@ -14,7 +14,6 @@ import arc.util.Scaling;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindytool.config.Config;
-import mindytool.config.Utils;
 import mindytool.data.SchematicData;
 
 public class SchematicImage extends Image {
@@ -35,33 +34,40 @@ public class SchematicImage extends Image {
 
     @Override
     public void draw() {
-        super.draw();
+        try {
 
-        // textures are only requested when the rendering happens; this assists with
-        // culling
-        if (!textureCache.containsKey(schematicData.id)) {
-            textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
-            Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".webp", res -> {
-                Pixmap pix = new Pixmap(Utils.webpToPng(res.getResultAsStream()));
-                Core.app.post(() -> {
-                    try {
-                        var tex = new Texture(pix);
-                        tex.setFilter(TextureFilter.linear);
-                        textureCache.put(schematicData.id, new TextureRegion(tex));
-                        pix.dispose();
-                    } catch (Exception e) {
-                        Log.err(e);
-                    }
+            super.draw();
+
+            // textures are only requested when the rendering happens; this assists with
+            // culling
+            if (!textureCache.containsKey(schematicData.id)) {
+                textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
+                Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".jpeg", res -> {
+                    Pixmap pix = new Pixmap(res.getResult());
+
+                    Core.app.post(() -> {
+                        try {
+                            var tex = new Texture(pix);
+                            tex.setFilter(TextureFilter.linear);
+                            textureCache.put(schematicData.id, new TextureRegion(tex));
+                        } catch (Exception e) {
+                            Log.err(e);
+                        }
+                    });
+
+                    pix.dispose();
+                }, err -> {
+                    Log.err(err);
                 });
-            }, err -> {
-                Log.err(err);
-            });
-        }
+            }
 
-        var next = textureCache.get(schematicData.id);
-        if (lastTexture != next) {
-            lastTexture = next;
-            setDrawable(next);
+            var next = textureCache.get(schematicData.id);
+            if (lastTexture != next) {
+                lastTexture = next;
+                setDrawable(next);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 }
