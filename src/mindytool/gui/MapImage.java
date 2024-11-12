@@ -14,6 +14,7 @@ import arc.util.Scaling;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindytool.config.Config;
+import mindytool.config.Utils;
 import mindytool.data.MapData;
 
 public class MapImage extends Image {
@@ -41,7 +42,7 @@ public class MapImage extends Image {
         if (!textureCache.containsKey(mapData.id)) {
             textureCache.put(mapData.id, lastTexture = Core.atlas.find("nomap"));
             Http.get(Config.IMAGE_URL + "maps/" + mapData.id + ".webp", res -> {
-                Pixmap pix = new Pixmap(res.getResult());
+                Pixmap pix = new Pixmap(Utils.webpToPng(res.getResultAsStream()));
                 Core.app.post(() -> {
                     try {
                         var tex = new Texture(pix);

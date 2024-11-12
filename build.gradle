@@ -24,18 +24,13 @@ ext{
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
 
-//java 8 backwards compatibility flag
-allprojects{
-    tasks.withType(JavaCompile){
-        options.compilerArgs.addAll(['--release', '8'])
-    }
-}
-
 dependencies{
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
     
     implementation 'org.apache.httpcomponents:httpclient:4.5.14'
+    implementation 'org.sejda.imageio:webp-imageio:0.1.6'
+
 
     annotationProcessor "com.github.Anuken:jabel:$jabelVersion"
 }
