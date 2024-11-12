@@ -19,7 +19,6 @@ public class Main extends Mod {
     MapDialog mapDialog;
 
     public Main() {
-        System.load("");
         Events.on(ClientLoadEvent.class, e -> {
             Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
                 Vars.ui.schematics.hide();
