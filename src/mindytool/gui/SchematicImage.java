@@ -44,21 +44,17 @@ public class SchematicImage extends Image {
             textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
 
             Http.get(Config.IMAGE_URL + "schematic-previews/" + schematicData.id + ".webp?format=jpeg", res -> {
-                try {
-                    Pixmap pix = new Pixmap(res.getResult());
-                    Core.app.post(() -> {
-                        try {
-                            var tex = new Texture(pix);
-                            tex.setFilter(TextureFilter.linear);
-                            textureCache.put(schematicData.id, new TextureRegion(tex));
-                        } catch (Exception e) {
-                            Log.err(e);
-                        }
-                    });
-                    pix.dispose();
-                } catch (Exception e) {
-                    Log.err(e);
-                }
+                Pixmap pix = new Pixmap(res.getResult());
+                Core.app.post(() -> {
+                    try {
+                        var tex = new Texture(pix);
+                        tex.setFilter(TextureFilter.linear);
+                        textureCache.put(schematicData.id, new TextureRegion(tex));
+                        pix.dispose();
+                    } catch (Exception e) {
+                        Log.err(e);
+                    }
+                });
             }, error -> {
                 if (!(error instanceof HttpStatusException requestError)
                         || requestError.status != HttpStatus.NOT_FOUND) {
