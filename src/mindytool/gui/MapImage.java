@@ -9,6 +9,8 @@ import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Image;
 import arc.struct.ObjectMap;
 import arc.util.Http;
+import arc.util.Http.HttpStatus;
+import arc.util.Http.HttpStatusException;
 import arc.util.Log;
 import arc.util.Scaling;
 import mindustry.gen.Tex;
@@ -40,26 +42,27 @@ public class MapImage extends Image {
         // culling
         if (!textureCache.containsKey(mapData.id)) {
             textureCache.put(mapData.id, lastTexture = Core.atlas.find("nomap"));
-            try {
-                Http.get(Config.IMAGE_URL + "map-previews/" + mapData.id + ".webp?format=jpeg", res -> {
-                    try {
-                        Pixmap pix = new Pixmap(res.getResult());
-                        Core.app.post(() -> {
-                            var tex = new Texture(pix);
-                            tex.setFilter(TextureFilter.linear);
-                            textureCache.put(mapData.id, new TextureRegion(tex));
 
-                        });
-                        pix.dispose();
-                    } catch (Exception e) {
-                        Log.err(e);
-                    }
-                }, error -> {
+            Log.info("Fetch image for " + mapData.id);
+
+            Http.get(Config.IMAGE_URL + "map-previews/" + mapData.id + ".webp?format=jpeg", res -> {
+                try {
+                    Pixmap pix = new Pixmap(res.getResult());
+                    Core.app.post(() -> {
+                        var tex = new Texture(pix);
+                        tex.setFilter(TextureFilter.linear);
+                        textureCache.put(mapData.id, new TextureRegion(tex));
+                    });
+                    pix.dispose();
+                } catch (Exception e) {
+                    Log.err(e);
+                }
+            }, error -> {
+                if (!(error instanceof HttpStatusException requestError)
+                        || requestError.status != HttpStatus.NOT_FOUND) {
                     Log.err(error);
-                });
-            } catch (Exception e) {
-                Log.err(e);
-            }
+                }
+            });
         }
 
         var next = textureCache.get(mapData.id);
