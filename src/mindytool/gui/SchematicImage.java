@@ -36,35 +36,35 @@ public class SchematicImage extends Image {
     public void draw() {
         super.draw();
 
-        try {
-            // textures are only requested when the rendering happens; this assists with
-            // culling
-            if (!textureCache.containsKey(schematicData.id)) {
-                textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
-                Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".webp?format=jpeg", res -> {
-                    Core.app.post(() -> {
-                        try {
+        // textures are only requested when the rendering happens; this assists with
+        // culling
+        if (!textureCache.containsKey(schematicData.id)) {
+            textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
+            try {
+                Http.get(Config.IMAGE_URL + "schematic-previews/" + schematicData.id + ".webp?format=jpeg", res -> {
+                    try {
+                        Pixmap pix = new Pixmap(res.getResult());
+                        Core.app.post(() -> {
 
-                            Pixmap pix = new Pixmap(res.getResult());
                             var tex = new Texture(pix);
                             tex.setFilter(TextureFilter.linear);
                             textureCache.put(schematicData.id, new TextureRegion(tex));
-                            pix.dispose();
 
-                        } catch (Exception e) {
-                            Log.err(e);
-                        }
-                    });
+                        });
+                        pix.dispose();
+                    } catch (Exception e) {
+                        Log.err(e);
+                    }
                 });
+            } catch (Exception e) {
+                Log.err(e);
             }
+        }
 
-            var next = textureCache.get(schematicData.id);
-            if (lastTexture != next) {
-                lastTexture = next;
-                setDrawable(next);
-            }
-        } catch (Exception e) {
-            Log.err(e);
+        var next = textureCache.get(schematicData.id);
+        if (lastTexture != next) {
+            lastTexture = next;
+            setDrawable(next);
         }
     }
 }
