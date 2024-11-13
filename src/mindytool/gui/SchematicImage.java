@@ -55,6 +55,8 @@ public class SchematicImage extends Image {
                     } catch (Exception e) {
                         Log.err(e);
                     }
+                }, error -> {
+                    Log.err(error);
                 });
             } catch (Exception e) {
                 Log.err(e);
