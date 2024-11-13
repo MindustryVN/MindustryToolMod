@@ -48,15 +48,14 @@ public class MapImage extends Image {
             Http.get(Config.IMAGE_URL + "map-previews/" + mapData.id + ".webp?format=jpeg", res -> {
                 try {
                     Pixmap pix = new Pixmap(res.getResult());
-                    Core.app.post(() -> {
-                        var tex = new Texture(pix);
-                        tex.setFilter(TextureFilter.linear);
-                        textureCache.put(mapData.id, new TextureRegion(tex));
-                    });
+                    var tex = new Texture(pix);
+                    tex.setFilter(TextureFilter.linear);
+                    textureCache.put(mapData.id, new TextureRegion(tex));
                     pix.dispose();
                 } catch (Exception e) {
                     Log.err(e);
                 }
+
             }, error -> {
                 if (!(error instanceof HttpStatusException requestError)
                         || requestError.status != HttpStatus.NOT_FOUND) {

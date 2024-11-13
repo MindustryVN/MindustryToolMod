@@ -46,12 +46,9 @@ public class SchematicImage extends Image {
             Http.get(Config.IMAGE_URL + "schematic-previews/" + schematicData.id + ".webp?format=jpeg", res -> {
                 try {
                     Pixmap pix = new Pixmap(res.getResult());
-                    Core.app.post(() -> {
-
-                        var tex = new Texture(pix);
-                        tex.setFilter(TextureFilter.linear);
-                        textureCache.put(schematicData.id, new TextureRegion(tex));
-                    });
+                    var tex = new Texture(pix);
+                    tex.setFilter(TextureFilter.linear);
+                    textureCache.put(schematicData.id, new TextureRegion(tex));
                     pix.dispose();
                 } catch (Exception e) {
                     Log.err(e);
