@@ -34,18 +34,16 @@ public class SchematicImage extends Image {
 
     @Override
     public void draw() {
+        super.draw();
+
         try {
-
-            super.draw();
-
             // textures are only requested when the rendering happens; this assists with
             // culling
             if (!textureCache.containsKey(schematicData.id)) {
                 textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
                 Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".webp?format=jpeg", res -> {
-                    Pixmap pix = new Pixmap(res.getResult());
-
                     Core.app.post(() -> {
+                        Pixmap pix = new Pixmap(res.getResult());
                         try {
                             var tex = new Texture(pix);
                             tex.setFilter(TextureFilter.linear);
@@ -53,11 +51,8 @@ public class SchematicImage extends Image {
                         } catch (Exception e) {
                             Log.err(e);
                         }
+                        pix.dispose();
                     });
-
-                    pix.dispose();
-                }, err -> {
-                    Log.err(err);
                 });
             }
 
@@ -67,7 +62,7 @@ public class SchematicImage extends Image {
                 setDrawable(next);
             }
         } catch (Exception e) {
-            e.printStackTrace();
+            Log.err(e);
         }
     }
 }
