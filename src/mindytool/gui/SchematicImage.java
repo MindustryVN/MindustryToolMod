@@ -42,7 +42,7 @@ public class SchematicImage extends Image {
             // culling
             if (!textureCache.containsKey(schematicData.id)) {
                 textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
-                Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".jpeg", res -> {
+                Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".webp?format=jpeg", res -> {
                     Pixmap pix = new Pixmap(res.getResult());
 
                     Core.app.post(() -> {
