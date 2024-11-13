@@ -43,15 +43,15 @@ public class MapImage extends Image {
                 textureCache.put(mapData.id, lastTexture = Core.atlas.find("nomap"));
                 Http.get(Config.IMAGE_URL + "maps/" + mapData.id + ".webp?format=jpeg", res -> {
                     Core.app.post(() -> {
-                        Pixmap pix = new Pixmap(res.getResult());
                         try {
+                            Pixmap pix = new Pixmap(res.getResult());
                             var tex = new Texture(pix);
                             tex.setFilter(TextureFilter.linear);
                             textureCache.put(mapData.id, new TextureRegion(tex));
+                            pix.dispose();
                         } catch (Exception e) {
                             Log.err(e);
                         }
-                        pix.dispose();
                     });
                 });
             }

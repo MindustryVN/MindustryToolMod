@@ -43,15 +43,17 @@ public class SchematicImage extends Image {
                 textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
                 Http.get(Config.IMAGE_URL + "schematics/" + schematicData.id + ".webp?format=jpeg", res -> {
                     Core.app.post(() -> {
-                        Pixmap pix = new Pixmap(res.getResult());
                         try {
+
+                            Pixmap pix = new Pixmap(res.getResult());
                             var tex = new Texture(pix);
                             tex.setFilter(TextureFilter.linear);
                             textureCache.put(schematicData.id, new TextureRegion(tex));
+                            pix.dispose();
+
                         } catch (Exception e) {
                             Log.err(e);
                         }
-                        pix.dispose();
                     });
                 });
             }
