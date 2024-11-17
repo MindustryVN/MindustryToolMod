@@ -27,25 +27,32 @@ public class MapImage extends Image {
         setScaling(Scaling.fit);
 
         setDrawable(Core.atlas.find("nomap"));
-
-        Http.get(Config.IMAGE_URL + "map-previews/" + mapData.id + ".webp?format=jpeg", res -> {
-            Pixmap pix = new Pixmap(res.getResult());
-            Core.app.post(() -> {
-                try {
-                    var tex = new Texture(pix);
-                    tex.setFilter(TextureFilter.linear);
-                    setDrawable(new TextureRegion(tex));
-                    pix.dispose();
-                } catch (Exception e) {
-                    Log.err(e);
+        try {
+            Http.get(Config.IMAGE_URL + "map-previews/" + mapData.id + ".webp?format=jpeg", res -> {
+                var result = res.getResult();
+                Log.info(result);
+                Pixmap pix = new Pixmap(result);
+                Core.app.post(() -> {
+                    try {
+                        var tex = new Texture(pix);
+                        tex.setFilter(TextureFilter.linear);
+                        setDrawable(new TextureRegion(tex));
+                        pix.dispose();
+                    } catch (Exception e) {
+                        Log.err(e);
+                    }
+                });
+            }, error -> {
+                if (!(error instanceof HttpStatusException requestError)
+                        || requestError.status != HttpStatus.NOT_FOUND) {
+                    Log.err(error);
                 }
             });
-        }, error -> {
-            if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
-                Log.err(error);
-            }
-        });
 
+        } catch (Exception e) {
+
+            Log.err(e);
+        }
     }
 
     @Override

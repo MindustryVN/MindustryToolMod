@@ -28,23 +28,29 @@ public class SchematicImage extends Image {
 
         setDrawable(Core.atlas.find("nomap"));
 
-        Http.get(Config.IMAGE_URL + "schematic-previews/" + schematicData.id + ".webp?format=jpeg", res -> {
-            Pixmap pix = new Pixmap(res.getResult());
-            Core.app.post(() -> {
-                try {
-                    var tex = new Texture(pix);
-                    tex.setFilter(TextureFilter.linear);
-                    setDrawable(new TextureRegion(tex));
-                    pix.dispose();
-                } catch (Exception e) {
-                    Log.err(e);
+        try {
+
+            Http.get(Config.IMAGE_URL + "schematic-previews/" + schematicData.id + ".webp?format=jpeg", res -> {
+                Pixmap pix = new Pixmap(res.getResult());
+                Core.app.post(() -> {
+                    try {
+                        var tex = new Texture(pix);
+                        tex.setFilter(TextureFilter.linear);
+                        setDrawable(new TextureRegion(tex));
+                        pix.dispose();
+                    } catch (Exception e) {
+                        Log.err(e);
+                    }
+                });
+            }, error -> {
+                if (!(error instanceof HttpStatusException requestError)
+                        || requestError.status != HttpStatus.NOT_FOUND) {
+                    Log.err(error);
                 }
             });
-        }, error -> {
-            if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
-                Log.err(error);
-            }
-        });
+        } catch (Exception e) {
+            Log.err(e);
+        }
     }
 
     @Override
