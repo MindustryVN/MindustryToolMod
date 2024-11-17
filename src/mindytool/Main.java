@@ -6,6 +6,7 @@ import mindytool.gui.SchematicDialog;
 
 import arc.Core;
 import arc.Events;
+import arc.files.Fi;
 import arc.util.Http;
 import arc.util.Log;
 import arc.util.serialization.Jval;
@@ -18,7 +19,13 @@ public class Main extends Mod {
     SchematicDialog schematicDialog;
     MapDialog mapDialog;
 
+    public static Fi mapsDir = Vars.dataDirectory.child("mindustry-tool-maps");
+    public static Fi schematicDir = Vars.dataDirectory.child("mindustry-tool-schematics");
+
     public Main() {
+        Vars.dataDirectory.child("mindustry-tool-maps").mkdirs();
+        Vars.dataDirectory.child("mindustry-tool-schematics").mkdirs();
+
         Events.on(ClientLoadEvent.class, e -> {
             Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
                 Vars.ui.schematics.hide();
