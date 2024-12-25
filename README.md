@@ -30,7 +30,7 @@
 3. Launch the game and access **maps** and **schematics** directly from within the game.
 
 ### **Join the Community:**
-- **Discord:** [MindustryVN](https://discord.gg/eBzANBKCBA)
+- **Discord:** [MindustryVN](https://discord.gg/nuSYYJbQ52)
 - **Web:** [Mindustry Tool](https://mindustry-tool.com)
 
 If you like the mod, please give it a star on GitHub. Thank you for supporting **Mindustry Tool**!
