@@ -1,5 +1,7 @@
 # **Mindustry Tool**
 
+![Icon](icon.png)
+
 **Mindustry Tool** is a mod that integrates with [Mindustry Tool](https://mindustry-tool.com), enhancing the **Mindustry** gameplay experience by allowing players to share and download **maps** and **schematics** directly within the game. The mod offers seamless in-game access to a wide range of user-generated content that is carefully curated and moderated for quality.
 
 ### **Features:**
