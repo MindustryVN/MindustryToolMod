@@ -39,3 +39,5 @@ version: v1.8.19
 minGameVersion: 140
 
 java: true
+
+hidden: true
