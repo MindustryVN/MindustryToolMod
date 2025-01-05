@@ -62,7 +62,7 @@ public class Main extends Mod {
                 Vars.ui.showInfo(Core.bundle.format("messages.new-version", currentVersion, latestVersion)
                         + "\nDiscord: https://discord.gg/72324gpuCd");
             } else {
-                Log.info("Mod up tp date");
+                Log.info("Mod up to date");
             }
         });
 
