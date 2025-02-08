@@ -14,6 +14,6 @@ public class MapData {
     Long dislikes;
     Boolean isCurated;
     Boolean isVerified;
-    Integer downloadCount;
+    Long downloadCount;
     Boolean isPrivate;
 }

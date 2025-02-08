@@ -1,18 +1,14 @@
 package mindytool.gui;
 
-import static mindustry.Vars.state;
-
+import mindytool.config.Config;
 import mindytool.data.SchematicDetailData;
 import mindytool.data.SchematicDetailData.SchematicRequirement;
 import arc.Core;
 import arc.graphics.Color;
-import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
-import arc.util.Align;
 import mindustry.Vars;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
-import mindustry.gen.Tex;
 import mindustry.type.ItemSeq;
 import mindustry.type.ItemStack;
 import mindustry.ui.dialogs.BaseDialog;
@@ -34,8 +30,16 @@ public class SchematicInfoDialog extends BaseDialog {
         title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name());
         cont.add(Core.bundle.format("message.like", data.likes())).color(Color.lightGray).row();
         cont.add(new SchematicImage(data.id())).maxSize(800).row();
-        cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
-
+        cont.table(card -> {
+            card.left();
+            card.add("@author").marginRight(4).padRight(4);
+            UserCard.draw(card, data.userId());
+        }).fillX().left();
+        cont.row();
+        cont.table(stats -> DetailStats.draw(stats, data.likes(), data.dislikes(), data.downloadCount())).fillX().left();
+        cont.row();
+        cont.table(container -> TagContainer.draw(container, data.tags())).fillX().left().row();
+        cont.row();
         ItemSeq arr = toItemSeq(data.metadata().requirements());
         cont.table(r -> {
             int i = 0;
@@ -55,37 +59,15 @@ public class SchematicInfoDialog extends BaseDialog {
             }
         });
         cont.row();
+        cont.add(data.description()).left();
         buttons.clearChildren();
         buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
+        buttons.button("@open", Icon.link, () -> Core.app.openURI(Config.WEB_URL + "/schematics/" + data.id())).pad(4);
         buttons.button("@back", Icon.left, this::hide);
         // buttons.button("@editor.export", Icon.upload, () -> showExport(schem));
         // buttons.button("@edit", Icon.edit, () -> showEdit(schem));
 
         show();
-    }
-
-    void buildTags(SchematicDetailData schematic, Table container, boolean hasName) {
-        container.clearChildren();
-        container.left();
-
-        if (schematic.tags() == null) {
-            return;
-        }
-
-        if (hasName)
-            container.add("@schematic.tags").padRight(4);
-
-        container.pane(scrollPane -> {
-            scrollPane.left();
-            scrollPane.defaults().pad(3).height(42);
-
-            for (var tag : schematic.tags())
-                scrollPane.table(Tex.button, i -> i.add(tag.name())//
-                        .padRight(4)//
-                        .height(42)//
-                        .labelAlign(Align.center));
-
-        }).fillX().left().height(42).scrollY(false);
     }
 
     public ItemSeq toItemSeq(Seq<SchematicRequirement> requirement) {

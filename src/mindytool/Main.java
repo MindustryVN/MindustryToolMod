@@ -19,12 +19,14 @@ public class Main extends Mod {
     SchematicDialog schematicDialog;
     MapDialog mapDialog;
 
+    public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-images");
     public static Fi mapsDir = Vars.dataDirectory.child("mindustry-tool-maps");
     public static Fi schematicDir = Vars.dataDirectory.child("mindustry-tool-schematics");
 
     public Main() {
-        Vars.dataDirectory.child("mindustry-tool-maps").mkdirs();
-        Vars.dataDirectory.child("mindustry-tool-schematics").mkdirs();
+        imageDir.mkdirs();
+        mapsDir.mkdirs();
+        schematicDir.mkdirs();
 
         Events.on(ClientLoadEvent.class, e -> {
             Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
@@ -57,10 +59,8 @@ public class Main extends Mod {
             Jval json = Jval.read(res.getResultAsString());
             String latestVersion = json.getString("tag_name");
             if (!latestVersion.equals(currentVersion)) {
-                Log.info("Mod require update, current version: " + currentVersion + ", latest version: "
-                        + latestVersion);
-                Vars.ui.showInfo(Core.bundle.format("messages.new-version", currentVersion, latestVersion)
-                        + "\nDiscord: https://discord.gg/72324gpuCd");
+                Log.info("Mod require update, current version: " + currentVersion + ", latest version: " + latestVersion);
+                Vars.ui.showInfo(Core.bundle.format("messages.new-version", currentVersion, latestVersion) + "\nDiscord: https://discord.gg/72324gpuCd");
             } else {
                 Log.info("Mod up to date");
             }

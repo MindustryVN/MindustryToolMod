@@ -6,10 +6,7 @@ import java.security.InvalidParameterException;
 
 import arc.Core;
 import arc.graphics.Color;
-import arc.scene.ui.layout.Table;
-import arc.util.Align;
 import mindustry.gen.Icon;
-import mindustry.gen.Tex;
 import mindustry.ui.dialogs.BaseDialog;
 
 public class MapInfoDialog extends BaseDialog {
@@ -30,9 +27,17 @@ public class MapInfoDialog extends BaseDialog {
         title.setText("[[" + Core.bundle.get("map") + "] " + data.name());
         cont.add(Core.bundle.format("message.like", data.likes())).color(Color.lightGray).row();
         cont.add(new MapImage(data.id())).maxSize(800).row();
-        cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
-
+        cont.table(card -> {
+            card.left();
+            card.add("@author").marginRight(4).padRight(4);
+            UserCard.draw(card, data.userId());
+        }).fillX().left();
         cont.row();
+        cont.table(stats -> DetailStats.draw(stats, data.likes(), data.dislikes(), data.downloadCount())).fillX().left();
+        cont.row();
+        cont.table(container -> TagContainer.draw(container, data.tags())).fillX().left().row();
+        cont.row();
+        cont.add(data.description()).left();
         buttons.clearChildren();
         buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
         buttons.button("@back", Icon.left, this::hide);
@@ -40,33 +45,5 @@ public class MapInfoDialog extends BaseDialog {
         // buttons.button("@edit", Icon.edit, () -> showEdit(schem));
 
         show();
-    }
-
-    void buildTags(MapDetailData map, Table container, boolean hasName) {
-        container.clearChildren();
-        container.left();
-
-        if (map.tags() == null) {
-            return;
-        }
-
-        if (hasName)
-            container.add("@map.tags").padRight(4);
-
-        container.pane(scrollPane -> {
-            scrollPane.left();
-            scrollPane.defaults().pad(3).height(42);
-
-            for (var tag : map.tags())
-                scrollPane.table(Tex.button, i -> i.add(tag.name())//
-                        .padRight(4)//
-                        .height(42)//
-                        .labelAlign(Align.center));
-
-        })//
-                .fillX()//
-                .left()//
-                .height(42)//
-                .scrollY(false);
     }
 }

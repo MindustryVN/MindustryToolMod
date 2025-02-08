@@ -20,21 +20,21 @@ import mindustry.Vars;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindytool.Main;
-import mindytool.config.Config;
 
-public class MapImage extends Image {
-    public float scaling = 16f;
-    public float thickness = 4f;
+public class NetworkImage extends Image {
     public Color borderColor = Pal.gray;
+    public float scaling = 16f;
+    public float thickness = 1f;
 
-    private String id;
+    private boolean isError = false;
+    private String url;
     private TextureRegion lastTexture;
 
-    private static ObjectMap<String, TextureRegion> textureCache = new ObjectMap<>();
+    private static ObjectMap<String, TextureRegion> cache = new ObjectMap<>();
 
-    public MapImage(String id) {
+    public NetworkImage(String url) {
         super(Tex.clear);
-        this.id = id;
+        this.url = url;
 
         setScaling(Scaling.fit);
     }
@@ -43,10 +43,13 @@ public class MapImage extends Image {
     public void draw() {
         super.draw();
 
+        if (isError) {
+            return;
+        }
+
         try {
-            if (!textureCache.containsKey(id)) {
-                textureCache.put(id, lastTexture = Core.atlas.find("nomap"));
-                var file = Main.mapsDir.child(id + ".jpeg");
+            if (!cache.containsKey(url)) {
+                var file = Main.imageDir.child(url.replace(":", "-").replace("/", "-").replace("?", "-").replace("&", "-"));
 
                 if (file.exists()) {
                     byte[] result = file.readBytes();
@@ -55,16 +58,17 @@ public class MapImage extends Image {
                         try {
                             var tex = new Texture(pix);
                             tex.setFilter(TextureFilter.linear);
-                            textureCache.put(id, new TextureRegion(tex));
+                            cache.put(url, new TextureRegion(tex));
                             pix.dispose();
                         } catch (Exception e) {
-                            Log.err(id, e);
+                            Log.err(url, e);
                         }
                     });
 
                 } else {
 
-                    Http.get(Config.IMAGE_URL + "map-previews/" + id + ".webp?format=jpeg", res -> {
+                    Log.info("Download " + url);
+                    Http.get(url, res -> {
                         byte[] result = res.getResult();
                         if (result.length == 0)
                             return;
@@ -75,7 +79,7 @@ public class MapImage extends Image {
                                 file.writeBytes(result);
 
                             } catch (Exception error) {
-                                Log.err(id, error);
+                                Log.err(url, error);
                             }
                         });
 
@@ -83,35 +87,36 @@ public class MapImage extends Image {
                             try {
                                 var tex = new Texture(pix);
                                 tex.setFilter(TextureFilter.linear);
-                                textureCache.put(id, new TextureRegion(tex));
+                                cache.put(url, new TextureRegion(tex));
                                 pix.dispose();
                             } catch (Exception e) {
-                                Log.err(id, e);
+                                Log.err(url, e);
                             }
                         });
 
                     }, error -> {
+                        isError = true;
                         if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
-                            Log.err(id, error);
+                            Log.err(url, error);
                         }
                     });
                 }
             }
 
-            var next = textureCache.get(id);
+            var next = cache.get(url);
             if (lastTexture != next) {
                 lastTexture = next;
                 setDrawable(next);
+
+                Draw.color(borderColor);
+                Draw.alpha(parentAlpha);
+                Lines.stroke(Scl.scl(thickness));
+                Lines.rect(x, y, width, height);
+                Draw.reset();
             }
 
-            Draw.color(borderColor);
-            Draw.alpha(parentAlpha);
-            Lines.stroke(Scl.scl(thickness));
-            Lines.rect(x, y, width, height);
-            Draw.reset();
-
         } catch (Exception error) {
-            Log.err(id, error);
+            Log.err(url, error);
         }
     }
 }

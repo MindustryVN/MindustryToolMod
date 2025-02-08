@@ -173,7 +173,7 @@ public class SchematicDialog extends BaseDialog {
             float sum = 0;
 
             for (SchematicData schematicData : schematicsData) {
-                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
+                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Math.max(Core.graphics.getHeight(), Core.graphics.getWidth())) {
                     container.row();
                     sum = 0;
                 }
@@ -189,7 +189,6 @@ public class SchematicDialog extends BaseDialog {
                             buttons.defaults().size(50f);
                             buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData)).padLeft(2).padRight(2);
                             buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData)).padLeft(2).padRight(2);
-
                             buttons.button(Icon.info, Styles.emptyi, () -> Api.findSchematicById(schematicData.id(), infoDialog::show)).tooltip("@info.title");
 
                         }).growX().height(50f);
@@ -198,11 +197,27 @@ public class SchematicDialog extends BaseDialog {
                         schematicPreview.stack(new SchematicImage(schematicData.id()), new Table(schematicName -> {
                             schematicName.top();
                             schematicName.table(Styles.black3, c -> {
-                                Label label = c.add(schematicData.name()).style(Styles.outlineLabel).color(Color.white).top().growX().width(200f - 8f).get();
+                                Label label = c.add(schematicData.name())//
+                                        .style(Styles.outlineLabel)//
+                                        .color(Color.white)//
+                                        .top()//
+                                        .growX()//
+                                        .width(200f - 8f).get();
+
                                 label.setEllipsis(true);
                                 label.setAlignment(Align.center);
-                            }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
+                            })//
+                                    .growX()//
+                                    .margin(1)//
+                                    .pad(4)//
+                                    .maxWidth(Scl.scl(200f - 8f))//
+                                    .padBottom(0);
+
                         })).size(200f);
+
+                        schematicPreview.row();
+                        schematicPreview.table(stats -> DetailStats.draw(stats, schematicData.likes(), schematicData.dislikes(), schematicData.downloadCount())).margin(8);
+
                     }, () -> {
                         if (button[0].childrenPressed())
                             return;
@@ -224,6 +239,7 @@ public class SchematicDialog extends BaseDialog {
 
                     sum += button[0].getPrefWidth();
                 } catch (Exception e) {
+                    e.printStackTrace();
                 }
             }
             container.top();

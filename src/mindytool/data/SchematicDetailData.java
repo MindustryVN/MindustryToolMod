@@ -1,7 +1,5 @@
 package mindytool.data;
 
-import java.util.List;
-
 import arc.struct.Seq;
 import lombok.Data;
 import lombok.experimental.Accessors;
@@ -17,12 +15,12 @@ public class SchematicDetailData {
     int height;
     String description;
     SchematicMetadata metadata;
-    List<TagData> tags;
+    Seq<TagData> tags;
     Long likes;
     Long dislikes;
     String verifierId;
     Boolean isVerified;
-    Integer downloadCount;
+    Long downloadCount;
 
     @Data
     @Accessors(chain = true, fluent = true)

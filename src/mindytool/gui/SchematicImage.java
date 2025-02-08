@@ -5,8 +5,11 @@ import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
 import arc.graphics.Texture.TextureFilter;
+import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.Lines;
 import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Image;
+import arc.scene.ui.layout.Scl;
 import arc.struct.ObjectMap;
 import arc.util.Http;
 import arc.util.Http.HttpStatus;
@@ -45,7 +48,7 @@ public class SchematicImage extends Image {
             if (!textureCache.containsKey(id)) {
                 textureCache.put(id, lastTexture = Core.atlas.find("nomap"));
 
-                var file = Main.schematicDir.child(id + ".jepg");
+                var file = Main.schematicDir.child(id + ".jpeg");
 
                 if (file.exists()) {
                     byte[] result = file.readBytes();
@@ -107,6 +110,12 @@ public class SchematicImage extends Image {
                 lastTexture = next;
                 setDrawable(next);
             }
+
+            Draw.color(borderColor);
+            Draw.alpha(parentAlpha);
+            Lines.stroke(Scl.scl(thickness));
+            Lines.rect(x, y, width, height);
+            Draw.reset();
 
         } catch (Exception error) {
             Log.err(id, error);

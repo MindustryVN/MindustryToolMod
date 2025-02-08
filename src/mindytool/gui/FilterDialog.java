@@ -40,7 +40,7 @@ public class FilterDialog extends BaseDialog {
                     valueTable.button(Core.bundle.format("tags.values." + sort.getName()), style, () -> searchConfig.setSort(sort))///
                             .group(buttonGroup).checked(sort.equals(searchConfig.getSort()));
                 }
-            }).top().left().scrollY(false);
+            }).top().left().scrollY(false).marginBottom(12).padBottom(12);
 
             table.row();
 
@@ -51,13 +51,26 @@ public class FilterDialog extends BaseDialog {
                         valueTable.defaults().size(200, 50);
                         for (int i = 0; i < tag.values().size; i++) {
                             var value = tag.values().get(i);
-                            valueTable.button(Core.bundle.format("tags.values." + value), style, () -> searchConfig.setTag(value.name())).checked(searchConfig.containTag(value.name()));
+
+                            valueTable.button(btn -> {
+                                if (value.icon() != null && !value.icon().isBlank()) {
+                                    btn.add(new NetworkImage(value.icon()))//
+                                            .size(24)//
+                                            .padRight(4)//
+                                            .marginRight(4);
+                                }
+                                btn.add(Core.bundle.format("tags.values." + value.name()));
+                            }, style, () -> searchConfig.setTag(value.name()))//
+                                    .checked(searchConfig.containTag(value.name()))//
+                                    .padRight(4)//
+                                    .left()//
+                                    .marginRight(4);
 
                             if (i > 0 && i % 8 == 0) {
                                 valueTable.row();
                             }
                         }
-                    }).top().left().scrollY(false);
+                    }).top().left().scrollY(false).marginBottom(12).padBottom(12);
                     table.row();
                 }
             });

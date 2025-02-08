@@ -170,7 +170,7 @@ public class MapDialog extends BaseDialog {
             float sum = 0;
 
             for (MapData mapData : mapsData) {
-                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
+                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Math.max(Core.graphics.getHeight(), Core.graphics.getWidth())) {
                     container.row();
                     sum = 0;
                 }
@@ -196,6 +196,10 @@ public class MapDialog extends BaseDialog {
                             label.setAlignment(Align.center);
                         }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
                     })).size(200f);
+
+                    mapPreview.row();
+                    mapPreview.table(stats -> DetailStats.draw(stats, mapData.likes(), mapData.dislikes(), mapData.downloadCount())).margin(8);
+
                 }, () -> {
 
                 }).pad(4).style(Styles.flati).get();

@@ -17,6 +17,5 @@ public class TagData {
         String name;
         String modId;
         String icon;
-
     }
 }

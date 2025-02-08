@@ -8,6 +8,7 @@ import mindustry.io.JsonIO;
 import mindytool.config.Config;
 import mindytool.data.MapDetailData;
 import mindytool.data.SchematicDetailData;
+import mindytool.data.UserData;
 
 public class Api {
 
@@ -34,6 +35,12 @@ public class Api {
         Http.get(Config.API_URL + "maps/" + id).block(response -> {
             String data = response.getResultAsString();
             Core.app.post(() -> c.get(JsonIO.json.fromJson(MapDetailData.class, data)));
+        });
+    }
+    public static void findUSerById(String id, Cons<UserData> c) {
+        Http.get(Config.API_URL + "users/" + id).block(response -> {
+            String data = response.getResultAsString();
+            Core.app.post(() -> c.get(JsonIO.json.fromJson(UserData.class, data)));
         });
     }
 }

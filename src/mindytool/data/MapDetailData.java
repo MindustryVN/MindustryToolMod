@@ -19,6 +19,6 @@ public class MapDetailData {
     Long dislikes;
     String verifierId;
     Boolean isVerified;
-    Integer downloadCount;
+    Long downloadCount;
     Boolean isPrivate;
 }
