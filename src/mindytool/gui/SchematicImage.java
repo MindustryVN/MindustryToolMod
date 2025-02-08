@@ -18,22 +18,21 @@ import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindytool.Main;
 import mindytool.config.Config;
-import mindytool.data.SchematicData;
 
 public class SchematicImage extends Image {
     public float scaling = 16f;
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
 
-    private SchematicData schematicData;
+    private String id;
     private TextureRegion lastTexture;
 
     private static ObjectMap<String, TextureRegion> textureCache = new ObjectMap<>();
 
-    public SchematicImage(SchematicData schematicData) {
+    public SchematicImage(String id) {
         super(Tex.clear);
+        this.id = id;
         setScaling(Scaling.fit);
-        this.schematicData = schematicData;
     }
 
     @Override
@@ -42,76 +41,75 @@ public class SchematicImage extends Image {
 
         // textures are only requested when the rendering happens; this assists with
         // culling
-        if (!textureCache.containsKey(schematicData.id)) {
-            textureCache.put(schematicData.id, lastTexture = Core.atlas.find("nomap"));
+        try {
+            if (!textureCache.containsKey(id)) {
+                textureCache.put(id, lastTexture = Core.atlas.find("nomap"));
 
-            var file = Main.schematicDir.child(schematicData.id + ".jepg");
+                var file = Main.schematicDir.child(id + ".jepg");
 
-            if (file.exists()) {
-                try {
+                if (file.exists()) {
                     byte[] result = file.readBytes();
                     Pixmap pix = new Pixmap(result);
                     Core.app.post(() -> {
                         try {
                             var tex = new Texture(pix);
                             tex.setFilter(TextureFilter.linear);
-                            textureCache.put(schematicData.id, new TextureRegion(tex));
+                            textureCache.put(id, new TextureRegion(tex));
                             pix.dispose();
                         } catch (Exception e) {
-                            Log.err(schematicData.name, e);
+                            Log.err(id, e);
                         }
                     });
-                } catch (Exception error) {
-                    Log.info(new String(file.readBytes()));
-                    Log.err(schematicData.name, error);
+                } else {
+
+                    Http.get(Config.IMAGE_URL + "schematic-previews/" + id + ".webp?format=jpeg", res -> {
+                        byte[] result = res.getResult();
+                        try {
+                            if (result.length == 0)
+                                return;
+
+                            Pixmap pix = new Pixmap(result);
+
+                            Vars.mainExecutor.execute(() -> {
+                                try {
+                                    file.writeBytes(result);
+
+                                } catch (Exception error) {
+                                    Log.err(id, error);
+                                }
+                            });
+
+                            Core.app.post(() -> {
+                                try {
+                                    var tex = new Texture(pix);
+                                    tex.setFilter(TextureFilter.linear);
+                                    textureCache.put(id, new TextureRegion(tex));
+                                    pix.dispose();
+                                } catch (Exception e) {
+                                    Log.err(id, e);
+                                }
+                            });
+                        } catch (Exception error) {
+                            Log.info(new String(result));
+                            Log.err(id, error);
+                        }
+
+                    }, error -> {
+                        if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
+                            Log.err(error);
+                        }
+                    });
                 }
-            } else {
-
-                Http.get(Config.IMAGE_URL + "schematic-previews/" + schematicData.id + ".webp?format=jpeg", res -> {
-                    byte[] result = res.getResult();
-                    try {
-                        if (result.length == 0)
-                            return;
-
-                        Pixmap pix = new Pixmap(result);
-
-                        Vars.mainExecutor.execute(() -> {
-                            try {
-                                file.writeBytes(result);
-
-                            } catch (Exception error) {
-                                Log.err(schematicData.name, error);
-                            }
-                        });
-
-                        Core.app.post(() -> {
-                            try {
-                                var tex = new Texture(pix);
-                                tex.setFilter(TextureFilter.linear);
-                                textureCache.put(schematicData.id, new TextureRegion(tex));
-                                pix.dispose();
-                            } catch (Exception e) {
-                                Log.err(schematicData.name, e);
-                            }
-                        });
-                    } catch (Exception error) {
-                        Log.info(new String(result));
-                        Log.err(schematicData.name, error);
-                    }
-
-                }, error -> {
-                    if (!(error instanceof HttpStatusException requestError)
-                            || requestError.status != HttpStatus.NOT_FOUND) {
-                        Log.err(error);
-                    }
-                });
             }
-        }
 
-        var next = textureCache.get(schematicData.id);
-        if (lastTexture != next) {
-            lastTexture = next;
-            setDrawable(next);
+            var next = textureCache.get(id);
+            if (lastTexture != next) {
+                lastTexture = next;
+                setDrawable(next);
+            }
+
+        } catch (Exception error) {
+            Log.err(id, error);
         }
     }
 }

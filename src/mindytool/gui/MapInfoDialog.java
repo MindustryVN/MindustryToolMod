@@ -1,6 +1,7 @@
 package mindytool.gui;
 
-import mindytool.data.MapData;
+import mindytool.data.MapDetailData;
+
 import java.security.InvalidParameterException;
 
 import arc.Core;
@@ -20,15 +21,15 @@ public class MapInfoDialog extends BaseDialog {
         addCloseListener();
     }
 
-    public void show(MapData data) {
+    public void show(MapDetailData data) {
         if (data == null) {
             throw new InvalidParameterException("Map can not be null");
         }
         cont.clear();
 
-        title.setText("[[" + Core.bundle.get("map") + "] " + data.name);
-        cont.add(Core.bundle.format("message.like", data.likes)).color(Color.lightGray).row();
-        cont.add(new MapImage(data)).maxSize(800).row();
+        title.setText("[[" + Core.bundle.get("map") + "] " + data.name());
+        cont.add(Core.bundle.format("message.like", data.likes())).color(Color.lightGray).row();
+        cont.add(new MapImage(data.id())).maxSize(800).row();
         cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
 
         cont.row();
@@ -41,11 +42,11 @@ public class MapInfoDialog extends BaseDialog {
         show();
     }
 
-    void buildTags(MapData map, Table container, boolean hasName) {
+    void buildTags(MapDetailData map, Table container, boolean hasName) {
         container.clearChildren();
         container.left();
 
-        if (map.tags == null) {
+        if (map.tags() == null) {
             return;
         }
 
@@ -56,9 +57,16 @@ public class MapInfoDialog extends BaseDialog {
             scrollPane.left();
             scrollPane.defaults().pad(3).height(42);
 
-            for (var tag : map.tags)
-                scrollPane.table(Tex.button, i -> i.add(tag).padRight(4).height(42).labelAlign(Align.center));
+            for (var tag : map.tags())
+                scrollPane.table(Tex.button, i -> i.add(tag.name())//
+                        .padRight(4)//
+                        .height(42)//
+                        .labelAlign(Align.center));
 
-        }).fillX().left().height(42).scrollY(false);
+        })//
+                .fillX()//
+                .left()//
+                .height(42)//
+                .scrollY(false);
     }
 }

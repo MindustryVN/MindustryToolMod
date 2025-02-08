@@ -2,7 +2,7 @@ package mindytool.gui;
 
 import mindytool.config.Config;
 import mindytool.data.SearchConfig;
-import mindytool.data.Tag;
+import mindytool.data.TagData;
 import mindytool.data.TagService;
 import arc.Core;
 import arc.func.Cons;
@@ -15,9 +15,9 @@ import mindustry.ui.dialogs.BaseDialog;
 
 public class FilterDialog extends BaseDialog {
     private TextButtonStyle style = Styles.flatTogglet;
-    private final Cons<Cons<Seq<Tag>>> tagConsumer;
+    private final Cons<Cons<Seq<TagData>>> tagConsumer;
 
-    public FilterDialog(Cons<Cons<Seq<Tag>>> tagConsumer) {
+    public FilterDialog(Cons<Cons<Seq<TagData>>> tagConsumer) {
         super("");
 
         this.tagConsumer = tagConsumer;
@@ -37,9 +37,7 @@ public class FilterDialog extends BaseDialog {
             table.pane(valueTable -> {
                 valueTable.defaults().size(200, 50);
                 for (var sort : Config.sorts) {
-                    valueTable
-                            .button(Core.bundle.format("tags.values." + sort.getName()), style,
-                                    () -> searchConfig.setSort(sort))///
+                    valueTable.button(Core.bundle.format("tags.values." + sort.getName()), style, () -> searchConfig.setSort(sort))///
                             .group(buttonGroup).checked(sort.equals(searchConfig.getSort()));
                 }
             }).top().left().scrollY(false);
@@ -48,16 +46,12 @@ public class FilterDialog extends BaseDialog {
 
             tagConsumer.get(schematicTags -> {
                 for (var tag : schematicTags) {
-                    table.table(Styles.grayPanel, text -> text.add(Core.bundle.format("tags.categories." + tag.name)))
-                            .top();
+                    table.table(Styles.grayPanel, text -> text.add(Core.bundle.format("tags.categories." + tag.name()))).top();
                     table.pane(valueTable -> {
                         valueTable.defaults().size(200, 50);
-                        for (int i = 0; i < tag.values.length; i++) {
-                            var value = tag.values[i];
-                            valueTable
-                                    .button(Core.bundle.format("tags.values." + value), style,
-                                            () -> searchConfig.setTag(tag.name + "_" + value))
-                                    .checked(searchConfig.containTag(tag.name + "_" + value));
+                        for (int i = 0; i < tag.values().size; i++) {
+                            var value = tag.values().get(i);
+                            valueTable.button(Core.bundle.format("tags.values." + value), style, () -> searchConfig.setTag(value.name())).checked(searchConfig.containTag(value.name()));
 
                             if (i > 0 && i % 8 == 0) {
                                 valueTable.row();

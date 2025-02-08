@@ -2,9 +2,8 @@ package mindytool.gui;
 
 import static mindustry.Vars.state;
 
-import mindytool.data.ItemRequirement;
-import mindytool.data.SchematicData;
-
+import mindytool.data.SchematicDetailData;
+import mindytool.data.SchematicDetailData.SchematicRequirement;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.ui.layout.Table;
@@ -29,27 +28,25 @@ public class SchematicInfoDialog extends BaseDialog {
         addCloseListener();
     }
 
-    public void show(SchematicData data) {
+    public void show(SchematicDetailData data) {
         cont.clear();
 
-        title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name);
-        cont.add(Core.bundle.format("message.like", data.like)).color(Color.lightGray).row();
-        cont.add(new SchematicImage(data)).maxSize(800).row();
+        title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name());
+        cont.add(Core.bundle.format("message.like", data.likes())).color(Color.lightGray).row();
+        cont.add(new SchematicImage(data.id())).maxSize(800).row();
         cont.table(tags -> buildTags(data, tags, false)).fillX().left().row();
 
-        ItemSeq arr = toItemSeq(data.requirement);
+        ItemSeq arr = toItemSeq(data.metadata().requirements());
         cont.table(r -> {
             int i = 0;
             for (ItemStack s : arr) {
                 r.image(s.item.uiIcon).left().size(iconMed);
                 r.label(() -> {
                     Building core = player.core();
-                    if (core == null || state.isMenu() || state.rules.infiniteResources
-                            || core.items.has(s.item, s.amount))
+                    if (core == null || state.isMenu() || state.rules.infiniteResources || core.items.has(s.item, s.amount))
                         return "[lightgray]" + s.amount;
 
-                    return (core.items.has(s.item, s.amount) ? "[lightgray]" : "[scarlet]")
-                            + Math.min(core.items.get(s.item), s.amount) + "[lightgray]/" + s.amount;
+                    return (core.items.has(s.item, s.amount) ? "[lightgray]" : "[scarlet]") + Math.min(core.items.get(s.item), s.amount) + "[lightgray]/" + s.amount;
                 }).padLeft(2).left().padRight(4);
 
                 if (++i % 4 == 0) {
@@ -67,11 +64,11 @@ public class SchematicInfoDialog extends BaseDialog {
         show();
     }
 
-    void buildTags(SchematicData schematic, Table container, boolean hasName) {
+    void buildTags(SchematicDetailData schematic, Table container, boolean hasName) {
         container.clearChildren();
         container.left();
 
-        if (schematic.tags == null) {
+        if (schematic.tags() == null) {
             return;
         }
 
@@ -82,13 +79,16 @@ public class SchematicInfoDialog extends BaseDialog {
             scrollPane.left();
             scrollPane.defaults().pad(3).height(42);
 
-            for (var tag : schematic.tags)
-                scrollPane.table(Tex.button, i -> i.add(tag).padRight(4).height(42).labelAlign(Align.center));
+            for (var tag : schematic.tags())
+                scrollPane.table(Tex.button, i -> i.add(tag.name())//
+                        .padRight(4)//
+                        .height(42)//
+                        .labelAlign(Align.center));
 
         }).fillX().left().height(42).scrollY(false);
     }
 
-    public ItemSeq toItemSeq(ItemRequirement[] requirement) {
+    public ItemSeq toItemSeq(Seq<SchematicRequirement> requirement) {
         Seq<ItemStack> seq = new Seq<>();
 
         if (requirement == null) {
@@ -96,8 +96,11 @@ public class SchematicInfoDialog extends BaseDialog {
         }
 
         for (var req : requirement) {
-            seq.add(new ItemStack(Vars.content.items().find(i -> i.name.toLowerCase().equals(req.name.toLowerCase())),
-                    req.amount));
+            var item = Vars.content.items().find(i -> i.name.toLowerCase().equals(req.name().toLowerCase()));
+
+            if (item != null) {
+                seq.add(new ItemStack(item, req.amount()));
+            }
         }
 
         return new ItemSeq(seq);

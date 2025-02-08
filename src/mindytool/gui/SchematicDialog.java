@@ -14,7 +14,6 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
-import arc.util.Http;
 import arc.util.Log;
 import arc.util.Strings;
 import arc.util.serialization.Base64Coder;
@@ -32,13 +31,13 @@ import mindytool.config.Utils;
 import mindytool.data.SchematicData;
 import mindytool.data.SearchConfig;
 import mindytool.data.TagService;
+import mindytool.net.Api;
 import mindytool.net.PagingRequest;
 
 public class SchematicDialog extends BaseDialog {
 
     private final SchematicInfoDialog infoDialog = new SchematicInfoDialog();
-    private final FilterDialog filterDialog = new FilterDialog(
-            (tag) -> TagService.getTag(group -> tag.get(group.schematic)));
+    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private Seq<SchematicData> schematicsData = new Seq<>();
 
@@ -134,11 +133,9 @@ public class SchematicDialog extends BaseDialog {
                 searchField.setMessageText("@schematic.search");
             }).fillX().expandX().padBottom(2).padLeft(2).padRight(2);
 
-            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2)
-                    .padRight(2).width(60);
+            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2).padRight(2).width(60);
 
-            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)))
-                    .padLeft(2).padRight(2).width(60);
+            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult))).padLeft(2).padRight(2).width(60);
 
         }).fillX().expandX();
 
@@ -159,8 +156,7 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<TextButton> Error(Table parent, String message) {
-        Cell<TextButton> error = parent.button(message, Styles.nonet,
-                () -> request.getPage(this::handleSchematicResult));
+        Cell<TextButton> error = parent.button(message, Styles.nonet, () -> request.getPage(this::handleSchematicResult));
 
         return error.center().labelAlign(0).expand().fill();
     }
@@ -191,22 +187,18 @@ public class SchematicDialog extends BaseDialog {
                         schematicPreview.table(buttons -> {
                             buttons.center();
                             buttons.defaults().size(50f);
-                            buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData))
-                                    .padLeft(2).padRight(2);
-                            buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
-                                    .padLeft(2).padRight(2);
+                            buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData)).padLeft(2).padRight(2);
+                            buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData)).padLeft(2).padRight(2);
 
-                            buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(schematicData))
-                                    .tooltip("@info.title");
+                            buttons.button(Icon.info, Styles.emptyi, () -> Api.findSchematicById(schematicData.id(), infoDialog::show)).tooltip("@info.title");
 
                         }).growX().height(50f);
 
                         schematicPreview.row();
-                        schematicPreview.stack(new SchematicImage(schematicData), new Table(schematicName -> {
+                        schematicPreview.stack(new SchematicImage(schematicData.id()), new Table(schematicName -> {
                             schematicName.top();
                             schematicName.table(Styles.black3, c -> {
-                                Label label = c.add(schematicData.name).style(Styles.outlineLabel).color(Color.white)
-                                        .top().growX().width(200f - 8f).get();
+                                Label label = c.add(schematicData.name()).style(Styles.outlineLabel).color(Color.white).top().growX().width(200f - 8f).get();
                                 label.setEllipsis(true);
                                 label.setAlignment(Align.center);
                             }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
@@ -216,13 +208,12 @@ public class SchematicDialog extends BaseDialog {
                             return;
 
                         if (state.isMenu()) {
-                            infoDialog.show(schematicData);
+                            Api.findSchematicById(schematicData.id(), infoDialog::show);
                         } else {
                             if (!state.rules.schematicsAllowed) {
                                 ui.showInfo("@schematic.disabled");
                             } else {
-                                handleDownloadSchematicData(schematicData,
-                                        data -> control.input.useSchematic(Utils.readSchematic(data)));
+                                handleDownloadSchematicData(schematicData, data -> control.input.useSchematic(Utils.readSchematic(data)));
                                 hide();
                             }
                         }
@@ -242,12 +233,10 @@ public class SchematicDialog extends BaseDialog {
 
     private void Footer() {
         table(footer -> {
-            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult)).margin(4).pad(4)
-                    .width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
+            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
 
             footer.table(Tex.buttonDisabled, table -> {
-                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel)
-                        .labelAlign(0).center().fill();
+                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel).labelAlign(0).center().fill();
             }).pad(4).height(40);
 
             footer.button(Icon.edit, () -> {
@@ -271,8 +260,7 @@ public class SchematicDialog extends BaseDialog {
                     .width(100)//
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
-            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100)
-                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
         }).expandX().fillX();
@@ -314,18 +302,18 @@ public class SchematicDialog extends BaseDialog {
     private void handleDownloadSchematic(SchematicData schematic) {
         handleDownloadSchematicData(schematic, data -> {
             Schematic s = Utils.readSchematic(data);
-            s.labels.add(schematic.tags);
-            s.removeSteamID();
-            Vars.schematics.add(s);
-            ui.showInfoFade("@schematic.saved");
+            Api.findMapById(schematic.id(), detail -> {
+                s.labels.add(detail.tags().map(i -> i.name()));
+                s.removeSteamID();
+                Vars.schematics.add(s);
+                ui.showInfoFade("@schematic.saved");
+            });
         });
     }
 
     private void handleDownloadSchematicData(SchematicData data, Cons<String> cons) {
-        Http.get(Config.API_URL + "schematics/" + data.id + "/download").block(result -> {
-            byte[] content = result.getResult();
-
-            cons.get(new String(Base64Coder.encode(content)));
+        Api.downloadSchematic(data.id(), result -> {
+            cons.get(new String(Base64Coder.encode(result)));
         });
     }
 }

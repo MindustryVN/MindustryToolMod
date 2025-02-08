@@ -43,8 +43,9 @@ public class PagingRequest<T> {
         isLoading = true;
 
         try {
-            URIBuilder builder = new URIBuilder(url).setParameter("page", String.valueOf(page)).setParameter("size",
-                    String.valueOf(Math.min(size, 100)));
+            URIBuilder builder = new URIBuilder(url)//
+                    .setParameter("page", String.valueOf(page))//
+                    .setParameter("size", String.valueOf(Math.min(size, 100)));
 
             for (Entry<String, String> entry : options.entries())
                 builder.setParameter(entry.key, entry.value);
@@ -52,8 +53,11 @@ public class PagingRequest<T> {
             URI uri = builder.build();
             listener.get(null);
 
-            Http.get(uri.toString()).timeout(1200000).error(error -> handleError(listener, error, uri.toString()))
+            Http.get(uri.toString())//
+                    .timeout(1200000)//
+                    .error(error -> handleError(listener, error, uri.toString()))//
                     .submit(response -> handleResult(response, size, listener));
+
         } catch (Exception e) {
             handleError(listener, e, url);
         }

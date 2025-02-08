@@ -1,15 +1,17 @@
 package mindytool.data;
 
+import lombok.Data;
+import lombok.experimental.Accessors;
+
+@Data
+@Accessors(chain = true, fluent = true)
 public class SchematicData {
-    public String id;
-    public String name;
-    public String userId;
-    public String description;
-    public int like;
-    public int width;
-    public int height;
-    public String[] tags;
-    public ItemRequirement[] requirement;
-    public String verifierId;
-    public String createdAt;
+    String id;
+    String itemId;
+    String name;
+    Long likes;
+    Long dislikes;
+    Boolean isCurated;
+    Boolean isVerified;
+    Integer downloadCount;
 }

@@ -14,7 +14,6 @@ import arc.scene.ui.layout.Table;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
-import arc.util.Http;
 import arc.util.Log;
 import arc.util.Strings;
 import mindustry.Vars;
@@ -29,6 +28,7 @@ import mindytool.config.Config;
 import mindytool.data.MapData;
 import mindytool.data.SearchConfig;
 import mindytool.data.TagService;
+import mindytool.net.Api;
 import mindytool.net.PagingRequest;
 
 public class MapDialog extends BaseDialog {
@@ -130,11 +130,9 @@ public class MapDialog extends BaseDialog {
                 searchField.setMessageText("@map.search");
             }).fillX().expandX().padBottom(2).padLeft(2).padRight(2);
 
-            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2)
-                    .padRight(2).width(60);
+            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2).padRight(2).width(60);
 
-            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleMapResult)))
-                    .padLeft(2).padRight(2).width(60);
+            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleMapResult))).padLeft(2).padRight(2).width(60);
 
         }).fillX().expandX();
 
@@ -184,19 +182,16 @@ public class MapDialog extends BaseDialog {
                     mapPreview.table(buttons -> {
                         buttons.center();
                         buttons.defaults().size(50f);
-                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadMap(mapData)).padLeft(2)
-                                .padRight(2);
-
-                        buttons.button(Icon.info, Styles.emptyi, () -> infoDialog.show(mapData)).tooltip("@info.title");
+                        buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadMap(mapData)).padLeft(2).padRight(2);
+                        buttons.button(Icon.info, Styles.emptyi, () -> Api.findMapById(mapData.id(), infoDialog::show)).tooltip("@info.title");
 
                     }).growX().height(50f);
 
                     mapPreview.row();
-                    mapPreview.stack(new MapImage(mapData), new Table(mapName -> {
+                    mapPreview.stack(new MapImage(mapData.id()), new Table(mapName -> {
                         mapName.top();
                         mapName.table(Styles.black3, c -> {
-                            Label label = c.add(mapData.name).style(Styles.outlineLabel).color(Color.white).top()
-                                    .growX().width(200f - 8f).get();
+                            Label label = c.add(mapData.name()).style(Styles.outlineLabel).color(Color.white).top().growX().width(200f - 8f).get();
                             label.setEllipsis(true);
                             label.setAlignment(Align.center);
                         }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
@@ -216,12 +211,10 @@ public class MapDialog extends BaseDialog {
 
     private void Footer() {
         table(footer -> {
-            footer.button(Icon.left, () -> request.previousPage(this::handleMapResult)).margin(4).pad(4).width(100)
-                    .disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
+            footer.button(Icon.left, () -> request.previousPage(this::handleMapResult)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
 
             footer.table(Tex.buttonDisabled, table -> {
-                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel)
-                        .labelAlign(0).center().fill();
+                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel).labelAlign(0).center().fill();
             }).pad(4).height(40);
 
             footer.button(Icon.edit, () -> {
@@ -239,11 +232,9 @@ public class MapDialog extends BaseDialog {
                     .width(100)//
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
-            footer.button(Icon.right, () -> request.nextPage(this::handleMapResult)).margin(4).pad(4).width(100)
-                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+            footer.button(Icon.right, () -> request.nextPage(this::handleMapResult)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
-            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_MAP_URL)).margin(4).pad(4).width(100)
-                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_MAP_URL)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
         }).expandX().fillX();
@@ -275,10 +266,9 @@ public class MapDialog extends BaseDialog {
     }
 
     private void handleDownloadMap(MapData map) {
-        Http.get(Config.API_URL + "maps/" + map.id + "/download").block(result -> {
-            byte[] content = result.getResult();
-            Fi mapFile = Vars.customMapDirectory.child(map.id);
-            mapFile.writeBytes(content);
+        Api.downloadMap(map.id(), result -> {
+            Fi mapFile = Vars.customMapDirectory.child(map.id().toString());
+            mapFile.writeBytes(result);
             Vars.maps.importMap(mapFile);
             ui.showInfoFade("@map.saved");
         });

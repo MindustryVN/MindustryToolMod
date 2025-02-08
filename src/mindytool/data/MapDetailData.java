@@ -1,18 +1,23 @@
 package mindytool.data;
 
+import arc.struct.Seq;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
 @Data
 @Accessors(chain = true, fluent = true)
-public class MapData {
+public class MapDetailData {
     String id;
+    String name;
     String userId;
     String itemId;
-    String name;
+    int width;
+    int height;
+    String description;
+    Seq<TagData> tags;
     Long likes;
     Long dislikes;
-    Boolean isCurated;
+    String verifierId;
     Boolean isVerified;
     Integer downloadCount;
     Boolean isPrivate;
