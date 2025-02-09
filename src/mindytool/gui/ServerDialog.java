@@ -2,7 +2,6 @@ package mindytool.gui;
 
 import arc.Core;
 import arc.graphics.Color;
-import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.TextButton;
@@ -14,7 +13,6 @@ import arc.util.Log;
 import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.gen.Icon;
-import mindustry.gen.Iconc;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
