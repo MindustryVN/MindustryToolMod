@@ -15,7 +15,6 @@ import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.util.Align;
 import arc.util.Log;
-import arc.util.Strings;
 import arc.util.serialization.Base64Coder;
 import mindustry.Vars;
 import mindustry.game.Schematic;
@@ -151,18 +150,12 @@ public class SchematicDialog extends BaseDialog {
 
         row();
         pane(tagBar -> {
-            for (String tag : searchConfig.getSelectedTags()) {
-                tagBar.table(Tex.button, table -> {
-                    table.add(Strings.capitalize(tag));
-                    table.button(Icon.cancelSmall, Styles.clearNonei, () -> {
-                        searchConfig.getSelectedTags().remove(tag);
-                        options.put("tags", searchConfig.getSelectedTagsString());
-                        request.setPage(0);
-                        debouncer.debounce(() -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)));
-                        SchematicBrowser();
-                    }).margin(4);
-                });
-            }
+            TagBar.draw(tagBar, searchConfig, (searchConfig) -> {
+                options.put("tags", searchConfig.getSelectedTagsString());
+                request.setPage(0);
+                debouncer.debounce(() -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)));
+                SchematicBrowser();
+            });
         }).scrollY(false);
     }
 

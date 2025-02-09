@@ -19,22 +19,24 @@ public class TagContainer {
 
         container.pane(scrollPane -> {
             scrollPane.left();
-            scrollPane.defaults().pad(3).height(42);
+            scrollPane.defaults().pad(4).height(42);
             int i = 0;
-            for (var tag : tags)
+            for (var tag : tags) {
                 scrollPane.table(Tex.button, item -> item.add(tag.name())//
-                        .padRight(4)//
                         .height(42)//
-                        .labelAlign(Align.center));
+                        .fillX()//
+                        .growX()//
+                        .labelAlign(Align.center)//
+                ).fillX();
 
-            if (++i % 4 == 0) {
-                scrollPane.row();
+                if (++i % 4 == 0) {
+                    scrollPane.row();
+                }
             }
 
         }).fillX()//
+                .margin(20)//
                 .left()//
-                .height(42)//
-                .scrollX(true)//
-                .scrollY(false);
+                .scrollX(true);
     }
 }

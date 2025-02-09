@@ -110,8 +110,8 @@ public class FilterDialog extends BaseDialog {
                                 .marginRight(4);
                     }
                     btn.add(formatTag(value.name()));
-                }, style, () -> searchConfig.setTag(tag.name() + "_" + value.name()))//
-                        .checked(searchConfig.containTag(tag.name() + "_" + value.name()))//
+                }, style, () -> searchConfig.setTag(tag, value))//
+                        .checked(searchConfig.containTag(tag, value))//
                         .padRight(4)//
                         .padBottom(4)//
                         .left()//

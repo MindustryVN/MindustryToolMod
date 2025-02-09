@@ -4,7 +4,6 @@ import mindytool.config.Config;
 import mindytool.data.SchematicDetailData;
 import mindytool.data.SchematicDetailData.SchematicRequirement;
 import arc.Core;
-import arc.graphics.Color;
 import arc.struct.Seq;
 import mindustry.Vars;
 import mindustry.gen.Building;
@@ -92,6 +91,9 @@ public class SchematicInfoDialog extends BaseDialog {
         }
 
         for (var req : requirement) {
+            if (req.name() == null)
+                continue;
+
             var item = Vars.content.items().find(i -> i.name.toLowerCase().equals(req.name().toLowerCase()));
 
             if (item != null) {

@@ -1,11 +1,13 @@
 package mindytool.data;
 
 import mindytool.config.Config;
-import java.util.ArrayList;
-import java.util.List;
+import mindytool.data.TagData.TagValue;
+
+import arc.struct.Seq;
+import lombok.Data;
 
 public class SearchConfig {
-    private List<String> selectedTags = new ArrayList<>();
+    private Seq<SelectedTag> selectedTags = new Seq<>();
     private Sort sort = Config.sorts.get(0);
     private boolean changed = false;
 
@@ -18,14 +20,19 @@ public class SearchConfig {
     }
 
     public String getSelectedTagsString() {
-        return String.join(",", selectedTags);
+        return String.join(",", selectedTags.map(s -> s.categoryName + "_" + s.name));
     }
 
-    public List<String> getSelectedTags() {
+    public Seq<SelectedTag> getSelectedTags() {
         return selectedTags;
     }
 
-    public void setTag(String tag) {
+    public void setTag(TagData category, TagValue value) {
+        SelectedTag tag = new SelectedTag();
+        tag.name = value.name;
+        tag.categoryName = category.name;
+        tag.icon = value.icon;
+
         if (selectedTags.contains(tag)) {
             this.selectedTags.remove(tag);
         } else {
@@ -34,8 +41,8 @@ public class SearchConfig {
         changed = true;
     }
 
-    public boolean containTag(String tag) {
-        return selectedTags.contains(tag);
+    public boolean containTag(TagData category, TagValue tag) {
+        return selectedTags.contains(v -> v.name.equals(tag.name) && category.name.equals(v.categoryName));
     }
 
     public Sort getSort() {
@@ -45,5 +52,12 @@ public class SearchConfig {
     public void setSort(Sort sort) {
         this.sort = sort;
         changed = true;
+    }
+
+    @Data
+    public static class SelectedTag {
+        private String name;
+        private String categoryName;
+        private String icon;
     }
 }
