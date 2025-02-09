@@ -145,7 +145,6 @@ public class SchematicDialog extends BaseDialog {
                     .padRight(2);
 
             searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2).padRight(2).width(60);
-
             searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult))).padLeft(2).padRight(2).width(60);
 
         }).fillX().expandX();

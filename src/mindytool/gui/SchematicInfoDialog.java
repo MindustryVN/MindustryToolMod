@@ -28,17 +28,26 @@ public class SchematicInfoDialog extends BaseDialog {
         cont.clear();
 
         title.setText("[[" + Core.bundle.get("schematic") + "] " + data.name());
-        cont.add(Core.bundle.format("message.like", data.likes())).color(Color.lightGray).row();
+
         cont.add(new SchematicImage(data.id())).maxSize(800).row();
+
         cont.table(card -> {
             card.left();
             card.add(Core.bundle.format("@author")).marginRight(4).padRight(4);
             UserCard.draw(card, data.userId());
-        }).fillX().left();
+        })//
+                .fillX()//
+                .left();
+
         cont.row();
-        cont.table(stats -> DetailStats.draw(stats, data.likes(), data.dislikes(), data.downloadCount())).fillX().left();
+        cont.table(stats -> DetailStats.draw(stats, data.likes(), data.dislikes(), data.downloadCount()))//
+                .fillX()//
+                .left();
         cont.row();
-        cont.table(container -> TagContainer.draw(container, data.tags())).fillX().left().row();
+        cont.table(container -> TagContainer.draw(container, data.tags()))//
+                .fillX()//
+                .left()//
+                .row();
         cont.row();
         ItemSeq arr = toItemSeq(data.metadata().requirements());
         cont.table(r -> {
@@ -59,7 +68,12 @@ public class SchematicInfoDialog extends BaseDialog {
             }
         });
         cont.row();
-        cont.add(data.description()).left();
+        cont.add(data.description())//
+                .left()//
+                .wrap()//
+                .wrapLabel(true)//
+                .fillX();
+
         buttons.clearChildren();
         buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
         buttons.button("@open", Icon.link, () -> Core.app.openURI(Config.WEB_URL + "/schematics/" + data.id())).pad(4);
