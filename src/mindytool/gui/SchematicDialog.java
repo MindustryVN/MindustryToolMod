@@ -26,7 +26,10 @@ import mindustry.ui.dialogs.BaseDialog;
 
 import static mindustry.Vars.*;
 
+import java.util.concurrent.TimeUnit;
+
 import mindytool.config.Config;
+import mindytool.config.Debouncer;
 import mindytool.config.Utils;
 import mindytool.data.SchematicData;
 import mindytool.data.SearchConfig;
@@ -40,6 +43,7 @@ public class SchematicDialog extends BaseDialog {
     private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private Seq<SchematicData> schematicsData = new Seq<>();
+    private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
 
     private final float IMAGE_SIZE = 196;
     private final float INFO_TABLE_HEIGHT = 60;
@@ -128,6 +132,8 @@ public class SchematicDialog extends BaseDialog {
                     search = result;
                     options.put("name", result);
                     request.setPage(0);
+                    debouncer.debounce(() -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)));
+
                 }).growX().get();
 
                 searchField.setMessageText("@schematic.search");

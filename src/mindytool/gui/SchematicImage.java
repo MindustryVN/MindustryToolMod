@@ -112,7 +112,6 @@ public class SchematicImage extends Image {
             }
 
             Draw.color(borderColor);
-            Draw.alpha(parentAlpha);
             Lines.stroke(Scl.scl(thickness));
             Lines.rect(x, y, width, height);
             Draw.reset();

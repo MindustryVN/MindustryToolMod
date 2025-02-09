@@ -49,7 +49,11 @@ public class NetworkImage extends Image {
 
         try {
             if (!cache.containsKey(url)) {
-                var file = Main.imageDir.child(url.replace(":", "-").replace("/", "-").replace("?", "-").replace("&", "-"));
+                var file = Main.imageDir.child(url//
+                        .replace(":", "-")//
+                        .replace("/", "-")//
+                        .replace("?", "-")//
+                        .replace("&", "-"));
 
                 if (file.exists()) {
                     byte[] result = file.readBytes();
@@ -109,7 +113,6 @@ public class NetworkImage extends Image {
                 setDrawable(next);
 
                 Draw.color(borderColor);
-                Draw.alpha(parentAlpha);
                 Lines.stroke(Scl.scl(thickness));
                 Lines.rect(x, y, width, height);
                 Draw.reset();

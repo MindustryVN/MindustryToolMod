@@ -24,7 +24,10 @@ import mindustry.ui.dialogs.BaseDialog;
 
 import static mindustry.Vars.*;
 
+import java.util.concurrent.TimeUnit;
+
 import mindytool.config.Config;
+import mindytool.config.Debouncer;
 import mindytool.data.MapData;
 import mindytool.data.SearchConfig;
 import mindytool.data.TagService;
@@ -36,6 +39,7 @@ public class MapDialog extends BaseDialog {
     private final MapInfoDialog infoDialog = new MapInfoDialog();
     private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.map)));
 
+    private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
     private Seq<MapData> mapsData = new Seq<>();
 
     private final float IMAGE_SIZE = 196;
@@ -125,16 +129,25 @@ public class MapDialog extends BaseDialog {
                     search = result;
                     options.put("name", result);
                     request.setPage(0);
-                }).growX().get();
+                    debouncer.debounce(() -> loadingWrapper(() -> request.getPage(this::handleMapResult)));
+                })//
+                        .growX()//
+                        .get();
 
                 searchField.setMessageText("@map.search");
-            }).fillX().expandX().padBottom(2).padLeft(2).padRight(2);
+            })//
+                    .fillX()//
+                    .expandX()//
+                    .padBottom(2)//
+                    .padLeft(2)//
+                    .padRight(2);
 
             searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2).padRight(2).width(60);
-
             searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleMapResult))).padLeft(2).padRight(2).width(60);
 
-        }).fillX().expandX();
+        })//
+                .fillX()//
+                .expandX();
 
         row();
         pane(tagBar -> {

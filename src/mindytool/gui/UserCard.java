@@ -32,6 +32,7 @@ public class UserCard {
                         for (Cons<UserData> listener : l) {
                             listener.get(data);
                         }
+                        listeners.remove(id);
                     }
                 });
 
