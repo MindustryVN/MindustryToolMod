@@ -3,7 +3,7 @@ package mindytool;
 import mindytool.config.Config;
 import mindytool.gui.MapDialog;
 import mindytool.gui.SchematicDialog;
-
+import mindytool.gui.ServerDialog;
 import arc.Core;
 import arc.Events;
 import arc.files.Fi;
@@ -19,6 +19,7 @@ import mindustry.ui.fragments.MenuFragment.MenuButton;
 public class Main extends Mod {
     SchematicDialog schematicDialog;
     MapDialog mapDialog;
+    ServerDialog serverDialog;
 
     public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-images");
     public static Fi mapsDir = Vars.dataDirectory.child("mindustry-tool-maps");
@@ -41,6 +42,7 @@ public class Main extends Mod {
     private void addCustomButtons() {
         schematicDialog = new SchematicDialog();
         mapDialog = new MapDialog();
+        serverDialog = new ServerDialog();
 
         Events.on(ClientLoadEvent.class, (event) -> {
             Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
@@ -49,9 +51,14 @@ public class Main extends Mod {
             });
 
             Vars.ui.menufrag.addButton(new MenuButton("Tools", Icon.wrench, () -> {
-            }, new MenuButton(Core.bundle.format("map-browser"), Icon.map, () -> {
-                mapDialog.show();
-            })));
+            }, //
+                    new MenuButton(Core.bundle.format("map-browser"), Icon.map, () -> {
+                        mapDialog.show();
+                    }), //
+                    new MenuButton(Core.bundle.format("server-browser"), Icon.menu, () -> {
+                        serverDialog.show();
+                    })//
+            ));
         });
     }
 
