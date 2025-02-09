@@ -14,6 +14,7 @@ import mindustry.Vars;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.gen.Icon;
 import mindustry.mod.*;
+import mindustry.ui.fragments.MenuFragment.MenuButton;
 
 public class Main extends Mod {
     SchematicDialog schematicDialog;
@@ -47,9 +48,10 @@ public class Main extends Mod {
                 schematicDialog.show();
             });
 
-            Vars.ui.menufrag.addButton("Browse", Icon.menu, () -> {
+            Vars.ui.menufrag.addButton(new MenuButton("Tools", Icon.wrench, () -> {
+            }, new MenuButton(Core.bundle.format("map-browser"), Icon.map, () -> {
                 mapDialog.show();
-            });
+            })));
         });
     }
 

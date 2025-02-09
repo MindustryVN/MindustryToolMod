@@ -158,6 +158,7 @@ public class MapDialog extends BaseDialog {
                         searchConfig.getSelectedTags().remove(tag);
                         options.put("tags", searchConfig.getSelectedTagsString());
                         request.setPage(0);
+                        debouncer.debounce(() -> loadingWrapper(() -> request.getPage(this::handleMapResult)));
                         MapBrowser();
                     }).margin(4);
                 });

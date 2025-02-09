@@ -159,6 +159,7 @@ public class SchematicDialog extends BaseDialog {
                         searchConfig.getSelectedTags().remove(tag);
                         options.put("tags", searchConfig.getSelectedTagsString());
                         request.setPage(0);
+                        debouncer.debounce(() -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)));
                         SchematicBrowser();
                     }).margin(4);
                 });
