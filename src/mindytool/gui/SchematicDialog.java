@@ -329,7 +329,7 @@ public class SchematicDialog extends BaseDialog {
     private void handleDownloadSchematic(SchematicData schematic) {
         handleDownloadSchematicData(schematic, data -> {
             Schematic s = Utils.readSchematic(data);
-            Api.findMapById(schematic.id(), detail -> {
+            Api.findSchematicById(schematic.id(), detail -> {
                 s.labels.add(detail.tags().map(i -> i.name()));
                 s.removeSteamID();
                 Vars.schematics.add(s);
