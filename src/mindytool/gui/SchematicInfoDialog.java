@@ -32,7 +32,7 @@ public class SchematicInfoDialog extends BaseDialog {
         cont.add(new SchematicImage(data.id())).maxSize(800).row();
         cont.table(card -> {
             card.left();
-            card.add("@author").marginRight(4).padRight(4);
+            card.add(Core.bundle.format("@author")).marginRight(4).padRight(4);
             UserCard.draw(card, data.userId());
         }).fillX().left();
         cont.row();

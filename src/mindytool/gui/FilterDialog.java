@@ -83,8 +83,8 @@ public class FilterDialog extends BaseDialog {
                 .top()//
                 .left()//
                 .scrollY(false)//
-                .marginBottom(24)//
-                .padBottom(24);
+                .marginBottom(48)//
+                .padBottom(48);
     }
 
     public void TagSelector(Table table, SearchConfig searchConfig, TagData tag) {
@@ -105,7 +105,7 @@ public class FilterDialog extends BaseDialog {
                     btn.left();
                     if (value.icon() != null && !value.icon().isBlank()) {
                         btn.add(new NetworkImage(value.icon()))//
-                                .size(24)//
+                                .size(48)//
                                 .padRight(4)//
                                 .marginRight(4);
                     }
@@ -129,8 +129,8 @@ public class FilterDialog extends BaseDialog {
                 .left()//
                 .scrollX(true)//
                 .scrollY(false)//
-                .marginBottom(24)//
-                .padBottom(24);
+                .marginBottom(48)//
+                .padBottom(48);
     }
 
     private String formatTag(String name) {

@@ -16,7 +16,8 @@ public class Config {
     public static final String API_URL = DEV ? DEV_URL : PROD_URL;
     public static final String IMAGE_URL = "https://image.mindustry-tool.com/";
 
-    public static final String REPO_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/releases/latest";
+    public static final String API_REPO_URL = "https://api.github.com/repos/sharrlotte/MindustryToolMod/releases/latest";
+    public static final String REPO_URL = "MindustryVN/MindustryToolMod";
 
     public static final String WEB_URL = "https://mindustry-tool.com";
     public static final String UPLOAD_SCHEMATIC_URL = WEB_URL + "/upload/schematic";

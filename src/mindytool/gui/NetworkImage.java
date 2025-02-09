@@ -17,6 +17,7 @@ import arc.util.Http.HttpStatusException;
 import arc.util.Log;
 import arc.util.Scaling;
 import mindustry.Vars;
+import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindytool.Main;
@@ -49,6 +50,8 @@ public class NetworkImage extends Image {
 
         try {
             if (!cache.containsKey(url)) {
+                cache.put(url, Icon.refresh.getRegion());
+
                 var file = Main.imageDir.child(url//
                         .replace(":", "-")//
                         .replace("/", "-")//

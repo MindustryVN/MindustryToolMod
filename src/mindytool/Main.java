@@ -24,43 +24,49 @@ public class Main extends Mod {
     public static Fi schematicDir = Vars.dataDirectory.child("mindustry-tool-schematics");
 
     public Main() {
-        imageDir.mkdirs();
-        mapsDir.mkdirs();
-        schematicDir.mkdirs();
-
-        Events.on(ClientLoadEvent.class, e -> {
-            Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
-                Vars.ui.schematics.hide();
-                if (schematicDialog == null) {
-                    schematicDialog = new SchematicDialog();
-                }
-                schematicDialog.show();
-            });
-
-            Vars.ui.menufrag.addButton("Browse", Icon.menu, () -> {
-                if (mapDialog == null) {
-                    mapDialog = new MapDialog();
-                }
-                mapDialog.show();
-            });
-        });
     }
 
     @Override
     public void init() {
         checkForUpdate();
+
+        imageDir.mkdirs();
+        mapsDir.mkdirs();
+        schematicDir.mkdirs();
+
+        addCustomButtons();
     }
 
-    public void checkForUpdate() {
+    private void addCustomButtons() {
+        schematicDialog = new SchematicDialog();
+        mapDialog = new MapDialog();
+
+        Events.on(ClientLoadEvent.class, (event) -> {
+            Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
+                Vars.ui.schematics.hide();
+                schematicDialog.show();
+            });
+
+            Vars.ui.menufrag.addButton("Browse", Icon.menu, () -> {
+                mapDialog.show();
+            });
+        });
+    }
+
+    private void checkForUpdate() {
         var mod = Vars.mods.getMod(Main.class);
         String currentVersion = mod.meta.version;
 
-        Http.get(Config.REPO_URL, (res) -> {
+        Http.get(Config.API_REPO_URL, (res) -> {
             Jval json = Jval.read(res.getResultAsString());
             String latestVersion = json.getString("tag_name");
             if (!latestVersion.equals(currentVersion)) {
                 Log.info("Mod require update, current version: " + currentVersion + ", latest version: " + latestVersion);
-                Vars.ui.showInfo(Core.bundle.format("messages.new-version", currentVersion, latestVersion) + "\nDiscord: https://discord.gg/72324gpuCd");
+                Vars.ui.showConfirm(Core.bundle.format("messages.new-version", currentVersion, latestVersion) + "\nDiscord: https://discord.gg/72324gpuCd", () -> {
+                    Core.app.post(() -> {
+                        Vars.ui.mods.githubImportMod(Config.REPO_URL, true);
+                    });
+                });
             } else {
                 Log.info("Mod up to date");
             }
