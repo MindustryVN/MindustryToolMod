@@ -35,8 +35,8 @@ public class FilterDialog extends BaseDialog {
     }
 
     public void show(SearchConfig searchConfig) {
-        scale = Vars.mobile ? 0.55f : 0.75f;
-        cardSize = (int) (350 * scale);
+        scale = Vars.mobile ? 0.5f : 0.65f;
+        cardSize = (int) (300 * scale);
         cols = (int) Math.ceil(Core.graphics.getWidth() / (cardSize + CARD_GAP));
 
         TagService.onUpdate(() -> show(searchConfig));
@@ -123,6 +123,7 @@ public class FilterDialog extends BaseDialog {
 
         table.pane(card -> {
             card.defaults().size(cardSize, 50);
+            int z = 0;
 
             for (int i = 0; i < tag.values().size; i++) {
                 var value = tag.values().get(i);
@@ -144,7 +145,7 @@ public class FilterDialog extends BaseDialog {
                         .fillX()//
                         .margin(12);
 
-                if (++i % cols == 0) {
+                if (++z % cols == 0) {
                     card.row();
                 }
             }

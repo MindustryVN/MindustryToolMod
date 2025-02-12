@@ -39,7 +39,8 @@ import mindytool.net.PagingRequest;
 public class SchematicDialog extends BaseDialog {
 
     private final SchematicInfoDialog infoDialog = new SchematicInfoDialog();
-    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.schematic)));
+    private final FilterDialog filterDialog = new FilterDialog(
+            (tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private Seq<SchematicData> schematicsData = new Seq<>();
     private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
@@ -143,8 +144,10 @@ public class SchematicDialog extends BaseDialog {
                     .padLeft(2)//
                     .padRight(2);
 
-            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2).padRight(2).width(60);
-            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult))).padLeft(2).padRight(2).width(60);
+            searchBar.button(Icon.filterSmall, () -> loadingWrapper(() -> filterDialog.show(searchConfig))).padLeft(2)
+                    .padRight(2).width(60);
+            searchBar.button(Icon.zoomSmall, () -> loadingWrapper(() -> request.getPage(this::handleSchematicResult)))
+                    .padLeft(2).padRight(2).width(60);
 
         }).fillX().expandX();
 
@@ -160,7 +163,8 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private Cell<TextButton> Error(Table parent, String message) {
-        Cell<TextButton> error = parent.button(message, Styles.nonet, () -> request.getPage(this::handleSchematicResult));
+        Cell<TextButton> error = parent.button(message, Styles.nonet,
+                () -> request.getPage(this::handleSchematicResult));
 
         return error.center().labelAlign(0).expand().fill();
     }
@@ -177,7 +181,7 @@ public class SchematicDialog extends BaseDialog {
             float sum = 0;
 
             for (SchematicData schematicData : schematicsData) {
-                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Math.max(Core.graphics.getHeight(), Core.graphics.getWidth())) {
+                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
                 }
@@ -191,9 +195,13 @@ public class SchematicDialog extends BaseDialog {
                         schematicPreview.table(buttons -> {
                             buttons.center();
                             buttons.defaults().size(50f);
-                            buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData)).padLeft(2).padRight(2);
-                            buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData)).padLeft(2).padRight(2);
-                            buttons.button(Icon.info, Styles.emptyi, () -> Api.findSchematicById(schematicData.id(), infoDialog::show)).tooltip("@info.title");
+                            buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(schematicData))
+                                    .padLeft(2).padRight(2);
+                            buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(schematicData))
+                                    .padLeft(2).padRight(2);
+                            buttons.button(Icon.info, Styles.emptyi,
+                                    () -> Api.findSchematicById(schematicData.id(), infoDialog::show))
+                                    .tooltip("@info.title");
 
                         }).growX().height(50f);
 
@@ -220,7 +228,8 @@ public class SchematicDialog extends BaseDialog {
                         })).size(200f);
 
                         schematicPreview.row();
-                        schematicPreview.table(stats -> DetailStats.draw(stats, schematicData.likes(), schematicData.dislikes(), schematicData.downloadCount())).margin(8);
+                        schematicPreview.table(stats -> DetailStats.draw(stats, schematicData.likes(),
+                                schematicData.dislikes(), schematicData.downloadCount())).margin(8);
 
                     }, () -> {
                         if (button[0].childrenPressed())
@@ -232,7 +241,8 @@ public class SchematicDialog extends BaseDialog {
                             if (!state.rules.schematicsAllowed) {
                                 ui.showInfo("@schematic.disabled");
                             } else {
-                                handleDownloadSchematicData(schematicData, data -> control.input.useSchematic(Utils.readSchematic(data)));
+                                handleDownloadSchematicData(schematicData,
+                                        data -> control.input.useSchematic(Utils.readSchematic(data)));
                                 hide();
                             }
                         }
@@ -253,10 +263,12 @@ public class SchematicDialog extends BaseDialog {
 
     private void Footer() {
         table(footer -> {
-            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
+            footer.button(Icon.left, () -> request.previousPage(this::handleSchematicResult)).margin(4).pad(4)
+                    .width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
 
             footer.table(Tex.buttonDisabled, table -> {
-                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel).labelAlign(0).center().fill();
+                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel)
+                        .labelAlign(0).center().fill();
             }).pad(4).height(40);
 
             footer.button(Icon.edit, () -> {
@@ -280,7 +292,8 @@ public class SchematicDialog extends BaseDialog {
                     .width(100)//
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
-            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100)
+                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
         }).expandX().fillX();
