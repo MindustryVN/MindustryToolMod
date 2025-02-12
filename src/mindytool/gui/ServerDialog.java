@@ -86,7 +86,7 @@ public class ServerDialog extends BaseDialog {
             return parent.pane(container -> container.add("message.no-result"));
 
         return parent.pane(container -> {
-            var cols = Math.max(1, Core.scene.getWidth() / 800 + 1);
+            var cols = Math.max(1, Core.scene.getWidth() / 800);
 
             int i = 0;
             for (ServerData serverData : serversData) {
@@ -181,10 +181,12 @@ public class ServerDialog extends BaseDialog {
 
     private void Footer() {
         table(footer -> {
-            footer.button(Icon.left, () -> request.previousPage(this::handleServerResult)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
+            footer.button(Icon.left, () -> request.previousPage(this::handleServerResult)).margin(4).pad(4).width(100)
+                    .disabled(request.isLoading() || request.getPage() == 0 || request.isError()).height(40);
 
             footer.table(Tex.buttonDisabled, table -> {
-                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel).labelAlign(0).center().fill();
+                table.labelWrap(String.valueOf(request.getPage() + 1)).width(50).style(Styles.defaultLabel)
+                        .labelAlign(0).center().fill();
             }).pad(4).height(40);
 
             footer.button(Icon.edit, () -> {
@@ -208,7 +210,8 @@ public class ServerDialog extends BaseDialog {
                     .width(100)//
                     .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
-            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100).disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
+            footer.button("@upload", () -> Core.app.openURI(Config.UPLOAD_SCHEMATIC_URL)).margin(4).pad(4).width(100)
+                    .disabled(request.isLoading() || request.hasMore() == false || request.isError()).height(40);
 
             footer.bottom();
         }).expandX().fillX();
