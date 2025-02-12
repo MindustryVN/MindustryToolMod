@@ -110,7 +110,6 @@ public class FilterDialog extends BaseDialog {
                 .top()//
                 .left()//
                 .scrollY(false)//
-                .marginBottom(48)//
                 .padBottom(48);
     }
 
@@ -161,7 +160,6 @@ public class FilterDialog extends BaseDialog {
                 .left()//
                 .scrollX(true)//
                 .scrollY(false)//
-                .marginBottom(48)//
                 .padBottom(48);
     }
 
