@@ -80,6 +80,10 @@ public class SchematicDialog extends BaseDialog {
         onResize(() -> {
             setItemPerPage();
             SchematicBrowser();
+
+            if (filterDialog.isShown()) {
+                filterDialog.show(searchConfig);
+            }
         });
         request.getPage(this::handleSchematicResult);
         shown(this::SchematicBrowser);

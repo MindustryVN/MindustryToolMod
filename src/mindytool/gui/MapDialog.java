@@ -76,6 +76,9 @@ public class MapDialog extends BaseDialog {
         onResize(() -> {
             setItemPerPage();
             MapBrowser();
+            if (filterDialog.isShown()){
+                filterDialog.show(searchConfig);
+            }
         });
         request.getPage(this::handleMapResult);
         shown(this::MapBrowser);
