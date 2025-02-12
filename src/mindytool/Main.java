@@ -84,7 +84,7 @@ public class Main extends Mod {
                 Vars.ui.showConfirm(Core.bundle.format("messages.new-version", currentVersion, latestVersion)
                         + "\nDiscord: https://discord.gg/72324gpuCd", () -> {
                             Core.app.post(() -> {
-                                Vars.ui.mods.githubImportMod(Config.REPO_URL, true);
+                                Vars.ui.mods.githubImportMod(Config.REPO_URL, true, latestVersion);
                             });
                         });
             } else {
