@@ -6,7 +6,6 @@ import mindytool.data.TagData;
 import mindytool.data.TagService;
 import arc.Core;
 import arc.func.Cons;
-import arc.graphics.g2d.Draw;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextButton.TextButtonStyle;
 import arc.scene.ui.layout.Table;
@@ -24,6 +23,7 @@ public class FilterDialog extends BaseDialog {
     private int cols = 1;
     private int cardSize = 0;
     private final int CARD_GAP = 4;
+    private SearchConfig searchConfig;
 
     public FilterDialog(Cons<Cons<Seq<TagData>>> tagProvider) {
         super("");
@@ -32,19 +32,27 @@ public class FilterDialog extends BaseDialog {
         addCloseListener();
 
         this.tagProvider = tagProvider;
+
+        onResize(() -> {
+            if (searchConfig != null) {
+                show(searchConfig);
+            }
+        });
     }
 
     public void show(SearchConfig searchConfig) {
+        this.searchConfig = searchConfig;
+
         scale = Vars.mobile ? 0.8f : 1f;
         cardSize = (int) (200 * scale);
-        cols = (int) Math.ceil(Core.scene.getWidth() / (cardSize + CARD_GAP));
+        cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
 
         TagService.onUpdate(() -> show(searchConfig));
         cont.clear();
         cont.pane(table -> {
-            table.defaults().minWidth(cardSize);
             SortSelector(table, searchConfig);
             table.row();
+            table.top();
 
             tagProvider.get(schematicTags -> {
                 for (var tag : schematicTags) {
@@ -52,8 +60,6 @@ public class FilterDialog extends BaseDialog {
                     table.row();
                 }
             });
-
-            table.top();
 
         })//
                 .padLeft(20)//
@@ -70,7 +76,6 @@ public class FilterDialog extends BaseDialog {
         buttons.button("@back", Icon.left, this::hide);
 
         show();
-        Draw.scl();
     }
 
     public void SortSelector(Table table, SearchConfig searchConfig) {
