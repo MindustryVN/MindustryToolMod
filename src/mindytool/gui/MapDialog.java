@@ -178,7 +178,7 @@ public class MapDialog extends BaseDialog {
         return parent.pane(container -> {
             float sum = 0;
             for (MapData mapData : mapsData) {
-                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.graphics.getWidth()) {
+                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.scene.getWidth()) {
                     container.row();
                     sum = 0;
                 }
