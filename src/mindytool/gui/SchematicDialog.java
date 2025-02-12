@@ -45,7 +45,7 @@ public class SchematicDialog extends BaseDialog {
     private Seq<SchematicData> schematicsData = new Seq<>();
     private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
 
-    private final float IMAGE_SIZE = 196;
+    private final float IMAGE_SIZE = 210;
     private final float INFO_TABLE_HEIGHT = 60;
 
     private SearchConfig searchConfig = new SearchConfig();
@@ -185,7 +185,7 @@ public class SchematicDialog extends BaseDialog {
             float sum = 0;
 
             for (SchematicData schematicData : schematicsData) {
-                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.scene.getWidth()) {
+                if (sum + IMAGE_SIZE >= Core.scene.getWidth()) {
                     container.row();
                     sum = 0;
                 }
@@ -261,7 +261,7 @@ public class SchematicDialog extends BaseDialog {
                 }
             }
             container.top();
-        }).pad(20).scrollY(true).expand().fill();
+        }).scrollY(true).expand().fill();
 
     }
 
@@ -316,7 +316,7 @@ public class SchematicDialog extends BaseDialog {
             }
 
             SchematicScrollContainer(container);
-        }).expand().fill().margin(10).top();
+        }).expand().fill().top();
     }
 
     private void handleSchematicResult(Seq<SchematicData> schematics) {

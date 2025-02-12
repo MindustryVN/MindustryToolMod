@@ -86,7 +86,7 @@ public class ServerDialog extends BaseDialog {
             return parent.pane(container -> container.add("message.no-result"));
 
         return parent.pane(container -> {
-            var cols = Math.max(1, Core.scene.getWidth() / 800);
+            var cols = (int) Math.max(1, Core.scene.getWidth() / 800);
 
             int i = 0;
             for (ServerData serverData : serversData) {
@@ -101,7 +101,7 @@ public class ServerDialog extends BaseDialog {
                 }
             }
             container.top();
-        }).pad(20).scrollY(true).expand().fill();
+        }).scrollY(true).expand().fill();
 
     }
 
@@ -230,7 +230,7 @@ public class ServerDialog extends BaseDialog {
             }
 
             ServerScrollContainer(container);
-        }).expand().fill().margin(10).top();
+        }).expand().fill().top();
     }
 
     private void handleServerResult(Seq<ServerData> servers) {

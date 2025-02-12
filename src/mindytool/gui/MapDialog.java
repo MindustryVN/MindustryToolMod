@@ -41,7 +41,7 @@ public class MapDialog extends BaseDialog {
     private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
     private Seq<MapData> mapsData = new Seq<>();
 
-    private final float IMAGE_SIZE = 196;
+    private final float IMAGE_SIZE = 210;
     private final float INFO_TABLE_HEIGHT = 60;
 
     private SearchConfig searchConfig = new SearchConfig();
@@ -76,7 +76,7 @@ public class MapDialog extends BaseDialog {
         onResize(() -> {
             setItemPerPage();
             MapBrowser();
-            if (filterDialog.isShown()){
+            if (filterDialog.isShown()) {
                 filterDialog.show(searchConfig);
             }
         });
@@ -181,7 +181,7 @@ public class MapDialog extends BaseDialog {
         return parent.pane(container -> {
             float sum = 0;
             for (MapData mapData : mapsData) {
-                if (sum + Scl.scl(IMAGE_SIZE * 2) >= Core.scene.getWidth()) {
+                if (sum + IMAGE_SIZE >= Core.scene.getWidth()) {
                     container.row();
                     sum = 0;
                 }
@@ -224,7 +224,7 @@ public class MapDialog extends BaseDialog {
                 sum += button[0].getPrefWidth();
             }
             container.top();
-        }).pad(20).scrollY(true).expand().fill();
+        }).scrollY(true).expand().fill();
 
     }
 
@@ -276,7 +276,7 @@ public class MapDialog extends BaseDialog {
             }
 
             MapScrollContainer(container);
-        }).expand().fill().margin(10).top();
+        }).margin(0).expand().fill().top();
     }
 
     private void handleMapResult(Seq<MapData> maps) {
