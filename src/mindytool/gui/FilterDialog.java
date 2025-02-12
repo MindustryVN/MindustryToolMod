@@ -6,11 +6,13 @@ import mindytool.data.TagData;
 import mindytool.data.TagService;
 import arc.Core;
 import arc.func.Cons;
+import arc.graphics.g2d.Draw;
 import arc.scene.ui.ButtonGroup;
 import arc.scene.ui.TextButton.TextButtonStyle;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Align;
+import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
@@ -18,6 +20,10 @@ import mindustry.ui.dialogs.BaseDialog;
 public class FilterDialog extends BaseDialog {
     private TextButtonStyle style = Styles.togglet;
     private final Cons<Cons<Seq<TagData>>> tagProvider;
+    private float scale = 1;
+    private int cols = 1;
+    private int cardSize = 0;
+    private final int CARD_GAP = 4;
 
     public FilterDialog(Cons<Cons<Seq<TagData>>> tagProvider) {
         super("");
@@ -29,10 +35,14 @@ public class FilterDialog extends BaseDialog {
     }
 
     public void show(SearchConfig searchConfig) {
+        scale = !Vars.mobile ? 0.55f : 0.75f;
+        cardSize = (int) (350 * scale);
+        cols = (int) Math.ceil(Core.graphics.getWidth() / (cardSize + CARD_GAP));
+
         TagService.onUpdate(() -> show(searchConfig));
         cont.clear();
         cont.pane(table -> {
-            table.defaults().minSize(200, 50);
+            table.defaults().minWidth(cardSize);
             SortSelector(table, searchConfig);
             table.row();
 
@@ -60,24 +70,36 @@ public class FilterDialog extends BaseDialog {
         buttons.button("@back", Icon.left, this::hide);
 
         show();
+        Draw.scl();
     }
 
     public void SortSelector(Table table, SearchConfig searchConfig) {
         var buttonGroup = new ButtonGroup<>();
 
-        table.table(Styles.flatOver, text -> text.add(Core.bundle.format("messages.sort")).left().labelAlign(Align.left))//
+        table.table(Styles.flatOver,
+                text -> text.add(Core.bundle.format("messages.sort"))//
+                        .fontScale(scale)//
+                        .left()//
+                        .labelAlign(Align.left))//
                 .top()//
-                .left().padBottom(4);
+                .left()//
+                .padBottom(4);
 
         table.row();
         table.pane(card -> {
-            card.defaults().size(300, 50);
+            card.defaults().size(cardSize, 50);
+            int i = 0;
             for (var sort : Config.sorts) {
-                card.button(formatTag(sort.getName()), style, () -> searchConfig.setSort(sort))//
+                card.button(btn -> btn.add(formatTag(sort.getName())).fontScale(scale)//
+                        , style, () -> searchConfig.setSort(sort))//
                         .group(buttonGroup)//
                         .checked(sort.equals(searchConfig.getSort()))//
-                        .padRight(4)//
-                        .padBottom(4);
+                        .padRight(CARD_GAP)//
+                        .padBottom(CARD_GAP);
+
+                if (++i % cols == 0) {
+                    card.row();
+                }
             }
         })//
                 .top()//
@@ -88,7 +110,11 @@ public class FilterDialog extends BaseDialog {
     }
 
     public void TagSelector(Table table, SearchConfig searchConfig, TagData tag) {
-        table.table(Styles.flatOver, text -> text.add(Core.bundle.format("tags.categories." + tag.name())).left().labelAlign(Align.left))//
+        table.table(Styles.flatOver,
+                text -> text.add(Core.bundle.format("tags.categories." + tag.name()))//
+                        .fontScale(scale)//
+                        .left()
+                        .labelAlign(Align.left))//
                 .top()//
                 .left()//
                 .padBottom(4);
@@ -96,7 +122,7 @@ public class FilterDialog extends BaseDialog {
         table.row();
 
         table.pane(card -> {
-            card.defaults().height(50);
+            card.defaults().size(cardSize, 50);
 
             for (int i = 0; i < tag.values().size; i++) {
                 var value = tag.values().get(i);
@@ -105,20 +131,20 @@ public class FilterDialog extends BaseDialog {
                     btn.left();
                     if (value.icon() != null && !value.icon().isBlank()) {
                         btn.add(new NetworkImage(value.icon()))//
-                                .size(48)//
+                                .size(48 * scale)//
                                 .padRight(4)//
                                 .marginRight(4);
                     }
-                    btn.add(formatTag(value.name()));
+                    btn.add(formatTag(value.name())).fontScale(scale);
                 }, style, () -> searchConfig.setTag(tag, value))//
                         .checked(searchConfig.containTag(tag, value))//
-                        .padRight(4)//
-                        .padBottom(4)//
+                        .padRight(CARD_GAP)//
+                        .padBottom(CARD_GAP)//
                         .left()//
                         .fillX()//
                         .margin(12);
 
-                if (i % 5 == 4) {
+                if (++i % cols == 0) {
                     card.row();
                 }
             }
