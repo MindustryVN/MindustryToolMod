@@ -44,7 +44,7 @@ public class FilterDialog extends BaseDialog {
         this.searchConfig = searchConfig;
 
         scale = Vars.mobile ? 0.8f : 1f;
-        cardSize = (int) (200 * scale);
+        cardSize = (int) (300 * scale);
         cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
 
         TagService.onUpdate(() -> show(searchConfig));
