@@ -35,7 +35,7 @@ public class FilterDialog extends BaseDialog {
     }
 
     public void show(SearchConfig searchConfig) {
-        scale = !Vars.mobile ? 0.55f : 0.75f;
+        scale = Vars.mobile ? 0.55f : 0.75f;
         cardSize = (int) (350 * scale);
         cols = (int) Math.ceil(Core.graphics.getWidth() / (cardSize + CARD_GAP));
 
