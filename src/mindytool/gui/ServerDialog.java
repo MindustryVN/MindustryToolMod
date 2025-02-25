@@ -51,6 +51,11 @@ public class ServerDialog extends BaseDialog {
         try {
             addCloseButton();
             row();
+            table(searchBar -> {
+                searchBar.button("@back", Icon.leftSmall, this::hide)//
+                        .width(150).padLeft(2).padRight(2).left();
+            }).left();
+            row();
             ServerContainer();
             row();
             Footer();

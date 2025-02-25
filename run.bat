@@ -5,7 +5,7 @@ cls
 set "TARGET_FILE=C:\Users\hau\AppData\Roaming\Mindustry\mods\mindustryvnmindustrytoolmod.zip"
 set "BUILD_TOOL=./gradlew jar"
 set "JAR_PATH=C:\Codes\MindustryTool\MindustryToolMod\build\libs\MindustryToolModDesktop.jar"
-set "DEST_FOLDER=C:\Users\hau\AppData\Roaming\Mindustry\mods"
+set "DEST_FOLDER=C:\Users\nguyen\AppData\Roaming\Mindustry\mods"
 set "APP_TO_RUN=C:\Games\mindustry-windows-64-bit\Mindustry.exe"
 
 :: Remove specific file if it exists
@@ -27,8 +27,8 @@ if not exist "%JAR_PATH%" (
 )
 
 :: Copy JAR to destination folder
-echo Copying JAR to %DEST_FOLDER%...
-xcopy /Y "%JAR_PATH%" "%DEST_FOLDER%"
+echo Copying %JAR_PATH% to %DEST_FOLDER%...
+copy "%JAR_PATH%" "%DEST_FOLDER%" /y
 
 :: Run the specified application
 echo Running %APP_TO_RUN%...
