@@ -9,6 +9,7 @@ import lombok.Data;
 public class SearchConfig {
     private Seq<SelectedTag> selectedTags = new Seq<>();
     private Sort sort = Config.sorts.get(0);
+    private String modId;
     private boolean changed = false;
 
     public void update() {
@@ -51,6 +52,15 @@ public class SearchConfig {
 
     public void setSort(Sort sort) {
         this.sort = sort;
+        changed = true;
+    }
+
+    public String getModId() {
+        return modId;
+    }
+
+    public void setModId(String modId) {
+        this.modId = modId;
         changed = true;
     }
 
