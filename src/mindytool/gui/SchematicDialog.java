@@ -39,8 +39,6 @@ import mindytool.net.PagingRequest;
 public class SchematicDialog extends BaseDialog {
 
     private final SchematicInfoDialog infoDialog = new SchematicInfoDialog();
-    private final FilterDialog filterDialog = new FilterDialog(
-            (tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private Seq<SchematicData> schematicsData = new Seq<>();
     private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
@@ -49,6 +47,7 @@ public class SchematicDialog extends BaseDialog {
     private final float INFO_TABLE_HEIGHT = 60;
 
     private SearchConfig searchConfig = new SearchConfig();
+    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private String search = "";
 

@@ -1,5 +1,7 @@
 package mindytool.data;
 
+import java.util.HashMap;
+
 import arc.Core;
 import arc.func.Cons;
 import arc.util.Http;
@@ -12,28 +14,39 @@ public class TagService {
 
     private static Runnable onUpdate = () -> {
     };
-    private static TagGroup group = new TagGroup();
+    private static HashMap<String, TagGroup> group = new HashMap<>();
+
+    private static String modId = "";
+
+    public static void setModId(String id) {
+        modId = id == null ? "" : id;
+        onUpdate.run();
+    }
 
     public static void getTag(Cons<TagGroup> listener) {
-        if (group.schematic.isEmpty()) {
-            getTagData((tags) -> {
-                group = tags;
-                listener.get(tags);
-            });
-        } else {
-            listener.get(group);
+        var item = group.get(modId);
+        if (item != null) {
+            listener.get(item);
+            return;
         }
+
+        getTagData((tags) -> {
+            group.put(modId, tags);
+            listener.get(tags);
+        });
+
     }
 
     private static void getTagData(Cons<TagGroup> listener) {
-        Http.get(Config.API_URL + "tags").timeout(1200000)
+        Http.get(Config.API_URL + "tags" + (modId != null && !modId.isBlank() ? "?modId=" + modId : ""))
+                .timeout(1200000)
                 .error(error -> handleError(listener, error, Config.API_URL + "tags"))
                 .submit(response -> handleResult(response, listener));
     }
 
     public static void handleError(Cons<TagGroup> listener, Throwable error, String url) {
         Log.err(url, error);
-        listener.get(group);
+        listener.get(new TagGroup());
     }
 
     private static void handleResult(HttpResponse response, Cons<TagGroup> listener) {

@@ -1,6 +1,8 @@
 package mindytool.gui;
 
 import mindytool.config.Config;
+import mindytool.data.ModData;
+import mindytool.data.ModService;
 import mindytool.data.SearchConfig;
 import mindytool.data.TagData;
 import mindytool.data.TagService;
@@ -11,6 +13,7 @@ import arc.scene.ui.TextButton.TextButtonStyle;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Align;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
@@ -24,6 +27,7 @@ public class FilterDialog extends BaseDialog {
     private int cardSize = 0;
     private final int CARD_GAP = 4;
     private SearchConfig searchConfig;
+    private String modId;
 
     public FilterDialog(Cons<Cons<Seq<TagData>>> tagProvider) {
         super("");
@@ -38,6 +42,7 @@ public class FilterDialog extends BaseDialog {
                 show(searchConfig);
             }
         });
+
     }
 
     public void show(SearchConfig searchConfig) {
@@ -47,15 +52,27 @@ public class FilterDialog extends BaseDialog {
         cardSize = (int) (300 * scale);
         cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
 
+        ModService.onUpdate(() -> {
+            TagService.setModId(modId);
+            Log.info("UPdate " + modId);
+            show(searchConfig);
+        });
+        Log.info(modId);
         TagService.onUpdate(() -> show(searchConfig));
+
         cont.clear();
         cont.pane(table -> {
+            ModService.getMod(mods -> ModSelector(table, searchConfig, mods));
+
+            table.row();
             SortSelector(table, searchConfig);
             table.row();
             table.top();
 
             tagProvider.get(schematicTags -> {
                 for (var tag : schematicTags) {
+                    if (tag.values().isEmpty())
+                        continue;
                     TagSelector(table, searchConfig, tag);
                     table.row();
                 }
@@ -76,6 +93,57 @@ public class FilterDialog extends BaseDialog {
         buttons.button("@back", Icon.left, this::hide);
 
         show();
+    }
+
+    public void ModSelector(Table table, SearchConfig searchConfig, Seq<ModData> mods) {
+        table.table(Styles.flatOver,
+                text -> text.add(Core.bundle.format("messages.mod"))//
+                        .fontScale(scale)//
+                        .left()//
+                        .labelAlign(Align.left))//
+                .top()//
+                .left()//
+                .padBottom(4);
+
+        table.row();
+        table.pane(card -> {
+            card.defaults().size(cardSize, 50);
+            int i = 0;
+            for (var mod : mods) {
+                card.button(btn -> {
+                    btn.left();
+                    if (mod.getIcon() != null && !mod.getIcon().isBlank()) {
+                        btn.add(new NetworkImage(mod.getIcon()))//
+                                .size(48 * scale)//
+                                .padRight(4)//
+                                .marginRight(4);
+                    }
+                    btn.add(mod.getName()).fontScale(scale);
+                }, style,
+                        () -> {
+                            if (mod.getId().equals(modId)) {
+                                modId = null;
+                            } else {
+                                modId = mod.getId();
+                            }
+                            TagService.setModId(modId);
+                        })//
+                        .checked(mod.getId().equals(modId))//
+                        .padRight(CARD_GAP)//
+                        .padBottom(CARD_GAP)//
+                        .left()//
+                        .fillX()//
+                        .margin(12);
+
+                if (++i % cols == 0) {
+                    card.row();
+                }
+            }
+        })//
+                .top()//
+                .left()//
+                .scrollY(false)//
+                .padBottom(48);
     }
 
     public void SortSelector(Table table, SearchConfig searchConfig) {

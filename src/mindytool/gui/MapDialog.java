@@ -36,7 +36,6 @@ import mindytool.net.PagingRequest;
 public class MapDialog extends BaseDialog {
 
     private final MapInfoDialog infoDialog = new MapInfoDialog();
-    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.map)));
 
     private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
     private Seq<MapData> mapsData = new Seq<>();
@@ -45,6 +44,8 @@ public class MapDialog extends BaseDialog {
     private final float INFO_TABLE_HEIGHT = 60;
 
     private SearchConfig searchConfig = new SearchConfig();
+
+    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.map)));
 
     private String search = "";
 
@@ -68,6 +69,7 @@ public class MapDialog extends BaseDialog {
                 searchConfig.update();
                 options.put("tags", searchConfig.getSelectedTagsString());
                 options.put("sort", searchConfig.getSort().getValue());
+
                 request.setPage(0);
                 request.getPage(this::handleMapResult);
             }
