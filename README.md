@@ -45,3 +45,20 @@
 - **Web:** [Mindustry Tool](https://mindustry-tool.com)
 
 If you like the mod, please give it a star on GitHub. Thank you for supporting **Mindustry Tool**!
+
+**Translator:**
+
+| File                           | Language        | Discord username | GitHub username                                          |
+|--------------------------------|-----------------|------------------|----------------------------------------------------------|
+| [vi](/bundle_vi.properties)    | Tiếng Việt      | carrot_eo#0000   | [@junghamin1909](https://github.com/junghamin1909)       |
+| [cn](/bundle_zh_CN.properties) | 中文             | lao_hua_ji       | [@LaoHuaJiOfficial](https://github.com/LaoHuaJiOfficial) |
+| [ua](/bundle_uk_UA.properties) | украї́нська мо́ва | cergc            |                                                          |
+| [ko](/bundle_ko.properties)    | 한국어            | teong_geuri      |                                                          |
+| [be](/bundle_be.properties)    | беларуская мова | 4sterc4rd9102    |                                                          |
+
+
+
+
+
+
+
