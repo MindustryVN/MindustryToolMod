@@ -34,9 +34,9 @@ description:
     • [#00bfff[]] Website: [white[]]https://mindustry-tool.com[[]]
     • [#ff6347[]] Discord: [white[]]https://discord.gg/9EMBFt6Z[[]]
   '''
-version: v1.9.6
+version: v1.0.0
 
-minGameVersion: 140
+minGameVersion: 147
 
 java: true
 
