@@ -11,6 +11,7 @@ import arc.struct.Seq;
 import arc.struct.ObjectMap.Entry;
 import arc.util.Http;
 import arc.util.Http.HttpResponse;
+import arc.util.Http.HttpStatus;
 import arc.util.Log;
 import mindustry.io.JsonIO;
 
@@ -135,6 +136,13 @@ public class PagingRequest<T> {
     private synchronized void handleResult(HttpResponse response, int size, Cons<Seq<T>> listener) {
         isLoading = false;
         isError = false;
+
+        if (response.getStatus() != HttpStatus.OK)  {
+            isError = true;
+            error = response.getResultAsString();
+            listener.get(new Seq<>());
+            return;
+        }
 
         String data = response.getResultAsString();
         Core.app.post(() -> {
