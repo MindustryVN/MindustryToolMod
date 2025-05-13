@@ -140,6 +140,10 @@ public class PagingRequest<T> {
         Core.app.post(() -> {
             var schems = JsonIO.json.fromJson(Seq.class, clazz, data);
 
+            if (schems == null) {
+                schems = new Seq<>();
+            }
+
             hasMore = schems.size != 0;
 
             listener.get(schems);
