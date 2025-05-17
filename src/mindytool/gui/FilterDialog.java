@@ -54,7 +54,6 @@ public class FilterDialog extends BaseDialog {
 
         ModService.onUpdate(() -> {
             TagService.setModId(modId);
-            Log.info("UPdate " + modId);
             show(searchConfig);
         });
         Log.info(modId);
@@ -183,7 +182,7 @@ public class FilterDialog extends BaseDialog {
 
     public void TagSelector(Table table, SearchConfig searchConfig, TagData tag) {
         table.table(Styles.flatOver,
-                text -> text.add(Core.bundle.format("tags.categories." + tag.name()))//
+                text -> text.add(tag.name())//
                         .fontScale(scale)//
                         .left()
                         .labelAlign(Align.left))//
@@ -232,7 +231,7 @@ public class FilterDialog extends BaseDialog {
     }
 
     private String formatTag(String name) {
-        return Core.bundle.format("tags.values." + name);
+        return name;
     }
 
 }
