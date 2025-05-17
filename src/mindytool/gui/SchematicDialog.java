@@ -47,7 +47,8 @@ public class SchematicDialog extends BaseDialog {
     private final float INFO_TABLE_HEIGHT = 60;
 
     private SearchConfig searchConfig = new SearchConfig();
-    private final FilterDialog filterDialog = new FilterDialog((tag) -> TagService.getTag(group -> tag.get(group.schematic)));
+    private final FilterDialog filterDialog = new FilterDialog(
+            (tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private String search = "";
 
@@ -184,7 +185,7 @@ public class SchematicDialog extends BaseDialog {
             float sum = 0;
 
             for (SchematicData schematicData : schematicsData) {
-                if (sum + IMAGE_SIZE >= Core.scene.getWidth()) {
+                if (sum + IMAGE_SIZE * 2 >= Core.scene.getWidth()) {
                     container.row();
                     sum = 0;
                 }
