@@ -16,7 +16,6 @@ import arc.util.Http.HttpStatus;
 import arc.util.Http.HttpStatusException;
 import arc.util.Log;
 import arc.util.Scaling;
-import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
@@ -80,18 +79,15 @@ public class NetworkImage extends Image {
                         if (result.length == 0)
                             return;
 
-                        Pixmap pix = new Pixmap(result);
-                        Vars.mainExecutor.execute(() -> {
-                            try {
-                                file.writeBytes(result);
-
-                            } catch (Exception error) {
-                                Log.err(url, error);
-                            }
-                        });
+                        try {
+                            file.writeBytes(result);
+                        } catch (Exception error) {
+                            Log.err(url, error);
+                        }
 
                         Core.app.post(() -> {
                             try {
+                                Pixmap pix = new Pixmap(result);
                                 var tex = new Texture(pix);
                                 tex.setFilter(TextureFilter.linear);
                                 cache.put(url, new TextureRegion(tex));
@@ -103,7 +99,8 @@ public class NetworkImage extends Image {
 
                     }, error -> {
                         isError = true;
-                        if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
+                        if (!(error instanceof HttpStatusException requestError)
+                                || requestError.status != HttpStatus.NOT_FOUND) {
                             Log.err(url, error);
                         }
                     });
