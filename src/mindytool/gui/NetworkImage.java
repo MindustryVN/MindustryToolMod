@@ -67,13 +67,13 @@ public class NetworkImage extends Image {
                             cache.put(url, new TextureRegion(tex));
                             pix.dispose();
                         } catch (Exception e) {
+                            isError = true;
                             Log.err(url, e);
                         }
                     });
 
                 } else {
 
-                    Log.info("Download " + url);
                     Http.get(url, res -> {
                         byte[] result = res.getResult();
                         if (result.length == 0)
@@ -83,6 +83,7 @@ public class NetworkImage extends Image {
                             file.writeBytes(result);
                         } catch (Exception error) {
                             Log.err(url, error);
+                            isError = true;
                         }
 
                         Core.app.post(() -> {
@@ -94,13 +95,13 @@ public class NetworkImage extends Image {
                                 pix.dispose();
                             } catch (Exception e) {
                                 Log.err(url, e);
+                                isError = true;
                             }
                         });
 
                     }, error -> {
                         isError = true;
-                        if (!(error instanceof HttpStatusException requestError)
-                                || requestError.status != HttpStatus.NOT_FOUND) {
+                        if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
                             Log.err(url, error);
                         }
                     });

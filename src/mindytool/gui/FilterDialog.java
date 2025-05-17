@@ -13,7 +13,6 @@ import arc.scene.ui.TextButton.TextButtonStyle;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Align;
-import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
@@ -56,7 +55,7 @@ public class FilterDialog extends BaseDialog {
             TagService.setModId(modId);
             show(searchConfig);
         });
-        Log.info(modId);
+
         TagService.onUpdate(() -> show(searchConfig));
 
         cont.clear();

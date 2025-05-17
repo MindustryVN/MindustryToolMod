@@ -93,7 +93,6 @@ public class SchematicImage extends Image {
                                 }
                             });
                         } catch (Exception error) {
-                            Log.info(new String(result));
                             Log.err(id, error);
                         }
 
