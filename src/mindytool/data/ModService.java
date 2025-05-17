@@ -27,7 +27,7 @@ public class ModService {
     }
 
     private static void getModData(Cons<Seq<ModData>> listener) {
-        Http.get(Config.API_URL + "mods").timeout(1200000)
+        Http.get(Config.API_URL + "mods")
                 .error(error -> handleError(listener, error, Config.API_URL + "mods"))
                 .submit(response -> handleResult(response, listener));
     }

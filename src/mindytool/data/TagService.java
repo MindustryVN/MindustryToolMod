@@ -39,7 +39,6 @@ public class TagService {
 
     private static void getTagData(Cons<TagGroup> listener) {
         Http.get(Config.API_URL + "tags" + (modId != null && !modId.isBlank() ? "?modId=" + modId : ""))
-                .timeout(1200000)
                 .error(error -> handleError(listener, error, Config.API_URL + "tags"))
                 .submit(response -> handleResult(response, listener));
     }

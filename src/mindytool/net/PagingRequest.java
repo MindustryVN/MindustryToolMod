@@ -55,7 +55,6 @@ public class PagingRequest<T> {
             listener.get(null);
 
             Http.get(uri.toString())//
-                    .timeout(1200000)//
                     .error(error -> handleError(listener, error, uri.toString()))//
                     .submit(response -> handleResult(response, size, listener));
 
