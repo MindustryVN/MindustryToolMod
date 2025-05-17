@@ -1,6 +1,5 @@
 package mindytool.gui;
 
-import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
@@ -58,21 +57,14 @@ public class NetworkImage extends Image {
                         .replace("&", "-"));
 
                 if (file.exists()) {
-                    byte[] result = file.readBytes();
-                    Pixmap pix = new Pixmap(result);
                     try {
+                        byte[] result = file.readBytes();
+                        Pixmap pix = new Pixmap(result);
+                        var tex = new Texture(pix);
+                        tex.setFilter(TextureFilter.linear);
+                        cache.put(url, new TextureRegion(tex));
+                        pix.dispose();
 
-                        Core.app.post(() -> {
-                            try {
-                                var tex = new Texture(pix);
-                                tex.setFilter(TextureFilter.linear);
-                                cache.put(url, new TextureRegion(tex));
-                                pix.dispose();
-                            } catch (Exception e) {
-                                isError = true;
-                                Log.err(url, e);
-                            }
-                        });
                     } catch (Exception e) {
                         isError = true;
                         Log.err(url, e);
@@ -91,18 +83,17 @@ public class NetworkImage extends Image {
                             isError = true;
                         }
 
-                        Core.app.post(() -> {
-                            try {
-                                Pixmap pix = new Pixmap(result);
-                                var tex = new Texture(pix);
-                                tex.setFilter(TextureFilter.linear);
-                                cache.put(url, new TextureRegion(tex));
-                                pix.dispose();
-                            } catch (Exception e) {
-                                Log.err(url, e);
-                                isError = true;
-                            }
-                        });
+                        try {
+                            Pixmap pix = new Pixmap(result);
+                            var tex = new Texture(pix);
+                            tex.setFilter(TextureFilter.linear);
+                            cache.put(url, new TextureRegion(tex));
+                            pix.dispose();
+
+                        } catch (Exception e) {
+                            Log.err(url, e);
+                            isError = true;
+                        }
 
                     }, error -> {
                         isError = true;
@@ -125,7 +116,9 @@ public class NetworkImage extends Image {
                 Draw.reset();
             }
 
-        } catch (Exception error) {
+        } catch (
+
+        Exception error) {
             Log.err(url, error);
         }
     }
