@@ -4,7 +4,6 @@ import java.net.URI;
 
 import org.apache.http.client.utils.URIBuilder;
 
-import arc.Core;
 import arc.func.Cons;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
@@ -137,7 +136,7 @@ public class PagingRequest<T> {
         isLoading = false;
         isError = false;
 
-        if (response.getStatus() != HttpStatus.OK)  {
+        if (response.getStatus() != HttpStatus.OK) {
             isError = true;
             error = response.getResultAsString();
             listener.get(new Seq<>());
@@ -145,16 +144,14 @@ public class PagingRequest<T> {
         }
 
         String data = response.getResultAsString();
-        Core.app.post(() -> {
-            var schems = JsonIO.json.fromJson(Seq.class, clazz, data);
+        var schems = JsonIO.json.fromJson(Seq.class, clazz, data);
 
-            if (schems == null) {
-                schems = new Seq<>();
-            }
+        if (schems == null) {
+            schems = new Seq<>();
+        }
 
-            hasMore = schems.size != 0;
+        hasMore = schems.size != 0;
 
-            listener.get(schems);
-        });
+        listener.get(schems);
     }
 }
