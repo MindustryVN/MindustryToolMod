@@ -60,17 +60,23 @@ public class NetworkImage extends Image {
                 if (file.exists()) {
                     byte[] result = file.readBytes();
                     Pixmap pix = new Pixmap(result);
-                    Core.app.post(() -> {
-                        try {
-                            var tex = new Texture(pix);
-                            tex.setFilter(TextureFilter.linear);
-                            cache.put(url, new TextureRegion(tex));
-                            pix.dispose();
-                        } catch (Exception e) {
-                            isError = true;
-                            Log.err(url, e);
-                        }
-                    });
+                    try {
+
+                        Core.app.post(() -> {
+                            try {
+                                var tex = new Texture(pix);
+                                tex.setFilter(TextureFilter.linear);
+                                cache.put(url, new TextureRegion(tex));
+                                pix.dispose();
+                            } catch (Exception e) {
+                                isError = true;
+                                Log.err(url, e);
+                            }
+                        });
+                    } catch (Exception e) {
+                        isError = true;
+                        Log.err(url, e);
+                    }
 
                 } else {
 
@@ -101,7 +107,8 @@ public class NetworkImage extends Image {
 
                     }, error -> {
                         isError = true;
-                        if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
+                        if (!(error instanceof HttpStatusException requestError)
+                                || requestError.status != HttpStatus.NOT_FOUND) {
                             Log.err(url, error);
                         }
                     });
