@@ -65,14 +65,16 @@ public class MapDialog extends BaseDialog {
         request.setOptions(options);
 
         filterDialog.hidden(() -> {
-            if (searchConfig.isChanged()) {
-                searchConfig.update();
-                options.put("tags", searchConfig.getSelectedTagsString());
-                options.put("sort", searchConfig.getSort().getValue());
+            Core.app.post(() -> {
+                if (searchConfig.isChanged()) {
+                    searchConfig.update();
+                    options.put("tags", searchConfig.getSelectedTagsString());
+                    options.put("sort", searchConfig.getSort().getValue());
 
-                request.setPage(0);
-                request.getPage(this::handleMapResult);
-            }
+                    request.setPage(0);
+                    request.getPage(this::handleMapResult);
+                }
+            });
         });
 
         onResize(() -> {

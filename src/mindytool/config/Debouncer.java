@@ -2,6 +2,8 @@ package mindytool.config;
 
 import java.util.concurrent.*;
 
+import arc.Core;
+
 public class Debouncer {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private ScheduledFuture<?> future;
@@ -15,7 +17,7 @@ public class Debouncer {
         if (future != null && !future.isDone()) {
             future.cancel(false);
         }
-        future = scheduler.schedule(task, delay, TimeUnit.MILLISECONDS);
+        future = scheduler.schedule(() -> Core.app.post(task), delay, TimeUnit.MILLISECONDS);
     }
 
     public void shutdown() {
