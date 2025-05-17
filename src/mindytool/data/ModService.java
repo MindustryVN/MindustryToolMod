@@ -19,10 +19,10 @@ public class ModService {
         if (mods.isEmpty()) {
             getModData((modsData) -> {
                 mods = modsData;
-                listener.get(mods);
+                Core.app.post(() -> listener.get(mods));
             });
         } else {
-            listener.get(mods);
+            Core.app.post(() -> listener.get(mods));
         }
     }
 
@@ -34,14 +34,15 @@ public class ModService {
 
     public static void handleError(Cons<Seq<ModData>> listener, Throwable error, String url) {
         Log.err(url, error);
-        listener.get(mods);
+        Core.app.post(() -> listener.get(new Seq<>()));
     }
 
     private static void handleResult(HttpResponse response, Cons<Seq<ModData>> listener) {
         String data = response.getResultAsString();
+        @SuppressWarnings("unchecked")
+        Seq<ModData> mods = JsonIO.json.fromJson(Seq.class, ModData.class, data);
+
         Core.app.post(() -> {
-            @SuppressWarnings("unchecked")
-            Seq<ModData> mods = JsonIO.json.fromJson(Seq.class, ModData.class, data);
             listener.get(mods);
             onUpdate.run();
         });

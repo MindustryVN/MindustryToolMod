@@ -20,19 +20,19 @@ public class TagService {
 
     public static void setModId(String id) {
         modId = id == null ? "" : id;
-        onUpdate.run();
+        Core.app.post(onUpdate);
     }
 
     public static void getTag(Cons<TagGroup> listener) {
         var item = group.get(modId);
         if (item != null) {
-            listener.get(item);
+            Core.app.post(() -> listener.get(item));
             return;
         }
 
         getTagData((tags) -> {
             group.put(modId, tags);
-            listener.get(tags);
+            Core.app.post(() -> listener.get(tags));
         });
 
     }
@@ -45,13 +45,13 @@ public class TagService {
 
     public static void handleError(Cons<TagGroup> listener, Throwable error, String url) {
         Log.err(url, error);
-        listener.get(new TagGroup());
+        Core.app.post(() -> listener.get(new TagGroup()));
     }
 
     private static void handleResult(HttpResponse response, Cons<TagGroup> listener) {
         String data = response.getResultAsString();
+        var tags = JsonIO.json.fromJson(TagGroup.class, data);
         Core.app.post(() -> {
-            var tags = JsonIO.json.fromJson(TagGroup.class, data);
             listener.get(tags);
             onUpdate.run();
         });
