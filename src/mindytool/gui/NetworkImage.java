@@ -79,7 +79,6 @@ public class NetworkImage extends Image {
                     }
 
                 } else {
-
                     Http.get(url, res -> {
                         byte[] result = res.getResult();
                         if (result.length == 0)

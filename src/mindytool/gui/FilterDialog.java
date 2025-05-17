@@ -13,6 +13,7 @@ import arc.scene.ui.TextButton.TextButtonStyle;
 import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Align;
+import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
@@ -45,52 +46,57 @@ public class FilterDialog extends BaseDialog {
     }
 
     public void show(SearchConfig searchConfig) {
-        this.searchConfig = searchConfig;
+        try {
 
-        scale = Vars.mobile ? 0.8f : 1f;
-        cardSize = (int) (300 * scale);
-        cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
+            this.searchConfig = searchConfig;
 
-        ModService.onUpdate(() -> {
-            TagService.setModId(modId);
-            show(searchConfig);
-        });
+            scale = Vars.mobile ? 0.8f : 1f;
+            cardSize = (int) (300 * scale);
+            cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
 
-        TagService.onUpdate(() -> show(searchConfig));
-
-        cont.clear();
-        cont.pane(table -> {
-            ModService.getMod(mods -> ModSelector(table, searchConfig, mods));
-
-            table.row();
-            SortSelector(table, searchConfig);
-            table.row();
-            table.top();
-
-            tagProvider.get(schematicTags -> {
-                for (var tag : schematicTags) {
-                    if (tag.values().isEmpty())
-                        continue;
-                    TagSelector(table, searchConfig, tag);
-                    table.row();
-                }
+            ModService.onUpdate(() -> {
+                TagService.setModId(modId);
+                show(searchConfig);
             });
 
-        })//
-                .padLeft(20)//
-                .padRight(20)//
-                .scrollY(true)//
-                .expand()//
-                .fill()//
-                .left()//
-                .top();
+            TagService.onUpdate(() -> show(searchConfig));
 
-        cont.row();
-        buttons.clearChildren();
-        buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
-        buttons.button("@back", Icon.left, this::hide);
+            cont.clear();
+            cont.pane(table -> {
+                ModService.getMod(mods -> ModSelector(table, searchConfig, mods));
 
-        show();
+                table.row();
+                SortSelector(table, searchConfig);
+                table.row();
+                table.top();
+
+                tagProvider.get(schematicTags -> {
+                    for (var tag : schematicTags) {
+                        if (tag.values().isEmpty())
+                            continue;
+                        TagSelector(table, searchConfig, tag);
+                        table.row();
+                    }
+                });
+
+            })//
+                    .padLeft(20)//
+                    .padRight(20)//
+                    .scrollY(true)//
+                    .expand()//
+                    .fill()//
+                    .left()//
+                    .top();
+
+            cont.row();
+            buttons.clearChildren();
+            buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
+            buttons.button("@back", Icon.left, this::hide);
+
+            show();
+        } catch (Exception e) {
+            Log.err(e);
+        }
     }
 
     public void ModSelector(Table table, SearchConfig searchConfig, Seq<ModData> mods) {
