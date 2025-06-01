@@ -47,7 +47,7 @@ public class SchematicDialog extends BaseDialog {
     private final float INFO_TABLE_HEIGHT = 60;
 
     private static SearchConfig searchConfig = new SearchConfig();
-    private static final FilterDialog filterDialog = new FilterDialog(searchConfig,
+    private final FilterDialog filterDialog = new FilterDialog(searchConfig,
             (tag) -> TagService.getTag(group -> tag.get(group.schematic)));
 
     private String search = "";

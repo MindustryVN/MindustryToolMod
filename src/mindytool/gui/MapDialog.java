@@ -45,7 +45,8 @@ public class MapDialog extends BaseDialog {
 
     private static SearchConfig searchConfig = new SearchConfig();
 
-    private static final FilterDialog filterDialog = new FilterDialog(searchConfig, (tag) -> TagService.getTag(group -> tag.get(group.map)));
+    private final FilterDialog filterDialog = new FilterDialog(searchConfig,
+            (tag) -> TagService.getTag(group -> tag.get(group.map)));
 
     private String search = "";
 
