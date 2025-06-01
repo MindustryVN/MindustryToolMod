@@ -168,7 +168,6 @@ public class FilterDialog extends BaseDialog {
                 card.button(btn -> btn.add(formatTag(sort.getName())).fontScale(scale)//
                         , style, () -> {
                             searchConfig.setSort(sort);
-                            Core.app.post(() -> show(searchConfig));
                         })//
                         .group(buttonGroup)//
                         .checked(sort.equals(searchConfig.getSort()))//
@@ -217,7 +216,6 @@ public class FilterDialog extends BaseDialog {
                     btn.add(formatTag(value.name())).fontScale(scale);
                 }, style, () -> {
                     searchConfig.setTag(tag, value);
-                    Core.app.post(() -> show(searchConfig));
                 })//
                         .checked(searchConfig.containTag(tag, value))//
                         .padRight(CARD_GAP)//

@@ -21,7 +21,7 @@ public class Main extends Mod {
     MapDialog mapDialog;
     ServerDialog serverDialog;
 
-    public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-images");
+    public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-caches");
     public static Fi mapsDir = Vars.dataDirectory.child("mindustry-tool-maps");
     public static Fi schematicDir = Vars.dataDirectory.child("mindustry-tool-schematics");
 
