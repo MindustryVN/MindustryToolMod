@@ -56,8 +56,8 @@ public class FilterDialog extends BaseDialog {
             cardSize = (int) (300 * scale);
             cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
 
-            clear();
-            pane(table -> {
+            cont.clear();
+            cont.pane(table -> {
                 ModService.getMod(mods -> ModSelector(table, searchConfig, mods));
 
                 table.row();
@@ -69,8 +69,9 @@ public class FilterDialog extends BaseDialog {
                     for (var tag : schematicTags) {
                         if (tag.values().isEmpty())
                             continue;
-                        TagSelector(table, searchConfig, tag);
+
                         table.row();
+                        TagSelector(table, searchConfig, tag);
                     }
                 });
             })//
@@ -82,11 +83,12 @@ public class FilterDialog extends BaseDialog {
                     .left()//
                     .top();
 
-            row();
+            cont.row();
             buttons.clearChildren();
             buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
             buttons.button("@back", Icon.left, this::hide);
 
+            addCloseButton();
             show();
         } catch (Exception e) {
             Log.err(e);
