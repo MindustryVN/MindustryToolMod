@@ -26,6 +26,7 @@ public class SchematicImage extends Image {
     public float scaling = 16f;
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
+    private boolean isError = false;
 
     private String id;
     private TextureRegion lastTexture;
@@ -41,6 +42,21 @@ public class SchematicImage extends Image {
     @Override
     public void draw() {
         super.draw();
+
+        var next = textureCache.get(id);
+        if (lastTexture != next) {
+            lastTexture = next;
+            setDrawable(next);
+        }
+
+        Draw.color(borderColor);
+        Lines.stroke(Scl.scl(thickness));
+        Lines.rect(x, y, width, height);
+        Draw.reset();
+
+        if (isError) {
+            return;
+        }
 
         // textures are only requested when the rendering happens; this assists with
         // culling
@@ -61,10 +77,10 @@ public class SchematicImage extends Image {
                             pix.dispose();
                         } catch (Exception e) {
                             Log.err(id, e);
+                            isError = true;
                         }
                     });
                 } else {
-
                     Http.get(Config.IMAGE_URL + "schematic-previews/" + id + ".webp?format=jpeg", res -> {
                         byte[] result = res.getResult();
                         try {
@@ -76,7 +92,6 @@ public class SchematicImage extends Image {
                             Vars.mainExecutor.execute(() -> {
                                 try {
                                     file.writeBytes(result);
-
                                 } catch (Exception error) {
                                     Log.err(id, error);
                                 }
@@ -90,33 +105,27 @@ public class SchematicImage extends Image {
                                     pix.dispose();
                                 } catch (Exception e) {
                                     Log.err(id, e);
+                                    isError = true;
                                 }
                             });
                         } catch (Exception error) {
                             Log.err(id, error);
+                            isError = true;
                         }
 
                     }, error -> {
-                        if (!(error instanceof HttpStatusException requestError) || requestError.status != HttpStatus.NOT_FOUND) {
+                        if (!(error instanceof HttpStatusException requestError)
+                                || requestError.status != HttpStatus.NOT_FOUND) {
                             Log.err(error);
+                            isError = true;
                         }
                     });
                 }
             }
 
-            var next = textureCache.get(id);
-            if (lastTexture != next) {
-                lastTexture = next;
-                setDrawable(next);
-            }
-
-            Draw.color(borderColor);
-            Lines.stroke(Scl.scl(thickness));
-            Lines.rect(x, y, width, height);
-            Draw.reset();
-
         } catch (Exception error) {
             Log.err(id, error);
+            isError = true;
         }
     }
 }

@@ -1,5 +1,6 @@
 package mindytool.gui;
 
+import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
 import arc.graphics.Texture;
@@ -42,6 +43,18 @@ public class NetworkImage extends Image {
     public void draw() {
         super.draw();
 
+        var next = cache.get(url);
+
+        if (lastTexture != next) {
+            lastTexture = next;
+            setDrawable(next);
+
+            Draw.color(borderColor);
+            Lines.stroke(Scl.scl(thickness));
+            Lines.rect(x, y, width, height);
+            Draw.reset();
+        }
+
         if (isError) {
             return;
         }
@@ -60,10 +73,17 @@ public class NetworkImage extends Image {
                     try {
                         byte[] result = file.readBytes();
                         Pixmap pix = new Pixmap(result);
-                        var tex = new Texture(pix);
-                        tex.setFilter(TextureFilter.linear);
-                        cache.put(url, new TextureRegion(tex));
-                        pix.dispose();
+                        Core.app.post(() -> {
+                            try {
+                                var tex = new Texture(pix);
+                                tex.setFilter(TextureFilter.linear);
+                                cache.put(url, new TextureRegion(tex));
+                                pix.dispose();
+                            } catch (Exception e) {
+                                Log.err(url, e);
+                                isError = true;
+                            }
+                        });
 
                     } catch (Exception e) {
                         isError = true;
@@ -71,7 +91,7 @@ public class NetworkImage extends Image {
                     }
 
                 } else {
-                    Http.get(url, res -> {
+                    Http.get(url + "?format=jpeg", res -> {
                         byte[] result = res.getResult();
                         if (result.length == 0)
                             return;
@@ -83,17 +103,19 @@ public class NetworkImage extends Image {
                             isError = true;
                         }
 
-                        try {
-                            Pixmap pix = new Pixmap(result);
-                            var tex = new Texture(pix);
-                            tex.setFilter(TextureFilter.linear);
-                            cache.put(url, new TextureRegion(tex));
-                            pix.dispose();
+                        Core.app.post(() -> {
+                            try {
+                                Pixmap pix = new Pixmap(result);
+                                var tex = new Texture(pix);
+                                tex.setFilter(TextureFilter.linear);
+                                cache.put(url, new TextureRegion(tex));
+                                pix.dispose();
 
-                        } catch (Exception e) {
-                            Log.err(url, e);
-                            isError = true;
-                        }
+                            } catch (Exception e) {
+                                Log.err(url, e);
+                                isError = true;
+                            }
+                        });
 
                     }, error -> {
                         isError = true;
@@ -105,21 +127,9 @@ public class NetworkImage extends Image {
                 }
             }
 
-            var next = cache.get(url);
-            if (lastTexture != next) {
-                lastTexture = next;
-                setDrawable(next);
-
-                Draw.color(borderColor);
-                Lines.stroke(Scl.scl(thickness));
-                Lines.rect(x, y, width, height);
-                Draw.reset();
-            }
-
-        } catch (
-
-        Exception error) {
+        } catch (Exception error) {
             Log.err(url, error);
+            isError = true;
         }
     }
 }
