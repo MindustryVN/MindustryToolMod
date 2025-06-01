@@ -12,18 +12,18 @@ import mindytool.config.Config;
 
 public class TagService {
 
-    private static Runnable onUpdate = () -> {
+    private Runnable onUpdate = () -> {
     };
     private static HashMap<String, TagGroup> group = new HashMap<>();
 
-    private static String modId = "";
+    private String modId = "";
 
-    public static void setModId(String id) {
+    public void setModId(String id) {
         modId = id == null ? "" : id;
         Core.app.post(onUpdate);
     }
 
-    public static void getTag(Cons<TagGroup> listener) {
+    public void getTag(Cons<TagGroup> listener) {
         var item = group.get(modId);
         if (item != null) {
             Core.app.post(() -> listener.get(item));
@@ -37,18 +37,18 @@ public class TagService {
 
     }
 
-    private static void getTagData(Cons<TagGroup> listener) {
+    private void getTagData(Cons<TagGroup> listener) {
         Http.get(Config.API_URL + "tags" + (modId != null && !modId.isBlank() ? "?modId=" + modId : ""))
                 .error(error -> handleError(listener, error, Config.API_URL + "tags"))
                 .submit(response -> handleResult(response, listener));
     }
 
-    public static void handleError(Cons<TagGroup> listener, Throwable error, String url) {
+    public void handleError(Cons<TagGroup> listener, Throwable error, String url) {
         Log.err(url, error);
         Core.app.post(() -> listener.get(new TagGroup()));
     }
 
-    private static void handleResult(HttpResponse response, Cons<TagGroup> listener) {
+    private void handleResult(HttpResponse response, Cons<TagGroup> listener) {
         String data = response.getResultAsString();
         var tags = JsonIO.json.fromJson(TagGroup.class, data);
         Core.app.post(() -> {
@@ -57,7 +57,7 @@ public class TagService {
         });
     }
 
-    public static void onUpdate(Runnable callback) {
+    public void onUpdate(Runnable callback) {
         onUpdate = callback;
     }
 }

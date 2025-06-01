@@ -28,9 +28,13 @@ public class FilterDialog extends BaseDialog {
     private final int CARD_GAP = 4;
     private String modId;
 
-    public FilterDialog(SearchConfig searchConfig, Cons<Cons<Seq<TagData>>> tagProvider) {
-        super("");
+    private ModService modService = new ModService();
+    private final TagService tagService;
 
+    public FilterDialog(TagService tagService, SearchConfig searchConfig, Cons<Cons<Seq<TagData>>> tagProvider) {
+        super("");
+        
+        this.tagService = tagService;
         setFillParent(true);
         addCloseListener();
 
@@ -44,12 +48,12 @@ public class FilterDialog extends BaseDialog {
     }
 
     public void show(SearchConfig searchConfig) {
-        ModService.onUpdate(() -> {
-            TagService.setModId(modId);
+        modService.onUpdate(() -> {
+            tagService.setModId(modId);
             show(searchConfig);
         });
 
-        TagService.onUpdate(() -> show(searchConfig));
+        tagService.onUpdate(() -> show(searchConfig));
 
         try {
             scale = Vars.mobile ? 0.8f : 1f;
@@ -58,7 +62,7 @@ public class FilterDialog extends BaseDialog {
 
             cont.clear();
             cont.pane(table -> {
-                ModService.getMod(mods -> ModSelector(table, searchConfig, mods));
+                modService.getMod(mods -> ModSelector(table, searchConfig, mods));
 
                 table.row();
                 SortSelector(table, searchConfig);
@@ -127,7 +131,7 @@ public class FilterDialog extends BaseDialog {
                             } else {
                                 modId = mod.getId();
                             }
-                            TagService.setModId(modId);
+                            tagService.setModId(modId);
                             Core.app.post(() -> show(searchConfig));
                         })//
                         .checked(mod.getId().equals(modId))//

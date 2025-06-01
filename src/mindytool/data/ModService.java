@@ -11,11 +11,11 @@ import mindytool.config.Config;
 
 public class ModService {
 
-    private static Runnable onUpdate = () -> {
+    private Runnable onUpdate = () -> {
     };
     private static Seq<ModData> mods = new Seq<>();
 
-    public static void getMod(Cons<Seq<ModData>> listener) {
+    public void getMod(Cons<Seq<ModData>> listener) {
         if (mods.isEmpty()) {
             getModData((modsData) -> {
                 mods = modsData;
@@ -26,18 +26,18 @@ public class ModService {
         }
     }
 
-    private static void getModData(Cons<Seq<ModData>> listener) {
+    private void getModData(Cons<Seq<ModData>> listener) {
         Http.get(Config.API_URL + "mods")
                 .error(error -> handleError(listener, error, Config.API_URL + "mods"))
                 .submit(response -> handleResult(response, listener));
     }
 
-    public static void handleError(Cons<Seq<ModData>> listener, Throwable error, String url) {
+    public void handleError(Cons<Seq<ModData>> listener, Throwable error, String url) {
         Log.err(url, error);
         Core.app.post(() -> listener.get(new Seq<>()));
     }
 
-    private static void handleResult(HttpResponse response, Cons<Seq<ModData>> listener) {
+    private void handleResult(HttpResponse response, Cons<Seq<ModData>> listener) {
         String data = response.getResultAsString();
         @SuppressWarnings("unchecked")
         Seq<ModData> mods = JsonIO.json.fromJson(Seq.class, ModData.class, data);
@@ -48,7 +48,7 @@ public class ModService {
         });
     }
 
-    public static void onUpdate(Runnable callback) {
+    public void onUpdate(Runnable callback) {
         onUpdate = callback;
     }
 
