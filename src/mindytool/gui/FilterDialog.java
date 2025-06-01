@@ -41,16 +41,16 @@ public class FilterDialog extends BaseDialog {
                 show(searchConfig);
             }
         });
+    }
 
+    public void show(SearchConfig searchConfig) {
         ModService.onUpdate(() -> {
             TagService.setModId(modId);
             show(searchConfig);
         });
 
         TagService.onUpdate(() -> show(searchConfig));
-    }
 
-    public void show(SearchConfig searchConfig) {
         try {
             scale = Vars.mobile ? 0.8f : 1f;
             cardSize = (int) (300 * scale);
