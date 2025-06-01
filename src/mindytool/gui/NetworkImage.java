@@ -84,9 +84,9 @@ public class NetworkImage extends Image {
                                 isError = true;
                             }
                         });
-
                     } catch (Exception e) {
                         isError = true;
+                        file.delete();
                         Log.err(url, e);
                     }
 

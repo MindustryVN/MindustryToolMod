@@ -43,9 +43,9 @@ public class MapDialog extends BaseDialog {
     private final float IMAGE_SIZE = 210;
     private final float INFO_TABLE_HEIGHT = 60;
 
-    private SearchConfig searchConfig = new SearchConfig();
+    private static SearchConfig searchConfig = new SearchConfig();
 
-    private final FilterDialog filterDialog = new FilterDialog(searchConfig, (tag) -> TagService.getTag(group -> tag.get(group.map)));
+    private static final FilterDialog filterDialog = new FilterDialog(searchConfig, (tag) -> TagService.getTag(group -> tag.get(group.map)));
 
     private String search = "";
 

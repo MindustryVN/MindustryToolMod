@@ -56,8 +56,8 @@ public class FilterDialog extends BaseDialog {
             cardSize = (int) (300 * scale);
             cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
 
-            cont.clear();
-            cont.pane(table -> {
+            clear();
+            pane(table -> {
                 ModService.getMod(mods -> ModSelector(table, searchConfig, mods));
 
                 table.row();
@@ -82,7 +82,7 @@ public class FilterDialog extends BaseDialog {
                     .left()//
                     .top();
 
-            cont.row();
+            row();
             buttons.clearChildren();
             buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
             buttons.button("@back", Icon.left, this::hide);
@@ -113,7 +113,7 @@ public class FilterDialog extends BaseDialog {
                     btn.left();
                     if (mod.getIcon() != null && !mod.getIcon().isBlank()) {
                         btn.add(new NetworkImage(mod.getIcon()))//
-                                .size(48 * scale)//
+                                .size(40 * scale)//
                                 .padRight(4)//
                                 .marginRight(4);
                     }
@@ -209,7 +209,7 @@ public class FilterDialog extends BaseDialog {
                     btn.left();
                     if (value.icon() != null && !value.icon().isBlank()) {
                         btn.add(new NetworkImage(value.icon()))//
-                                .size(48 * scale)//
+                                .size(40 * scale)//
                                 .padRight(4)//
                                 .marginRight(4);
                     }
