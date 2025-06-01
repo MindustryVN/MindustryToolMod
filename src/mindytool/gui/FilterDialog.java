@@ -101,7 +101,7 @@ public class FilterDialog extends BaseDialog {
                         .labelAlign(Align.left))//
                 .top()//
                 .left()//
-                .fillX()
+                .expandX()
                 .padBottom(4);
 
         table.row();
@@ -126,6 +126,7 @@ public class FilterDialog extends BaseDialog {
                                 modId = mod.getId();
                             }
                             TagService.setModId(modId);
+                            Core.app.post(() -> show(searchConfig));
                         })//
                         .checked(mod.getId().equals(modId))//
                         .padRight(CARD_GAP)//
@@ -141,6 +142,7 @@ public class FilterDialog extends BaseDialog {
         })//
                 .top()//
                 .left()//
+                .expandX()
                 .scrollY(false)//
                 .padBottom(48);
     }
@@ -155,7 +157,7 @@ public class FilterDialog extends BaseDialog {
                         .labelAlign(Align.left))//
                 .top()//
                 .left()//
-                .fillX()
+                .expandX()
                 .padBottom(4);
 
         table.row();
@@ -164,7 +166,10 @@ public class FilterDialog extends BaseDialog {
             int i = 0;
             for (var sort : Config.sorts) {
                 card.button(btn -> btn.add(formatTag(sort.getName())).fontScale(scale)//
-                        , style, () -> searchConfig.setSort(sort))//
+                        , style, () -> {
+                            searchConfig.setSort(sort);
+                            Core.app.post(() -> show(searchConfig));
+                        })//
                         .group(buttonGroup)//
                         .checked(sort.equals(searchConfig.getSort()))//
                         .padRight(CARD_GAP)//
@@ -177,7 +182,7 @@ public class FilterDialog extends BaseDialog {
         })//
                 .top()//
                 .left()//
-                .fillX()
+                .expandX()
                 .scrollY(false)//
                 .padBottom(48);
     }
@@ -210,12 +215,15 @@ public class FilterDialog extends BaseDialog {
                                 .marginRight(4);
                     }
                     btn.add(formatTag(value.name())).fontScale(scale);
-                }, style, () -> searchConfig.setTag(tag, value))//
+                }, style, () -> {
+                    searchConfig.setTag(tag, value);
+                    Core.app.post(() -> show(searchConfig));
+                })//
                         .checked(searchConfig.containTag(tag, value))//
                         .padRight(CARD_GAP)//
                         .padBottom(CARD_GAP)//
                         .left()//
-                        .fillX()//
+                        .expandX()
                         .margin(12);
 
                 if (++z % cols == 0) {
@@ -227,7 +235,7 @@ public class FilterDialog extends BaseDialog {
                 .wrap()//
                 .top()//
                 .left()//
-                .fillX()
+                .expandX()
                 .scrollX(true)//
                 .scrollY(false)//
                 .padBottom(48);
