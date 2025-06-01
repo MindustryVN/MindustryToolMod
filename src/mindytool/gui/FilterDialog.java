@@ -43,6 +43,12 @@ public class FilterDialog extends BaseDialog {
             }
         });
 
+        ModService.onUpdate(() -> {
+            TagService.setModId(modId);
+            show(searchConfig);
+        });
+
+        TagService.onUpdate(() -> show(searchConfig));
     }
 
     public void show(SearchConfig searchConfig) {
@@ -53,13 +59,6 @@ public class FilterDialog extends BaseDialog {
             scale = Vars.mobile ? 0.8f : 1f;
             cardSize = (int) (300 * scale);
             cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
-
-            ModService.onUpdate(() -> {
-                TagService.setModId(modId);
-                show(searchConfig);
-            });
-
-            TagService.onUpdate(() -> show(searchConfig));
 
             cont.clear();
             cont.pane(table -> {
@@ -78,7 +77,6 @@ public class FilterDialog extends BaseDialog {
                         table.row();
                     }
                 });
-
             })//
                     .padLeft(20)//
                     .padRight(20)//
@@ -107,6 +105,7 @@ public class FilterDialog extends BaseDialog {
                         .labelAlign(Align.left))//
                 .top()//
                 .left()//
+                .fillX()
                 .padBottom(4);
 
         table.row();
@@ -160,6 +159,7 @@ public class FilterDialog extends BaseDialog {
                         .labelAlign(Align.left))//
                 .top()//
                 .left()//
+                .fillX()
                 .padBottom(4);
 
         table.row();
@@ -181,6 +181,7 @@ public class FilterDialog extends BaseDialog {
         })//
                 .top()//
                 .left()//
+                .fillX()
                 .scrollY(false)//
                 .padBottom(48);
     }
@@ -230,6 +231,7 @@ public class FilterDialog extends BaseDialog {
                 .wrap()//
                 .top()//
                 .left()//
+                .fillX()
                 .scrollX(true)//
                 .scrollY(false)//
                 .padBottom(48);
