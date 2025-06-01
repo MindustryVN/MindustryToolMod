@@ -26,10 +26,9 @@ public class FilterDialog extends BaseDialog {
     private int cols = 1;
     private int cardSize = 0;
     private final int CARD_GAP = 4;
-    private SearchConfig searchConfig;
     private String modId;
 
-    public FilterDialog(Cons<Cons<Seq<TagData>>> tagProvider) {
+    public FilterDialog(SearchConfig searchConfig, Cons<Cons<Seq<TagData>>> tagProvider) {
         super("");
 
         setFillParent(true);
@@ -53,9 +52,6 @@ public class FilterDialog extends BaseDialog {
 
     public void show(SearchConfig searchConfig) {
         try {
-
-            this.searchConfig = searchConfig;
-
             scale = Vars.mobile ? 0.8f : 1f;
             cardSize = (int) (300 * scale);
             cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
