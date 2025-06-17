@@ -55,6 +55,7 @@ public class PagingRequest<T> {
             listener.get(null);
 
             Http.get(uri.toString())//
+                    .timeout(1000 * 5)
                     .error(error -> handleError(listener, error, uri.toString()))//
                     .submit(response -> handleResult(response, size, listener));
 
@@ -136,7 +137,7 @@ public class PagingRequest<T> {
         isLoading = false;
         isError = false;
 
-        if (response.getStatus() != HttpStatus.OK)  {
+        if (response.getStatus() != HttpStatus.OK) {
             isError = true;
             error = response.getResultAsString();
             listener.get(new Seq<>());
