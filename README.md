@@ -1,7 +1,7 @@
 # **[Mindustry Tool](https://mindustry-tool.com)**
 
 ![GitHub all releases](https://img.shields.io/github/downloads/MindustryVN/MindustryToolMod/total?style=flat-square)
-![GitHub release (latest by date)](https://img.shields.io/github/downloads/MindustryVN/MindustryToolMod/latest/total?style=flat-square) [![Discord](https://img.shields.io/discord/1295206730925609002?label=Discord&logo=discord&style=flat&color=5865F2&labelColor=2C2F33)](https://discord.gg/YGuBQ3g9fQ)<br>
+![GitHub release (latest by date)](https://img.shields.io/github/downloads/MindustryVN/MindustryToolMod/latest/total?style=flat-square) [![Discord](https://img.shields.io/discord/1295206730925609002.svg?logo=discord&logoColor=white&logoWidth=20&labelColor=7289DA&label=Discord&color=17cf48)](https://discord.gg/YGuBQ3g9fQ)<br>
 
 ![Icon](banner.png)
 
