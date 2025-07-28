@@ -185,7 +185,8 @@ public class NetworkProxy extends Client implements NetListener {
                 // Create a new connection
                 if (object instanceof Packets.ConnectionJoinPacket) {
                     // Check if the link is the right
-                    if (((Packets.ConnectionJoinPacket) object).roomId != roomId) {
+                    if (!((Packets.ConnectionJoinPacket) object).roomId.equals(roomId)) {
+
                         Packets.ConnectionClosedPacket p = new Packets.ConnectionClosedPacket();
                         p.connectionId = id;
                         p.reason = DcReason.error;
