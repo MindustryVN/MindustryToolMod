@@ -1,6 +1,10 @@
 package mindustrytool.net;
 
 import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 
 import org.apache.http.client.utils.URIBuilder;
 
@@ -9,9 +13,6 @@ import arc.func.Cons;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import arc.struct.ObjectMap.Entry;
-import arc.util.Http;
-import arc.util.Http.HttpResponse;
-import arc.util.Http.HttpStatus;
 import arc.util.Log;
 import mindustry.io.JsonIO;
 
@@ -54,10 +55,22 @@ public class PagingRequest<T> {
             URI uri = builder.build();
             listener.get(null);
 
-            Http.get(uri.toString())//
-                    .timeout(1000 * 5)
-                    .error(error -> handleError(listener, error, uri.toString()))//
-                    .submit(response -> handleResult(response, size, listener));
+            HttpClient client = HttpClient.newBuilder()
+                    .connectTimeout(Duration.ofSeconds(5))
+                    .build();
+
+            HttpRequest request = HttpRequest.newBuilder()
+                    .uri(uri)
+                    .timeout(Duration.ofSeconds(5))
+                    .GET()
+                    .build();
+
+            client.sendAsync(request, HttpResponse.BodyHandlers.ofString())
+                    .thenAccept(response -> handleResult(response, size, listener))
+                    .exceptionally(e -> {
+                        handleError(listener, e, uri.toString());
+                        return null;
+                    });
 
         } catch (Exception e) {
             handleError(listener, e, url);
@@ -133,18 +146,18 @@ public class PagingRequest<T> {
     }
 
     @SuppressWarnings("unchecked")
-    private synchronized void handleResult(HttpResponse response, int size, Cons<Seq<T>> listener) {
+    private synchronized void handleResult(HttpResponse<String> response, int size, Cons<Seq<T>> listener) {
         isLoading = false;
         isError = false;
 
-        if (response.getStatus() != HttpStatus.OK) {
+        if (response.statusCode() != 200) {
             isError = true;
-            error = response.getResultAsString();
+            error = response.body();
             listener.get(new Seq<>());
             return;
         }
 
-        String data = response.getResultAsString();
+        String data = response.body();
         Core.app.post(() -> {
             var items = JsonIO.json.fromJson(Seq.class, clazz, data);
 
