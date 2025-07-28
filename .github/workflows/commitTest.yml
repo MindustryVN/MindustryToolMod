@@ -32,7 +32,7 @@ jobs:
 
       - name: Read version
         id: version
-        run: echo "tag=$(hjson -j config.hjson | jq -r .version)" >> $GITHUB_OUTPUT
+        run: echo "tag=$(hjson -j mod.hjson | jq -r .version)" >> $GITHUB_OUTPUT
 
 
       - uses: "marvinpinto/action-automatic-releases@latest"
