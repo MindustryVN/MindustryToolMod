@@ -49,9 +49,12 @@ public class Api {
 
     @SuppressWarnings("unchecked")
     public static void findPlayerConnectProvider(Cons<Seq<PlayerConnectProvider>> providers, Cons<Throwable> onFailed) {
-        Http.get(Config.API_v4_URL + "player-connect/providers").submit(response -> {
-            String data = response.getResultAsString();
-            Core.app.post(() -> providers.get(JsonIO.json.fromJson(Seq.class, PlayerConnectProvider.class, data)));
-        }, onFailed);
+        Http.get(Config.API_v4_URL + "player-connect/providers")
+                .error(onFailed)
+                .submit(response -> {
+                    String data = response.getResultAsString();
+                    Core.app.post(
+                            () -> providers.get(JsonIO.json.fromJson(Seq.class, PlayerConnectProvider.class, data)));
+                });
     }
 }
