@@ -33,7 +33,7 @@ public class FilterDialog extends BaseDialog {
 
     public FilterDialog(TagService tagService, SearchConfig searchConfig, Cons<Cons<Seq<TagData>>> tagProvider) {
         super("");
-        
+
         this.tagService = tagService;
         setFillParent(true);
         addCloseListener();
@@ -101,7 +101,7 @@ public class FilterDialog extends BaseDialog {
 
     public void ModSelector(Table table, SearchConfig searchConfig, Seq<ModData> mods) {
         table.table(Styles.flatOver,
-                text -> text.add(Core.bundle.format("messages.mod"))//
+                text -> text.add(Core.bundle.format("messagemod"))//
                         .fontScale(scale)//
                         .left()//
                         .labelAlign(Align.left))//
@@ -157,7 +157,7 @@ public class FilterDialog extends BaseDialog {
         var buttonGroup = new ButtonGroup<>();
 
         table.table(Styles.flatOver,
-                text -> text.add(Core.bundle.format("messages.sort"))//
+                text -> text.add(Core.bundle.format("message.sort"))//
                         .fontScale(scale)//
                         .left()//
                         .labelAlign(Align.left))//

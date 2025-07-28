@@ -32,7 +32,7 @@ public class SchematicInfoDialog extends BaseDialog {
 
         cont.table(card -> {
             card.left();
-            card.add(Core.bundle.format("@author")).marginRight(4).padRight(4);
+            card.add(Core.bundle.format("message.author")).marginRight(4).padRight(4);
             UserCard.draw(card, data.userId());
         })//
                 .fillX()//
@@ -55,10 +55,12 @@ public class SchematicInfoDialog extends BaseDialog {
                 r.image(s.item.uiIcon).left().size(iconMed);
                 r.label(() -> {
                     Building core = player.core();
-                    if (core == null || state.isMenu() || state.rules.infiniteResources || core.items.has(s.item, s.amount))
+                    if (core == null || state.isMenu() || state.rules.infiniteResources
+                            || core.items.has(s.item, s.amount))
                         return "[lightgray]" + s.amount;
 
-                    return (core.items.has(s.item, s.amount) ? "[lightgray]" : "[scarlet]") + Math.min(core.items.get(s.item), s.amount) + "[lightgray]/" + s.amount;
+                    return (core.items.has(s.item, s.amount) ? "[lightgray]" : "[scarlet]")
+                            + Math.min(core.items.get(s.item), s.amount) + "[lightgray]/" + s.amount;
                 }).padLeft(2).left().padRight(4);
 
                 if (++i % 4 == 0) {

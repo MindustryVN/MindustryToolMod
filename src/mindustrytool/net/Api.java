@@ -3,10 +3,12 @@ package mindustrytool.net;
 import arc.Core;
 import arc.func.Cons;
 import arc.func.ConsT;
+import arc.struct.Seq;
 import arc.util.Http;
 import mindustry.io.JsonIO;
 import mindustrytool.config.Config;
 import mindustrytool.data.MapDetailData;
+import mindustrytool.data.PlayerConnectProvider;
 import mindustrytool.data.SchematicDetailData;
 import mindustrytool.data.UserData;
 
@@ -37,10 +39,19 @@ public class Api {
             Core.app.post(() -> c.get(JsonIO.json.fromJson(MapDetailData.class, data)));
         });
     }
-    public static void findUSerById(String id, Cons<UserData> c) {
+
+    public static void findUserById(String id, Cons<UserData> c) {
         Http.get(Config.API_URL + "users/" + id).submit(response -> {
             String data = response.getResultAsString();
             Core.app.post(() -> c.get(JsonIO.json.fromJson(UserData.class, data)));
         });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void findPlayerConnectProvider(Cons<Seq<PlayerConnectProvider>> providers, Cons<Throwable> onFailed) {
+        Http.get(Config.API_v4_URL + "player-connect/providers").submit(response -> {
+            String data = response.getResultAsString();
+            Core.app.post(() -> providers.get(JsonIO.json.fromJson(Seq.class, PlayerConnectProvider.class, data)));
+        }, onFailed);
     }
 }

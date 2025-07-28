@@ -12,6 +12,8 @@ import mindustry.gen.Icon;
 import mindustry.mod.*;
 import mindustry.ui.fragments.MenuFragment.MenuButton;
 import mindustrytool.config.Config;
+import mindustrytool.gui.CreateRoomDialog;
+import mindustrytool.gui.JoinRoomDialog;
 import mindustrytool.gui.MapDialog;
 import mindustrytool.gui.SchematicDialog;
 import mindustrytool.gui.ServerDialog;
@@ -37,6 +39,9 @@ public class Main extends Mod {
         schematicDir.mkdirs();
 
         addCustomButtons();
+
+        new CreateRoomDialog();
+        new JoinRoomDialog();
     }
 
     private void addCustomButtons() {
@@ -51,19 +56,19 @@ public class Main extends Mod {
             });
 
             if (Vars.mobile) {
-                Vars.ui.menufrag.addButton(Core.bundle.format("map-browser"), Icon.map, () -> {
+                Vars.ui.menufrag.addButton(Core.bundle.format("message.map-browser.title"), Icon.map, () -> {
                     mapDialog.show();
                 });
-                Vars.ui.menufrag.addButton(Core.bundle.format("server-browser"), Icon.menu, () -> {
+                Vars.ui.menufrag.addButton(Core.bundle.format("message.server-browser.title"), Icon.menu, () -> {
                     serverDialog.show();
                 });
             } else {
                 Vars.ui.menufrag.addButton(new MenuButton("Tools", Icon.wrench, () -> {
                 }, //
-                        new MenuButton(Core.bundle.format("map-browser"), Icon.map, () -> {
+                        new MenuButton(Core.bundle.format("message.map-browser.title"), Icon.map, () -> {
                             mapDialog.show();
                         }), //
-                        new MenuButton(Core.bundle.format("server-browser"), Icon.menu, () -> {
+                        new MenuButton(Core.bundle.format("message.server-browser.title"), Icon.menu, () -> {
                             serverDialog.show();
                         })//
                 ));
@@ -81,7 +86,7 @@ public class Main extends Mod {
             if (!latestVersion.equals(currentVersion)) {
                 Log.info("Mod require update, current version: " + currentVersion + ", latest version: "
                         + latestVersion);
-                Vars.ui.showConfirm(Core.bundle.format("messages.new-version", currentVersion, latestVersion)
+                Vars.ui.showConfirm(Core.bundle.format("message.new-version", currentVersion, latestVersion)
                         + "\nDiscord: https://discord.gg/72324gpuCd", () -> {
                             Core.app.post(() -> {
                                 Vars.ui.mods.githubImportMod(Config.REPO_URL, true, null);

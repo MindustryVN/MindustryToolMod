@@ -62,7 +62,7 @@ public class ServerDialog extends BaseDialog {
         } catch (Exception ex) {
             clear();
             addCloseButton();
-            table(container -> Error(container, Core.bundle.format("messages.error") + "\n Error: " + ex.getMessage()));
+            table(container -> Error(container, Core.bundle.format("message.error") + "\n Error: " + ex.getMessage()));
             Log.err(ex);
         }
     }
@@ -83,7 +83,7 @@ public class ServerDialog extends BaseDialog {
     }
 
     private Cell<Label> Loading(Table parent) {
-        return parent.labelWrap(Core.bundle.format("messages.loading")).center().labelAlign(0).expand().fill();
+        return parent.labelWrap(Core.bundle.format("message.loading")).center().labelAlign(0).expand().fill();
     }
 
     private Cell<ScrollPane> ServerScrollContainer(Table parent) {

@@ -23,7 +23,7 @@ public class UserCard {
                 cache.put(id, new UserData());
                 listeners.get(id, () -> new ArrayList<>()).add((data) -> draw(card, data));
 
-                Api.findUSerById(id, data -> {
+                Api.findUserById(id, data -> {
                     cache.put(id, data);
 
                     var l = listeners.get(id);

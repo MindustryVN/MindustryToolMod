@@ -101,6 +101,7 @@ com_crashlytics_export_strings.xml
 /ios/nbproject/private/
 /ios-moe/nbproject/private/
 
+/bin
 /build/
 /android/build/
 /core/build/
@@ -155,3 +156,5 @@ Thumbs.db
 android/libs/
 
 build.bat
+
+.vscode
