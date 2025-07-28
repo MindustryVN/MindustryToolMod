@@ -34,7 +34,7 @@ public class PlayerConnect {
     private static Client pinger;
     private static ExecutorService worker = Threads.unboundedExecutor("CLaJ Worker", 1);
     private static arc.net.NetSerializer tmpSerializer;
-    private static ByteBuffer tmpBuffer = ByteBuffer.allocate(32);// we need 32 bytes for the room join packet
+    private static ByteBuffer tmpBuffer = ByteBuffer.allocate(64);// we need 16 bytes for the room join packet
     private static Thread roomThread, pingerThread;
 
     public static boolean isRoomClosed() {
