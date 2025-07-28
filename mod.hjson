@@ -4,7 +4,7 @@ displayName: "Mindustry Tool"
 
 author: "[red[]]VN-[#ff6347[]]Sharrlotte[[]]"
 
-main: "mindytool.Main"
+main: "mindustrytool.Main"
 
 description:
   '''
