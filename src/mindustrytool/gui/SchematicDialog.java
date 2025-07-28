@@ -185,7 +185,7 @@ public class SchematicDialog extends BaseDialog {
             float sum = 0;
 
             for (SchematicData schematicData : schematicsData) {
-                if (sum + IMAGE_SIZE * 2 + IMAGE_SIZE >= Core.scene.getWidth()) {
+                if (sum + IMAGE_SIZE * 2 >= Core.scene.getWidth()) {
                     container.row();
                     sum = 0;
                 }
