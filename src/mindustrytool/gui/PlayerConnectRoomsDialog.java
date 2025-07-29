@@ -2,10 +2,8 @@ package mindustrytool.gui;
 
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
-import arc.util.Reflect;
 import mindustry.Vars;
 import mindustry.gen.Icon;
-import mindustry.ui.dialogs.JoinDialog;
 import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
@@ -15,9 +13,8 @@ public class PlayerConnectRoomsDialog {
 
     public PlayerConnectRoomsDialog() {
         try {
-            Table hosts = Reflect.get(JoinDialog.class, Vars.ui.join, "hosts");
-            hosts.addChildAt(0, playerConnect);
-
+            Vars.ui.join.row();
+            Vars.ui.join.addChildAt(0, playerConnect);
             setupPlayerConnect();
         } catch (Throwable e) {
             Log.err(e);
