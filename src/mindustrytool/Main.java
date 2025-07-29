@@ -22,7 +22,6 @@ import mindustrytool.gui.ServerDialog;
 public class Main extends Mod {
     SchematicDialog schematicDialog;
     MapDialog mapDialog;
-    ServerDialog serverDialog;
     PlayerConnectRoomsDialog playerConnectRoomsDialog;
 
     public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-caches");
@@ -49,7 +48,6 @@ public class Main extends Mod {
     private void addCustomButtons() {
         schematicDialog = new SchematicDialog();
         mapDialog = new MapDialog();
-        serverDialog = new ServerDialog();
         playerConnectRoomsDialog = new PlayerConnectRoomsDialog();
 
         Events.on(ClientLoadEvent.class, (event) -> {
@@ -71,9 +69,7 @@ public class Main extends Mod {
                         new MenuButton(Core.bundle.format("message.map-browser.title"), Icon.map, () -> {
                             mapDialog.show();
                         }), //
-                        new MenuButton(Core.bundle.format("message.server-browser.title"), Icon.menu, () -> {
-                            serverDialog.show();
-                        }), //
+\
                         new MenuButton(Core.bundle.format("message.player-connect.title"), Icon.menu, () -> {
                             playerConnectRoomsDialog.show();
                         })//
