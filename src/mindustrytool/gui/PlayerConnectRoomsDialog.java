@@ -19,6 +19,16 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         try {
             cont.table(container -> container.add(playerConnect));
             setupPlayerConnect();
+
+            if (!Vars.steam && !Vars.mobile) {
+                Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
+
+                Vars.ui.join.buttons.getCells()
+                        .swap(Vars.ui.join.buttons.getCells().size - 1/* 6 */, 4);
+            } else {
+                Vars.ui.join.buttons.row().add().growX().width(-1);
+                Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
+            }
         } catch (Throwable e) {
             Log.err(e);
         }
