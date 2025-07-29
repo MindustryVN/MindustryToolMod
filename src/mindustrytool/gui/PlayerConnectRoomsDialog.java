@@ -10,10 +10,10 @@ import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
 
-public class PlayerConnectDialog {
+public class PlayerConnectRoomsDialog {
     Table playerConnect = new Table();
 
-    public PlayerConnectDialog() {
+    public PlayerConnectRoomsDialog() {
         Reflect.invoke(JoinDialog.class, Vars.ui.join, "section", new Object[] {
                 "@message.servers.player-connect.title", playerConnect, true
         }, String.class, Table.class, Boolean.class);

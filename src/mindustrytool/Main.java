@@ -15,6 +15,7 @@ import mindustrytool.config.Config;
 import mindustrytool.gui.CreateRoomDialog;
 import mindustrytool.gui.JoinRoomDialog;
 import mindustrytool.gui.MapDialog;
+import mindustrytool.gui.PlayerConnectRoomsDialog;
 import mindustrytool.gui.SchematicDialog;
 import mindustrytool.gui.ServerDialog;
 
@@ -42,6 +43,7 @@ public class Main extends Mod {
 
         new CreateRoomDialog();
         new JoinRoomDialog();
+        new PlayerConnectRoomsDialog();
     }
 
     private void addCustomButtons() {
