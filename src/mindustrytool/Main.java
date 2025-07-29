@@ -69,7 +69,6 @@ public class Main extends Mod {
                         new MenuButton(Core.bundle.format("message.map-browser.title"), Icon.map, () -> {
                             mapDialog.show();
                         }), //
-\
                         new MenuButton(Core.bundle.format("message.player-connect.title"), Icon.menu, () -> {
                             playerConnectRoomsDialog.show();
                         })//
