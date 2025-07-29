@@ -8,13 +8,16 @@ import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
 
-public class PlayerConnectRoomsDialog {
+public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
     Table playerConnect = new Table();
 
     public PlayerConnectRoomsDialog() {
+        super("@message.join-room.title");
+
+        cont.defaults().width(Vars.mobile ? 350f : 550f);
+
         try {
-            Vars.ui.join.row();
-            Vars.ui.join.addChildAt(0, playerConnect);
+            cont.table(container -> container.add(playerConnect));
             setupPlayerConnect();
         } catch (Throwable e) {
             Log.err(e);
