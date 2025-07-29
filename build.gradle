@@ -26,7 +26,7 @@ ext{
 
 dependencies{
     implementation files("libs/PlayerConnectShared.jar")
-
+    
     compileOnly "com.github.Anuken.Arc:arc-core:$mindustryVersion"
     compileOnly "com.github.Anuken.Mindustry:core:$mindustryVersion"
         
