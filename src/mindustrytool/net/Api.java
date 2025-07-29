@@ -9,6 +9,7 @@ import mindustry.io.JsonIO;
 import mindustrytool.config.Config;
 import mindustrytool.data.MapDetailData;
 import mindustrytool.data.PlayerConnectProvider;
+import mindustrytool.data.PlayerConnectRoom;
 import mindustrytool.data.SchematicDetailData;
 import mindustrytool.data.UserData;
 
@@ -48,7 +49,20 @@ public class Api {
     }
 
     @SuppressWarnings("unchecked")
-    public static void findPlayerConnectProvider(Cons<Seq<PlayerConnectProvider>> providers, Cons<Throwable> onFailed) {
+    public static void findPlayerConnectRooms(Cons<Seq<PlayerConnectRoom>> c) {
+        Http.get(Config.API_v4_URL + "player-connect/providers")
+                .submit(response -> {
+                    String data = response.getResultAsString();
+                    Core.app.post(
+                            () -> c.get(JsonIO.json.fromJson(Seq.class, PlayerConnectRoom.class, data)));
+                });
+    }
+
+    @SuppressWarnings("unchecked")
+    public static void findPlayerConnectProvider(
+            Cons<Seq<PlayerConnectProvider>> providers,
+            Cons<Throwable> onFailed//
+    ) {
         Http.get(Config.API_v4_URL + "player-connect/providers")
                 .error(onFailed)
                 .submit(response -> {
