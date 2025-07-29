@@ -2,37 +2,52 @@ name: "mindustry-tool"
 
 displayName: "Mindustry Tool"
 
-author: "[red[]]VN-[#ff6347[]]Sharrlotte[[]]"
+author: "[#FF0018[]]S[#FFA52C[]]h[#FFFF41[]]a[#008018[]]r[#0000F9[]]l[#86007D[]]o[#FF0018[]]t[#FFA52C[]]t[#FFFF41[]]e[[]]"
 
 main: "mindustrytool.Main"
 
 description:
   '''
-   [#ff6347[]]Mindustry Tool – [white[]]Enhance Your Mindustry Experience[[]]
+[accent[]] [#FFF000[]]Mindustry Tool  [white[]]- The Ultimate Utility for Every Player[[]]
 
-  [white[]]Mindustry Tool is a mod that integrates with [#00bfff[]]mindustry-tool.com[white[]], allowing players to share and download [#00bfff[]]maps [white[]]and [#00bfff[]]schematics [white[]]while playing Mindustry. Content is user-generated and curated by [#32cd32[]]moderators[white[]], ensuring high quality and [#ff69b4[]]diversity[[]].
+[white[]]Mindustry Tool is an extended utility that integrates multiple features, including the website [#88C6ED[]]mindustry-tool.com[white[]], allowing players to share and download [#394BA0[]]maps [white[]]and [#D54799[]]schematics [white[]]with just a few simple steps. Most notably, it introduces powerful features that help you play with friends using tools tailored specifically for the game.
+
 
-  [accent[]][#ffeb3b[]]Share and Download [#00bfff[]]Maps and Schematics[[]]:
-    • [white[]]Upload and download [#00bfff[]]maps and [#00bfff[]]schematics [white[]]to enhance your gameplay.
+[accent[]] [#009F75[]]Play With Friends:[[]]
+  [white[]] No complicated setup required — a single button is all it takes to host your own server and invite friends.
+  [white[]] Connections are optimized for international play, delivering a smooth and stable multiplayer experience.
 
-  [accent[]][#32cd32[]]Quality Content Moderation[[]]:
-    • [white[]]All content is carefully moderated by the [#32cd32[]]Mindustry Tool [white[]]team to ensure quality and relevance.
+[accent[]] [#88C6ED[]]Community Servers:[[]]
+  [white[]] Quickly browse and join servers via Mindustry Tool, offering a wide variety of game modes.
+  [white[]] Enhance your community experience through exclusive free servers and community events.
 
-  [accent[]][#00ced1[]]In-Game Integration[[]]:
-    • [white[]]Easily browse and use [#00bfff[]]maps and [#00bfff[]]schematics [white[]]directly in the game for a smooth experience.
+[accent[]] [#FFF000[]]Maps & Schematics:[[]]
+  [white[]] Effortlessly share or save high-quality maps, explore strategic schematics, and optimize your production or defense builds.
+  [white[]] Designed to meet the needs of all players — from beginners to pros.
 
-  [accent[]][#ff1493[]]Diverse and High-Quality Content[[]]:
-    • [white[]]A wide variety of [#00bfff[]]maps and [#00bfff[]]schematics [white[]]suited for all player levels.
+[accent[]] [#82C341[]]Strict Content Moderation:[[]]
+  [white[]] All content is reviewed by the [#82C341[]]Mindustry Tool [white[]]team to ensure creativity, safety, and compatibility.
+  [white[]] Play with confidence knowing the tools you use are verified and trustworthy.
 
-  [accent[]][#ff4500[]]Extensive Tags for Easy Search[[]]:
-    • [white[]]Mindustry Tool offers a detailed tagging system for easy content discovery.
+[accent[]] [#FAA31B[]]Advanced Filtering System:[[]]
+  [white[]] Use powerful tags and filters to find the exact content you're looking for, tailored to any purpose.
+  [white[]] A modern, intuitive interface speeds up your search and enhances the discovery process.
 
-  [accent[]][#9370db[]]Seamless Map Search and Download[[]]:
-    • [white[]]Search and download [#00bfff[]]maps [white[]]without leaving the game, enhancing gameplay efficiency.
+[accent[]] [#FFF000[]]Community Credits[[]]:
+[#88C6ED[]] Design-it Community:  
+  [#394BA0[]] Discord: [white[]]discord.gg/SYVkWPhmXY  
+  [#394BA0[]] GitHub: [white[]]MindustryDesignIt
 
-  [#ff6347[]]Useful Links[[]]:
-    • [#00bfff[]] Website: [white[]]https://mindustry-tool.com[[]]
-    • [#ff6347[]] Discord: [white[]]https://discord.gg/9EMBFt6Z[[]]
+[#82C341[]] Mindustry Top Community:  
+  [#88C6ED[]] Website: [white[]]www.mindustry.top  
+  [#009F75[]] Email: [white[]]me@wayzer.top
+
+[accent[]] [#FFF000[]]Useful Links[[]]:
+  [#88C6ED[]]  Website: [white[]]mindustry-tool.com[[]]
+  [#394BA0[]]  Discord: [white[]]discord.gg/nQDrEHVkrt[[]]
+  [#009F75[]]  Email: [white[]]mindustrytool@gmail.com[[]]
+  [#FAA31B[]]  Reddit: [white[]]r/MindustryTool[[]]
+  [#EF4444[]]  YouTube: [white[]]Mindustry Tool[[]]
   '''
 version: v1.10.0
 
