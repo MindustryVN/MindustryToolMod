@@ -12,7 +12,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
     Table playerConnect = new Table();
 
     public PlayerConnectRoomsDialog() {
-        super("@message.join-room.title");
+        super("@message.room-list.title");
 
         cont.defaults().width(Vars.mobile ? 350f : 550f);
 
