@@ -2,6 +2,7 @@ package mindustrytool.gui;
 
 import arc.scene.ui.layout.Table;
 import arc.scene.utils.Elem;
+import arc.util.Log;
 import arc.util.Reflect;
 import mindustry.Vars;
 import mindustry.gen.Icon;
@@ -14,16 +15,16 @@ public class PlayerConnectRoomsDialog {
     Table playerConnect = new Table();
 
     public PlayerConnectRoomsDialog() {
-        Reflect.invoke(JoinDialog.class, Vars.ui.join, "section", new Object[] {
-                "@message.servers.player-connect.title", playerConnect, true
-        }, String.class, Table.class, Boolean.class);
+        try {
+            Table hosts = Reflect.get(JoinDialog.class, Vars.ui.join, "hosts");
 
-        Table hosts = Reflect.get(JoinDialog.class, Vars.ui.join, "hosts");
+            hosts.addChildAt(0, Elem.newImageButton(Icon.refresh, () -> setupPlayerConnect()));
+            hosts.addChildAt(0, playerConnect);
 
-        hosts.addChildAt(0, Elem.newImageButton(Icon.refresh, () -> setupPlayerConnect()));
-        hosts.addChildAt(0, playerConnect);
-
-        setupPlayerConnect();
+            setupPlayerConnect();
+        } catch (Throwable e) {
+            Log.err(e);
+        }
     }
 
     public void setupPlayerConnect() {
