@@ -13,6 +13,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
     public PlayerConnectRoomsDialog() {
         super("@message.room-list.title");
+        addCloseButton();
 
         cont.defaults().width(Vars.mobile ? 350f : 550f);
 

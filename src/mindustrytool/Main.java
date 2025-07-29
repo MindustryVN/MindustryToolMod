@@ -23,6 +23,7 @@ public class Main extends Mod {
     SchematicDialog schematicDialog;
     MapDialog mapDialog;
     ServerDialog serverDialog;
+    PlayerConnectRoomsDialog playerConnectRoomsDialog;
 
     public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-caches");
     public static Fi mapsDir = Vars.dataDirectory.child("mindustry-tool-maps");
@@ -43,13 +44,13 @@ public class Main extends Mod {
 
         new CreateRoomDialog();
         new JoinRoomDialog();
-        new PlayerConnectRoomsDialog();
     }
 
     private void addCustomButtons() {
         schematicDialog = new SchematicDialog();
         mapDialog = new MapDialog();
         serverDialog = new ServerDialog();
+        playerConnectRoomsDialog = new PlayerConnectRoomsDialog();
 
         Events.on(ClientLoadEvent.class, (event) -> {
             Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
@@ -61,8 +62,8 @@ public class Main extends Mod {
                 Vars.ui.menufrag.addButton(Core.bundle.format("message.map-browser.title"), Icon.map, () -> {
                     mapDialog.show();
                 });
-                Vars.ui.menufrag.addButton(Core.bundle.format("message.server-browser.title"), Icon.menu, () -> {
-                    serverDialog.show();
+                Vars.ui.menufrag.addButton(Core.bundle.format("message.player-connect.title"), Icon.menu, () -> {
+                    playerConnectRoomsDialog.show();
                 });
             } else {
                 Vars.ui.menufrag.addButton(new MenuButton("Tools", Icon.wrench, () -> {
@@ -72,7 +73,11 @@ public class Main extends Mod {
                         }), //
                         new MenuButton(Core.bundle.format("message.server-browser.title"), Icon.menu, () -> {
                             serverDialog.show();
+                        }), //
+                        new MenuButton(Core.bundle.format("message.player-connect.title"), Icon.menu, () -> {
+                            playerConnectRoomsDialog.show();
                         })//
+
                 ));
             }
         });
