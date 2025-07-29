@@ -90,7 +90,6 @@ public class FilterDialog extends BaseDialog {
             cont.row();
             buttons.clearChildren();
             buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
-            buttons.button("@back", Icon.left, this::hide);
 
             addCloseButton();
             show();
