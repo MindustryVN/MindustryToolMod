@@ -50,7 +50,7 @@ public class Api {
 
     @SuppressWarnings("unchecked")
     public static void findPlayerConnectRooms(Cons<Seq<PlayerConnectRoom>> c) {
-        Http.get(Config.API_v4_URL + "player-connect/providers")
+        Http.get(Config.API_v4_URL + "player-connect/rooms")
                 .submit(response -> {
                     String data = response.getResultAsString();
                     Core.app.post(

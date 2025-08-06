@@ -1,6 +1,13 @@
 name: Release Mod
-
-on: [push, pull_request]
+on:
+  push:
+    branches:
+      - main
+      - v8
+  pull_request:
+    branches:
+      - main
+      - v8
 
 jobs:
   buildJar:
