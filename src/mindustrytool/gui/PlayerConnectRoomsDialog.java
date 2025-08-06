@@ -18,7 +18,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         cont.defaults().width(Vars.mobile ? 350f : 550f);
 
         try {
-            cont.table(container -> container.add(playerConnect));
+            cont.table(container -> container.add(playerConnect))
+                    .fill()
+                    .expand();
+
             setupPlayerConnect();
 
             if (!Vars.steam && !Vars.mobile) {
@@ -45,7 +48,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                 table.row();
 
                 for (var room : rooms) {
-                    table.button(room.roomId(),
+                    table.button(builder -> builder.add(room.roomId()),
                             () -> {
                                 try {
                                     PlayerConnect.joinRoom(PlayerConnectLink.fromString(room.address()), () -> {
