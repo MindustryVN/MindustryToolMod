@@ -61,7 +61,7 @@ public class PlayerConnectLink {
         }
 
         if (uri.isAbsolute() && !uri.getScheme().equals(UriScheme))
-            throw new IllegalArgumentException("Not a player-connect link");
+            throw new IllegalArgumentException("Not a player-connect link: " + link);
 
         return new PlayerConnectLink(uri.getHost(), uri.getPort(), uri.getPath());
     }
