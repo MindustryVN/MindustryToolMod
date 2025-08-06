@@ -82,6 +82,10 @@ public class Main extends Mod {
         var mod = Vars.mods.getMod(Main.class);
         String currentVersion = mod.meta.version;
 
+        if (currentVersion.endsWith("v8")) {
+            return;
+        }
+
         Http.get(Config.API_REPO_URL, (res) -> {
             Jval json = Jval.read(res.getResultAsString());
             String latestVersion = json.getString("tag_name");
