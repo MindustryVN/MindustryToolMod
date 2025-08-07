@@ -49,9 +49,14 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 for (var room : rooms) {
                     table.button(builder -> {
-                        builder.add(room.roomId());
+                        builder.add(room.data().name());
                         builder.row();
-                        builder.add(room.data());
+                        builder.add(room.data().mapName());
+
+                        if (room.data().isSecured()) {
+                            builder.row();
+                            builder.image(Icon.lock);
+                        }
                     },
                             () -> {
                                 try {
