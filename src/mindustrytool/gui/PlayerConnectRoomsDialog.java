@@ -26,23 +26,29 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         addCloseButton();
 
         try {
-            cont.table(topBar -> {
-                topBar.field(searchTerm, (result) -> {
-                    searchTerm = result;
-                    debouncer.debounce(this::setupPlayerConnect);
-                })//
-                        .left()
-                        .get()
-                        .setMessageText(Core.bundle.format("@map.search"));
+            cont.table(container -> {
+                container.table(topBar -> {
+                    topBar.field(searchTerm, (result) -> {
+                        searchTerm = result;
+                        debouncer.debounce(this::setupPlayerConnect);
+                    })//
+                            .left()
+                            .growX()
+                            .get()
+                            .setMessageText(Core.bundle.format("@map.search"));
 
+                })
+                        .top()
+                        .left()
+                        .growX();
+
+                container.row();
+                container.add(playerConnect);
+                container.row();
             })
                     .top()
                     .left()
                     .growX();
-
-            cont.row();
-            cont.add(playerConnect);
-            cont.row();
             cont
                     .top()
                     .left();
@@ -68,8 +74,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
         Api.findPlayerConnectRooms(searchTerm, rooms -> {
             playerConnect.clear();
-            playerConnect.fill();
-            playerConnect.top().left();
+            playerConnect.fill()
+                    .top()
+                    .left();
+
             playerConnect.pane(table -> {
                 if (rooms.isEmpty()) {
                     table.labelWrap(Core.bundle.format("message.no-rooms-found"))
@@ -114,8 +122,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     Vars.ui.showException("@message.connect.fail", e);
                                 }
                             })
-                            .fillX()
-                            .expandX();
+                            .growX()
+                            .left()
+                            .top();
+
                     table.row();
                 }
             })
