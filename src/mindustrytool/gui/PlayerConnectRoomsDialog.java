@@ -3,7 +3,6 @@ package mindustrytool.gui;
 import java.util.concurrent.TimeUnit;
 
 import arc.Core;
-import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
 import arc.util.Align;
 import arc.util.Log;
@@ -36,12 +35,16 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .get()
                         .setMessageText(Core.bundle.format("@map.search"));
 
-            });
+            })
+                    .top()
+                    .left();
 
             cont.row();
             cont.add(playerConnect);
             cont.row();
-            cont.fill().left();
+            cont.fill()
+                    .top()
+                    .left();
 
             buttons
                     .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
