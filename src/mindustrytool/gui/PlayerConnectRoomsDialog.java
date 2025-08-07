@@ -1,15 +1,23 @@
 package mindustrytool.gui;
 
+import java.util.concurrent.TimeUnit;
+
+import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
+import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.gen.Icon;
+import mindustrytool.config.Debouncer;
 import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
 
 public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
-    Table playerConnect = new Table();
+    private final Table playerConnect = new Table();
+    private final Debouncer debouncer = new Debouncer(500, TimeUnit.MILLISECONDS);
+    private TextField searchField;
+    private String searchTerm = "";
 
     public PlayerConnectRoomsDialog() {
         super("@message.room-list.title");
@@ -21,6 +29,17 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             cont.table(container -> container.add(playerConnect))
                     .fill()
                     .expand();
+
+            cont.row();
+
+            searchField = cont.field(searchTerm, (result) -> {
+                searchTerm = result;
+                debouncer.debounce(this::setupPlayerConnect);
+            })//
+                    .growX()//
+                    .get();
+
+            searchField.setMessageText("@map.search");
 
             setupPlayerConnect();
 
@@ -49,14 +68,30 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 for (var room : rooms) {
                     table.button(builder -> {
-                        builder.add(room.data().name());
-                        builder.row();
-                        builder.add(room.data().mapName());
+                        builder.add(room.data().name()).fontScale(1.5f);
 
                         if (room.data().isSecured()) {
-                            builder.row();
-                            builder.image(Icon.lock);
+                            builder.image(Icon.lock).size(24);
+                        } else {
+                            builder.image(Icon.lockOpen).size(24);
                         }
+
+                        builder.row();
+                        builder.image(Icon.mapSmall).size(24);
+                        builder.add(room.data().mapName());
+                        builder.row();
+                        builder.image(Icon.players).size(24);
+                        builder.add(String.valueOf(room.data().players().size));
+                        builder.row();
+                        builder.image(Icon.playSmall).size(24);
+                        builder.add(room.data().gamemode());
+
+                        if (room.data().mods().size > 0) {
+                            builder.row();
+                            builder.image(Icon.bookSmall).size(24);
+                            builder.add(Strings.join(",", room.data().mods()));
+                        }
+
                     },
                             () -> {
                                 try {
@@ -70,6 +105,5 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                 }
             });
         });
-
     }
 }
