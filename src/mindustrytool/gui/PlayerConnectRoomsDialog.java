@@ -98,6 +98,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     PlayerConnect.joinRoom(PlayerConnectLink.fromString(room.link()), () -> hide());
                                 } catch (Throwable e) {
                                     hide();
+                                    setupPlayerConnect();
                                     Vars.ui.showException("@message.connect.fail", e);
                                 }
                             });
