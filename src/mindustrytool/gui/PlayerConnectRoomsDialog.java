@@ -3,7 +3,6 @@ package mindustrytool.gui;
 import java.util.concurrent.TimeUnit;
 
 import arc.Core;
-import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
 import arc.util.Align;
 import arc.util.Log;
@@ -27,41 +26,37 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         addCloseButton();
 
         try {
-            cont.fill();
-            cont.table(topBar -> {
-                topBar.field(searchTerm, (result) -> {
-                    searchTerm = result;
-                    debouncer.debounce(this::setupPlayerConnect);
-                })//
-                        .growX()//
-                        .left()
-                        .get()
-                        .setMessageText(Core.bundle.format("@map.search"));
+            cont.table(container -> {
+                container.table(topBar -> {
+                    topBar.field(searchTerm, (result) -> {
+                        searchTerm = result;
+                        debouncer.debounce(this::setupPlayerConnect);
+                    })//
+                            .left()
+                            .growX()
+                            .get()
+                            .setMessageText(Core.bundle.format("@map.search"));
 
+                })
+                        .top()
+                        .left()
+                        .growX();
+
+                container.row();
+                container.add(playerConnect);
+                container.row();
             })
-                    .center()
-                    .fillX()
-                    .expandX();
-            cont.row();
-            cont.table(container -> container.add(playerConnect))
-                    .fill()
-                    .expand();
+                    .top()
+                    .left()
+                    .growX();
+            cont
+                    .top()
+                    .left();
 
             buttons
                     .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
                     .size(64)
                     .padRight(8);
-            row();
-
-            if (!Vars.steam && !Vars.mobile) {
-                Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
-
-                Vars.ui.join.buttons.getCells()
-                        .swap(Vars.ui.join.buttons.getCells().size - 1/* 6 */, 4);
-            } else {
-                Vars.ui.join.buttons.row().add().growX().width(-1);
-                Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
-            }
 
             setupPlayerConnect();
         } catch (Throwable e) {
@@ -79,7 +74,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
         Api.findPlayerConnectRooms(searchTerm, rooms -> {
             playerConnect.clear();
-            playerConnect.fill();
+            playerConnect.fill()
+                    .top()
+                    .left();
+
             playerConnect.pane(table -> {
                 if (rooms.isEmpty()) {
                     table.labelWrap(Core.bundle.format("message.no-rooms-found"))
@@ -124,11 +122,15 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     Vars.ui.showException("@message.connect.fail", e);
                                 }
                             })
-                            .fillX()
-                            .expandX();
+                            .growX()
+                            .left()
+                            .top();
+
                     table.row();
                 }
             })
+                    .top()
+                    .left()
                     .fill()
                     .expand()
                     .scrollX(false)
