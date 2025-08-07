@@ -13,7 +13,16 @@ repositories{
 
 java{
     sourceCompatibility = JavaVersion.VERSION_16
+    targetCompatibility = 8
 }
+
+allprojects{
+    tasks.withType(JavaCompile){
+        options.annotationProcessorPath = configurations.annotationProcessor
+        options.compilerArgs.addAll(['--release', '8'])
+    }
+}
+
 
 ext{
     //the build number that this mod is made for
