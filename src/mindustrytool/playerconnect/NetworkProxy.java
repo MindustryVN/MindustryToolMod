@@ -21,7 +21,6 @@ import arc.util.io.ByteBufferOutput;
 
 import mindustry.Vars;
 import mindustry.gen.Call;
-import mindustry.gen.Groups;
 import mindustrytool.config.NoopRatekeeper;
 import playerconnect.shared.Packets;
 
