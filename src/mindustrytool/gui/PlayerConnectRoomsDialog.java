@@ -33,15 +33,12 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     searchTerm = result;
                     debouncer.debounce(this::setupPlayerConnect);
                 })//
-                        .growX()//
                         .left()
                         .get()
                         .setMessageText(Core.bundle.format("@map.search"));
 
-            })
-                    .center()
-                    .fillX()
-                    .expandX();
+            });
+
             cont.row();
             cont.table(container -> container.add(playerConnect))
                     .fill()
@@ -51,17 +48,6 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
                     .size(64)
                     .padRight(8);
-            row();
-
-            if (!Vars.steam && !Vars.mobile) {
-                Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
-
-                Vars.ui.join.buttons.getCells()
-                        .swap(Vars.ui.join.buttons.getCells().size - 1/* 6 */, 4);
-            } else {
-                Vars.ui.join.buttons.row().add().growX().width(-1);
-                Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
-            }
 
             setupPlayerConnect();
         } catch (Throwable e) {
