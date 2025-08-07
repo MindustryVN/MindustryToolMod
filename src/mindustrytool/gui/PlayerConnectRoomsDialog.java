@@ -11,6 +11,7 @@ import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.gen.Iconc;
+import mindustry.ui.Styles;
 import mindustrytool.config.Debouncer;
 import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
@@ -19,33 +20,38 @@ import mindustrytool.playerconnect.PlayerConnectLink;
 public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
     private final Table playerConnect = new Table();
     private final Debouncer debouncer = new Debouncer(250, TimeUnit.MILLISECONDS);
-    private TextField searchField;
     private String searchTerm = "";
 
     public PlayerConnectRoomsDialog() {
         super("@message.room-list.title");
         addCloseButton();
 
-        cont.defaults().width(Vars.mobile ? 350f : 550f);
-
         try {
+            cont.fill();
             cont.table(topBar -> {
-                searchField = topBar.field(searchTerm, (result) -> {
+                topBar.field(searchTerm, (result) -> {
                     searchTerm = result;
                     debouncer.debounce(this::setupPlayerConnect);
                 })//
                         .growX()//
-                        .get();
+                        .left()
+                        .get()
+                        .setMessageText(Core.bundle.format("@map.search"));
 
-                topBar.button(Icon.refresh, () -> setupPlayerConnect()).size(40);
-            });
+            })
+                    .center()
+                    .fillX()
+                    .expandX();
             cont.row();
-
-            searchField.setMessageText(Core.bundle.format("@map.search"));
-
             cont.table(container -> container.add(playerConnect))
                     .fill()
                     .expand();
+
+            buttons
+                    .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
+                    .size(64)
+                    .padRight(8);
+            row();
 
             if (!Vars.steam && !Vars.mobile) {
                 Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();

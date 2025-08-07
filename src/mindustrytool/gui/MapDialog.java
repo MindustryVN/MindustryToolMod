@@ -91,7 +91,7 @@ public class MapDialog extends BaseDialog {
     }
 
     private void setItemPerPage() {
-        int columns = (int) (Core.graphics.getWidth() / Scl.scl(IMAGE_SIZE)) - 1;
+        int columns = (int) (Core.graphics.getWidth() / Scl.scl() * 0.9f / IMAGE_SIZE) - 1;
         int rows = (int) (Core.graphics.getHeight() / Scl.scl(IMAGE_SIZE + INFO_TABLE_HEIGHT * 2));
         int size = Math.max(columns * rows, 20);
 
@@ -187,7 +187,7 @@ public class MapDialog extends BaseDialog {
         return parent.pane(container -> {
             float sum = 0;
             for (MapData mapData : mapsData) {
-                if (sum + IMAGE_SIZE * 2 >= Core.scene.getWidth()) {
+                if (sum + IMAGE_SIZE * 2 >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
                 }

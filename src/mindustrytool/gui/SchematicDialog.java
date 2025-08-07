@@ -91,7 +91,7 @@ public class SchematicDialog extends BaseDialog {
     }
 
     private void setItemPerPage() {
-        int columns = (int) (Core.graphics.getWidth() / Scl.scl(IMAGE_SIZE)) - 1;
+        int columns = (int) (Core.graphics.getWidth() / Scl.scl() * 0.9f / Scl.scl(IMAGE_SIZE)) - 1;
         int rows = (int) (Core.graphics.getHeight() / Scl.scl(IMAGE_SIZE + INFO_TABLE_HEIGHT * 2));
         int size = Math.max(columns * rows, 20);
 
@@ -186,7 +186,7 @@ public class SchematicDialog extends BaseDialog {
             float sum = 0;
 
             for (SchematicData schematicData : schematicsData) {
-                if (sum + IMAGE_SIZE * 2 >= Core.scene.getWidth()) {
+                if (sum + IMAGE_SIZE * 2 >= Core.graphics.getWidth()) {
                     container.row();
                     sum = 0;
                 }
