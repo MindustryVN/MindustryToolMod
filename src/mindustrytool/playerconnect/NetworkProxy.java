@@ -13,6 +13,7 @@ import arc.net.DcReason;
 import arc.net.NetListener;
 import arc.struct.IntMap;
 import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.Ratekeeper;
 import arc.util.Reflect;
 import arc.util.io.ByteBufferInput;
@@ -20,6 +21,7 @@ import arc.util.io.ByteBufferOutput;
 
 import mindustry.Vars;
 import mindustry.gen.Call;
+import mindustry.gen.Groups;
 import mindustrytool.config.NoopRatekeeper;
 import playerconnect.shared.Packets;
 
@@ -130,6 +132,16 @@ public class NetworkProxy extends Client implements NetListener {
         // Request the room link
         Packets.RoomCreationRequestPacket p = new Packets.RoomCreationRequestPacket();
         p.version = PROTOCOL_VERSION;
+        Packets.RoomStats stats = new Packets.RoomStats();
+        try {
+            stats.gamemode = Vars.state.rules.mode().name();
+            stats.mapName = Vars.state.map.name();
+            stats.name = Vars.player.name;
+            stats.mods = Vars.mods.getModStrings();
+        } catch (Throwable err) {
+            Log.err(err);
+        }
+        p.data = stats;
         sendTCP(p);
     }
 
