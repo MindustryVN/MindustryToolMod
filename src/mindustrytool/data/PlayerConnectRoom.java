@@ -7,6 +7,6 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true, fluent = true)
 public class PlayerConnectRoom {
     private String roomId;
-    private String address;
+    private String link;
     private String data;
 }
