@@ -53,7 +53,7 @@ public class UserCard {
 
     private static void draw(Table card, UserData data) {
         card.clear();
-        if (data.imageUrl() != null && !data.imageUrl().isBlank()) {
+        if (data.imageUrl() != null && !data.imageUrl().isEmpty()) {
             card.add(new NetworkImage(data.imageUrl())).size(24).padRight(4);
         }
         card.add(data.name());
