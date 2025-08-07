@@ -39,10 +39,6 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .get();
 
             });
-            buttons
-                    .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
-                    .size(64)
-                    .padRight(8);
             row();
 
             searchField.setMessageText(Core.bundle.format("@map.search"));
@@ -50,6 +46,12 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             table(container -> container.add(playerConnect))
                     .fill()
                     .expand();
+
+            buttons
+                    .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
+                    .size(64)
+                    .padRight(8);
+            row();
 
             if (!Vars.steam && !Vars.mobile) {
                 Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
