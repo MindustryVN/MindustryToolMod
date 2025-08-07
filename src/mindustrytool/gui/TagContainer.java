@@ -34,7 +34,8 @@ public class TagContainer {
                 }
             }
 
-        }).fillX()//
+        })
+                .fillX()//
                 .margin(20)//
                 .left()//
                 .scrollX(true);

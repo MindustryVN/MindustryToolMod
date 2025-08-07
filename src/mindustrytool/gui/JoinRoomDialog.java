@@ -1,6 +1,7 @@
 package mindustrytool.gui;
 
 import mindustry.Vars;
+import mindustrytool.Main;
 import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
 
@@ -43,13 +44,15 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
                 .disabled(button -> !isValid || lastLink.isEmpty() || Vars.net.active());
 
         if (!Vars.steam && !Vars.mobile) {
-            Vars.ui.join.buttons.button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
+            Main.playerConnectRoomsDialog.buttons
+                    .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
 
-            Vars.ui.join.buttons.getCells()
-                    .swap(Vars.ui.join.buttons.getCells().size - 1/* 6 */, 4);
+            Main.playerConnectRoomsDialog.buttons.getCells()
+                    .swap(Main.playerConnectRoomsDialog.buttons.getCells().size - 1/* 6 */, 4);
         } else {
-            Vars.ui.join.buttons.row().add().growX().width(-1);
-            Vars.ui.join.buttons.button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
+            Main.playerConnectRoomsDialog.buttons.row().add().growX().width(-1);
+            Main.playerConnectRoomsDialog.buttons
+                    .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
         }
     }
 
@@ -75,7 +78,7 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
         });
 
         arc.util.Time.runTask(2f, () -> PlayerConnect.joinRoom(link, () -> {
-            Vars.ui.join.hide();
+            Main.playerConnectRoomsDialog.hide();
             hide();
         }));
     }

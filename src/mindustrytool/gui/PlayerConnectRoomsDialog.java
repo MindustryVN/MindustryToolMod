@@ -37,7 +37,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .get()
                         .setMessageText(Core.bundle.format("@map.search"));
 
-            });
+            })
+                    .fillX()
+                    .expandX()
+                    .left();
             cont.row();
             cont.table(container -> container.add(playerConnect))
                     .fill()
