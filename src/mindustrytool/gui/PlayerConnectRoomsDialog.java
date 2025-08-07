@@ -26,10 +26,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         super("@message.room-list.title");
         addCloseButton();
 
-        cont.defaults().width(Vars.mobile ? 350f : 550f);
+        fill();
 
         try {
-            cont.table(topBar -> {
+            table(topBar -> {
                 searchField = topBar.field(searchTerm, (result) -> {
                     searchTerm = result;
                     debouncer.debounce(this::setupPlayerConnect);
@@ -39,11 +39,11 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 topBar.button(Icon.refresh, () -> setupPlayerConnect()).size(40);
             });
-            cont.row();
+            row();
 
             searchField.setMessageText(Core.bundle.format("@map.search"));
 
-            cont.table(container -> container.add(playerConnect))
+            table(container -> container.add(playerConnect))
                     .fill()
                     .expand();
 
