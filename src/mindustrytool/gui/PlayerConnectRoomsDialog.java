@@ -27,7 +27,6 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         addCloseButton();
 
         try {
-            cont.fill();
             cont.table(topBar -> {
                 topBar.field(searchTerm, (result) -> {
                     searchTerm = result;
@@ -40,9 +39,9 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             });
 
             cont.row();
-            cont.table(container -> container.add(playerConnect))
-                    .fill()
-                    .expand();
+            cont.add(playerConnect);
+            cont.row();
+            cont.fill().left();
 
             buttons
                     .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
@@ -66,6 +65,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         Api.findPlayerConnectRooms(searchTerm, rooms -> {
             playerConnect.clear();
             playerConnect.fill();
+            playerConnect.top().left();
             playerConnect.pane(table -> {
                 if (rooms.isEmpty()) {
                     table.labelWrap(Core.bundle.format("message.no-rooms-found"))
@@ -115,6 +115,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     table.row();
                 }
             })
+                    .top()
+                    .left()
                     .fill()
                     .expand()
                     .scrollX(false)
