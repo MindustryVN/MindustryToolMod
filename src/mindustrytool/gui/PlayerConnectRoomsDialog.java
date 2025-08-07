@@ -27,7 +27,6 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         addCloseButton();
 
         try {
-            cont.fill();
             cont.table(topBar -> {
                 topBar.field(searchTerm, (result) -> {
                     searchTerm = result;
@@ -48,6 +47,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
                     .size(64)
                     .padRight(8);
+
+            cont.fill().left();
 
             setupPlayerConnect();
         } catch (Throwable e) {
