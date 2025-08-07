@@ -6,12 +6,19 @@ import java.util.concurrent.ExecutorService;
 import arc.Events;
 import arc.func.Cons;
 import arc.net.Client;
+import arc.struct.Seq;
+import arc.util.Log;
 import arc.util.Threads;
 import arc.util.Time;
 
 import mindustry.Vars;
 import mindustry.game.EventType;
+import mindustry.game.EventType.PlayerJoin;
+import mindustry.game.EventType.PlayerLeave;
+import mindustry.game.EventType.WorldLoadEndEvent;
+import mindustry.gen.Groups;
 import playerconnect.shared.Packets;
+import playerconnect.shared.Packets.RoomPlayer;
 
 public class PlayerConnect {
     static {
@@ -28,6 +35,55 @@ public class PlayerConnect {
             disposeRoom();
             disposePinger();
         });
+
+        Events.run(PlayerJoin.class, () -> {
+            if (Vars.net.server()) {
+                updateStats();
+            }
+        });
+
+        Events.run(PlayerLeave.class, () -> {
+            if (Vars.net.server()) {
+                updateStats();
+            }
+        });
+
+        Events.run(WorldLoadEndEvent.class, () -> {
+            if (Vars.net.server()) {
+                updateStats();
+            }
+        });
+    }
+
+    private static void updateStats() {
+        if (room == null) {
+            Log.warn("Not connected to a room yet");
+            return;
+        }
+        Packets.StatsPacket p = new Packets.StatsPacket();
+        Packets.RoomStats stats = new Packets.RoomStats();
+        try {
+            stats.gamemode = Vars.state.rules.mode().name();
+            stats.mapName = Vars.state.map.name();
+            stats.name = Vars.player.name;
+            stats.mods = Vars.mods.getModStrings();
+
+            Seq<RoomPlayer> players = new Seq<>();
+
+            for (var player : Groups.player) {
+                RoomPlayer pl = new RoomPlayer();
+                pl.locale = player.locale;
+                pl.name = player.name;
+                players.add(pl);
+            }
+
+            stats.players = players;
+
+        } catch (Throwable err) {
+            Log.err(err);
+        }
+        p.data = stats;
+        room.sendTCP(p);
     }
 
     private static NetworkProxy room;
