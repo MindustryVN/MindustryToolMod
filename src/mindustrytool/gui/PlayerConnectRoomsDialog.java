@@ -20,30 +20,26 @@ import mindustrytool.playerconnect.PlayerConnectLink;
 public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
     private final Table playerConnect = new Table();
     private final Debouncer debouncer = new Debouncer(250, TimeUnit.MILLISECONDS);
-    private TextField searchField;
     private String searchTerm = "";
 
     public PlayerConnectRoomsDialog() {
         super("@message.room-list.title");
         addCloseButton();
 
-        fill();
-
         try {
-            table(topBar -> {
-                searchField = topBar.field(searchTerm, (result) -> {
+            cont.fill();
+            cont.table(topBar -> {
+                topBar.field(searchTerm, (result) -> {
                     searchTerm = result;
                     debouncer.debounce(this::setupPlayerConnect);
                 })//
                         .growX()//
-                        .get();
+                        .get()
+                        .setMessageText(Core.bundle.format("@map.search"));
 
             });
-            row();
-
-            searchField.setMessageText(Core.bundle.format("@map.search"));
-
-            table(container -> container.add(playerConnect))
+            cont.row();
+            cont.table(container -> container.add(playerConnect))
                     .fill()
                     .expand();
 
