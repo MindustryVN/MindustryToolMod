@@ -65,7 +65,7 @@ public class PlayerConnect {
         try {
             stats.gamemode = Vars.state.rules.mode().name();
             stats.mapName = Vars.state.map.name();
-            stats.name = Vars.player.name;
+            stats.name = Vars.player.name();
             stats.mods = Vars.mods.getModStrings();
 
             Seq<RoomPlayer> players = new Seq<>();
@@ -73,7 +73,7 @@ public class PlayerConnect {
             for (var player : Groups.player) {
                 RoomPlayer pl = new RoomPlayer();
                 pl.locale = player.locale;
-                pl.name = player.name;
+                pl.name = player.name();
                 players.add(pl);
             }
 

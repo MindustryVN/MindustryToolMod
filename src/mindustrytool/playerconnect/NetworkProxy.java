@@ -135,7 +135,7 @@ public class NetworkProxy extends Client implements NetListener {
         try {
             stats.gamemode = Vars.state.rules.mode().name();
             stats.mapName = Vars.state.map.name();
-            stats.name = Vars.player.name;
+            stats.name = Vars.player.name();
             stats.mods = Vars.mods.getModStrings();
         } catch (Throwable err) {
             Log.err(err);
