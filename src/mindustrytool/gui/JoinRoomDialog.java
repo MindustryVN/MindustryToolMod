@@ -47,8 +47,6 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
             Main.playerConnectRoomsDialog.buttons
                     .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
 
-            Main.playerConnectRoomsDialog.buttons.getCells()
-                    .swap(Main.playerConnectRoomsDialog.buttons.getCells().size - 1/* 6 */, 4);
         } else {
             Main.playerConnectRoomsDialog.buttons.row().add().growX().width(-1);
             Main.playerConnectRoomsDialog.buttons
