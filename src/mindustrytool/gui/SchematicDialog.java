@@ -3,6 +3,7 @@ package mindustrytool.gui;
 import arc.Core;
 import arc.func.Cons;
 import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
@@ -219,6 +220,7 @@ public class SchematicDialog extends BaseDialog {
                                         .top()//
                                         .growX()//
                                         .width(200f - 8f).get();
+                                Draw.reset();
 
                                 label.setEllipsis(true);
                                 label.setAlignment(Align.center);

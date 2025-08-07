@@ -3,6 +3,7 @@ package mindustrytool.gui;
 import arc.Core;
 import arc.files.Fi;
 import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
@@ -213,6 +214,7 @@ public class MapDialog extends BaseDialog {
                                     .growX().width(200f - 8f).get();
                             label.setEllipsis(true);
                             label.setAlignment(Align.center);
+                            Draw.reset();
                         }).growX().margin(1).pad(4).maxWidth(Scl.scl(200f - 8f)).padBottom(0);
                     })).size(200f);
 

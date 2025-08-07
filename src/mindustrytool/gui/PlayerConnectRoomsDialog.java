@@ -8,6 +8,7 @@ import arc.util.Log;
 import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.gen.Icon;
+import mindustry.gen.Iconc;
 import mindustrytool.config.Debouncer;
 import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
@@ -68,28 +69,18 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 for (var room : rooms) {
                     table.button(builder -> {
-                        builder.add(room.data().name()).fontScale(1.5f);
-
-                        if (room.data().isSecured()) {
-                            builder.image(Icon.lock).size(24);
-                        } else {
-                            builder.image(Icon.lockOpen).size(24);
-                        }
-
+                        builder.add(room.data().name() + (room.data().isSecured() ? Iconc.lock : Iconc.lockOpen))
+                                .fontScale(1.5f);
                         builder.row();
-                        builder.image(Icon.mapSmall).size(24);
-                        builder.add(room.data().mapName());
+                        builder.add(Iconc.map + " " + room.data().mapName());
                         builder.row();
-                        builder.image(Icon.players).size(24);
-                        builder.add(String.valueOf(room.data().players().size));
+                        builder.add(Iconc.players + " " + String.valueOf(room.data().players().size));
                         builder.row();
-                        builder.image(Icon.playSmall).size(24);
-                        builder.add(room.data().gamemode());
+                        builder.add(Iconc.play + " " + room.data().gamemode());
 
                         if (room.data().mods().size > 0) {
                             builder.row();
-                            builder.image(Icon.bookSmall).size(24);
-                            builder.add(Strings.join(",", room.data().mods()));
+                            builder.add(Iconc.book + " " + Strings.join(",", room.data().mods()));
                         }
 
                     },
