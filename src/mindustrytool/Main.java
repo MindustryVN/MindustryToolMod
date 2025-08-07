@@ -20,9 +20,11 @@ import mindustrytool.gui.SchematicDialog;
 import mindustrytool.gui.ServerDialog;
 
 public class Main extends Mod {
-    SchematicDialog schematicDialog;
-    MapDialog mapDialog;
-    PlayerConnectRoomsDialog playerConnectRoomsDialog;
+    public static SchematicDialog schematicDialog;
+    public static MapDialog mapDialog;
+    public static PlayerConnectRoomsDialog playerConnectRoomsDialog;
+    public static CreateRoomDialog createRoomDialog;
+    public static JoinRoomDialog joinRoomDialog;
 
     public static Fi imageDir = Vars.dataDirectory.child("mindustry-tool-caches");
     public static Fi mapsDir = Vars.dataDirectory.child("mindustry-tool-maps");
@@ -40,15 +42,14 @@ public class Main extends Mod {
         schematicDir.mkdirs();
 
         addCustomButtons();
-
-        new CreateRoomDialog();
-        new JoinRoomDialog();
     }
 
     private void addCustomButtons() {
         schematicDialog = new SchematicDialog();
         mapDialog = new MapDialog();
         playerConnectRoomsDialog = new PlayerConnectRoomsDialog();
+        createRoomDialog = new CreateRoomDialog();
+        joinRoomDialog = new JoinRoomDialog();
 
         Events.on(ClientLoadEvent.class, (event) -> {
             Vars.ui.schematics.buttons.button("Browse", Icon.menu, () -> {
