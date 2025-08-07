@@ -29,12 +29,6 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
         cont.defaults().width(Vars.mobile ? 350f : 550f);
 
         try {
-            cont.table(container -> container.add(playerConnect))
-                    .fill()
-                    .expand();
-
-            cont.row();
-
             cont.table(topBar -> {
                 searchField = topBar.field(searchTerm, (result) -> {
                     searchTerm = result;
@@ -45,10 +39,13 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 topBar.button(Icon.refresh, () -> setupPlayerConnect()).size(40);
             });
+            cont.row();
 
             searchField.setMessageText(Core.bundle.format("@map.search"));
 
-            setupPlayerConnect();
+            cont.table(container -> container.add(playerConnect))
+                    .fill()
+                    .expand();
 
             if (!Vars.steam && !Vars.mobile) {
                 Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
@@ -59,6 +56,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                 Vars.ui.join.buttons.row().add().growX().width(-1);
                 Vars.ui.join.buttons.button("@message.room-list.title", mindustry.gen.Icon.play, this::show).row();
             }
+
+            setupPlayerConnect();
         } catch (Throwable e) {
             Log.err(e);
         }
@@ -76,18 +75,31 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             playerConnect.clear();
             playerConnect.fill();
             playerConnect.pane(table -> {
+                if (rooms.isEmpty()) {
+                    table.labelWrap(Core.bundle.format("message.no-rooms-found"))
+                            .center()
+                            .labelAlign(0)
+                            .expand()
+                            .fill();
+                    return;
+                }
+
                 for (var room : rooms) {
                     table.button(builder -> {
                         builder.add(
-                                room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : Iconc.lockOpen))
-                                .fontScale(1.5f);
+                                room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
+                                .fontScale(1.5f)
+                                .align(Align.left)
+                                .left();
+
                         builder.row();
-                        builder.add(Iconc.map + "" + Core.bundle.format("save.map", room.data().mapName())
+                        builder.add(Iconc.map + " " + Core.bundle.format("save.map", room.data().mapName())
                                 + "[lightgray] / " + room.data().gamemode())
                                 .align(Align.left).left();
+
                         builder.row();
-                        builder.add(Iconc.players + Core.bundle.format("players") + ": "
-                                + String.valueOf(room.data().players().size)).align(Align.left)
+                        builder.add(Iconc.players + " " + Core.bundle.format("players", room.data().players().size))
+                                .align(Align.left)
                                 .left();
 
                         if (room.data().mods().size > 0) {
@@ -105,7 +117,9 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     setupPlayerConnect();
                                     Vars.ui.showException("@message.connect.fail", e);
                                 }
-                            });
+                            })
+                            .fillX()
+                            .expandX();
                     table.row();
                 }
             })
