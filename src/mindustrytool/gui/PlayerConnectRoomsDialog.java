@@ -60,7 +60,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
     public void setupPlayerConnect() {
         playerConnect.clear();
 
-        Api.findPlayerConnectRooms(rooms -> {
+        Api.findPlayerConnectRooms(searchTerm, rooms -> {
             playerConnect.clear();
             playerConnect.table(table -> {
                 table.button(Icon.refresh, () -> setupPlayerConnect()).size(40);
