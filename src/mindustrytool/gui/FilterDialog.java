@@ -58,7 +58,7 @@ public class FilterDialog extends BaseDialog {
         try {
             scale = Vars.mobile ? 0.8f : 1f;
             cardSize = (int) (300 * scale);
-            cols = (int) Math.max(Math.floor(Core.scene.getWidth() / (cardSize + CARD_GAP)), 1);
+            cols = (int) Math.max(Math.floor(Core.graphics.getWidth() / (cardSize + CARD_GAP)), 1);
 
             cont.clear();
             cont.pane(table -> {
