@@ -116,7 +116,7 @@ public class FilterDialog extends BaseDialog {
             for (var mod : mods) {
                 card.button(btn -> {
                     btn.left();
-                    if (mod.getIcon() != null && !mod.getIcon().isBlank()) {
+                    if (mod.getIcon() != null && !mod.getIcon().isEmpty()) {
                         btn.add(new NetworkImage(mod.getIcon()))//
                                 .size(40 * scale)//
                                 .padRight(4)//
@@ -212,7 +212,7 @@ public class FilterDialog extends BaseDialog {
 
                 card.button(btn -> {
                     btn.left();
-                    if (value.icon() != null && !value.icon().isBlank()) {
+                    if (value.icon() != null && !value.icon().isEmpty()) {
                         btn.add(new NetworkImage(value.icon()))//
                                 .size(40 * scale)//
                                 .padRight(4)//

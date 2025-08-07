@@ -38,7 +38,7 @@ public class TagService {
     }
 
     private void getTagData(Cons<TagGroup> listener) {
-        Http.get(Config.API_URL + "tags" + (modId != null && !modId.isBlank() ? "?modId=" + modId : ""))
+        Http.get(Config.API_URL + "tags" + (modId != null && !modId.isEmpty() ? "?modId=" + modId : ""))
                 .error(error -> handleError(listener, error, Config.API_URL + "tags"))
                 .submit(response -> handleResult(response, listener));
     }
