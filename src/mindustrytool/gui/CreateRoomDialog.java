@@ -1,6 +1,7 @@
 package mindustrytool.gui;
 
 import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
 import arc.scene.ui.Button;
 import arc.scene.ui.Dialog;
 import arc.scene.ui.TextField;
@@ -286,6 +287,7 @@ public class CreateRoomDialog extends BaseDialog {
             Stack stack = new Stack();
             Table inner = new Table();
             inner.setColor(Pal.gray);
+            Draw.reset();
 
             button.clearChildren();
             button.add(stack).growX().row();

@@ -2,6 +2,7 @@ package mindustrytool.gui;
 
 import arc.Core;
 import arc.graphics.Color;
+import arc.graphics.g2d.Draw;
 import arc.scene.ui.Label;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.TextButton;
@@ -122,6 +123,7 @@ public class ServerDialog extends BaseDialog {
             t.top().left();
             t.setColor(color);
             t.add(data.name()).left().labelAlign(Align.left);
+            Draw.reset();
             t.row();
 
             if (!data.description().isEmpty()) {
