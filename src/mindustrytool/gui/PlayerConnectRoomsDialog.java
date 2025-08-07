@@ -11,6 +11,7 @@ import arc.util.Strings;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.gen.Iconc;
+import mindustry.ui.Styles;
 import mindustrytool.config.Debouncer;
 import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
@@ -37,8 +38,11 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .growX()//
                         .get();
 
-                topBar.button(Icon.refresh, () -> setupPlayerConnect()).size(40);
             });
+            buttons
+                    .button(Icon.refresh, Styles.squarei, () -> setupPlayerConnect())
+                    .size(64)
+                    .padRight(8);
             row();
 
             searchField.setMessageText(Core.bundle.format("@map.search"));
