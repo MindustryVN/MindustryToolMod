@@ -76,7 +76,9 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             playerConnect.clear();
             playerConnect.fill()
                     .top()
-                    .left();
+                    .left()
+                    .marginTop(8)
+                    .marginBottom(8);
 
             playerConnect.pane(table -> {
                 if (rooms.isEmpty()) {
@@ -124,7 +126,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                             })
                             .growX()
                             .left()
-                            .top();
+                            .top()
+                            .padBottom(8);
 
                     table.row();
                 }
