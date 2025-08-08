@@ -17,6 +17,7 @@ import mindustry.game.EventType.PlayerJoin;
 import mindustry.game.EventType.PlayerLeave;
 import mindustry.game.EventType.WorldLoadEndEvent;
 import mindustry.gen.Groups;
+import mindustry.gen.Player;
 import playerconnect.shared.Packets;
 import playerconnect.shared.Packets.RoomPlayer;
 
@@ -70,7 +71,7 @@ public class PlayerConnect {
 
             Seq<RoomPlayer> players = new Seq<>();
 
-            for (var player : Groups.player) {
+            for (Player player : Groups.player) {
                 RoomPlayer pl = new RoomPlayer();
                 pl.locale = player.locale;
                 pl.name = player.name();
@@ -152,6 +153,7 @@ public class PlayerConnect {
         Vars.net.connect(link.host, link.port, () -> {
             if (!Vars.net.client())
                 return;
+
             if (tmpSerializer == null)
                 tmpSerializer = new NetworkProxy.Serializer();
 

@@ -12,6 +12,7 @@ import mindustry.gen.Icon;
 import mindustry.gen.Iconc;
 import mindustry.ui.Styles;
 import mindustrytool.config.Debouncer;
+import mindustrytool.data.PlayerConnectRoom;
 import mindustrytool.net.Api;
 import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
@@ -90,7 +91,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     return;
                 }
 
-                for (var room : rooms) {
+                for (PlayerConnectRoom room : rooms) {
                     table.button(builder -> {
                         builder.add(
                                 room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
