@@ -158,6 +158,7 @@ public class PlayerConnect {
             // We need to serialize the packet manually
             tmpBuffer.clear();
             Packets.RoomJoinPacket p = new Packets.RoomJoinPacket();
+            p.password = "";
             p.roomId = link.roomId;
             tmpSerializer.write(tmpBuffer, p);
             tmpBuffer.limit(tmpBuffer.position()).position(0);
