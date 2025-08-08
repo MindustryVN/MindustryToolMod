@@ -81,9 +81,9 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .marginTop(8)
                     .marginBottom(8);
 
-            playerConnect.pane(table -> {
+            playerConnect.pane(pane -> {
                 if (rooms.isEmpty()) {
-                    table.labelWrap(Core.bundle.format("message.no-rooms-found"))
+                    pane.labelWrap(Core.bundle.format("message.no-rooms-found"))
                             .center()
                             .labelAlign(0)
                             .expand()
@@ -91,52 +91,56 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     return;
                 }
 
-                for (PlayerConnectRoom room : rooms) {
-                    table.button(builder -> {
-                        builder.add(
-                                room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
-                                .fontScale(1.5f)
-                                .align(Align.left)
-                                .left();
-
-                        builder.row();
-                        builder.add(Iconc.map + " " + Core.bundle.format("save.map", room.data().mapName())
-                                + "[lightgray] / " + room.data().gamemode())
-                                .align(Align.left).left();
-
-                        builder.row();
-                        builder.add(Iconc.players + " " + Core.bundle.format("players", room.data().players().size))
-                                .align(Align.left)
-                                .left();
-
-                        if (room.data().mods().size > 0) {
-                            builder.row();
-                            builder.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
+                pane.table(list -> {
+                    for (PlayerConnectRoom room : rooms) {
+                        list.button(builder -> {
+                            builder.add(
+                                    room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
+                                    .fontScale(1.5f)
+                                    .align(Align.left)
                                     .left();
-                        }
 
-                    },
-                            () -> {
-                                try {
-                                    PlayerConnect.joinRoom(PlayerConnectLink.fromString(room.link()), () -> hide());
-                                } catch (Throwable e) {
-                                    hide();
-                                    setupPlayerConnect();
-                                    Vars.ui.showException("@message.connect.fail", e);
-                                }
-                            })
-                            .growX()
-                            .left()
-                            .top()
-                            .padBottom(8);
+                            builder.row();
+                            builder.add(Iconc.map + " " + Core.bundle.format("save.map", room.data().mapName())
+                                    + "[lightgray] / " + room.data().gamemode())
+                                    .align(Align.left).left();
 
-                    table.row();
-                }
+                            builder.row();
+                            builder.add(Iconc.players + " " + Core.bundle.format("players", room.data().players().size))
+                                    .align(Align.left)
+                                    .left();
+
+                            if (room.data().mods().size > 0) {
+                                builder.row();
+                                builder.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
+                                        .left();
+                            }
+
+                        },
+                                () -> {
+                                    try {
+                                        PlayerConnect.joinRoom(PlayerConnectLink.fromString(room.link()), () -> hide());
+                                    } catch (Throwable e) {
+                                        hide();
+                                        setupPlayerConnect();
+                                        Vars.ui.showException("@message.connect.fail", e);
+                                    }
+                                })
+                                .growX()
+                                .left()
+                                .top()
+                                .padTop(8);
+
+                        list.row();
+                    }
+                })
+                        .top()
+                        .left()
+                        .grow();
             })
                     .top()
                     .left()
-                    .fill()
-                    .expand()
+                    .grow()
                     .scrollX(false)
                     .scrollY(true);
         });
