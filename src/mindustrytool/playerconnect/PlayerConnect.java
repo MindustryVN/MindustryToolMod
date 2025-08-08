@@ -87,7 +87,7 @@ public class PlayerConnect {
 
                 Log.info("Sending stats packet: " + stats);
 
-                room.sendTCP(p);
+                // room.sendTCP(p);
             } catch (Throwable err) {
                 Log.err(err);
             }
