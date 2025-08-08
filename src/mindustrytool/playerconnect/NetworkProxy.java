@@ -5,6 +5,7 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.Selector;
 
+import arc.Core;
 import arc.func.Cons;
 import arc.net.ArcNetException;
 import arc.net.Client;
@@ -21,8 +22,11 @@ import arc.util.io.ByteBufferOutput;
 
 import mindustry.Vars;
 import mindustry.gen.Call;
+import mindustry.gen.Groups;
+import mindustry.gen.Player;
 import mindustrytool.config.NoopRatekeeper;
 import playerconnect.shared.Packets;
+import playerconnect.shared.Packets.RoomPlayer;
 
 public class NetworkProxy extends Client implements NetListener {
     public static String PROTOCOL_VERSION = "1";
@@ -133,17 +137,30 @@ public class NetworkProxy extends Client implements NetListener {
         Packets.RoomCreationRequestPacket p = new Packets.RoomCreationRequestPacket();
         p.version = PROTOCOL_VERSION;
         p.password = password;
-        Packets.RoomStats stats = new Packets.RoomStats();
-        try {
-            stats.gamemode = Vars.state.rules.mode().name();
-            stats.mapName = Vars.state.map.name();
-            stats.name = Vars.player.name();
-            stats.mods = Vars.mods.getModStrings();
-        } catch (Throwable err) {
-            Log.err(err);
-        }
-        p.data = stats;
-        sendTCP(p);
+        Core.app.post(() -> {
+            Packets.RoomStats stats = new Packets.RoomStats();
+            try {
+                stats.gamemode = Vars.state.rules.mode().name();
+                stats.mapName = Vars.state.map.name();
+                stats.name = Vars.player.name();
+                stats.mods = Vars.mods.getModStrings();
+
+                Seq<RoomPlayer> players = new Seq<>();
+
+                for (Player player : Groups.player) {
+                    RoomPlayer pl = new RoomPlayer();
+                    pl.locale = player.locale;
+                    pl.name = player.name();
+                    players.add(pl);
+                }
+
+                stats.players = players;
+            } catch (Throwable err) {
+                Log.err(err);
+            }
+            p.data = stats;
+            sendTCP(p);
+        });
     }
 
     @Override
