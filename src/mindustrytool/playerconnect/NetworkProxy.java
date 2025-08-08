@@ -161,6 +161,8 @@ public class NetworkProxy extends Client implements NetListener {
     @Override
     public void received(Connection connection, Object object) {
         try {
+            Log.info(object);
+
             if (!(object instanceof Packets.Packet)) {
                 return;
 
