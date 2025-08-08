@@ -28,7 +28,6 @@ public class NetworkProxy extends Client implements NetListener {
     public static String PROTOCOL_VERSION = "1";
     public static int defaultTimeout = 5000; // ms
 
-
     private final IntMap<VirtualConnection> connections = new IntMap<>();
     private final Seq<VirtualConnection> orderedConnections = new Seq<>(false);
     private final arc.net.Server server;
@@ -161,69 +160,74 @@ public class NetworkProxy extends Client implements NetListener {
 
     @Override
     public void received(Connection connection, Object object) {
-        if (!(object instanceof Packets.Packet)) {
-            return;
-
-        } else if (object instanceof Packets.MessagePacket) {
-            Call.sendMessage("[scarlet][[CLaJ Server]:[] " + ((Packets.MessagePacket) object).message);
-
-        } else if (object instanceof Packets.Message2Packet) {
-            Call.sendMessage("[scarlet][[CLaJ Server]:[] " + arc.Core.bundle.get("claj.message." +
-                    arc.util.Strings.camelToKebab(((Packets.Message2Packet) object).message.name())));
-
-        } else if (object instanceof Packets.PopupPacket) {
-            Vars.ui.showText("[scarlet][[CLaJ Server][] ", ((Packets.PopupPacket) object).message);
-
-        } else if (object instanceof Packets.RoomClosedPacket) {
-            closeReason = ((Packets.RoomClosedPacket) object).reason;
-
-        } else if (object instanceof Packets.RoomLinkPacket) {
-            // Ignore if the room id is received twice
-            if (roomId != null)
+        try {
+            if (!(object instanceof Packets.Packet)) {
                 return;
 
-            roomId = ((Packets.RoomLinkPacket) object).roomId;
-            // -1 is not allowed since it's used to specify an uncreated room
-            if (roomId != null && onRoomCreated != null)
-                onRoomCreated.get(roomId);
+            } else if (object instanceof Packets.MessagePacket) {
+                Call.sendMessage("[scarlet][[CLaJ Server]:[] " + ((Packets.MessagePacket) object).message);
 
-        } else if (object instanceof Packets.ConnectionWrapperPacket) {
-            // Ignore packets until the room id is received
-            if (roomId == null)
-                return;
+            } else if (object instanceof Packets.Message2Packet) {
+                Call.sendMessage("[scarlet][[CLaJ Server]:[] " + arc.Core.bundle.get("claj.message." +
+                        arc.util.Strings.camelToKebab(((Packets.Message2Packet) object).message.name())));
 
-            int id = ((Packets.ConnectionWrapperPacket) object).connectionId;
-            VirtualConnection con = connections.get(id);
+            } else if (object instanceof Packets.PopupPacket) {
+                Vars.ui.showText("[scarlet][[CLaJ Server][] ", ((Packets.PopupPacket) object).message);
 
-            if (con == null) {
-                // Create a new connection
-                if (object instanceof Packets.ConnectionJoinPacket) {
-                    // Check if the link is the right
-                    if (!((Packets.ConnectionJoinPacket) object).roomId.equals(roomId)) {
+            } else if (object instanceof Packets.RoomClosedPacket) {
+                closeReason = ((Packets.RoomClosedPacket) object).reason;
 
-                        Packets.ConnectionClosedPacket p = new Packets.ConnectionClosedPacket();
-                        p.connectionId = id;
-                        p.reason = DcReason.error;
-                        sendTCP(p);
-                        return;
+            } else if (object instanceof Packets.RoomLinkPacket) {
+                // Ignore if the room id is received twice
+                if (roomId != null)
+                    return;
+
+                roomId = ((Packets.RoomLinkPacket) object).roomId;
+                // -1 is not allowed since it's used to specify an uncreated room
+                if (roomId != null && onRoomCreated != null)
+                    onRoomCreated.get(roomId);
+
+            } else if (object instanceof Packets.ConnectionWrapperPacket) {
+                // Ignore packets until the room id is received
+                if (roomId == null)
+                    return;
+
+                int id = ((Packets.ConnectionWrapperPacket) object).connectionId;
+                VirtualConnection con = connections.get(id);
+
+                if (con == null) {
+                    // Create a new connection
+                    if (object instanceof Packets.ConnectionJoinPacket) {
+                        // Check if the link is the right
+                        if (!((Packets.ConnectionJoinPacket) object).roomId.equals(roomId)) {
+
+                            Packets.ConnectionClosedPacket p = new Packets.ConnectionClosedPacket();
+                            p.connectionId = id;
+                            p.reason = DcReason.error;
+                            sendTCP(p);
+                            return;
+                        }
+
+                        addConnection(con = new VirtualConnection(this, id));
+                        con.notifyConnected0();
+                        // Change the packet rate and chat rate to a no-op version
+                        ((mindustry.net.NetConnection) con.getArbitraryData()).packetRate = noopRate;
+                        ((mindustry.net.NetConnection) con.getArbitraryData()).chatRate = noopRate;
                     }
 
-                    addConnection(con = new VirtualConnection(this, id));
-                    con.notifyConnected0();
-                    // Change the packet rate and chat rate to a no-op version
-                    ((mindustry.net.NetConnection) con.getArbitraryData()).packetRate = noopRate;
-                    ((mindustry.net.NetConnection) con.getArbitraryData()).chatRate = noopRate;
+                } else if (object instanceof Packets.ConnectionPacketWrapPacket) {
+                    con.notifyReceived0(((Packets.ConnectionPacketWrapPacket) object).object);
+
+                } else if (object instanceof Packets.ConnectionIdlingPacket) {
+                    con.setIdle();
+
+                } else if (object instanceof Packets.ConnectionClosedPacket) {
+                    con.closeQuietly(((Packets.ConnectionClosedPacket) object).reason);
+                    Log.info("Close connection from server");
                 }
-
-            } else if (object instanceof Packets.ConnectionPacketWrapPacket) {
-                con.notifyReceived0(((Packets.ConnectionPacketWrapPacket) object).object);
-
-            } else if (object instanceof Packets.ConnectionIdlingPacket) {
-                con.setIdle();
-
-            } else if (object instanceof Packets.ConnectionClosedPacket) {
-                con.closeQuietly(((Packets.ConnectionClosedPacket) object).reason);
             }
+        } catch (Exception error) {
+            Log.info("Failed to handle: " + object);
         }
     }
 
