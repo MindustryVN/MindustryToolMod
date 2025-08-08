@@ -58,10 +58,6 @@ public class PlayerConnect {
     }
 
     private static void updateStats() {
-        if (room == null) {
-            Log.warn("Not connected to a room yet");
-            return;
-        }
 
         Core.app.post(() -> {
             try {
@@ -82,12 +78,15 @@ public class PlayerConnect {
                 }
 
                 stats.players = players;
-
+                p.roomId = room.roomId();
                 p.data = stats;
 
-                Log.info("Sending stats packet: " + stats);
+                if (room == null || room.isConnected()) {
+                    Log.warn("Not connected to a room yet");
+                    return;
+                }
 
-                // room.sendTCP(p);
+                room.sendTCP(p);
             } catch (Throwable err) {
                 Log.err(err);
             }
