@@ -83,6 +83,8 @@ public class PlayerConnect {
                     return;
                 }
 
+                Log.info("Send room stats update");
+
                 room.sendTCP(p);
             } catch (Throwable err) {
                 Log.err(err);
