@@ -39,25 +39,22 @@ public class PlayerConnect {
         });
 
         Events.run(PlayerJoin.class, () -> {
-            if (Vars.net.server()) {
-                updateStats();
-            }
+            updateStats();
         });
 
         Events.run(PlayerLeave.class, () -> {
-            if (Vars.net.server()) {
-                updateStats();
-            }
+            updateStats();
         });
 
         Events.run(WorldLoadEndEvent.class, () -> {
-            if (Vars.net.server()) {
-                updateStats();
-            }
+            updateStats();
         });
     }
 
     private static void updateStats() {
+        if (!Vars.net.server()) {
+            return;
+        }
 
         Core.app.post(() -> {
             try {
@@ -81,10 +78,17 @@ public class PlayerConnect {
                 p.roomId = room.roomId();
                 p.data = stats;
 
-                if (room == null || room.isConnected()) {
-                    Log.warn("Not connected to a room yet");
+                if (room == null) {
+                    Log.warn("Room not created yet");
                     return;
                 }
+
+                if (!room.isConnected()) {
+                    Log.warn("Room not connected yet");
+                    return;
+                }
+
+                Log.info("Send room stats update");
 
                 room.sendTCP(p);
             } catch (Throwable err) {
