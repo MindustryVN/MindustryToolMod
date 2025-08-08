@@ -61,9 +61,10 @@ public class PlayerConnect {
             Log.warn("Not connected to a room yet");
             return;
         }
-        Packets.StatsPacket p = new Packets.StatsPacket();
-        Packets.RoomStats stats = new Packets.RoomStats();
+
         try {
+            Packets.StatsPacket p = new Packets.StatsPacket();
+            Packets.RoomStats stats = new Packets.RoomStats();
             stats.gamemode = Vars.state.rules.mode().name();
             stats.mapName = Vars.state.map.name();
             stats.name = Vars.player.name();
@@ -80,18 +81,18 @@ public class PlayerConnect {
 
             stats.players = players;
 
+            p.data = stats;
+            room.sendTCP(p);
         } catch (Throwable err) {
             Log.err(err);
         }
-        p.data = stats;
-        room.sendTCP(p);
     }
 
     private static NetworkProxy room;
     private static Client pinger;
     private static ExecutorService worker = Threads.unboundedExecutor("CLaJ Worker", 1);
     private static arc.net.NetSerializer tmpSerializer;
-    private static ByteBuffer tmpBuffer = ByteBuffer.allocate(64);// we need 16 bytes for the room join packet
+    private static ByteBuffer tmpBuffer = ByteBuffer.allocate(256);// we need 16 bytes for the room join packet
     private static Thread roomThread, pingerThread;
 
     public static boolean isRoomClosed() {
