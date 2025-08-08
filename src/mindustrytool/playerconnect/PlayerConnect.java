@@ -3,6 +3,7 @@ package mindustrytool.playerconnect;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ExecutorService;
 
+import arc.Core;
 import arc.Events;
 import arc.func.Cons;
 import arc.net.Client;
@@ -62,30 +63,35 @@ public class PlayerConnect {
             return;
         }
 
-        try {
-            Packets.StatsPacket p = new Packets.StatsPacket();
-            Packets.RoomStats stats = new Packets.RoomStats();
-            stats.gamemode = Vars.state.rules.mode().name();
-            stats.mapName = Vars.state.map.name();
-            stats.name = Vars.player.name();
-            stats.mods = Vars.mods.getModStrings();
+        Core.app.post(() -> {
+            try {
+                Packets.StatsPacket p = new Packets.StatsPacket();
+                Packets.RoomStats stats = new Packets.RoomStats();
+                stats.gamemode = Vars.state.rules.mode().name();
+                stats.mapName = Vars.state.map.name();
+                stats.name = Vars.player.name();
+                stats.mods = Vars.mods.getModStrings();
 
-            Seq<RoomPlayer> players = new Seq<>();
+                Seq<RoomPlayer> players = new Seq<>();
 
-            for (Player player : Groups.player) {
-                RoomPlayer pl = new RoomPlayer();
-                pl.locale = player.locale;
-                pl.name = player.name();
-                players.add(pl);
+                for (Player player : Groups.player) {
+                    RoomPlayer pl = new RoomPlayer();
+                    pl.locale = player.locale;
+                    pl.name = player.name();
+                    players.add(pl);
+                }
+
+                stats.players = players;
+
+                p.data = stats;
+
+                Log.info("Sending stats packet: " + stats);
+
+                room.sendTCP(p);
+            } catch (Throwable err) {
+                Log.err(err);
             }
-
-            stats.players = players;
-
-            p.data = stats;
-            room.sendTCP(p);
-        } catch (Throwable err) {
-            Log.err(err);
-        }
+        });
     }
 
     private static NetworkProxy room;
