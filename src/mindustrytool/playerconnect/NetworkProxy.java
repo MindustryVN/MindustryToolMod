@@ -28,11 +28,13 @@ public class NetworkProxy extends Client implements NetListener {
     public static String PROTOCOL_VERSION = "1";
     public static int defaultTimeout = 5000; // ms
 
+
     private final IntMap<VirtualConnection> connections = new IntMap<>();
     private final Seq<VirtualConnection> orderedConnections = new Seq<>(false);
     private final arc.net.Server server;
     private final NetListener serverDispatcher;
 
+    private String password = "";
     private String roomId = null;
     private volatile boolean isShutdown;
     private Packets.RoomClosedPacket.CloseReason closeReason;
@@ -131,6 +133,7 @@ public class NetworkProxy extends Client implements NetListener {
         // Request the room link
         Packets.RoomCreationRequestPacket p = new Packets.RoomCreationRequestPacket();
         p.version = PROTOCOL_VERSION;
+        p.password = password;
         Packets.RoomStats stats = new Packets.RoomStats();
         try {
             stats.gamemode = Vars.state.rules.mode().name();
