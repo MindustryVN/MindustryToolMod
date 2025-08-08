@@ -78,8 +78,13 @@ public class PlayerConnect {
                 p.roomId = room.roomId();
                 p.data = stats;
 
-                if (room == null || room.isConnected()) {
-                    Log.warn("Not connected to a room yet");
+                if (room == null) {
+                    Log.warn("Room not created yet");
+                    return;
+                }
+
+                if (!room.isConnected()) {
+                    Log.warn("Room not connected yet");
                     return;
                 }
 
