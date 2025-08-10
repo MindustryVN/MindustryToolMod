@@ -104,13 +104,12 @@ public class PlayerConnect {
     private static ByteBuffer tmpBuffer = ByteBuffer.allocate(256);// we need 16 bytes for the room join packet
     private static Thread roomThread, pingerThread;
 
-    public static String password = Core.settings.getString("playerConnectRoomPassword", "");
-
     public static boolean isRoomClosed() {
         return room == null || !room.isConnected();
     }
 
     public static void createRoom(String ip, int port,
+            String password,
             Cons<PlayerConnectLink> onSucceed,
             Cons<Throwable> onFailed,
             Cons<Packets.RoomClosedPacket.CloseReason> onDisconnected//
