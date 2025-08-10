@@ -10,6 +10,7 @@ import mindustry.Vars;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.gen.Icon;
 import mindustry.mod.*;
+import mindustry.mod.Mods.LoadedMod;
 import mindustry.ui.fragments.MenuFragment.MenuButton;
 import mindustrytool.config.Config;
 import mindustrytool.gui.CreateRoomDialog;
@@ -73,14 +74,13 @@ public class Main extends Mod {
                         new MenuButton(Core.bundle.format("message.player-connect.title"), Icon.menu, () -> {
                             playerConnectRoomsDialog.show();
                         })//
-
                 ));
             }
         });
     }
 
     private void checkForUpdate() {
-        var mod = Vars.mods.getMod(Main.class);
+        LoadedMod mod = Vars.mods.getMod(Main.class);
         String currentVersion = mod.meta.version;
 
         if (currentVersion.endsWith("v8")) {

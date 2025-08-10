@@ -104,6 +104,8 @@ public class PlayerConnect {
     private static ByteBuffer tmpBuffer = ByteBuffer.allocate(256);// we need 16 bytes for the room join packet
     private static Thread roomThread, pingerThread;
 
+    public static String password = Core.settings.getString("playerConnectRoomPassword", "");
+
     public static boolean isRoomClosed() {
         return room == null || !room.isConnected();
     }
@@ -114,7 +116,7 @@ public class PlayerConnect {
             Cons<Packets.RoomClosedPacket.CloseReason> onDisconnected//
     ) {
         if (room == null || roomThread == null || !roomThread.isAlive()) {
-            roomThread = Threads.daemon("CLaJ Proxy", room = new NetworkProxy());
+            roomThread = Threads.daemon("CLaJ Proxy", room = new NetworkProxy(password));
         }
 
         worker.submit(() -> {
@@ -152,7 +154,7 @@ public class PlayerConnect {
         }
     }
 
-    public static void joinRoom(PlayerConnectLink link, Runnable success) {
+    public static void joinRoom(PlayerConnectLink link, String password, Runnable success) {
         if (link == null)
             return;
 
@@ -170,7 +172,7 @@ public class PlayerConnect {
             // We need to serialize the packet manually
             tmpBuffer.clear();
             Packets.RoomJoinPacket p = new Packets.RoomJoinPacket();
-            p.password = "";
+            p.password = password;
             p.roomId = link.roomId;
             tmpSerializer.write(tmpBuffer, p);
             tmpBuffer.limit(tmpBuffer.position()).position(0);

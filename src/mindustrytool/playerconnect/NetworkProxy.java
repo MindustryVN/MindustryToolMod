@@ -51,7 +51,7 @@ public class NetworkProxy extends Client implements NetListener {
      */
     private static final Ratekeeper noopRate = new NoopRatekeeper();
 
-    public NetworkProxy() {
+    public NetworkProxy(String password) {
         super(32768, 16384, new Serializer());
         addListener(this);
 
@@ -62,6 +62,7 @@ public class NetworkProxy extends Client implements NetListener {
         server = Reflect.get(provider, "server");
         // connections = Reflect.get(provider, "connections");
         serverDispatcher = Reflect.get(server, "dispatchListener");
+        this.password = password;
     }
 
     /** This method must be used instead of others connect methods */

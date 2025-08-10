@@ -11,6 +11,7 @@ import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.gen.Iconc;
 import mindustry.ui.Styles;
+import mindustry.ui.dialogs.BaseDialog;
 import mindustrytool.config.Debouncer;
 import mindustrytool.data.PlayerConnectRoom;
 import mindustrytool.net.Api;
@@ -123,15 +124,55 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     .left();
                             card.table(right -> {
                                 right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
-                                    try {
-                                        PlayerConnect.joinRoom(
-                                                PlayerConnectLink.fromString(room.link()),
-                                                () -> hide());
-                                    } catch (Throwable e) {
-                                        hide();
-                                        setupPlayerConnect();
-                                        Vars.ui.showException("@message.connect.fail", e);
+                                    if (!room.data().isSecured()) {
+                                        try {
+                                            PlayerConnect.joinRoom(
+                                                    PlayerConnectLink.fromString(room.link()), "",
+                                                    () -> hide());
+                                        } catch (Throwable e) {
+                                            hide();
+                                            setupPlayerConnect();
+                                            Vars.ui.showException("@message.connect.fail", e);
+                                        }
+
+                                        return;
                                     }
+
+                                    BaseDialog create = new BaseDialog("@message.type-password.title");
+                                    String[] password = { "" };
+
+                                    create.cont.table(table -> {
+                                        table.add("@message.create-room.server-name")
+                                                .padRight(5f)
+                                                .right();
+
+                                        table.field(password[0], text -> password[0] = text)
+                                                .size(320f, 54f)
+                                                .valid(t -> t.length() > 0 && t.length() <= 100)
+                                                .maxTextLength(100)
+                                                .left()
+                                                .get();
+                                        table.row().add();
+                                    }).row();
+
+                                    create.buttons.button("@cancel", () -> {
+                                        create.hide();
+                                    });
+
+                                    create.buttons.button("@ok", () -> {
+                                        create.hide();
+                                        try {
+                                            PlayerConnect.joinRoom(
+                                                    PlayerConnectLink.fromString(room.link()),
+                                                    password[0],
+                                                    () -> hide());
+                                        } catch (Throwable e) {
+                                            hide();
+                                            setupPlayerConnect();
+                                            Vars.ui.showException("@message.connect.fail", e);
+                                        }
+                                    });
+
                                 });
                             });
                         })

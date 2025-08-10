@@ -7,6 +7,7 @@ import mindustrytool.playerconnect.PlayerConnectLink;
 
 public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
     String lastLink = "player-connect://";
+    String password = "";
     boolean isValid;
     String output;
 
@@ -23,6 +24,16 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
             table.field(lastLink, this::setLink)
                     .maxTextLength(100)
                     .valid(this::setLink)
+                    .height(54f)
+                    .growX()
+                    .row();
+
+            table.add("@message.join-room.password")
+                    .padRight(5f)
+                    .left();
+
+            table.field(password, text -> password = text)
+                    .maxTextLength(100)
                     .height(54f)
                     .growX()
                     .row();
@@ -68,7 +79,7 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
             Vars.netClient.disconnectQuietly();
         });
 
-        arc.util.Time.runTask(2f, () -> PlayerConnect.joinRoom(link, () -> {
+        arc.util.Time.runTask(2f, () -> PlayerConnect.joinRoom(link, password, () -> {
             Main.playerConnectRoomsDialog.hide();
             hide();
         }));
