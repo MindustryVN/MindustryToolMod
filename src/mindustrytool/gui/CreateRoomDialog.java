@@ -39,17 +39,6 @@ public class CreateRoomDialog extends BaseDialog {
         makeButtonOverlay();
         addCloseButton();
 
-        buttons.button("@message.manage-room.create-room", Icon.add, create::show)
-                .disabled(b -> !PlayerConnect.isRoomClosed() || selected == null);
-        if (Vars.mobile)
-            buttons.row();
-
-        buttons.button("@message.manage-room.close-room", Icon.cancel, this::closeRoom)
-                .disabled(b -> PlayerConnect.isRoomClosed());
-
-        buttons.button("@message.manage-room.copy-link", Icon.copy, this::copyLink)
-                .disabled(b -> link == null);
-
         shown(() -> {
             // Just to give time to this dialog to open
             arc.util.Time.run(7f, () -> {
@@ -108,6 +97,17 @@ public class CreateRoomDialog extends BaseDialog {
                 .disabled(b -> roomName[0].isEmpty()
                         || roomName[0].length() > 100
                         || PlayerConnect.password.length() > 100);
+
+        buttons.button("@message.manage-room.create-room", Icon.add, create::show)
+                .disabled(b -> !PlayerConnect.isRoomClosed() || selected == null);
+        if (Vars.mobile)
+            buttons.row();
+
+        buttons.button("@message.manage-room.close-room", Icon.cancel, this::closeRoom)
+                .disabled(b -> PlayerConnect.isRoomClosed());
+
+        buttons.button("@message.manage-room.copy-link", Icon.copy, this::copyLink)
+                .disabled(b -> link == null);
 
         add = new BaseDialog("@joingame.title");
 
