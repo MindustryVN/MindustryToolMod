@@ -11,7 +11,7 @@ import arc.struct.Seq;
 import arc.util.Log;
 import arc.util.Threads;
 import arc.util.Time;
-
+import arc.util.Timer;
 import mindustry.Vars;
 import mindustry.game.EventType;
 import mindustry.game.EventType.PlayerJoin;
@@ -49,6 +49,10 @@ public class PlayerConnect {
         Events.run(WorldLoadEndEvent.class, () -> {
             updateStats();
         });
+
+        Timer.schedule(() -> {
+            updateStats();
+        }, 60f, 60f);
     }
 
     private static void updateStats() {
