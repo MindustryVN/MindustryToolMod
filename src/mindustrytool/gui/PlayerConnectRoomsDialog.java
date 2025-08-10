@@ -92,7 +92,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                             .fill();
                     return;
                 }
-                
+
                 for (PlayerConnectRoom room : rooms) {
                     list.table(card -> {
                         card.table(left -> {
@@ -179,14 +179,13 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                                 connect.show();
                             })
-                                    .minWidth(150)
-                                    .padLeft(8);
+                                    .minWidth(150);
                         });
                     })
                             .growX()
                             .left()
                             .top()
-                            .padTop(8);
+                            .margin(8);
 
                     list.row();
                 }
