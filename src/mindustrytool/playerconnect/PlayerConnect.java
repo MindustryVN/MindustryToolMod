@@ -13,6 +13,7 @@ import arc.util.Threads;
 import arc.util.Time;
 import arc.util.Timer;
 import mindustry.Vars;
+import mindustry.core.Version;
 import mindustry.game.EventType;
 import mindustry.game.EventType.PlayerJoin;
 import mindustry.game.EventType.PlayerLeave;
@@ -63,22 +64,7 @@ public class PlayerConnect {
         Core.app.post(() -> {
             try {
                 Packets.StatsPacket p = new Packets.StatsPacket();
-                Packets.RoomStats stats = new Packets.RoomStats();
-                stats.gamemode = Vars.state.rules.mode().name();
-                stats.mapName = Vars.state.map.name();
-                stats.name = Vars.player.name();
-                stats.mods = Vars.mods.getModStrings();
-
-                Seq<RoomPlayer> players = new Seq<>();
-
-                for (Player player : Groups.player) {
-                    RoomPlayer pl = new RoomPlayer();
-                    pl.locale = player.locale;
-                    pl.name = player.name();
-                    players.add(pl);
-                }
-
-                stats.players = players;
+                Packets.RoomStats stats = PlayerConnect.getRoomStats();
                 p.roomId = room.roomId();
                 p.data = stats;
 
@@ -225,5 +211,30 @@ public class PlayerConnect {
             pingerThread = null;
             pinger = null;
         }
+    }
+
+    public static Packets.RoomStats getRoomStats() {
+        Packets.RoomStats stats = new Packets.RoomStats();
+        try {
+            stats.gamemode = Vars.state.rules.mode().name();
+            stats.mapName = Vars.state.map.name();
+            stats.name = Vars.player.name();
+            stats.mods = Vars.mods.getModStrings();
+
+            Seq<RoomPlayer> players = new Seq<>();
+
+            for (Player player : Groups.player) {
+                RoomPlayer pl = new RoomPlayer();
+                pl.locale = player.locale;
+                pl.name = player.name();
+                players.add(pl);
+            }
+            stats.locale = Vars.player.locale;
+            stats.version = Version.combined();
+            stats.players = players;
+        } catch (Throwable err) {
+            Log.err(err);
+        }
+        return stats;
     }
 }
