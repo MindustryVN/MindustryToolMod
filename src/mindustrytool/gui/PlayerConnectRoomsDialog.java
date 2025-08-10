@@ -45,7 +45,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .growX();
 
                 container.row();
-                container.addChild(roomList);
+                container.add(roomList);
                 container.row();
             })
                     .top()
@@ -60,7 +60,9 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .size(64)
                     .padRight(8);
 
-            setupPlayerConnect();
+            shown(() -> {
+                setupPlayerConnect();
+            });
         } catch (Throwable e) {
             Log.err(e);
         }
@@ -76,11 +78,6 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
         Api.findPlayerConnectRooms(searchTerm, rooms -> {
             roomList.clear();
-            roomList.fill()
-                    .top()
-                    .left()
-                    .marginTop(8)
-                    .marginBottom(8);
 
             roomList.pane(pane -> {
                 if (rooms.isEmpty()) {
@@ -199,6 +196,13 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .grow()
                     .scrollX(false)
                     .scrollY(true);
+
+            roomList.fill()
+                    .top()
+                    .left()
+                    .marginTop(8)
+                    .marginBottom(8);
+
         });
     }
 }
