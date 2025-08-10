@@ -159,7 +159,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                                     connect.buttons.button("@cancel", () -> {
                                         connect.hide();
-                                    });
+                                    }).minWidth(210);
 
                                     connect.buttons.button("@ok", () -> {
                                         try {
@@ -171,12 +171,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                                         connect.hide();
                                                     });
                                         } catch (Throwable e) {
-                                            hide();
-                                            connect.hide();
                                             setupPlayerConnect();
                                             Vars.ui.showException("@message.connect.fail", e);
                                         }
-                                    });
+                                    }).minWidth(210);
 
                                     connect.show();
                                 })
