@@ -93,9 +93,9 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     return;
                 }
 
-                pane.table(list -> {
+                pane.table(Styles.black3, list -> {
                     for (PlayerConnectRoom room : rooms) {
-                        list.table(Styles.black, card -> {
+                        list.table(card -> {
                             card.table(left -> {
                                 left.add(
                                         room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
@@ -116,13 +116,15 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                                 if (room.data().mods().size > 0) {
                                     left.row();
-                                    left.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
+                                    left.add(Iconc.book + " " + Strings.join(",", room.data().mods()))
+                                            .align(Align.left)
                                             .left();
                                 }
                             })
                                     .growX()
                                     .top()
-                                    .left();
+                                    .left()
+                                    .labelAlign(Align.topLeft);
 
                             card.table(right -> {
                                 right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
@@ -185,7 +187,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                 .growX()
                                 .left()
                                 .top()
-                                .padTop(8);
+                                .padTop(8)
+                                .labelAlign(Align.topLeft);
 
                         list.row();
                     }
