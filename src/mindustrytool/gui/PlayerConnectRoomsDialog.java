@@ -93,39 +93,48 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 pane.table(list -> {
                     for (PlayerConnectRoom room : rooms) {
-                        list.button(builder -> {
-                            builder.add(
-                                    room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
-                                    .fontScale(1.5f)
-                                    .align(Align.left)
-                                    .left();
-
-                            builder.row();
-                            builder.add(Iconc.map + " " + Core.bundle.format("save.map", room.data().mapName())
-                                    + "[lightgray] / " + room.data().gamemode())
-                                    .align(Align.left).left();
-
-                            builder.row();
-                            builder.add(Iconc.players + " " + Core.bundle.format("players", room.data().players().size))
-                                    .align(Align.left)
-                                    .left();
-
-                            if (room.data().mods().size > 0) {
-                                builder.row();
-                                builder.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
+                        list.table(card -> {
+                            card.table(left -> {
+                                left.add(
+                                        room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
+                                        .fontScale(1.5f)
+                                        .align(Align.left)
                                         .left();
-                            }
 
-                        },
-                                () -> {
+                                left.row();
+                                left.add(Iconc.map + " " + Core.bundle.format("save.map", room.data().mapName())
+                                        + "[lightgray] / " + room.data().gamemode())
+                                        .align(Align.left).left();
+
+                                left.row();
+                                left.add(
+                                        Iconc.players + " " + Core.bundle.format("players", room.data().players().size))
+                                        .align(Align.left)
+                                        .left();
+
+                                if (room.data().mods().size > 0) {
+                                    left.row();
+                                    left.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
+                                            .left();
+                                }
+                            })
+                                    .growX()
+                                    .top()
+                                    .left();
+                            card.table(right -> {
+                                right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
                                     try {
-                                        PlayerConnect.joinRoom(PlayerConnectLink.fromString(room.link()), () -> hide());
+                                        PlayerConnect.joinRoom(
+                                                PlayerConnectLink.fromString(room.link()),
+                                                () -> hide());
                                     } catch (Throwable e) {
                                         hide();
                                         setupPlayerConnect();
                                         Vars.ui.showException("@message.connect.fail", e);
                                     }
-                                })
+                                });
+                            });
+                        })
                                 .growX()
                                 .left()
                                 .top()

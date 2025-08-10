@@ -43,15 +43,8 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
         buttons.button("@ok", this::joinRoom)
                 .disabled(button -> !isValid || lastLink.isEmpty() || Vars.net.active());
 
-        if (!Vars.steam && !Vars.mobile) {
-            Main.playerConnectRoomsDialog.buttons
-                    .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
-
-        } else {
-            Main.playerConnectRoomsDialog.buttons.row().add().growX().width(-1);
-            Main.playerConnectRoomsDialog.buttons
-                    .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
-        }
+        Main.playerConnectRoomsDialog.buttons
+                .button("@message.join-room.title", mindustry.gen.Icon.play, this::show);
     }
 
     public void joinRoom() {
