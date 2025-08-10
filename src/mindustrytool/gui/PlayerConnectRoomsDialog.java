@@ -81,7 +81,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                 .fill();
 
         Api.findPlayerConnectRooms(searchTerm, rooms -> {
-            roomList.clear();   
+            roomList.clear();
+            roomList.reset();
 
             roomList.pane(pane -> {
                 if (rooms.isEmpty()) {
@@ -197,7 +198,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             })
                     .top()
                     .left()
-                    .growX()
+                    .grow()
                     .scrollX(false)
                     .scrollY(true);
 
