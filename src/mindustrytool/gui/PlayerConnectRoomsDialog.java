@@ -85,13 +85,14 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
             roomList.pane(list -> {
                 if (rooms.isEmpty()) {
-                    pane.labelWrap(Core.bundle.format("message.no-rooms-found"))
+                    list.labelWrap(Core.bundle.format("message.no-rooms-found"))
                             .center()
                             .labelAlign(0)
                             .expand()
                             .fill();
                     return;
                 }
+                
                 for (PlayerConnectRoom room : rooms) {
                     list.table(card -> {
                         card.table(left -> {
@@ -121,6 +122,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                 .growX()
                                 .top()
                                 .left();
+
                         card.table(right -> {
                             right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
                                 if (!room.data().isSecured()) {
