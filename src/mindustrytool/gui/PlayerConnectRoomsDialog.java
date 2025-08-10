@@ -97,7 +97,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     list.table(Styles.black5, card -> {
                         card.table(left -> {
                             left.add(
-                                    room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
+                                    room.data().name() + "(" + room.data().locale() + ") [white]"
+                                            + (room.data().isSecured() ? Iconc.lock : ""))
                                     .fontScale(1.5f)
                                     .align(Align.left)
                                     .left();
@@ -110,6 +111,11 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                             left.row();
                             left.add(
                                     Iconc.players + " " + Core.bundle.format("players", room.data().players().size))
+                                    .align(Align.left)
+                                    .left();
+
+                            left.row();
+                            left.add(Core.bundle.format("version") + " " + room.data().version())
                                     .align(Align.left)
                                     .left();
 
@@ -194,6 +200,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .top()
                     .left()
                     .fill()
+                    .expandX()
                     .scrollX(false)
                     .scrollY(true);
 
