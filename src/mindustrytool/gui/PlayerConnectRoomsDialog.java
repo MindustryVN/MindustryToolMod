@@ -123,7 +123,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     .growX()
                                     .top()
                                     .left();
-                            card.table(right -> {
+
+                            card.table(Styles.black, right -> {
                                 right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
                                     if (!room.data().isSecured()) {
                                         try {
