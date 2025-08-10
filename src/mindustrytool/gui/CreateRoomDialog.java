@@ -65,7 +65,10 @@ public class CreateRoomDialog extends BaseDialog {
                     .padRight(5f)
                     .right();
 
-            fieldCreate[0] = table.field(roomName[0], text -> roomName[0] = text)
+            fieldCreate[0] = table.field(roomName[0], text -> {
+                roomName[0] = text;
+                Core.settings.put("playerConnectRoomName", text);
+            })
                     .size(320f, 54f)
                     .valid(t -> t.length() > 0 && t.length() <= 100)
                     .maxTextLength(100)
@@ -73,11 +76,14 @@ public class CreateRoomDialog extends BaseDialog {
                     .get();
 
             table.row()
-                    .add("@message.create-room.password")
+                    .add("@message.password")
                     .padRight(5f)
                     .right();
 
-            fieldCreate[1] = table.field(PlayerConnect.password, text -> PlayerConnect.password = text)
+            fieldCreate[1] = table.field(PlayerConnect.password, text -> {
+                PlayerConnect.password = text;
+                Core.settings.put("playerConnectRoomPassword", text);
+            })
                     .size(320f, 54f)
                     .maxTextLength(100)
                     .left()
