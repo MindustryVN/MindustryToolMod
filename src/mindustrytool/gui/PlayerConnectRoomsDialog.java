@@ -54,7 +54,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             })
                     .top()
                     .left()
-                    .growX();
+                    .grow();
+
             cont
                     .top()
                     .left();
@@ -189,7 +190,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                 .growX()
                                 .left()
                                 .top()
-                                .padTop(8)
+                                .pad(8)
                                 .labelAlign(Align.topLeft);
 
                         list.row();
