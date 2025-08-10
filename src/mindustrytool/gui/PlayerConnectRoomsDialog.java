@@ -97,7 +97,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     list.table(card -> {
                         card.table(left -> {
                             left.add(
-                                    room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
+                                    room.data().name() + "(" + room.data().locale() + ") [white]"
+                                            + (room.data().isSecured() ? Iconc.lock : ""))
                                     .fontScale(1.5f)
                                     .align(Align.left)
                                     .left();
@@ -113,15 +114,21 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     .align(Align.left)
                                     .left();
 
+                            left.row();
+                            left.add(Core.bundle.format("version") + ": " + room.data().version())
+                                    .align(Align.left)
+                                    .left();
+
                             if (room.data().mods().size > 0) {
                                 left.row();
                                 left.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
                                         .left();
                             }
                         })
-                                .growX()
                                 .top()
                                 .left();
+
+                        card.add().growX().width(-1);
 
                         card.table(right -> {
                             right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
@@ -185,14 +192,16 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                             .growX()
                             .left()
                             .top()
-                            .margin(8);
+                            .margin(8)
+                            .pad(8);
 
                     list.row();
                 }
             })
                     .top()
                     .left()
-                    .grow()
+                    .fill()
+                    .expandX()
                     .scrollX(false)
                     .scrollY(true);
 

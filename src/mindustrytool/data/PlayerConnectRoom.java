@@ -22,6 +22,8 @@ public class PlayerConnectRoom {
         private String mapName;
         private String gamemode;
         private Seq<String> mods;
+        private String version;
+        private String locale;
     }
 
     @Data

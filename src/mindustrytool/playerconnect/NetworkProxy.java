@@ -139,26 +139,7 @@ public class NetworkProxy extends Client implements NetListener {
         p.version = PROTOCOL_VERSION;
         p.password = password;
         Core.app.post(() -> {
-            Packets.RoomStats stats = new Packets.RoomStats();
-            try {
-                stats.gamemode = Vars.state.rules.mode().name();
-                stats.mapName = Vars.state.map.name();
-                stats.name = Vars.player.name();
-                stats.mods = Vars.mods.getModStrings();
-
-                Seq<RoomPlayer> players = new Seq<>();
-
-                for (Player player : Groups.player) {
-                    RoomPlayer pl = new RoomPlayer();
-                    pl.locale = player.locale;
-                    pl.name = player.name();
-                    players.add(pl);
-                }
-
-                stats.players = players;
-            } catch (Throwable err) {
-                Log.err(err);
-            }
+            Packets.RoomStats stats = PlayerConnect.getRoomStats();
             p.data = stats;
             sendTCP(p);
         });
