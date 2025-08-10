@@ -54,8 +54,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             })
                     .top()
                     .left()
-                    .grow();
-
+                    .growX();
             cont
                     .top()
                     .left();
@@ -97,7 +96,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                 pane.table(list -> {
                     for (PlayerConnectRoom room : rooms) {
                         list.table(card -> {
-                            card.table(Styles.black3, left -> {
+                            card.table(left -> {
                                 left.add(
                                         room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
                                         .fontScale(1.5f)
@@ -117,18 +116,13 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                                 if (room.data().mods().size > 0) {
                                     left.row();
-                                    left.add(Iconc.book + " " + Strings.join(",", room.data().mods()))
-                                            .align(Align.left)
+                                    left.add(Iconc.book + " " + Strings.join(",", room.data().mods())).align(Align.left)
                                             .left();
                                 }
                             })
+                                    .growX()
                                     .top()
-                                    .left()
-                                    .labelAlign(Align.topLeft)
-                                    .padRight(8);
-
-                            card.add().growX().width(-1);
-
+                                    .left();
                             card.table(right -> {
                                 right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
                                     if (!room.data().isSecured()) {
@@ -176,6 +170,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                                         connect.hide();
                                                     });
                                         } catch (Throwable e) {
+                                            hide();
+                                            connect.hide();
                                             setupPlayerConnect();
                                             Vars.ui.showException("@message.connect.fail", e);
                                         }
@@ -190,23 +186,24 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                 .growX()
                                 .left()
                                 .top()
-                                .pad(8)
-                                .labelAlign(Align.topLeft);
+                                .padTop(8);
 
                         list.row();
                     }
                 })
                         .top()
                         .left()
-                        .grow();
+                        .fill();
             })
                     .top()
                     .left()
-                    .grow()
+                    .fill()
                     .scrollX(false)
                     .scrollY(true);
 
             roomList
+                    .top()
+                    .left()
                     .marginTop(8)
                     .marginBottom(8);
 
