@@ -19,7 +19,7 @@ import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
 
 public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
-    private final Table playerConnect = new Table();
+    private final Table roomList = new Table().fill();
     private final Debouncer debouncer = new Debouncer(250, TimeUnit.MILLISECONDS);
     private String searchTerm = "";
 
@@ -45,7 +45,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .growX();
 
                 container.row();
-                container.add(playerConnect);
+                container.add(roomList);
                 container.row();
             })
                     .top()
@@ -67,22 +67,22 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
     }
 
     public void setupPlayerConnect() {
-        playerConnect.clear();
-        playerConnect.labelWrap(Core.bundle.format("message.loading"))
+        roomList.clear();
+        roomList.labelWrap(Core.bundle.format("message.loading"))
                 .center()
                 .labelAlign(0)
                 .expand()
                 .fill();
 
         Api.findPlayerConnectRooms(searchTerm, rooms -> {
-            playerConnect.clear();
-            playerConnect.fill()
+            roomList.clear();
+            roomList.fill()
                     .top()
                     .left()
                     .marginTop(8)
                     .marginBottom(8);
 
-            playerConnect.pane(pane -> {
+            roomList.pane(pane -> {
                 if (rooms.isEmpty()) {
                     pane.labelWrap(Core.bundle.format("message.no-rooms-found"))
                             .center()
@@ -138,10 +138,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                         return;
                                     }
 
-                                    BaseDialog create = new BaseDialog("@message.type-password.title");
+                                    BaseDialog connect = new BaseDialog("@message.type-password.title");
                                     String[] password = { "" };
 
-                                    create.cont.table(table -> {
+                                    connect.cont.table(table -> {
                                         table.add("@message.password")
                                                 .padRight(5f)
                                                 .right();
@@ -155,29 +155,31 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                         table.row().add();
                                     }).row();
 
-                                    create.buttons.button("@cancel", () -> {
-                                        create.hide();
+                                    connect.buttons.button("@cancel", () -> {
+                                        connect.hide();
                                     });
 
-                                    create.buttons.button("@ok", () -> {
+                                    connect.buttons.button("@ok", () -> {
                                         try {
                                             PlayerConnect.joinRoom(
                                                     PlayerConnectLink.fromString(room.link()),
                                                     password[0],
                                                     () -> {
                                                         hide();
-                                                        create.hide();
+                                                        connect.hide();
                                                     });
                                         } catch (Throwable e) {
                                             hide();
-                                            create.hide();
+                                            connect.hide();
                                             setupPlayerConnect();
                                             Vars.ui.showException("@message.connect.fail", e);
                                         }
                                     });
 
-                                    create.show();
-                                });
+                                    connect.show();
+                                })
+                                        .minWidth(150)
+                                        .padLeft(8);
                             });
                         })
                                 .growX()
