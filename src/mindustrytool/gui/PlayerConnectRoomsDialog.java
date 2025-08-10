@@ -92,10 +92,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                             .fill();
                     return;
                 }
-                
+
                 for (PlayerConnectRoom room : rooms) {
                     list.table(card -> {
-                        card.table(left -> {
+                        card.table(Styles.black5, left -> {
                             left.add(
                                     room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
                                     .fontScale(1.5f)
