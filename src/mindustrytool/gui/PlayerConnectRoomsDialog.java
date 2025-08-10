@@ -95,7 +95,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                 pane.table(list -> {
                     for (PlayerConnectRoom room : rooms) {
-                        list.table(card -> {
+                        list.table(Styles.black, card -> {
                             card.table(left -> {
                                 left.add(
                                         room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
@@ -124,7 +124,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     .top()
                                     .left();
 
-                            card.table(Styles.black, right -> {
+                            card.table(right -> {
                                 right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
                                     if (!room.data().isSecured()) {
                                         try {
@@ -159,7 +159,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
 
                                     connect.buttons.button("@cancel", () -> {
                                         connect.hide();
-                                    });
+                                    }).minWidth(210);
 
                                     connect.buttons.button("@ok", () -> {
                                         try {
@@ -171,12 +171,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                                         connect.hide();
                                                     });
                                         } catch (Throwable e) {
-                                            hide();
-                                            connect.hide();
                                             setupPlayerConnect();
                                             Vars.ui.showException("@message.connect.fail", e);
                                         }
-                                    });
+                                    }).minWidth(210);
 
                                     connect.show();
                                 })
