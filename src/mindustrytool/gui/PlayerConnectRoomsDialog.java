@@ -54,7 +54,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
             })
                     .top()
                     .left()
-                    .growX();
+                    .grow();
             cont
                     .top()
                     .left();
