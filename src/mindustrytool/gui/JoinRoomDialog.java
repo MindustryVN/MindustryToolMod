@@ -7,6 +7,7 @@ import mindustrytool.playerconnect.PlayerConnectLink;
 
 public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
     String lastLink = "player-connect://";
+    String password = "";
     boolean isValid;
     String output;
 
@@ -27,6 +28,16 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
                     .growX()
                     .row();
 
+            table.add("@message.join-room.password")
+                    .padRight(5f)
+                    .left();
+
+            table.field(password, text -> password = text)
+                    .maxTextLength(100)
+                    .height(54f)
+                    .growX()
+                    .row();
+
             table.add();
             table.labelWrap(() -> output)
                     .left()
@@ -43,15 +54,8 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
         buttons.button("@ok", this::joinRoom)
                 .disabled(button -> !isValid || lastLink.isEmpty() || Vars.net.active());
 
-        if (!Vars.steam && !Vars.mobile) {
-            Main.playerConnectRoomsDialog.buttons
-                    .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
-
-        } else {
-            Main.playerConnectRoomsDialog.buttons.row().add().growX().width(-1);
-            Main.playerConnectRoomsDialog.buttons
-                    .button("@message.join-room.title", mindustry.gen.Icon.play, this::show).row();
-        }
+        Main.playerConnectRoomsDialog.buttons
+                .button("@message.join-room.title", mindustry.gen.Icon.play, this::show);
     }
 
     public void joinRoom() {
@@ -75,7 +79,7 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
             Vars.netClient.disconnectQuietly();
         });
 
-        arc.util.Time.runTask(2f, () -> PlayerConnect.joinRoom(link, () -> {
+        arc.util.Time.runTask(2f, () -> PlayerConnect.joinRoom(link, password, () -> {
             Main.playerConnectRoomsDialog.hide();
             hide();
         }));

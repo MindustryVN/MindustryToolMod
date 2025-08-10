@@ -1,5 +1,6 @@
 package mindustrytool.gui;
 
+import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.scene.ui.Button;
@@ -25,7 +26,7 @@ public class CreateRoomDialog extends BaseDialog {
     Server selected, renaming;
     int renamingOldKey;
     Button selectedButton;
-    Dialog add;
+    Dialog add, create;
     Table custom, online;
     boolean customShown = true, onlineShown = true, refreshingOnline;
 
@@ -38,17 +39,6 @@ public class CreateRoomDialog extends BaseDialog {
         makeButtonOverlay();
         addCloseButton();
 
-        buttons.button("@message.manage-room.create-room", Icon.add, this::createRoom)
-                .disabled(b -> !PlayerConnect.isRoomClosed() || selected == null);
-        if (Vars.mobile)
-            buttons.row();
-
-        buttons.button("@message.manage-room.close-room", Icon.cancel, this::closeRoom)
-                .disabled(b -> PlayerConnect.isRoomClosed());
-
-        buttons.button("@message.manage-room.copy-link", Icon.copy, this::copyLink)
-                .disabled(b -> link == null);
-
         shown(() -> {
             // Just to give time to this dialog to open
             arc.util.Time.run(7f, () -> {
@@ -59,8 +49,65 @@ public class CreateRoomDialog extends BaseDialog {
 
         // Add custom server dialog
         Server tmp = new Server();
-        String[] last = { "", "" };
-        TextField[] field = { null, null };
+        String[] lastEdit = { "", "" };
+        TextField[] fieldEdit = { null, null };
+
+        String[] roomName = { "" };
+        TextField[] fieldCreate = { null, null };
+
+        roomName[0] = Core.settings.getString("playerConnectRoomName", Vars.player.name());
+
+        create = new BaseDialog("@message.create-room.title");
+
+        create.buttons.defaults().size(140f, 60f).pad(4f);
+        create.cont.table(table -> {
+            table.add("@message.create-room.server-name")
+                    .padRight(5f)
+                    .right();
+
+            fieldCreate[0] = table.field(roomName[0], text -> roomName[0] = text)
+                    .size(320f, 54f)
+                    .valid(t -> t.length() > 0 && t.length() <= 100)
+                    .maxTextLength(100)
+                    .left()
+                    .get();
+
+            table.row()
+                    .add("@message.create-room.password")
+                    .padRight(5f)
+                    .right();
+
+            fieldCreate[1] = table.field(PlayerConnect.password, text -> PlayerConnect.password = text)
+                    .size(320f, 54f)
+                    .maxTextLength(100)
+                    .left()
+                    .get();
+
+            table.row().add();
+        }).row();
+
+        create.buttons.button("@cancel", () -> {
+            create.hide();
+        });
+
+        create.buttons.button("@ok", () -> {
+            createRoom();
+            create.hide();
+        })
+                .disabled(b -> roomName[0].isEmpty()
+                        || roomName[0].length() > 100
+                        || PlayerConnect.password.length() > 100);
+
+        buttons.button("@message.manage-room.create-room", Icon.add, create::show)
+                .disabled(b -> !PlayerConnect.isRoomClosed() || selected == null);
+        if (Vars.mobile)
+            buttons.row();
+
+        buttons.button("@message.manage-room.close-room", Icon.cancel, this::closeRoom)
+                .disabled(b -> PlayerConnect.isRoomClosed());
+
+        buttons.button("@message.manage-room.copy-link", Icon.copy, this::copyLink)
+                .disabled(b -> link == null);
 
         add = new BaseDialog("@joingame.title");
 
@@ -70,7 +117,7 @@ public class CreateRoomDialog extends BaseDialog {
                     .padRight(5f)
                     .right();
 
-            field[0] = table.field(last[0], text -> last[0] = text)
+            fieldEdit[0] = table.field(lastEdit[0], text -> lastEdit[0] = text)
                     .size(320f, 54f)
                     .maxTextLength(100)
                     .left()
@@ -81,9 +128,9 @@ public class CreateRoomDialog extends BaseDialog {
                     .padRight(5f)
                     .right();
 
-            field[1] = table.field(last[1], tmp::set)
+            fieldEdit[1] = table.field(lastEdit[1], tmp::set)
                     .size(320f, 54f)
-                    .valid(t -> tmp.set(last[1] = t))
+                    .valid(t -> tmp.set(lastEdit[1] = t))
                     .maxTextLength(100)
                     .left()
                     .get();
@@ -98,7 +145,7 @@ public class CreateRoomDialog extends BaseDialog {
         add.buttons.button("@cancel", () -> {
             if (renaming != null) {
                 renaming = null;
-                last[0] = last[1] = "";
+                lastEdit[0] = lastEdit[1] = "";
             }
             add.hide();
         });
@@ -106,27 +153,27 @@ public class CreateRoomDialog extends BaseDialog {
         add.buttons.button("@ok", () -> {
             if (renaming != null) {
                 PlayerConnectProviders.custom.removeIndex(renamingOldKey);
-                PlayerConnectProviders.custom.insert(renamingOldKey, last[0], last[1]);
+                PlayerConnectProviders.custom.insert(renamingOldKey, lastEdit[0], lastEdit[1]);
                 renaming = null;
                 renamingOldKey = -1;
             } else
-                PlayerConnectProviders.custom.put(last[0], last[1]);
+                PlayerConnectProviders.custom.put(lastEdit[0], lastEdit[1]);
             PlayerConnectProviders.saveCustom();
             refreshCustom();
             add.hide();
-            last[0] = last[1] = "";
-        }).disabled(b -> !tmp.wasValid || last[0].isEmpty() || last[1].isEmpty());
+            lastEdit[0] = lastEdit[1] = "";
+        }).disabled(b -> !tmp.wasValid || lastEdit[0].isEmpty() || lastEdit[1].isEmpty());
 
         add.shown(() -> {
             add.title.setText(renaming != null ? "@server.edit" : "@server.add");
             if (renaming != null) {
-                field[0].setText(renaming.name);
-                field[1].setText(renaming.get());
-                last[0] = renaming.name;
-                last[1] = renaming.get();
+                fieldEdit[0].setText(renaming.name);
+                fieldEdit[1].setText(renaming.get());
+                lastEdit[0] = renaming.name;
+                lastEdit[1] = renaming.get();
             } else {
-                field[0].clearText();
-                field[1].clearText();
+                fieldEdit[0].clearText();
+                fieldEdit[1].clearText();
             }
         });
 
