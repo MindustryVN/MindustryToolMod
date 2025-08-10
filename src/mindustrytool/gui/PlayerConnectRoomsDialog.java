@@ -142,7 +142,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     String[] password = { "" };
 
                                     create.cont.table(table -> {
-                                        table.add("@message.create-room.server-name")
+                                        table.add("@message.password")
                                                 .padRight(5f)
                                                 .right();
 

@@ -28,7 +28,7 @@ public class JoinRoomDialog extends mindustry.ui.dialogs.BaseDialog {
                     .growX()
                     .row();
 
-            table.add("@message.join-room.password")
+            table.add("@message.password")
                     .padRight(5f)
                     .left();
 

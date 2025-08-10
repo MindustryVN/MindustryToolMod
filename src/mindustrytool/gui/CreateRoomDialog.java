@@ -76,7 +76,7 @@ public class CreateRoomDialog extends BaseDialog {
                     .get();
 
             table.row()
-                    .add("@message.create-room.password")
+                    .add("@message.password")
                     .padRight(5f)
                     .right();
 
