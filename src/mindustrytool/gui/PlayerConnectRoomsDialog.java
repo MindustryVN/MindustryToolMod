@@ -115,7 +115,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                     .left();
 
                             left.row();
-                            left.add(Core.bundle.format("version") + " " + room.data().version())
+                            left.add(Core.bundle.format("version") + ": " + room.data().version())
                                     .align(Align.left)
                                     .left();
 
@@ -125,9 +125,10 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                         .left();
                             }
                         })
-                                .growX()
                                 .top()
                                 .left();
+
+                        card.add().growX().width(-1);
 
                         card.table(right -> {
                             right.button(Iconc.play + " " + Core.bundle.format("join"), () -> {
