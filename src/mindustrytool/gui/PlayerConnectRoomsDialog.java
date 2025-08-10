@@ -97,7 +97,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         list.table(card -> {
                             card.table(left -> {
                                 left.add(
-                                        room.data().name() + " []" + (room.data().isSecured() ? Iconc.lock : ""))
+                                        room.data().name() + " [white]" + (room.data().isSecured() ? Iconc.lock : ""))
                                         .fontScale(1.5f)
                                         .align(Align.left)
                                         .left();
@@ -173,6 +173,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                                         }
                                     });
 
+                                    create.show();
                                 });
                             });
                         })
