@@ -52,10 +52,11 @@ public class CreateRoomDialog extends BaseDialog {
         String[] lastEdit = { "", "" };
         TextField[] fieldEdit = { null, null };
 
-        String[] roomName = { "" };
+        String[] roomConfig = { "", "" };
         TextField[] fieldCreate = { null, null };
 
-        roomName[0] = Core.settings.getString("playerConnectRoomName", Vars.player.name());
+        roomConfig[0] = Core.settings.getString("playerConnectRoomName", Vars.player.name());
+        roomConfig[1] = Core.settings.getString("playerConnectRoomPassword", "");
 
         create = new BaseDialog("@message.create-room.title");
 
@@ -65,8 +66,8 @@ public class CreateRoomDialog extends BaseDialog {
                     .padRight(5f)
                     .right();
 
-            fieldCreate[0] = table.field(roomName[0], text -> {
-                roomName[0] = text;
+            fieldCreate[0] = table.field(roomConfig[0], text -> {
+                roomConfig[0] = text;
                 Core.settings.put("playerConnectRoomName", text);
             })
                     .size(320f, 54f)
@@ -80,8 +81,8 @@ public class CreateRoomDialog extends BaseDialog {
                     .padRight(5f)
                     .right();
 
-            fieldCreate[1] = table.field(PlayerConnect.password, text -> {
-                PlayerConnect.password = text;
+            fieldCreate[1] = table.field(roomConfig[1], text -> {
+                roomConfig[1] = text;
                 Core.settings.put("playerConnectRoomPassword", text);
             })
                     .size(320f, 54f)
@@ -97,12 +98,12 @@ public class CreateRoomDialog extends BaseDialog {
         });
 
         create.buttons.button("@ok", () -> {
-            createRoom();
+            createRoom(roomConfig[1]);
             create.hide();
         })
-                .disabled(b -> roomName[0].isEmpty()
-                        || roomName[0].length() > 100
-                        || PlayerConnect.password.length() > 100);
+                .disabled(b -> roomConfig[0].isEmpty()
+                        || roomConfig[0].length() > 100
+                        || roomConfig[1].length() > 100);
 
         buttons.button("@message.manage-room.create-room", Icon.add, create::show)
                 .disabled(b -> !PlayerConnect.isRoomClosed() || selected == null);
@@ -449,7 +450,7 @@ public class CreateRoomDialog extends BaseDialog {
         }
     }
 
-    public void createRoom() {
+    public void createRoom(String password) {
         if (selected == null)
             return;
 
@@ -457,7 +458,7 @@ public class CreateRoomDialog extends BaseDialog {
         link = null;
         // Disconnect the client if the room is not created until 10 seconds
         Timer.Task t = Timer.schedule(PlayerConnect::closeRoom, 10);
-        PlayerConnect.createRoom(selected.ip, selected.port, l -> {
+        PlayerConnect.createRoom(selected.ip, selected.port, password, l -> {
             Vars.ui.loadfrag.hide();
             t.cancel();
             link = l;
