@@ -19,7 +19,7 @@ import mindustrytool.playerconnect.PlayerConnect;
 import mindustrytool.playerconnect.PlayerConnectLink;
 
 public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
-    private final Table roomList = new Table().fill();
+    private final Table roomList = new Table();
     private final Debouncer debouncer = new Debouncer(250, TimeUnit.MILLISECONDS);
     private String searchTerm = "";
 
@@ -45,7 +45,7 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         .growX();
 
                 container.row();
-                container.add(roomList);
+                container.addChild(roomList);
                 container.row();
             })
                     .top()
