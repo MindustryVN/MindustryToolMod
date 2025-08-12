@@ -1,6 +1,8 @@
 package mindustrytool.gui;
 
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import arc.Core;
 import arc.scene.ui.layout.Table;
@@ -8,8 +10,10 @@ import arc.util.Align;
 import arc.util.Log;
 import arc.util.Strings;
 import mindustry.Vars;
+import mindustry.core.Version;
 import mindustry.gen.Icon;
 import mindustry.gen.Iconc;
+import mindustry.net.Host;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.BaseDialog;
 import mindustrytool.config.Debouncer;
@@ -98,7 +102,8 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                         card.table(left -> {
                             left.add(
                                     room.data().name() + "(" + room.data().locale() + ") [white]"
-                                            + (room.data().isSecured() ? Iconc.lock : ""))
+                                            + (room.data().isSecured() ? Iconc.lock : "")
+                                            + " " + getVersionString(room.data().version()))
                                     .fontScale(1.5f)
                                     .align(Align.left)
                                     .left();
@@ -212,5 +217,73 @@ public class PlayerConnectRoomsDialog extends mindustry.ui.dialogs.BaseDialog {
                     .marginBottom(8);
 
         });
+    }
+
+    private String getVersionString(String versionString) {
+        BuildInfo info = extract(versionString);
+        int version = info.build;
+        String versionType = info.type;
+
+        if (version == -1) {
+            return Core.bundle.format("server.version", Core.bundle.get("server.custombuild"), "");
+        } else if (version == 0) {
+            return Core.bundle.get("server.outdated");
+        } else if (version < Version.build && Version.build != -1) {
+            return Core.bundle.get("server.outdated") + "\n" +
+                    Core.bundle.format("server.version", version, "");
+        } else if (version > Version.build && Version.build != -1) {
+            return Core.bundle.get("server.outdated.client") + "\n" +
+                    Core.bundle.format("server.version", version, "");
+        } else if (version == Version.build && Version.type.equals(versionType)) {
+            // not important
+            return "";
+        } else {
+            return Core.bundle.format("server.version", version, versionType);
+        }
+    }
+
+    private static class BuildInfo {
+        public String type = "custom";
+        public int build = -1;
+        public int revision = -1;
+        public String modifier;
+
+        @Override
+        public String toString() {
+            return "type=" + type + ", build=" + build + ", revision=" + revision + ", modifier=" + modifier;
+        }
+    }
+
+    private BuildInfo extract(String combined) {
+        BuildInfo info = new BuildInfo();
+
+        if ("custom build".equals(combined)) {
+            info.type = "custom";
+            info.build = -1;
+            info.revision = 0;
+            info.modifier = null;
+            return info;
+        }
+
+        Pattern pattern = Pattern.compile("^(.+?) build (\\d+)(?:\\.(\\d+))?$");
+        Matcher matcher = pattern.matcher(combined);
+
+        if (matcher.matches()) {
+            String first = matcher.group(1);
+            info.build = Integer.parseInt(matcher.group(2));
+            info.revision = matcher.group(3) != null ? Integer.parseInt(matcher.group(3)) : 0;
+
+            if ("official".equals(first)) {
+                info.type = "official";
+                info.modifier = first;
+            } else {
+                info.type = first;
+                info.modifier = null;
+            }
+        } else {
+            Log.warn("Invalid combined() format: " + combined);
+        }
+
+        return info;
     }
 }
