@@ -18,7 +18,6 @@ import mindustrytool.gui.JoinRoomDialog;
 import mindustrytool.gui.MapDialog;
 import mindustrytool.gui.PlayerConnectRoomsDialog;
 import mindustrytool.gui.SchematicDialog;
-import mindustrytool.gui.ServerDialog;
 
 public class Main extends Mod {
     public static SchematicDialog schematicDialog;
@@ -83,18 +82,21 @@ public class Main extends Mod {
         LoadedMod mod = Vars.mods.getMod(Main.class);
         String currentVersion = mod.meta.version;
 
-        if (currentVersion.endsWith("v8")) {
-            return;
-        }
-
         Http.get(Config.API_REPO_URL, (res) -> {
             Jval json = Jval.read(res.getResultAsString());
-            String latestVersion = json.getString("tag_name");
+
+            String latestVersion = json.getString("version");
+
             if (!latestVersion.equals(currentVersion)) {
-                Log.info("Mod require update, current version: " + currentVersion + ", latest version: "
-                        + latestVersion);
+                Log.info("Mod require update, current version: @, latest version: @", currentVersion, latestVersion);
+
                 Vars.ui.showConfirm(Core.bundle.format("message.new-version", currentVersion, latestVersion)
-                        + "\nDiscord: https://discord.gg/72324gpuCd", () -> {
+                        + "\nDiscord: https://discord.gg/72324gpuCd",
+                        () -> {
+                            if (currentVersion.endsWith("v8")) {
+                                return;
+                            }
+
                             Core.app.post(() -> {
                                 Vars.ui.mods.githubImportMod(Config.REPO_URL, true, null);
                             });
