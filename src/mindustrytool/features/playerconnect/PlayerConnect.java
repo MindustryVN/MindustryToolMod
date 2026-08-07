@@ -18,13 +18,11 @@ import arc.util.Threads;
 import arc.util.Time;
 import arc.util.Timer;
 import mindustry.Vars;
-import mindustry.core.GameState;
 import mindustry.game.EventType;
 import mindustry.game.Team;
 import mindustry.game.EventType.PlayerIpBanEvent;
 import mindustry.game.EventType.PlayerJoin;
 import mindustry.game.EventType.PlayerLeave;
-import mindustry.game.EventType.StateChangeEvent;
 import mindustry.game.EventType.WorldLoadEndEvent;
 import mindustry.gen.Call;
 import mindustry.gen.Player;
@@ -61,13 +59,6 @@ public class PlayerConnect {
 
         Events.run(WorldLoadEndEvent.class, () -> {
             updateStats();
-        });
-
-        Events.on(StateChangeEvent.class, event -> {
-            if (event.to == GameState.State.menu && isHosting()) {
-                close();
-                Vars.ui.showInfoFade("Close room when back to menu");
-            }
         });
 
         Timer.schedule(() -> {
@@ -220,6 +211,10 @@ public class PlayerConnect {
     public static void join(PlayerConnectLink link, String password, Runnable success) {
         if (link == null) {
             throw new IllegalArgumentException("Link cannot be null.");
+        }
+
+        if (isHosting()){
+            close();
         }
 
         Vars.ui.loadfrag.show("@connecting");
