@@ -385,13 +385,13 @@ public class MapDialog extends BaseDialog {
                     mapFile.writeBytes(result);
                     Vars.maps.importMap(mapFile);
                     ui.showInfoFade("@map.saved");
-                } catch (Exception e) {
-                    ui.showInfoFade(e.getMessage());
+                } catch (Throwable e) {
+                    ui.showInfoFade("Error " + e.getMessage());
                 }
             });
         }).exceptionally(error -> {
             Core.app.post(() -> {
-                ui.showInfoFade(error.getMessage());
+                ui.showInfoFade("Error " + error.getMessage());
             });
             return null;
         });
