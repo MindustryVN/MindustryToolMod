@@ -14,8 +14,8 @@ public class MapService {
         CompletableFuture<byte[]> future = new CompletableFuture<>();
 
         Http.get(Config.API_URL + "maps/" + id + "/data")
-                .error(future::completeExceptionally)
                 .timeout(10000)
+                .error(future::completeExceptionally)
                 .submit(result -> {
                     future.complete(result.getResult());
                 });

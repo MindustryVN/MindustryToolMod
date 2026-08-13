@@ -413,25 +413,31 @@ public class TeamResourceFeature extends Table implements Feature {
         if (coreItems == null)
             return "0";
 
-        int amount = coreItems.get(item);
-        int rate = rateDisplay.get(item);
+        try {
 
-        if (TeamResourceConfig.alwaysShowFlowRate()) {
-            return formatAmountWithRate(amount, rate);
+            int amount = coreItems.get(item);
+            int rate = rateDisplay.get(item);
+
+            if (TeamResourceConfig.alwaysShowFlowRate()) {
+                return formatAmountWithRate(amount, rate);
+            }
+
+            if (viewingStats) {
+                return formatRate(rate);
+            }
+
+            String color = "[white]";
+            if (rate < 0) {
+                color = "[scarlet]";
+            } else if (rate > 0) {
+                color = "[lime]";
+            }
+
+            return color + UI.formatAmount(amount);
+        } catch (Exception e) {
+            Log.err("Fail to format item", e);
+            return "0";
         }
-
-        if (viewingStats) {
-            return formatRate(rate);
-        }
-
-        String color = "[white]";
-        if (rate < 0) {
-            color = "[scarlet]";
-        } else if (rate > 0) {
-            color = "[lime]";
-        }
-
-        return color + UI.formatAmount(amount);
     }
 
     private String formatAmountWithRate(int amount, int rate) {

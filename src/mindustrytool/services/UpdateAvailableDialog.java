@@ -51,7 +51,7 @@ public class UpdateAvailableDialog extends BaseDialog {
                 Vars.ui.mods.githubImportMod(Config.REPO_URL, true, true);
                 Vars.ui.mods.toFront();
                 Timer.schedule(() -> Vars.ui.loadfrag.toFront(), 0.2f);
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 Log.err(e);
                 Vars.ui.showException(e);
             }
