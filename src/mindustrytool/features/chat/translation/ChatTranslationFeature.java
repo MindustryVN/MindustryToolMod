@@ -19,7 +19,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class ChatTranslationFeature implements Feature {
     private final Seq<TranslationProvider> providers = new Seq<>();
-    private final TranslationProvider defaultTranslationProvider = new MindustryToolTranslationProvider();
+    private final TranslationProvider defaultTranslationProvider = new GeminiTranslationProvider();
     private String lastError = null;
     private TranslationProvider currentProvider = defaultTranslationProvider;
 
@@ -63,7 +63,7 @@ public class ChatTranslationFeature implements Feature {
         Main.registerPacketPlacement(SendMessageCallPacket2.class, SendTranslatedMessageCallPacket2::new);
 
         providers.add(defaultTranslationProvider);
-        providers.add(new GeminiTranslationProvider());
+        // providers.add(new GeminiTranslationProvider());
         providers.add(new DeepLTranslationProvider());
 
         providers.each(TranslationProvider::init);
