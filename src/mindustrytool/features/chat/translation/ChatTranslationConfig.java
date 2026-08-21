@@ -15,6 +15,9 @@ public class ChatTranslationConfig {
     public static final String DEEPL_API_KEY = "mindustrytool.chat-translation.deepl.api-key";
     public static final String DEEPL_TIMEOUT = "mindustrytool.chat-translation.deepl.timeout";
 
+    public static final String DEVX_TIMEOUT = "mindustrytool.chat-translation.devx.timeout";
+    public static final String DEVX_MAX_HISTORY = "mindustrytool.chat-translation.devx.max-history";
+
     public static final String MINDUSTRYTOOL_TIMEOUT = "mindustrytool.chat-translation.mindustrytool.timeout";
 
     public static String getProviderId() {

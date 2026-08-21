@@ -65,6 +65,7 @@ public class ChatTranslationFeature implements Feature {
         providers.add(defaultTranslationProvider);
         // providers.add(new GeminiTranslationProvider());
         providers.add(new DeepLTranslationProvider());
+        providers.add(new DevXTranslationProvider());
 
         providers.each(TranslationProvider::init);
 

@@ -140,6 +140,7 @@ nb-configuration.xml
 ## Gradle
 
 /local.properties
+/src/mindustrytool/BuildConfig.java
 .gradle/
 gradle-app.setting
 /build/
@@ -158,6 +159,7 @@ android/libs/
 build.bat
 
 .vscode
+.agents
 get-pip.py
 /venv/
 /archive
