@@ -25,6 +25,8 @@ import mindustrytool.Utils;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 
+import arc.util.Strings;
+
 public class TimeControlFeature extends Table implements Feature {
 
     private float selected = 1f;
@@ -51,8 +53,27 @@ public class TimeControlFeature extends Table implements Feature {
         visible(() -> Vars.ui.hudfrag.shown && isEnabled() && !Vars.net.client());
 
         Events.on(EventType.ResizeEvent.class, e -> rebuild());
+        Events.on(EventType.ResetEvent.class, e -> resetSpeed());
+        Events.on(EventType.WorldLoadEvent.class, e -> resetSpeed());
 
         Core.app.post(this::rebuild);
+    }
+
+    private void resetSpeed() {
+        selected = 1f;
+        doubleSpeed = false;
+        applySpeed(1f);
+        Core.app.post(this::rebuild);
+    }
+
+    private String formatSpeed(float val) {
+        if (val == 0f) return "0x";
+        if (val == (int) val) return (int) val + "x";
+        if (Mathf.equal(val, 0.5f)) return "0.5x";
+        if (Mathf.equal(val, 0.25f)) return "0.25x";
+        if (Mathf.equal(val, 0.125f)) return "0.125x";
+        if (Mathf.equal(val, 0.0625f)) return "0.06x";
+        return Strings.autoFixed(val, 2) + "x";
     }
 
     void rebuild() {
@@ -87,12 +108,16 @@ public class TimeControlFeature extends Table implements Feature {
 
                             float sw = Core.graphics.getWidth();
                             float sh = Core.graphics.getHeight();
+                            float w = Math.max(getWidth(), 40f);
+                            float h = Math.max(getHeight(), 40f);
 
-                            x = Mathf.clamp(TimeControlFeature.this.x, 0, sw - 40f);
-                            y = Mathf.clamp(TimeControlFeature.this.y, 0, sh - 40f);
+                            float clampedX = Mathf.clamp(TimeControlFeature.this.x, 0, Math.max(0, sw - w));
+                            float clampedY = Mathf.clamp(TimeControlFeature.this.y, 0, Math.max(0, sh - h));
 
-                            TimeControlConfig.x(x);
-                            TimeControlConfig.y(y);
+                            setPosition(clampedX, clampedY);
+
+                            TimeControlConfig.x(clampedX);
+                            TimeControlConfig.y(clampedY);
 
                         } catch (Exception e) {
                             Log.err(e);
@@ -107,11 +132,30 @@ public class TimeControlFeature extends Table implements Feature {
 
         Table content = new Table();
 
+        // Pause (0x) button
+        Color pauseColor = (selected == 0f) ? Pal.accent : Pal.gray;
+        content.button("[#" + pauseColor.toString() + "]0x", Styles.cleart, () -> {
+            if (selected == 0f) {
+                selected = 1f;
+                doubleSpeed = false;
+                applySpeed(1f);
+            } else {
+                selected = 0f;
+                doubleSpeed = false;
+                applySpeed(0f);
+            }
+            rebuild();
+        })
+                .wrapLabel(false)
+                .height(buttonSize)
+                .width(buttonSize * 1.1f)
+                .margin(margin);
+
         for (float speed : SPEEDS) {
-            Color color = speed == selected ? (doubleSpeed ? Pal.accent : Color.white) : Pal.gray;
-            String speedString = "[#" + color.toString() + "]"
-                    + String.valueOf((doubleSpeed && speed == selected) ? (speed >= 1 ? speed * 2f : speed / 2) : speed)
-                    + "x";
+            boolean isCurrent = (speed == selected);
+            Color color = isCurrent ? (doubleSpeed ? Pal.accent : Color.white) : Pal.gray;
+            float activeMultiplier = (doubleSpeed && isCurrent) ? (speed >= 1f ? speed * 2f : speed / 2f) : speed;
+            String speedString = "[#" + color.toString() + "]" + formatSpeed(activeMultiplier);
 
             content.button(speedString, Styles.cleart, () -> {
                 if (speed == selected) {
@@ -120,7 +164,7 @@ public class TimeControlFeature extends Table implements Feature {
                         applySpeed(speed);
                     } else {
                         doubleSpeed = true;
-                        applySpeed(speed >= 1 ? speed * 2f : speed / 2);
+                        applySpeed(speed >= 1f ? speed * 2f : speed / 2f);
                     }
                 } else {
                     doubleSpeed = false;
@@ -131,7 +175,7 @@ public class TimeControlFeature extends Table implements Feature {
             })
                     .wrapLabel(false)
                     .height(buttonSize)
-                    .width(buttonSize * 1.5f)
+                    .width(buttonSize * 1.4f)
                     .margin(margin);
         }
 
@@ -141,10 +185,14 @@ public class TimeControlFeature extends Table implements Feature {
         pack();
     }
 
-    private void applySpeed(float multipler) {
-        Time.setDeltaProvider(() -> Core.graphics.getDeltaTime() * 60 * multipler);
+    private void applySpeed(float multiplier) {
+        if (Mathf.equal(multiplier, 1f)) {
+            Time.setDeltaProvider(() -> Core.graphics.getDeltaTime() * 60f);
+        } else {
+            Time.setDeltaProvider(() -> Core.graphics.getDeltaTime() * 60f * multiplier);
+        }
 
-        Log.info("Time speed set to: " + multipler);
+        Log.info("Time speed set to: " + multiplier);
     }
 
     @Override
@@ -160,6 +208,7 @@ public class TimeControlFeature extends Table implements Feature {
 
     @Override
     public void onDisable() {
+        resetSpeed();
         remove();
     }
 
