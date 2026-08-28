@@ -43,7 +43,7 @@ public class SchematicImage extends Image {
         StringBuilder sb = new StringBuilder(Config.IMAGE_URL);
         sb.append("schematics/")
                 .append(id)
-                .append("/image");
+                .append("/image.png");
         if (preview) {
             sb.append("?variant=preview");
         }
