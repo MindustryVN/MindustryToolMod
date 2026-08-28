@@ -42,7 +42,7 @@ public class MapImage extends Image {
         StringBuilder sb = new StringBuilder(Config.IMAGE_URL);
         sb.append("maps/")
                 .append(id)
-                .append("/image");
+                .append("/image.png");
         if (preview) {
             sb.append("?variant=preview");
         }
