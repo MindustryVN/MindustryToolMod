@@ -30,6 +30,20 @@ public class DeepLTranslationProvider implements TranslationProvider {
 
     @Override
     public CompletableFuture<String> translate(String message) {
+        String targetLang = Core.bundle.getLocale().getLanguage().toUpperCase();
+        return translateWithTarget(message, targetLang);
+    }
+
+    @Override
+    public CompletableFuture<String> translate(String message, String sourceLang, String targetLang) {
+        String t = (targetLang != null && !targetLang.isEmpty()) ? targetLang.toUpperCase() : "EN";
+        if (t.equals("EN")) {
+            t = "EN-US";
+        }
+        return translateWithTarget(message, t);
+    }
+
+    private CompletableFuture<String> translateWithTarget(String message, String targetLang) {
         CompletableFuture<String> future = new CompletableFuture<>();
 
         String apiKey = getApiKey();
@@ -41,7 +55,6 @@ public class DeepLTranslationProvider implements TranslationProvider {
         }
 
         String apiUrl = apiKey.endsWith(":fx") ? API_URL_FREE : API_URL_PRO;
-        String targetLang = Core.bundle.getLocale().getLanguage().toUpperCase();
 
         try {
             Jval body = Jval.newObject();
