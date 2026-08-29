@@ -7,6 +7,10 @@ import java.util.concurrent.CompletableFuture;
 public interface TranslationProvider {
     CompletableFuture<String> translate(String message);
 
+    default CompletableFuture<String> translate(String message, String sourceLang, String targetLang) {
+        return translate(message);
+    }
+
     Table settings();
 
     default void init() {

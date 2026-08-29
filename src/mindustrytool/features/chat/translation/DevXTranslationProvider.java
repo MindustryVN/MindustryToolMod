@@ -40,6 +40,31 @@ public class DevXTranslationProvider implements TranslationProvider {
             lastMessages.remove(0);
         }
 
+        java.util.Locale locale = Core.bundle.getLocale();
+        String langCode = (locale != null && locale.getLanguage() != null && !locale.getLanguage().isEmpty())
+                ? locale.getLanguage().toLowerCase()
+                : "vi";
+
+        if (locale != null && locale.getCountry() != null && !locale.getCountry().isEmpty() && langCode.equals("zh")) {
+            langCode = "zh-" + locale.getCountry();
+        }
+
+        String pair = langCode.equals("en") ? "auto-en" : ("en-" + langCode);
+        return translateWithPair(message, pair);
+    }
+
+    @Override
+    public synchronized CompletableFuture<String> translate(String message, String sourceLang, String targetLang) {
+        String s = (sourceLang != null && !sourceLang.isEmpty()) ? sourceLang.toLowerCase() : "vi";
+        String t = (targetLang != null && !targetLang.isEmpty()) ? targetLang.toLowerCase() : "en";
+        if (s.equals(t)) {
+            return CompletableFuture.completedFuture(message);
+        }
+        String pair = s + "-" + t;
+        return translateWithPair(message, pair);
+    }
+
+    private CompletableFuture<String> translateWithPair(String message, String pair) {
         CompletableFuture<String> future = new CompletableFuture<>();
 
         String apiKey = mindustrytool.BuildConfig.DEVX_API_KEY.trim();
@@ -52,34 +77,20 @@ public class DevXTranslationProvider implements TranslationProvider {
         try {
             Jval body = Jval.newObject();
             body.put("model", MODEL);
-            body.put("temperature", 0.2);
+            body.put("temperature", 0.1);
             body.put("top_p", 0.7);
             body.put("max_tokens", 1024);
 
-            StringBuilder history = new StringBuilder();
-            Seq<String> historySnapshot = new Seq<>(lastMessages);
-
-            for (int i = 0; i < Math.min(maxHistory(), historySnapshot.size); i++) {
-                history.append(historySnapshot.get(historySnapshot.size - i - 1)).append("\n");
-            }
-
-            if (history.length() > 0) {
-                history.insert(0, "Previous conversation history:\n");
-            }
-
-            String prompt = "Translate the following Mindustry game chat message to "
-                    + Core.bundle.getLocale().getDisplayName()
-                    + ". Only return the translated text directly without any explanation, markdown formatting, or thoughts. If it is already in "
-                    + Core.bundle.getLocale().getDisplayName()
-                    + ", just return it as is."
-                    + (history.length() > 0 ? "\n" + history.toString() : "")
-                    + "\nMessage to translate: "
-                    + message;
-
             Jval messages = Jval.newArray();
+
+            Jval systemMessage = Jval.newObject();
+            systemMessage.put("role", "system");
+            systemMessage.put("content", pair);
+            messages.add(systemMessage);
+
             Jval userMessage = Jval.newObject();
             userMessage.put("role", "user");
-            userMessage.put("content", prompt);
+            userMessage.put("content", message);
             messages.add(userMessage);
 
             body.put("messages", messages);
@@ -91,7 +102,7 @@ public class DevXTranslationProvider implements TranslationProvider {
                     .error(e -> {
                         if (e instanceof HttpStatusException httpStatusException) {
                             if (httpStatusException.status.code == 429
-                                    || httpStatusException.status == HttpStatus.UNKNOWN_STATUS) {
+                                     || httpStatusException.status == HttpStatus.UNKNOWN_STATUS) {
                                 future.completeExceptionally(new RuntimeException(
                                         Core.bundle.get("chat-translation.devx.rate-limit", "Rate limit exceeded")));
                             } else if (httpStatusException.status.code == 404) {
@@ -129,6 +140,10 @@ public class DevXTranslationProvider implements TranslationProvider {
 
                                 if (result.contains("<think>")) {
                                     result = result.replaceAll("(?s)<think>.*?</think>", "").trim();
+                                }
+                                result = result.replaceAll("(?i)^(translation|translated|bản dịch|vietnamese|tiếng việt|english|tiếng anh)\\s*:\\s*", "").trim();
+                                if (result.startsWith("\"") && result.endsWith("\"") && result.length() > 1) {
+                                    result = result.substring(1, result.length() - 1).trim();
                                 }
 
                                 future.complete(result);

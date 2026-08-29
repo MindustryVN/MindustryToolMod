@@ -22,6 +22,56 @@ public class ChatTranslationSettingsDialog extends BaseDialog {
         root.top().left().defaults().top().left().padBottom(5);
         root.image().height(4).color(Color.gray).fillX().pad(10).row();
 
+        root.add("@chat-translation.settings.options-section").style(Styles.outlineLabel).padBottom(5).row();
+
+        Table optionsTable = new Table();
+        optionsTable.left().defaults().left().padBottom(6);
+
+        optionsTable.check("@chat-translation.settings.auto-incoming", ChatTranslationConfig.isAutoTranslateIncoming(), b -> {
+            ChatTranslationConfig.setAutoTranslateIncoming(b);
+        }).left().row();
+
+        optionsTable.check("@chat-translation.settings.reverse-enabled", ChatTranslationConfig.isReverseEnabled(), b -> {
+            ChatTranslationConfig.setReverseEnabled(b);
+        }).left().row();
+
+        optionsTable.check("@chat-translation.settings.reverse-include-original", ChatTranslationConfig.isReverseIncludeOriginal(), b -> {
+            ChatTranslationConfig.setReverseIncludeOriginal(b);
+        }).left().row();
+
+        optionsTable.table(t -> {
+            t.left();
+            t.add("@chat-translation.settings.reverse-target-language").padRight(10);
+            TextButton targetBtn = t.button(ChatTranslationConfig.getReverseTargetLang().toUpperCase(), Styles.flatBordert, () -> {
+                mindustry.ui.dialogs.BaseDialog d = new mindustry.ui.dialogs.BaseDialog(Core.bundle.get("chat-translation.settings.reverse-target-language", "Target Language"));
+                d.addCloseButton();
+                Table list = new Table();
+                String[][] langs = {
+                        {"en", "English"},
+                        {"zh-cn", "Chinese (Simplified)"},
+                        {"ru", "Russian"},
+                        {"ja", "Japanese"},
+                        {"ko", "Korean"},
+                        {"fr", "French"},
+                        {"de", "German"},
+                        {"es", "Spanish"}
+                };
+                for (String[] pair : langs) {
+                    list.button(pair[1] + " (" + pair[0] + ")", Styles.flatBordert, () -> {
+                        ChatTranslationConfig.setReverseTargetLang(pair[0]);
+                        d.hide();
+                    }).size(280f, 45f).pad(4f).row();
+                }
+                d.cont.pane(list);
+                d.show();
+            }).size(120f, 36f).get();
+            targetBtn.update(() -> targetBtn.setText(ChatTranslationConfig.getReverseTargetLang().toUpperCase()));
+        }).padTop(4f).row();
+
+        root.add(optionsTable).growX().row();
+
+        root.image().height(4).color(Color.gray).fillX().pad(10).row();
+
         root.add("@chat-translation.settings.providers").style(Styles.outlineLabel).padBottom(5).row();
 
         Table providerList = new Table();

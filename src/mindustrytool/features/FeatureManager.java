@@ -50,14 +50,13 @@ public class FeatureManager {
 
     public void init() {
         for (Feature feature : features) {
+            initializedFeatures.add(feature);
+            feature.init();
             if (feature.isEnabled()) {
-                initializedFeatures.add(feature);
-                feature.init();
                 feature.onEnable();
-                feature.setting();
-                feature.dialog();
-
             }
+            feature.setting();
+            feature.dialog();
         }
     }
 
