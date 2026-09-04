@@ -253,12 +253,12 @@ public class SchematicDialog extends BaseDialog {
             preview.table(buttons -> {
                 buttons.center().defaults().size(PREVIEW_BUTTON_SIZE);
 
-                buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(data.getId()))
+                buttons.button(Icon.copy, Styles.emptyi, () -> handleCopySchematic(data.getItemId()))
                         .pad(2);
-                buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(data.getId()))
+                buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadSchematic(data.getItemId()))
                         .pad(2);
                 buttons.button(Icon.info, Styles.emptyi,
-                        () -> SchematicService.findSchematicById(data.getId())
+                        () -> SchematicService.findSchematicById(data.getItemId())
                                 .thenAccept(schem -> Core.app.post(() -> infoDialog.show(schem))))
                         .tooltip("@info.title");
             }).growX().height(PREVIEW_BUTTON_SIZE);
@@ -266,7 +266,7 @@ public class SchematicDialog extends BaseDialog {
             preview.row();
 
             preview.stack(
-                    new Table(t -> t.add(new SchematicImage(data.getId(), true))),
+                    new Table(t -> t.add(new SchematicImage(data.getItemId(), true))),
                     new Table(nameTable -> {
                         nameTable.top();
                         nameTable.table(Styles.black3, c -> {
@@ -307,13 +307,13 @@ public class SchematicDialog extends BaseDialog {
         }
 
         if (state.isMenu()) {
-            SchematicService.findSchematicById(data.getId())
+            SchematicService.findSchematicById(data.getItemId())
                     .thenAccept(schem -> Core.app.post(() -> infoDialog.show(schem)));
         } else {
             if (!state.rules.schematicsAllowed) {
                 ui.showInfo("@schematic.disabled");
             } else {
-                handleDownloadSchematicData(data.getId(),
+                handleDownloadSchematicData(data.getItemId(),
                         content -> control.input.useSchematic(Utils.readSchematic(content)));
                 hide();
             }
@@ -395,8 +395,8 @@ public class SchematicDialog extends BaseDialog {
         rebuildFooter();
     }
 
-    public static void handleCopySchematic(String id) {
-        handleDownloadSchematicData(id, data -> {
+    public static void handleCopySchematic(String itemId) {
+        handleDownloadSchematicData(itemId, data -> {
             Core.app.post(() -> {
                 try {
                     Schematic s = Utils.readSchematic(data);
@@ -409,9 +409,9 @@ public class SchematicDialog extends BaseDialog {
         });
     }
 
-    public static void handleDownloadSchematic(String id) {
-        handleDownloadSchematicData(id, data -> {
-            SchematicService.findSchematicById(id).thenAccept(detail -> {
+    public static void handleDownloadSchematic(String itemId) {
+        handleDownloadSchematicData(itemId, data -> {
+            SchematicService.findSchematicById(itemId).thenAccept(detail -> {
                 try {
                     Schematic s = Utils.readSchematic(data);
                     Core.app.post(() -> {
@@ -427,8 +427,8 @@ public class SchematicDialog extends BaseDialog {
         });
     }
 
-    private static void handleDownloadSchematicData(String id, Cons<String> cons) {
-        SchematicService.downloadSchematic(id).thenAccept(result -> {
+    private static void handleDownloadSchematicData(String itemId, Cons<String> cons) {
+        SchematicService.downloadSchematic(itemId).thenAccept(result -> {
             cons.get(new String(Base64Coder.encode(result)));
         })
                 .exceptionally((err) -> {

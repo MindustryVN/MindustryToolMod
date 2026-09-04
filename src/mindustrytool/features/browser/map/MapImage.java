@@ -28,20 +28,20 @@ public class MapImage extends Image {
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
 
-    private final String id;
+    private final String itemId;
     private final boolean preview;
     private TextureRegion lastTexture;
     private static ObjectMap<String, TextureRegion> textureCache = new ObjectMap<>();
     private final String imageUrl;
 
-    public MapImage(String id, boolean preview) {
+    public MapImage(String itemId, boolean preview) {
         super(Tex.clear);
-        this.id = id;
+        this.itemId = itemId;
         this.preview = preview;
 
         StringBuilder sb = new StringBuilder(Config.IMAGE_URL);
         sb.append("maps/")
-                .append(id)
+                .append(itemId)
                 .append("/image.png");
         if (preview) {
             sb.append("?variant=preview");
@@ -64,7 +64,7 @@ public class MapImage extends Image {
 
             if (!textureCache.containsKey(imageUrl)) {
                 textureCache.put(imageUrl, lastTexture = Core.atlas.find("nomap"));
-                var file = Main.mapsDir.child(id + (preview ? "_preview" : "") + ".png");
+                var file = Main.mapsDir.child(itemId + (preview ? "_preview" : "") + ".png");
 
                 if (file.exists()) {
                     byte[] result = file.readBytes();
@@ -76,7 +76,7 @@ public class MapImage extends Image {
                             textureCache.put(imageUrl, new TextureRegion(tex));
                             pix.dispose();
                         } catch (Exception e) {
-                            Log.err(id, e);
+                            Log.err(itemId, e);
                         }
                     });
 
@@ -86,7 +86,7 @@ public class MapImage extends Image {
                             .error(error -> {
                                 if (!(error instanceof HttpStatusException requestError)
                                         || requestError.status != HttpStatus.NOT_FOUND) {
-                                    Log.err(id, error);
+                                    Log.err(itemId, error);
                                     Timer.schedule(() -> textureCache.remove(imageUrl), 5);
                                 }
                             })
@@ -101,7 +101,7 @@ public class MapImage extends Image {
                                         file.writeBytes(result);
 
                                     } catch (Exception error) {
-                                        Log.err(id, error);
+                                        Log.err(itemId, error);
                                     }
                                 });
 
@@ -112,7 +112,7 @@ public class MapImage extends Image {
                                         textureCache.put(imageUrl, new TextureRegion(tex));
                                         pix.dispose();
                                     } catch (Exception e) {
-                                        Log.err(id, e);
+                                        Log.err(itemId, e);
                                     }
                                 });
 
@@ -126,7 +126,7 @@ public class MapImage extends Image {
             Draw.reset();
 
         } catch (Exception error) {
-            Log.err(id, error);
+            Log.err(itemId, error);
         }
     }
 }

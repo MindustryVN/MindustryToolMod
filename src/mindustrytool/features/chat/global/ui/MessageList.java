@@ -55,7 +55,7 @@ import java.util.regex.Pattern;
 
 public class MessageList extends Table {
     private static final Pattern MINDUSTRY_TOOL_LINK_PATTERN = Pattern
-            .compile("^https?://[^/]+/[^/]+/(schematics|maps)/([0-9a-fA-F-]+)");
+            .compile("^https?://[^/]+/(?:[^/]+/)?(schematics|maps)/([a-zA-Z0-9_-]+)");
 
     private static final float TARGET_WIDTH = 250f;
     private static final float PREVIEW_BUTTON_SIZE = 50f;
@@ -402,16 +402,16 @@ public class MessageList extends Table {
         if (matcher.find()) {
             String url = matcher.group(0);
             String contentType = matcher.group(1);
-            String id = matcher.group(2);
+            String itemId = matcher.group(2);
 
             if (contentType.equals("maps")) {
-                renderMap(c, id, url);
+                renderMap(c, itemId, url);
                 c.table().growX();
                 return;
             }
 
             if (contentType.equals("schematics")) {
-                renderSchematic(c, id, url);
+                renderSchematic(c, itemId, url);
                 c.table().growX();
                 return;
             }
@@ -439,40 +439,40 @@ public class MessageList extends Table {
         }).growX().left().padTop(10);
     }
 
-    private void renderSchematic(Table table, String id, String url) {
+    private void renderSchematic(Table table, String itemId, String url) {
         table.table(Tex.pane, preview -> {
             preview.top().left().margin(0f);
             preview.table(buttons -> {
                 buttons.center().defaults().size(PREVIEW_BUTTON_SIZE);
-                buttons.button(Icon.copy, Styles.emptyi, () -> SchematicDialog.handleCopySchematic(id)).pad(2);
-                buttons.button(Icon.download, Styles.emptyi, () -> SchematicDialog.handleDownloadSchematic(id)).pad(2);
+                buttons.button(Icon.copy, Styles.emptyi, () -> SchematicDialog.handleCopySchematic(itemId)).pad(2);
+                buttons.button(Icon.download, Styles.emptyi, () -> SchematicDialog.handleDownloadSchematic(itemId)).pad(2);
                 buttons.button(Icon.info, Styles.emptyi,
-                        () -> SchematicService.findSchematicById(id)
+                        () -> SchematicService.findSchematicById(itemId)
                                 .thenAccept(schem -> Core.app.post(() -> schematicInfoDialog.show(schem))))
                         .tooltip("@info.title");
                 buttons.button(Icon.link, Styles.emptyi, () -> Core.app.openURI(url)).pad(2);
             }).growX().height(PREVIEW_BUTTON_SIZE);
             preview.row();
-            preview.stack(new Table(t -> t.add(new mindustrytool.features.browser.schematic.SchematicImage(id, true))))
+            preview.stack(new Table(t -> t.add(new mindustrytool.features.browser.schematic.SchematicImage(itemId, true))))
                     .top()
                     .left();
         }).style(Styles.flati).width(TARGET_WIDTH).height(CARD_HEIGHT).top().left();
     }
 
-    private void renderMap(Table table, String id, String url) {
+    private void renderMap(Table table, String itemId, String url) {
         table.table(Tex.pane, preview -> {
             preview.top().left().margin(0f);
             preview.table(buttons -> {
                 buttons.center().defaults().size(PREVIEW_BUTTON_SIZE);
-                buttons.button(Icon.download, Styles.emptyi, () -> MapDialog.handleDownloadMap(id)).pad(2);
+                buttons.button(Icon.download, Styles.emptyi, () -> MapDialog.handleDownloadMap(itemId)).pad(2);
                 buttons.button(Icon.info, Styles.emptyi,
-                        () -> MapService.findMapById(id)
+                        () -> MapService.findMapById(itemId)
                                 .thenAccept(m -> Core.app.post(() -> mapInfoDialog.show(m))))
                         .tooltip("@info.title");
                 buttons.button(Icon.link, Styles.emptyi, () -> Core.app.openURI(url)).pad(2);
             }).growX().height(PREVIEW_BUTTON_SIZE);
             preview.row();
-            preview.stack(new Table(t -> t.add(new MapImage(id, true)))).top().left();
+            preview.stack(new Table(t -> t.add(new MapImage(itemId, true)))).top().left();
         }).style(Styles.flati).width(TARGET_WIDTH).height(CARD_HEIGHT).top().left();
     }
 

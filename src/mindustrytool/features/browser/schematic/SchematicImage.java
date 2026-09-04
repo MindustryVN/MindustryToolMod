@@ -28,21 +28,21 @@ public class SchematicImage extends Image {
     public float thickness = 4f;
     public Color borderColor = Pal.gray;
 
-    private final String id;
+    private final String itemId;
     private final boolean preview;
     private TextureRegion lastTexture;
     private final String imageUrl;
 
     private static ObjectMap<String, TextureRegion> textureCache = new ObjectMap<>();
 
-    public SchematicImage(String id, boolean preview) {
+    public SchematicImage(String itemId, boolean preview) {
         super(Tex.clear);
-        this.id = id;
+        this.itemId = itemId;
         this.preview = preview;
 
         StringBuilder sb = new StringBuilder(Config.IMAGE_URL);
         sb.append("schematics/")
-                .append(id)
+                .append(itemId)
                 .append("/image.png");
         if (preview) {
             sb.append("?variant=preview");
@@ -73,7 +73,7 @@ public class SchematicImage extends Image {
             if (!textureCache.containsKey(imageUrl)) {
                 textureCache.put(imageUrl, lastTexture = Core.atlas.find("nomap"));
 
-                var file = Main.schematicDir.child(id + (preview ? "_preview" : "") + ".png");
+                var file = Main.schematicDir.child(itemId + (preview ? "_preview" : "") + ".png");
 
                 if (file.exists()) {
                     byte[] result = file.readBytes();
@@ -85,7 +85,7 @@ public class SchematicImage extends Image {
                             textureCache.put(imageUrl, new TextureRegion(tex));
                             pix.dispose();
                         } catch (Exception e) {
-                            Log.err(id, e);
+                            Log.err(itemId, e);
                         }
                     });
                 } else {
@@ -110,7 +110,7 @@ public class SchematicImage extends Image {
                                         try {
                                             file.writeBytes(result);
                                         } catch (Exception error) {
-                                            Log.err(id, error);
+                                            Log.err(itemId, error);
                                         }
                                     });
 
@@ -121,11 +121,11 @@ public class SchematicImage extends Image {
                                             textureCache.put(imageUrl, new TextureRegion(tex));
                                             pix.dispose();
                                         } catch (Exception e) {
-                                            Log.err(id, e);
+                                            Log.err(itemId, e);
                                         }
                                     });
                                 } catch (Exception error) {
-                                    Log.err(id, error);
+                                    Log.err(itemId, error);
                                 }
 
                             });
@@ -133,7 +133,7 @@ public class SchematicImage extends Image {
             }
 
         } catch (Exception error) {
-            Log.err(id, error);
+            Log.err(itemId, error);
         }
     }
 }

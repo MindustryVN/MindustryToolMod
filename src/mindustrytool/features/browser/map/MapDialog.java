@@ -248,10 +248,10 @@ public class MapDialog extends BaseDialog {
             preview.table(buttons -> {
                 buttons.center().defaults().size(PREVIEW_BUTTON_SIZE);
 
-                buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadMap(data.getId()))
+                buttons.button(Icon.download, Styles.emptyi, () -> handleDownloadMap(data.getItemId()))
                         .pad(2);
                 buttons.button(Icon.info, Styles.emptyi,
-                        () -> MapService.findMapById(data.getId())
+                        () -> MapService.findMapById(data.getItemId())
                                 .thenAccept(m -> Core.app.post(() -> infoDialog.show(m))))
                         .tooltip("@info.title");
             }).growX().height(PREVIEW_BUTTON_SIZE);
@@ -259,7 +259,7 @@ public class MapDialog extends BaseDialog {
             preview.row();
 
             preview.stack(
-                    new Table(t -> t.add(new MapImage(data.getId(), true))),
+                    new Table(t -> t.add(new MapImage(data.getItemId(), true))),
                     new Table(nameTable -> {
                         nameTable.top();
                         nameTable.table(Styles.black3, c -> {
@@ -299,7 +299,7 @@ public class MapDialog extends BaseDialog {
             return;
         }
 
-        MapService.findMapById(data.getId()).thenAccept(m -> Core.app.post(() -> infoDialog.show(m)));
+        MapService.findMapById(data.getItemId()).thenAccept(m -> Core.app.post(() -> infoDialog.show(m)));
     }
 
     private void rebuildFooter() {
@@ -377,11 +377,11 @@ public class MapDialog extends BaseDialog {
         rebuildFooter();
     }
 
-    public static void handleDownloadMap(String id) {
-        MapService.downloadMap(id).thenAccept(result -> {
+    public static void handleDownloadMap(String itemId) {
+        MapService.downloadMap(itemId).thenAccept(result -> {
             Core.app.post(() -> {
                 try {
-                    Fi mapFile = Vars.customMapDirectory.child(id);
+                    Fi mapFile = Vars.customMapDirectory.child(itemId);
                     mapFile.writeBytes(result);
                     Vars.maps.importMap(mapFile);
                     ui.showInfoFade("@map.saved");
