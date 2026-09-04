@@ -9,10 +9,10 @@ import mindustrytool.dto.SchematicDetailData;
 
 public class SchematicService {
 
-    public static CompletableFuture<byte[]> downloadSchematic(String id) {
+    public static CompletableFuture<byte[]> downloadSchematic(String itemId) {
         CompletableFuture<byte[]> future = new CompletableFuture<>();
 
-        Http.get(Config.API_URL + "schematics/" + id + "/data")
+        Http.get(Config.API_URL + "schematics/" + itemId + "/data")
                 .error(future::completeExceptionally)
                 .submit(result -> {
                     future.complete(result.getResult());
@@ -21,10 +21,14 @@ public class SchematicService {
         return future;
     }
 
-    public static CompletableFuture<SchematicDetailData> findSchematicById(String id) {
+    public static CompletableFuture<SchematicDetailData> findSchematicById(String itemId) {
+        return findSchematicByItemId(itemId);
+    }
+
+    public static CompletableFuture<SchematicDetailData> findSchematicByItemId(String itemId) {
         CompletableFuture<SchematicDetailData> future = new CompletableFuture<>();
 
-        Http.get(Config.API_URL + "schematics/" + id)
+        Http.get(Config.API_URL + "schematics/" + itemId)
                 .error(future::completeExceptionally)
                 .submit(response -> {
                     try {

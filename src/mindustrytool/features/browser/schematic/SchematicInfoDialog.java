@@ -40,7 +40,7 @@ public class SchematicInfoDialog extends BaseDialog {
         boolean portrait = Core.graphics.isPortrait();
 
         if (portrait) {
-            cont.add(new SchematicImage(data.getId(), false)).scaling(Scaling.fit)
+            cont.add(new SchematicImage(data.getItemId(), false)).scaling(Scaling.fit)
                     .maxHeight(Core.graphics.getHeight() * 0.45f)
                     .growX()
                     .pad(10f)
@@ -54,7 +54,7 @@ public class SchematicInfoDialog extends BaseDialog {
 
                 var size = Math.max(Core.graphics.getHeight() * 0.5f, Core.graphics.getWidth() * 0.5f);
 
-                main.add(new SchematicImage(data.getId(), false)).scaling(Scaling.fit)
+                main.add(new SchematicImage(data.getItemId(), false)).scaling(Scaling.fit)
                         .height(size)
                         .width(size)
                         .pad(10f)
@@ -66,7 +66,7 @@ public class SchematicInfoDialog extends BaseDialog {
 
         buttons.clearChildren();
         buttons.defaults().size(Core.graphics.isPortrait() ? 150f : 210f, 64f);
-        buttons.button("@open", Icon.link, () -> Core.app.openURI(Config.WEB_URL + "/schematics/" + data.getId())).pad(4);
+        buttons.button("@open", Icon.link, () -> Core.app.openURI(Config.WEB_URL + "/schematics/" + data.getItemId())).pad(4);
         buttons.button("@back", Icon.left, this::hide);
 
         show();

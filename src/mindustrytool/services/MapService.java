@@ -10,10 +10,10 @@ import mindustrytool.dto.MapDetailData;
 
 public class MapService {
 
-    public static CompletableFuture<byte[]> downloadMap(String id) {
+    public static CompletableFuture<byte[]> downloadMap(String itemId) {
         CompletableFuture<byte[]> future = new CompletableFuture<>();
 
-        Http.get(Config.API_URL + "maps/" + id + "/data")
+        Http.get(Config.API_URL + "maps/" + itemId + "/data")
                 .timeout(10000)
                 .error(future::completeExceptionally)
                 .submit(result -> {
@@ -23,10 +23,14 @@ public class MapService {
         return future;
     }
 
-    public static CompletableFuture<MapDetailData> findMapById(String id) {
+    public static CompletableFuture<MapDetailData> findMapById(String itemId) {
+        return findMapByItemId(itemId);
+    }
+
+    public static CompletableFuture<MapDetailData> findMapByItemId(String itemId) {
         CompletableFuture<MapDetailData> future = new CompletableFuture<>();
 
-        Http.get(Config.API_URL + "maps/" + id)
+        Http.get(Config.API_URL + "maps/" + itemId)
                 .error(future::completeExceptionally)
                 .timeout(10000)
                 .submit(response -> {
