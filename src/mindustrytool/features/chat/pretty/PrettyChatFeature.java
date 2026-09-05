@@ -86,22 +86,21 @@ public class PrettyChatFeature implements Feature {
     public void init() {
         Events.run(Trigger.update, () -> {
             if (Core.input.keyTap(Binding.chat) && Vars.ui.chatfrag.shown()) {
-                Core.app.post(() -> {
-                    try {
-                        TextField chatfield = Reflect.get(Vars.ui.chatfrag, "chatfield");
-
-                        if (chatfield == null) {
-                            return;
-                        }
-
-                        String formatted = transform(chatfield.getText());
-                        chatfield.setText(formatted.substring(0, Math.min(Vars.maxTextLength, formatted.length())));
-                    } catch (Exception e) {
-                        Log.err(e);
-                    }
-                });
+                Core.app.post(this::applyPrettifiersToChatField);
             }
         });
+    }
+
+    private void applyPrettifiersToChatField() {
+        try {
+            TextField chatfield = Reflect.get(Vars.ui.chatfrag, "chatfield");
+            if (chatfield == null) return;
+
+            String formatted = transform(chatfield.getText());
+            chatfield.setText(formatted.substring(0, Math.min(Vars.maxTextLength, formatted.length())));
+        } catch (Exception e) {
+            Log.err(e);
+        }
     }
 
     @Override
@@ -110,38 +109,34 @@ public class PrettyChatFeature implements Feature {
     }
 
     public String transform(String message) {
-        if (!isEnabled()) {
+        if (!isEnabled() || message == null || message.isEmpty()) {
             return message;
         }
 
-        if (message.isEmpty()) {
-            return message;
-        }
-
-        var cmd = "";
+        String commandPrefix = "";
+        String content = message;
 
         if (message.startsWith("/")) {
-            var spaceIndex = message.indexOf(' ');
-            var subIndex = spaceIndex == -1 ? message.length() : spaceIndex;
-            cmd = message.substring(0, subIndex);
+            int spaceIndex = message.indexOf(' ');
+            int subIndex = spaceIndex == -1 ? message.length() : spaceIndex;
+            String cmd = message.substring(0, subIndex);
 
             if (!cmd.equals("/t") && !cmd.equals("/a")) {
                 return message;
             }
-            message = message.substring(subIndex);
+            commandPrefix = cmd;
+            content = message.substring(subIndex);
         }
 
-        String result = message;
-        Seq<String> enabledIds = PrettyChatConfig.getEnabledIds();
-
-        for (String id : enabledIds) {
+        String result = content;
+        for (String id : PrettyChatConfig.getEnabledIds()) {
             Prettier p = prettiers.find(x -> x.id.equals(id));
             if (p != null) {
                 result = transform(result, p);
             }
         }
 
-        return cmd + result;
+        return commandPrefix + result;
     }
 
     public static String transform(String message, Prettier prettier) {

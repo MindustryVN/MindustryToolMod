@@ -7,39 +7,24 @@ import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.math.geom.Rect;
 import arc.scene.ui.Dialog;
-import arc.util.Log;
 import mindustry.Vars;
 import mindustry.game.EventType.Trigger;
+import mindustry.gen.Building;
 import mindustry.gen.Icon;
 import mindustry.graphics.Layer;
+import mindustry.type.Item;
 import mindustry.world.blocks.distribution.BufferedItemBridge.BufferedItemBridgeBuild;
-import mindustry.world.blocks.distribution.Duct.DuctBuild;
-import mindustry.world.blocks.distribution.DuctBridge.DuctBridgeBuild;
-import mindustry.world.blocks.distribution.DuctRouter.DuctRouterBuild;
 import mindustry.world.blocks.distribution.ItemBridge.ItemBridgeBuild;
-import mindustry.world.blocks.distribution.Junction.JunctionBuild;
-import mindustry.world.blocks.distribution.Router.RouterBuild;
-import mindustry.world.blocks.liquid.LiquidBridge.LiquidBridgeBuild;
 import mindustry.world.modules.ItemModule;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 
-import java.lang.reflect.Field;
 import java.util.Optional;
 
 public class ItemVisualizerFeature implements Feature {
-
     private boolean active = false;
     private final Rect viewBounds = new Rect();
-    private final Field bufferField;
-    {
-        try {
-            bufferField = BufferedItemBridgeBuild.class.getDeclaredField("buffer");
-            bufferField.setAccessible(true);
-        } catch (NoSuchFieldException e) {
-            throw new RuntimeException(e);
-        }
-    }
+    private final ItemModule tempItemModule = new ItemModule();
 
     @Override
     public FeatureMetadata getMetadata() {
@@ -72,97 +57,62 @@ public class ItemVisualizerFeature implements Feature {
     }
 
     private void draw() {
-        if (!active || !Vars.state.isGame())
-            return;
+        if (!active || !Vars.state.isGame()) return;
 
         Core.camera.bounds(viewBounds);
-
         float z = Draw.z();
         Draw.z(Layer.overlayUI);
 
         float cx = viewBounds.x + viewBounds.width / 2f;
         float cy = viewBounds.y + viewBounds.height / 2f;
         float range = Math.max(viewBounds.width, viewBounds.height) * 0.75f;
-        ItemModule temp = new ItemModule();
 
-        Vars.indexer.eachBlock(Vars.player.team(), cx, cy, range, b -> true, build -> {
-            if (build == null) {
-                return;
-            }
-
-            if (ItemVisualizerSettings.showItemBridges) {
-                if (build instanceof BufferedItemBridgeBuild bufferedItemBridgeBuild) {
-                    if (bufferedItemBridgeBuild.link == -1) {
-                        return;
-                    }
-
-                    var linked = Vars.world.build(bufferedItemBridgeBuild.link);
-
-                    if (linked == null) {
-                        return;
-                    }
-
-                    try {
-                        // final var buffer = (ItemBuffer) bufferField.get(bufferedItemBridgeBuild);
-
-                        temp.set(bufferedItemBridgeBuild.items);
-                        var item = temp.take();
-                        var total = temp.total();
-                        var index = total;
-
-                        while (item != null) {
-                            drawFlow(build.x, build.y, linked.x, linked.y, item.uiIcon, (float) index / total);
-                            index--;
-                            item = temp.take();
-                        }
-                    } catch (Exception e) {
-                        Log.err(e);
-                    }
-                } else if (build instanceof ItemBridgeBuild itemBridgeBuild) {
-                    if (itemBridgeBuild.link == -1) {
-                        return;
-                    }
-
-                    var linked = Vars.world.build(itemBridgeBuild.link);
-
-                    if (linked == null) {
-                        return;
-                    }
-
-                    temp.set(itemBridgeBuild.items);
-                    var item = temp.take();
-                    var total = temp.total();
-                    var index = total;
-
-                    while (item != null) {
-                        drawFlow(build.x, build.y, linked.x, linked.y, item.uiIcon, (float) index / total);
-                        index--;
-                        item = temp.take();
-                    }
-                } else if (build instanceof ItemBridgeBuild) {
-                } else if (build instanceof DuctBridgeBuild) {
-                }
-            }
-
-            if (ItemVisualizerSettings.showLiquidBridges) {
-                if (build instanceof LiquidBridgeBuild) {
-                }
-            }
-
-            if (ItemVisualizerSettings.showRouters) {
-                if (build instanceof RouterBuild) {
-                }
-                if (build instanceof DuctRouterBuild) {
-                }
-                if (build instanceof JunctionBuild) {
-                }
-                if (build instanceof DuctBuild) {
-                }
-            }
-        });
+        Vars.indexer.eachBlock(Vars.player.team(), cx, cy, range, b -> true, this::renderBuildingOverlay);
 
         Draw.z(z);
         Draw.reset();
+    }
+
+    private void renderBuildingOverlay(Building build) {
+        if (build == null) return;
+
+        if (ItemVisualizerSettings.showItemBridges) {
+            renderItemBridge(build);
+        }
+    }
+
+    private void renderItemBridge(Building build) {
+        int link = -1;
+        ItemModule items = null;
+
+        if (build instanceof BufferedItemBridgeBuild buffered) {
+            link = buffered.link;
+            items = buffered.items;
+        } else if (build instanceof ItemBridgeBuild bridge) {
+            link = bridge.link;
+            items = bridge.items;
+        }
+
+        if (link == -1 || items == null) return;
+        Building linked = Vars.world.build(link);
+        if (linked == null) return;
+
+        renderBridgeFlow(build, linked, items);
+    }
+
+    private void renderBridgeFlow(Building from, Building to, ItemModule items) {
+        if (items.total() == 0) return;
+
+        tempItemModule.set(items);
+        int total = tempItemModule.total();
+        int index = total;
+        Item item = tempItemModule.take();
+
+        while (item != null) {
+            drawFlow(from.x, from.y, to.x, to.y, item.uiIcon, (float) index / total);
+            index--;
+            item = tempItemModule.take();
+        }
     }
 
     private void drawFlow(float x1, float y1, float x2, float y2, TextureRegion icon, float progress) {

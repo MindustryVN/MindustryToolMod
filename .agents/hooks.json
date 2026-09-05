@@ -1,0 +1,11 @@
+{
+  "$schema": "hooks/antigravity-hooks.schema.json",
+  "enabled": true,
+  "PreToolUse": [
+    {
+      "matcher": "run_command",
+      "command": "node .agents/hooks/validate-tool-call.mjs",
+      "timeout": 10
+    }
+  ]
+}
