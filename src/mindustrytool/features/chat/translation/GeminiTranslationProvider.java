@@ -67,6 +67,21 @@ public class GeminiTranslationProvider implements TranslationProvider {
             lastMessages.remove(0);
         }
 
+        java.util.Locale locale = Core.bundle.getLocale();
+        String targetLang = (locale != null && locale.getLanguage() != null && !locale.getLanguage().isEmpty())
+                ? locale.getDisplayLanguage(java.util.Locale.ENGLISH)
+                : "Vietnamese";
+
+        return translateToTarget(message, targetLang);
+    }
+
+    @Override
+    public synchronized CompletableFuture<String> translate(String message, String sourceLang, String targetLang) {
+        String t = (targetLang != null && !targetLang.isEmpty()) ? targetLang : "English";
+        return translateToTarget(message, t);
+    }
+
+    private CompletableFuture<String> translateToTarget(String message, String targetLang) {
         CompletableFuture<String> future = new CompletableFuture<>();
 
         if (getApiKey().isEmpty()) {
@@ -95,11 +110,10 @@ public class GeminiTranslationProvider implements TranslationProvider {
             }
 
             String prompt = "Translate the following Mindustry game chat message to "
-                    + Core.bundle.getLocale().getDisplayName()
-                    + ". If it is already" + Core.bundle.getLocale().getDisplayName()
-                    + ", just return it as is." +
-                    history.toString()
-                    + " Message to translate: "
+                    + targetLang
+                    + ". Only return the translated text directly without any explanation or markdown formatting."
+                    + (history.length() > 0 ? "\n" + history.toString() : "")
+                    + "\nMessage to translate: "
                     + message;
 
             part.put("text", prompt);

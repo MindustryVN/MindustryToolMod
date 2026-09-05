@@ -30,12 +30,22 @@ public interface Feature {
     }
 
     default String getSettingKey() {
-        return "mindustrytool." + getMetadata().name() + ".enabled";
+        String n = getMetadata().name();
+        if (n.startsWith("@")) n = n.substring(1);
+        if (n.startsWith("feature.")) n = n.substring(8);
+        return "mindustrytool." + n + ".enabled";
     }
 
     default boolean isEnabled() {
         var metadata = getMetadata();
 
-        return Core.settings.getBool(getSettingKey(), metadata.enabledByDefault());
+        String key = getSettingKey();
+        if (Core.settings.has(key)) {
+            return Core.settings.getBool(key, metadata.enabledByDefault());
+        }
+        if (Core.settings.has("mindustrytool." + metadata.name() + ".enabled")) {
+            return Core.settings.getBool("mindustrytool." + metadata.name() + ".enabled", metadata.enabledByDefault());
+        }
+        return metadata.enabledByDefault();
     }
 }

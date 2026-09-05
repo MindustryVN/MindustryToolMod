@@ -56,6 +56,40 @@ dependencies{
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
 }
 
+tasks.register('generateBuildConfig'){
+    doFirst{
+        def localProperties = new Properties()
+        def localPropFile = file('local.properties')
+        if(localPropFile.exists()){
+            localPropFile.withInputStream{ localProperties.load(it) }
+        }
+
+        def buildConfigFile = file("src/mindustrytool/BuildConfig.java")
+        def currentKey = ""
+        if(buildConfigFile.exists()){
+            def matcher = (buildConfigFile.text =~ /DEVX_API_KEY\s*=\s*"([^"]*)"/)
+            if(matcher.find()){
+                currentKey = matcher.group(1)
+            }
+        }
+
+        def devxKey = System.getenv("DEVX_API_KEY") ?: 
+                      (project.hasProperty("devxApiKey") ? project.property("devxApiKey") : null) ?: 
+                      localProperties.getProperty("devx.apiKey") ?: 
+                      currentKey ?: ""
+
+        buildConfigFile.parentFile.mkdirs()
+        buildConfigFile.text = """package mindustrytool;
+
+public final class BuildConfig {
+    public static final String DEVX_API_KEY = "${devxKey.replace('\\', '\\\\').replace('"', '\\"')}";
+}
+"""
+    }
+}
+
+compileJava.dependsOn generateBuildConfig
+
 tasks.register('jarAndroid'){
     dependsOn "jar"
     def projectName = project.name

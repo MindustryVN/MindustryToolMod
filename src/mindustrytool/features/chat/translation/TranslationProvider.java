@@ -11,6 +11,10 @@ public interface TranslationProvider {
         return translate(message);
     }
 
+    default CompletableFuture<String> translate(String message, String sourceLang, String targetLang) {
+        return translate(message, targetLang);
+    }
+
     Table settings();
 
     default void init() {

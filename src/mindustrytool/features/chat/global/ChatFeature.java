@@ -32,7 +32,7 @@ public class ChatFeature implements Feature {
                 .name("@feature.chat")
                 .description("@feature.chat.description")
                 .icon(Icon.chat)
-                .enabledByDefault(true)
+                .enabledByDefault(false)
                 .build();
     }
 
