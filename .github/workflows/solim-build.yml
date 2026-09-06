@@ -1,0 +1,30 @@
+name: solim-build
+
+on:
+  push:
+    paths:
+      - 'solim/**'
+      - '.github/workflows/solim-build.yml'
+  pull_request:
+    paths:
+      - 'solim/**'
+      - '.github/workflows/solim-build.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: 17
+          distribution: temurin
+      - name: Build solim
+        run: ./gradlew :solim:build
+      - name: Upload solim jar
+        uses: actions/upload-artifact@v4
+        with:
+          name: solim-build
+          path: solim/build/libs/solim-*.jar
