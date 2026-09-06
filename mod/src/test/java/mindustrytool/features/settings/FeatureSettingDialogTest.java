@@ -1,7 +1,6 @@
 package mindustrytool.features.settings;
 
 import arc.Core;
-import arc.struct.Seq;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.features.FeatureMetadata;
@@ -86,7 +85,6 @@ class FeatureSettingDialogTest {
     @Test
     void testFeatureSettingsViewLifecycle() {
         FeatureSettingsView view = new FeatureSettingsView();
-        view.onShown();
         view.updateWidth(600f);
         view.dispose();
         assertTrue(view.isDisposed());
@@ -200,7 +198,6 @@ class FeatureSettingDialogTest {
 
     @Test
     void testFeatureSettingDialogHelpers() {
-        assertTrue(FeatureSettingDialog.calcContentWidth() > 0f);
         assertNull(FeatureSettingDialog.icon(null));
         assertNull(FeatureSettingDialog.icon("nonExistentIcon12345"));
     }

@@ -26,6 +26,22 @@ public final class Signal<T> implements Readable<T> {
         return new Signal<>(initial);
     }
 
+    /**
+     * Creates a Signal initialized from the given supplier that recalculates whenever
+     * the callback registrar invokes the registered callback (e.g. {@code element::resized}).
+     */
+    public static <T> Signal<T> fromCallback(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
+        Signal<T> signal = Signal.of(supplier.get());
+        if (callbackRegistrar != null) {
+            callbackRegistrar.accept(() -> signal.set(supplier.get()));
+        }
+        return signal;
+    }
+
+    public static <T> Signal<T> of(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
+        return fromCallback(callbackRegistrar, supplier);
+    }
+
     public static <T> Computed<T> computed(Supplier<T> supplier) {
         return new Computed<>(supplier);
     }

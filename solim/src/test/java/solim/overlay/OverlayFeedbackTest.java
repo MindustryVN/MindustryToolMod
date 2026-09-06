@@ -34,6 +34,55 @@ class OverlayFeedbackTest {
         d.dispose();
     }
 
+    public static class TestDialogEvent {
+        public final int code;
+        public TestDialogEvent(int code) { this.code = code; }
+    }
+
+    @Test
+    void dialogSignalCreationAndEventRecalculation() {
+        SolimDialog d = new SolimDialog("Test");
+        int[] counter = new int[]{10};
+        java.util.List<Runnable> resizeCallbacks = new java.util.ArrayList<>();
+
+        // Test callback-based signal creation (e.g. this.resized(callback))
+        Signal<Integer> resizeSignal = d.createSignal(resizeCallbacks::add, () -> counter[0]);
+        assertEquals(10, resizeSignal.get());
+
+        counter[0] = 25;
+        for (Runnable r : resizeCallbacks) r.run();
+        assertEquals(25, resizeSignal.get());
+
+        // Test event-based signal creation (Events.on)
+        Signal<Integer> eventSignal = d.createSignal(TestDialogEvent.class, () -> counter[0] * 2);
+        assertEquals(50, eventSignal.get());
+
+        counter[0] = 30;
+        arc.Events.fire(new TestDialogEvent(1));
+        assertEquals(60, eventSignal.get());
+
+        // Test event-mapping signal creation
+        Signal<Integer> mappedSignal = d.createSignal(TestDialogEvent.class, e -> e.code * 100, 0);
+        assertEquals(0, mappedSignal.get());
+        arc.Events.fire(new TestDialogEvent(5));
+        assertEquals(500, mappedSignal.get());
+
+        // Test responsiveWidthSignal
+        Signal<Float> widthSignal = d.responsiveWidthSignal();
+        assertNotNull(widthSignal);
+        assertEquals(d.calcResponsiveWidth(), widthSignal.get());
+
+        // Test disposal cleans up listeners
+        d.dispose();
+        assertTrue(d.isDisposed());
+
+        counter[0] = 999;
+        arc.Events.fire(new TestDialogEvent(99));
+        // After disposal, event listener was unregistered so eventSignal should not recalculate
+        assertEquals(60, eventSignal.get());
+        assertEquals(500, mappedSignal.get());
+    }
+
     @Test
     void progressBarReactive() {
         Signal<Float> progress = Signal.of(0.3f);

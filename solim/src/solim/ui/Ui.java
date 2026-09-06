@@ -198,4 +198,16 @@ public final class Ui {
     public static <T> solim.core.Disposable listen(Class<T> type, arc.func.Cons<T> listener) {
         return solim.core.EventsUtil.listen(type, listener);
     }
+
+    public static <E, T> Signal<T> createSignal(Class<E> eventType, java.util.function.Supplier<T> supplier) {
+        return solim.core.EventsUtil.createSignal(eventType, supplier);
+    }
+
+    public static <E, T> Signal<T> createSignal(Class<E> eventType, arc.func.Func<E, T> mapper, T initial) {
+        return solim.core.EventsUtil.createSignal(eventType, mapper, initial);
+    }
+
+    public static <T> Signal<T> createSignal(java.util.function.Consumer<Runnable> callbackRegistrar, java.util.function.Supplier<T> supplier) {
+        return solim.core.EventsUtil.createSignal(callbackRegistrar, supplier);
+    }
 }

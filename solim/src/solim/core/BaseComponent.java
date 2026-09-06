@@ -80,6 +80,38 @@ public abstract class BaseComponent implements Component {
         return d;
     }
 
+    /**
+     * Creates a reactive signal initialized from the supplier that recalculates whenever
+     * the specified Arc event fires. Automatically unregisters when this component is disposed.
+     */
+    public <E, T> solim.signal.Signal<T> createSignal(Class<E> eventType, java.util.function.Supplier<T> supplier) {
+        solim.signal.Signal<T> signal = solim.signal.Signal.of(supplier.get());
+        listen(eventType, e -> signal.set(supplier.get()));
+        return signal;
+    }
+
+    /**
+     * Creates a reactive signal that updates with mapped event data whenever the specified Arc event fires.
+     * Automatically unregisters when this component is disposed.
+     */
+    public <E, T> solim.signal.Signal<T> createSignal(Class<E> eventType, arc.func.Func<E, T> mapper, T initial) {
+        solim.signal.Signal<T> signal = solim.signal.Signal.of(initial);
+        listen(eventType, e -> signal.set(mapper.get(e)));
+        return signal;
+    }
+
+    /**
+     * Creates a reactive signal initialized from the supplier that recalculates whenever
+     * the callback registrar invokes the given callback (e.g. {@code element::resized}).
+     */
+    public <T> solim.signal.Signal<T> createSignal(java.util.function.Consumer<Runnable> callbackRegistrar, java.util.function.Supplier<T> supplier) {
+        solim.signal.Signal<T> signal = solim.signal.Signal.of(supplier.get());
+        if (callbackRegistrar != null) {
+            callbackRegistrar.accept(() -> signal.set(supplier.get()));
+        }
+        return signal;
+    }
+
     public boolean isDisposed() {
         return disposed;
     }

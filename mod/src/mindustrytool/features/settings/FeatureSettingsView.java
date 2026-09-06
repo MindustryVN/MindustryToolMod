@@ -3,6 +3,7 @@ package mindustrytool.features.settings;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
+import arc.scene.ui.layout.Scl;
 import arc.struct.Seq;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
@@ -11,7 +12,6 @@ import solim.input.SolimTextField;
 import solim.signal.Computed;
 import solim.signal.Signal;
 
-import static mindustrytool.features.settings.FeatureSettingDialog.calcContentWidth;
 import static solim.ui.Ui.*;
 
 public final class FeatureSettingsView extends BaseComponent {
@@ -21,11 +21,12 @@ public final class FeatureSettingsView extends BaseComponent {
     private final Computed<Float> cardWidth = new Computed<>(() -> contentWidth.get() / columnCount.get());
     private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(() -> {
         String q = filter.get().trim().toLowerCase();
-        return q.isEmpty() ? FeatureManager.getFeatures() : FeatureManager.getFeatures().select(f -> matchesFilter(f, q));
+        return q.isEmpty() ? FeatureManager.getFeatures()
+                : FeatureManager.getFeatures().select(f -> matchesFilter(f, q));
     });
 
-    public void onShown() {
-        contentWidth.set(calcContentWidth());
+    public float calcContentWidth() {
+        return Core.graphics == null ? 800f : Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
     }
 
     public void updateWidth(float width) {
@@ -51,7 +52,8 @@ public final class FeatureSettingsView extends BaseComponent {
             icon(FeatureSettingDialog.icon("zoom"));
             SolimTextField searchField = textField(filter);
             searchField.placeholder(Core.bundle.get("feature.search.placeholder"));
-            button(Core.bundle.get("feature.button.re-enable"), FeatureSettingDialog.icon("refresh"), FeatureManager::reenable)
+            button(Core.bundle.get("feature.button.re-enable"), FeatureSettingDialog.icon("refresh"),
+                    FeatureManager::reenable)
                     .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
         }).padding(10f);
     }
@@ -61,10 +63,12 @@ public final class FeatureSettingsView extends BaseComponent {
     }
 
     static boolean matchesFilter(Feature feature, String query) {
-        if (query == null || query.trim().isEmpty()) return true;
+        if (query == null || query.trim().isEmpty())
+            return true;
         String q = query.trim().toLowerCase();
         return (feature.getName() != null && feature.getName().toLowerCase().contains(q))
                 || (feature.getDescription() != null && feature.getDescription().toLowerCase().contains(q))
-                || (feature.getMetadata() != null && feature.getMetadata().getId() != null && feature.getMetadata().getId().toLowerCase().contains(q));
+                || (feature.getMetadata() != null && feature.getMetadata().getId() != null
+                        && feature.getMetadata().getId().toLowerCase().contains(q));
     }
 }

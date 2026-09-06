@@ -1,36 +1,38 @@
 package solim.overlay;
 
 import arc.Core;
+import arc.Events;
+import arc.func.Cons;
+import arc.func.Func;
 import arc.scene.Scene;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Dialog;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
-import mindustry.ui.dialogs.BaseDialog;
 import solim.core.Component;
 import solim.core.Disposable;
+import solim.signal.Signal;
 import solim.ui.ParentStack;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Declarative dialog component for Solim.
- * Extends Mindustry BaseDialog while providing full declarative configuration,
- * automated responsive width dispatch, and clean lifecycle management.
+ * Extends Arc Dialog while providing full declarative configuration,
+ * reactive signal creation, and clean lifecycle management.
  */
-public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disposable {
+public class SolimDialog extends Dialog implements Disposable, arc.util.Disposable {
 
-    private final List<Runnable> shownListeners = new ArrayList<>();
-    private final List<Consumer<Float>> resizeConsumers = new ArrayList<>();
+    private final List<Disposable> disposables = new ArrayList<>();
     private boolean isShown = false;
     private boolean isDisposed = false;
 
     public SolimDialog(String title) {
         super(title != null ? title : "");
-        this.resized(() -> notifyResize(calcResponsiveWidth()));
     }
 
     public static SolimDialog of(String title, Runnable content) {
@@ -91,19 +93,64 @@ public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disp
         return this;
     }
 
-    public SolimDialog onShown(Runnable listener) {
-        if (listener != null) {
-            shownListeners.add(listener);
+    /**
+     * Registers a disposable resource with this dialog's lifecycle.
+     */
+    public <T extends Disposable> T registerDisposable(T disposable) {
+        if (disposable != null) {
+            disposables.add(disposable);
         }
-        return this;
+        return disposable;
     }
 
-    public SolimDialog onResize(Consumer<Float> resizeConsumer) {
-        if (resizeConsumer != null) {
-            resizeConsumers.add(resizeConsumer);
-            resizeConsumer.accept(calcResponsiveWidth());
+    /**
+     * Registers an Arc event listener that automatically unregisters when this dialog is disposed.
+     */
+    public <T> Disposable listen(Class<T> eventType, Cons<T> listener) {
+        Events.on(eventType, listener);
+        Disposable d = () -> Events.remove(eventType, listener);
+        disposables.add(d);
+        return d;
+    }
+
+    /**
+     * Creates a reactive signal initialized from the supplier that recalculates whenever
+     * the callback registrar invokes the given callback (e.g. {@code this.resized(callback)}).
+     */
+    public <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
+        Signal<T> signal = Signal.of(supplier.get());
+        if (callbackRegistrar != null) {
+            callbackRegistrar.accept(() -> signal.set(supplier.get()));
         }
-        return this;
+        return signal;
+    }
+
+    /**
+     * Creates a reactive signal initialized from the supplier that recalculates whenever
+     * the specified Arc event fires. The event listener is automatically cleaned up when
+     * this dialog is disposed.
+     */
+    public <E, T> Signal<T> createSignal(Class<E> eventType, Supplier<T> supplier) {
+        Signal<T> signal = Signal.of(supplier.get());
+        listen(eventType, e -> signal.set(supplier.get()));
+        return signal;
+    }
+
+    /**
+     * Creates a reactive signal that updates with mapped event data whenever the specified Arc event fires.
+     * The event listener is automatically cleaned up when this dialog is disposed.
+     */
+    public <E, T> Signal<T> createSignal(Class<E> eventType, Func<E, T> mapper, T initial) {
+        Signal<T> signal = Signal.of(initial);
+        listen(eventType, e -> signal.set(mapper.get(e)));
+        return signal;
+    }
+
+    /**
+     * Returns a reactive width signal tied to this dialog's resized callback, recalculating responsive width on resize.
+     */
+    public Signal<Float> responsiveWidthSignal() {
+        return createSignal(this::resized, this::calcResponsiveWidth);
     }
 
     public float calcResponsiveWidth() {
@@ -111,12 +158,6 @@ public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disp
             return 800f;
         }
         return Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
-    }
-
-    private void notifyResize(float width) {
-        for (Consumer<Float> consumer : resizeConsumers) {
-            consumer.accept(width);
-        }
     }
 
     public Table dialog() {
@@ -129,10 +170,6 @@ public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disp
         if (scene != null || Core.scene != null) {
             super.show(scene != null ? scene : Core.scene);
         }
-        for (Runnable r : shownListeners) {
-            r.run();
-        }
-        notifyResize(calcResponsiveWidth());
         return this;
     }
 
@@ -172,5 +209,13 @@ public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disp
         isDisposed = true;
         hide();
         onDispose();
+        for (Disposable d : disposables) {
+            try {
+                d.dispose();
+            } catch (Throwable t) {
+                arc.util.Log.err("Error disposing resource in SolimDialog", t);
+            }
+        }
+        disposables.clear();
     }
 }
