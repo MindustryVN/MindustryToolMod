@@ -43,7 +43,7 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
 
     public SolimDialog content(Component component) {
         if (component != null) {
-            cont.add(component.element()).grow();
+            cont.add(component.element()).grow().expand();
         }
         return this;
     }
