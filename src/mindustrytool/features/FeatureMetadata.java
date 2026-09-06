@@ -7,7 +7,6 @@ import arc.scene.style.Drawable;
 import arc.scene.style.TextureRegionDrawable;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
-import old.mindustrytool.Utils;
 
 @Getter
 @AllArgsConstructor
@@ -37,7 +36,7 @@ public class FeatureMetadata {
         }
 
         public Builder icon(TextureRegionDrawable icon) {
-            this.icon = Utils.scalable(icon);
+            this.icon = new TextureRegionDrawable(icon.getRegion());
             return this;
         }
 

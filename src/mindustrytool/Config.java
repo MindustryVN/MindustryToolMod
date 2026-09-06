@@ -3,7 +3,7 @@ package mindustrytool;
 import java.util.Arrays;
 import java.util.List;
 
-import old.mindustrytool.dto.Sort;
+import mindustrytool.models.Sort;
 
 public class Config {
     private static final String DEV_URL = "https://api.mindustry-tool.com/api/v4";
