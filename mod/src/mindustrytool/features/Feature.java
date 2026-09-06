@@ -2,6 +2,7 @@ package mindustrytool.features;
 
 import arc.Core;
 import arc.Events;
+import arc.scene.ui.Dialog;
 
 public interface Feature {
 
@@ -47,5 +48,44 @@ public interface Feature {
 
     default String getSettingKey() {
         return "mindustrytool.feature." + getMetadata().getId() + ".enabled";
+    }
+
+    default Dialog getSettingDialog() {
+        return null;
+    }
+
+    default Dialog getMainDialog() {
+        return null;
+    }
+
+    default String getName() {
+        String id = getMetadata().getId();
+        String nameKey = "feature." + id + ".name";
+        if (Core.bundle != null && Core.bundle.has(nameKey)) {
+            return Core.bundle.get(nameKey);
+        }
+        String directKey = "feature." + id;
+        if (Core.bundle != null && Core.bundle.has(directKey)) {
+            return Core.bundle.get(directKey);
+        }
+        return id;
+    }
+
+    default String getDescription() {
+        String id = getMetadata().getId();
+        String descKey = "feature." + id + ".description";
+        if (Core.bundle != null && Core.bundle.has(descKey)) {
+            return Core.bundle.get(descKey);
+        }
+        return "";
+    }
+
+    default String getHelp() {
+        String id = getMetadata().getId();
+        String helpKey = "feature." + id + ".help";
+        if (Core.bundle != null && Core.bundle.has(helpKey)) {
+            return Core.bundle.get(helpKey);
+        }
+        return "";
     }
 }

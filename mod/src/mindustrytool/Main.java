@@ -8,6 +8,8 @@ import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
 import mindustrytool.features.FeatureManager;
+import mindustrytool.features.background.BackgroundFeature;
+import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
 import mindustrytool.services.auth.AuthOverlay;
@@ -18,6 +20,7 @@ import mindustry.mod.Mod;
 
 public class Main extends Mod {
     public static LoadedMod self;
+    private FeatureSettingDialog featureSettingDialog;
 
     public Main() {
         Vars.maxSchematicSize = 4000;
@@ -32,6 +35,8 @@ public class Main extends Mod {
             Vars.ui.showErrorMessage("Mod cant find itself, please contact admin on Discord to fix the problem");
             return;
         }
+
+        FeatureManager.register(new BackgroundFeature());
 
         Events.on(ClientLoadEvent.class, event -> {
             registerMindustryToolButton();
@@ -57,7 +62,10 @@ public class Main extends Mod {
         Core.app.post(() -> {
             try {
                 Vars.ui.menufrag.addButton("Mindustry Tool", FileIcon.of("mod.png"), () -> {
-                    // Show feature setting dialog
+                    if (featureSettingDialog == null) {
+                        featureSettingDialog = new FeatureSettingDialog();
+                    }
+                    featureSettingDialog.show();
                 });
             } catch (Exception err) {
                 Vars.ui.showException(err);

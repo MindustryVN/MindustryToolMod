@@ -90,7 +90,6 @@ public final class Request {
         private Duration timeoutOverride;
         private final Map<String, String> headers = new LinkedHashMap<>();
         private HttpRequest.BodyPublisher bodyPublisher;
-        private String bodyStringForContentType;
         private boolean useAuth = true;
 
         private RequestBuilder(Request outer, String method, String url) {

@@ -1,3 +1,7 @@
 // solim — UI library for Mindustry mods
 // Shared java/repositories/dependencies are configured in root build.gradle via subprojects.
 // Add solim-specific dependencies here if needed.
+dependencies {
+    // Mindustry/Arc needed at test runtime for Element instantiation in component tests
+    testImplementation "Anuken:Mindustry:${mindustryVersion}"
+}
