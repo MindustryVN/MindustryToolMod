@@ -19,7 +19,7 @@ class OverlayFeedbackTest {
 
     @BeforeAll
     static void checkArcContext() {
-        Assumptions.assumeTrue(Core.app != null, "Arc Core.app is null; skipping headless-dependent tests");
+        Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
     }
 
     @Test

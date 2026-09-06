@@ -12,7 +12,7 @@ class InputWidgetsTest {
 
     @BeforeAll
     static void checkArcContext() {
-        Assumptions.assumeTrue(Core.app != null, "Arc Core.app is null; skipping headless-dependent tests");
+        Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
     }
 
     @Test
@@ -75,7 +75,7 @@ class InputWidgetsTest {
     @Test
     void selectBinding() {
         Signal<String> sel = Signal.of("A");
-        SolimSelect<String> s = new SolimSelect<>(sel, List.of("A", "B", "C"));
+        SolimSelect<String> s = new SolimSelect<>(sel, java.util.Arrays.asList("A", "B", "C"));
         assertEquals("A", s.selectBox().getText().toString());
         sel.set("B");
         assertEquals("B", s.selectBox().getText().toString());

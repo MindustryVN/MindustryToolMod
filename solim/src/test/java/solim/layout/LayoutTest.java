@@ -14,7 +14,12 @@ class LayoutTest {
 
     @BeforeAll
     static void checkArcContext() {
-        Assumptions.assumeTrue(Core.app != null, "Arc Core.app is null; skipping headless-dependent tests");
+        if (Core.app == null) {
+            Core.app = new arc.mock.MockApplication();
+        }
+        if (Core.graphics == null) {
+            Core.graphics = new arc.mock.MockGraphics();
+        }
     }
 
     @Test

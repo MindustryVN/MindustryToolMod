@@ -107,7 +107,7 @@ class ComputedTest {
     void computedMapChain() {
         Signal<Integer> a = Signal.of(1);
         Computed<Integer> b = a.map(v -> v + 1);
-        Computed<Integer> c = Signal.computed(() -> b.get() * 2);
+        Computed<Integer> c = b.map(v -> v * 2);
         assertEquals(4, c.get()); // (1+1)*2
         a.set(2);
         assertEquals(6, c.get());

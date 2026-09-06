@@ -120,7 +120,7 @@ class ComponentTest {
             try (var stream = java.nio.file.Files.walk(coreDir)) {
                 for (var p : (Iterable<java.nio.file.Path>) stream::iterator) {
                     if (p.toString().endsWith(".java")) {
-                        String content = java.nio.file.Files.readString(p);
+                        String content = new String(java.nio.file.Files.readAllBytes(p), java.nio.charset.StandardCharsets.UTF_8);
                         assertFalse(content.contains("useState"), "Should not contain React hooks");
                         assertFalse(content.contains("useEffect"), "Should not contain React hooks");
                         assertFalse(content.contains("useMemo"), "Should not contain React hooks");

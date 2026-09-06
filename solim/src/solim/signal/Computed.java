@@ -7,6 +7,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
 
 /**
@@ -161,6 +162,10 @@ public final class Computed<T> implements ReactiveObserver {
                 return disposedFlag.get();
             }
         };
+    }
+
+    public <R> Computed<R> map(Function<T, R> mapper) {
+        return Signal.computed(() -> mapper.apply(get()));
     }
 
     public void dispose() {

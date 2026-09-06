@@ -94,7 +94,7 @@ class StyleTest {
             try (var stream = java.nio.file.Files.walk(styleDir)) {
                 for (var p : (Iterable<java.nio.file.Path>) stream::iterator) {
                     if (p.toString().endsWith(".java")) {
-                        String content = java.nio.file.Files.readString(p);
+                        String content = new String(java.nio.file.Files.readAllBytes(p), java.nio.charset.StandardCharsets.UTF_8);
                         assertFalse(content.contains("stylesheet"), "No CSS stylesheet");
                         assertFalse(content.contains("selector"), "No CSS selector");
                         assertFalse(content.contains("flex"), "No CSS flex");
