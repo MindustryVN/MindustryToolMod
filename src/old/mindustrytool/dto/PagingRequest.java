@@ -1,9 +1,9 @@
 package old.mindustrytool.dto;
 
 import java.net.URI;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-
-import org.apache.http.client.utils.URIBuilder;
 
 import arc.Core;
 import arc.func.Cons;
@@ -45,9 +45,10 @@ public class PagingRequest<T> {
         isLoading = true;
 
         try {
-            URIBuilder builder = new URIBuilder(url)//
-                    .setParameter("page", String.valueOf(page))//
-                    .setParameter("size", String.valueOf(Math.min(size, 100)));
+            StringBuilder sb = new StringBuilder(url);
+            String sep = url.contains("?") ? "&" : "?";
+            sb.append(sep).append("page=").append(URLEncoder.encode(String.valueOf(page), StandardCharsets.UTF_8));
+            sb.append("&size=").append(URLEncoder.encode(String.valueOf(Math.min(size, 100)), StandardCharsets.UTF_8));
 
             for (Entry<String, Object> entry : options.entries()) {
                 Object value = entry.value;
@@ -56,15 +57,16 @@ public class PagingRequest<T> {
                     for (Object v : list) {
                         String str = String.valueOf(v);
                         if (str.isEmpty()) continue;
-                        builder.addParameter(entry.key, str);
+                        sb.append("&").append(URLEncoder.encode(entry.key, StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(str, StandardCharsets.UTF_8));
                     }
                 } else {
                     if (entry.value != null && !String.valueOf(value).isEmpty()) {
-                        builder.setParameter(entry.key, String.valueOf(value));
+                        sb.append("&").append(URLEncoder.encode(entry.key, StandardCharsets.UTF_8)).append("=").append(URLEncoder.encode(String.valueOf(value), StandardCharsets.UTF_8));
                     }
                 }
             }
-            URI uri = builder.build();
+            String uriStr = sb.toString();
+            URI uri = URI.create(uriStr);
             listener.get(null);
 
             Log.debug(uri);

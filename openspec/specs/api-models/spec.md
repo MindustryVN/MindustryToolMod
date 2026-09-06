@@ -1,19 +1,20 @@
 # api-models Specification
 
 ## Purpose
-TBD - created by archiving change fix-api-client-dto-rewrite. Update Purpose after archive.
+Self-contained DTOs and JSON utilities under `mindustrytool.*` that support instance-based `Request` clients without depending on `old.*`.
+
 ## Requirements
 ### Requirement: Self-contained models under mindustrytool.models
 
-All DTOs used by `MindustryTool` and `Github` SHALL be copied from `src/old` into `src/mindustrytool/models` with package `mindustrytool.models` and MUST NOT import `old.*`.
+All DTOs used by `MindustryTool` and `Github` SHALL be copied from `src/old` into `src/mindustrytool/models` with package `mindustrytool.models` and MUST NOT import `old.*`. New auth code SHALL use `mindustrytool.models.UserSession` etc., copied from old, with no `old.` reference in `src/mindustrytool`.
 
 #### Scenario: Models exist in new package
 - **WHEN** `src/mindustrytool/models` is listed
-- **THEN** it contains `MapData`, `MapDetailData`, `SchematicData`, `SchematicDetailData`, `TagCategory`, `TagData`, `UserData`, `ModData`, `ServerData`, `PlayerConnectRoom`, `PlayerConnectProvider`, `ChannelDto`, `ChatMessage`, `ChatUser`, `UserSession`, `Sort`, and any other DTOs required by retained endpoints, each with `package mindustrytool.models`
+- **THEN** it contains `MapData`, `MapDetailData`, `SchematicData`, `SchematicDetailData`, `TagCategory`, `TagData`, `UserData`, `ModData`, `ServerData`, `PlayerConnectRoom`, `PlayerConnectProvider`, `ChannelDto`, `ChatMessage`, `ChatUser`, `UserSession`, `AuthTokenResponse`, `LoginUriResponse`, `TaskData`, `TaskResponse`, `Sort`, and any other DTOs required by retained endpoints, each with `package mindustrytool.models`
 
 #### Scenario: No old imports in new code
-- **WHEN** `grep -R "old\\.mindustrytool" src/mindustrytool` is run
-- **THEN** it returns no results
+- **WHEN** `grep -R "old\\.mindustrytool" src/mindustrytool` or `Select-String` is run
+- **THEN** it returns no results (except comments); all `src/mindustrytool/**/*.java` compile without `import old.*`
 
 ### Requirement: DTO fidelity and Jackson compatibility
 
@@ -29,7 +30,7 @@ Copied DTOs SHALL preserve field names and Jackson annotations to parse actual A
 
 ### Requirement: Copied JSON utility in new codebase
 
-A new `mindustrytool.utils.JsonUtils` SHALL be copied from `old.mindustrytool.Utils` JSON methods (Jackson `ObjectMapper` with `JavaTimeModule`, `toJson`, `fromJson`, `fromJsonArray`) and expose static helpers for the new services.
+A new `mindustrytool.utils.JsonUtils` SHALL be copied from `old.mindustrytool.Utils` JSON methods (Jackson `ObjectMapper` with `JavaTimeModule`, `toJson`, `fromJson`, `fromJsonArray`) and expose static helpers for the new services. It SHALL be the only JSON helper used by `MindustryTool`/`Github`/`Request` callers in `src/mindustrytool`.
 
 #### Scenario: JsonUtils handles DTO parsing
 - **WHEN** `JsonUtils.fromJson(MapDetailData.class, json)` is called
@@ -39,7 +40,18 @@ A new `mindustrytool.utils.JsonUtils` SHALL be copied from `old.mindustrytool.Ut
 - **WHEN** `JsonUtils.fromJsonArray(TagData.class, jsonArray)` is called
 - **THEN** it returns `List<TagData>` via `readerForListOf`
 
-#### Scenario: No old.Utils import in services
-- **WHEN** `MindustryTool.java`, `Github.java`, and `Request.java` are inspected
-- **THEN** they import `mindustrytool.utils.JsonUtils` and not `old.mindustrytool.Utils`
+#### Scenario: No old.Utils import in new services
+- **WHEN** `MindustryTool.java`, `Github.java`, `MindustryAuthProvider`, and `Request.java` are inspected
+- **THEN** they import `mindustrytool.utils.JsonUtils` and not `old.mindustrytool.Utils`; the only `Jval` usage allowed is for JWT `exp` parsing in `MindustryAuthProvider` (via `arc.util.serialization.Jval`)
 
+### Requirement: AuthProvider and MindustryAuthProvider are self-contained
+
+`AuthProvider` and `MindustryAuthProvider` SHALL live in `mindustrytool.services`, implement Bearer-only auth, and NOT import `old.mindustrytool.features.auth.*`. Token keys SHALL be `mindustrytool.auth.*` shared via `Core.settings` for interop with old code, but code SHALL be copied not imported.
+
+#### Scenario: New auth provider has no old imports
+- **WHEN** `src/mindustrytool/services/AuthProvider.java` and `MindustryAuthProvider.java` are inspected
+- **THEN** they import only `java.*`, `arc.*`, `mindustrytool.Config`, `mindustrytool.services.Request`, and contain no `import old.`
+
+#### Scenario: MindustryAuthProvider owns instance Request
+- **WHEN** `MindustryAuthProvider` is inspected
+- **THEN** it declares `private final Request api = Request.builder().baseUrl(Config.API_URL).authProvider(this).build()` and deduplicates refresh via `synchronized refreshIfNeeded()` with `CompletableFuture<Void> refreshFuture`

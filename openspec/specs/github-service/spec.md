@@ -1,37 +1,45 @@
 # github-service Specification
 
 ## Purpose
-TBD - created by archiving change fix-api-client-dto-rewrite. Update Purpose after archive.
+External GitHub/project API facade that delegates all HTTP to instance-based `Request` clients without authentication.
+
 ## Requirements
-### Requirement: Github service owns only external endpoints and delegates to Request
+### Requirement: Github service owns only external endpoints and delegates to instance Request
 
-`Github` SHALL own only `Config.GITHUB_API_URL`, `Config.MOD_HJSON_URL`, and `Config.PROJECT_URL` endpoints, delegate every call to `Request`, and contain no direct `HttpClient` construction.
+`Github` SHALL own only `Config.GITHUB_API_URL`, `Config.MOD_HJSON_URL`, and `Config.PROJECT_URL` endpoints, delegate every call to instance `Request` (`githubApi`, `projectApi`, `rawApi` built via `Request.builder()`) and contain no direct `HttpClient` construction and no auth provider.
 
-#### Scenario: Github delegates to Request
+#### Scenario: Github delegates to instance Request
 - **WHEN** `src/mindustrytool/services/Github.java` is inspected
-- **THEN** each method calls `Request.get` (with import, not fully-qualified) and maps `HttpResponse<String>.body()` to a DTO or string, with no `HttpClient`/`HttpRequest` instantiation
+- **THEN** it declares `private static final Request githubApi = Request.builder().baseUrl(Config.GITHUB_API_URL).build()`, `projectApi` for `Config.PROJECT_URL`, and `rawApi` for absolute URLs; each method calls `githubApi.get("").sendAsync()` or `rawApi.get(Config.MOD_HJSON_URL).sendAsync()` / `rawApi.get(Config.GITHUB_API_URL + "?page=" + page + "...").sendAsync()` and maps `HttpResponse<String>.body()` via `JsonUtils` or returns String, with no `HttpClient`/`HttpRequest` instantiation
 
 #### Scenario: No MindustryTool API URLs in Github
 - **WHEN** `Github.java` URLs are listed
-- **THEN** none start with `Config.API_URL`
+- **THEN** none start with `Config.API_URL`; all use `GITHUB_API_URL`, `MOD_HJSON_URL`, or `PROJECT_URL`
+
+#### Scenario: No auth provider and no old imports
+- **WHEN** `Github.java` is inspected
+- **THEN** all three `Request` instances are built without `.authProvider(...)` and the file contains no `import old.*`
 
 ### Requirement: Typed returns for Github and project calls
 
-`Github` methods SHALL return typed futures where applicable (e.g. release list parsed to DTO) instead of raw string where a model exists.
+`Github` methods SHALL return typed futures where applicable (e.g. release list parsed to DTO) instead of raw string where a model exists, with fallback to `String` for raw `mod.hjson`.
 
-#### Scenario: getReleases returns typed list
-- **WHEN** `Github.getReleases(page, perPage)` is called
-- **THEN** it delegates to `Request.get(GITHUB_API_URL + "?page=...")` and returns parsed DTOs (or `CompletableFuture<String>` for raw mod.hjson if no DTO is warranted, with explicit rationale)
+#### Scenario: getReleases returns String (raw) with rationale
+- **WHEN** `Github.getReleases()` is called
+- **THEN** it delegates to `githubApi.get("").sendAsync()` or `rawApi.get(GITHUB_API_URL + "?page=...").sendAsync()` and returns `CompletableFuture<String>` (raw mod.hjson/releases are heterogeneous and kept as String with Javadoc rationale)
 
 #### Scenario: getProjectTasks returns typed response
 - **WHEN** `Github.getProjectTasks(status)` is called
-- **THEN** it calls `Request.get(PROJECT_URL + "/api/v1/projects/.../tasks?status=" + status)` and parses into `TaskResponse` / `List<TaskData>` via `JsonUtils`
+- **THEN** it calls `projectApi.get("/api/v1/projects/" + Config.PROJECT_ID + "/tasks?status=" + status).timeout(Duration.ofMillis(20000)).sendAsync()` and parses via `JsonUtils.fromJson(TaskResponse.class, body)`
 
 ### Requirement: Import hygiene for Github
 
-`Github` SHALL use explicit imports for `java.util.concurrent.CompletableFuture`, `mindustrytool.Config`, `mindustrytool.utils.JsonUtils`, and `mindustrytool.models.*` where used, and SHALL NOT use fully-qualified inline names.
+`Github` SHALL use explicit imports for `Duration`, `CompletableFuture`, `mindustrytool.Config`, `mindustrytool.utils.JsonUtils`, `mindustrytool.models.TaskResponse` and SHALL NOT use fully-qualified inline names or `import static mindustrytool.services.Request.*`.
 
-#### Scenario: No fully-qualified names in Github
-- **WHEN** `Github.java` is inspected
-- **THEN** all types are imported at the top and referenced by simple name
+#### Scenario: No static Request import
+- **WHEN** `Github.java` imports are inspected
+- **THEN** they contain `import mindustrytool.services.Request` and no `import static ...Request.*`, and no `import old.*`
 
+#### Scenario: Explicit timeout handling
+- **WHEN** `getProjectTasks` needs 20s timeout
+- **THEN** it uses `.timeout(Duration.ofMillis(20_000))` on the builder, not `int timeoutMs` parameter on static helper
