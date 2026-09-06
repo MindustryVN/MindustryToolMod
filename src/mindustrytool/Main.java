@@ -8,7 +8,9 @@ import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
 import mindustrytool.features.FeatureManager;
+import mindustrytool.services.MindustryAuthProvider;
 import mindustrytool.services.PacketReplacer;
+import mindustrytool.ui.AuthOverlay;
 import mindustrytool.update.UpdateService;
 import mindustry.mod.Mod;
 
@@ -32,8 +34,10 @@ public class Main extends Mod {
         Events.on(ClientLoadEvent.class, event -> {
             UpdateService.getInstance().checkForUpdate(() -> {
                 FeatureManager.init();
+                AuthOverlay.getInstance().init();
+                MindustryAuthProvider.getInstance().init();
                 PacketReplacer.replace();
-                
+
                 registerMindustryToolButton();
             });
         });

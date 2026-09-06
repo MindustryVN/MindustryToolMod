@@ -14,7 +14,6 @@ import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.mod.Mods.LoadedMod;
 import mindustry.net.Packet;
 import old.mindustrytool.features.FeatureManager;
-import old.mindustrytool.features.auth.AuthService;
 import old.mindustrytool.features.autoplay.AutoplayFeature;
 import old.mindustrytool.features.background.BackgroundFeature;
 import old.mindustrytool.features.browser.map.MapBrowserFeature;
@@ -114,7 +113,8 @@ public class Main extends Mod {
         checkDirVersion(mapsDir, 1);
         checkDirVersion(schematicDir, 1);
 
-        AuthService.getInstance().init();
+        mindustrytool.services.MindustryAuthProvider.getInstance().init();
+        mindustrytool.ui.AuthOverlay.getInstance().init();
         ServerService.getInstance().init();
         TapListener.getInstance().init();
 
