@@ -18,11 +18,23 @@ tasks.register('jarAndroid'){
         //collect dependencies needed for desugaring
         def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")]).collect{ "--classpath $it.path" }.join(" ")
 
-        def d8 = isWindows ? "d8.bat" : "d8"
+        def d8Name = isWindows ? "d8.bat" : "d8"
+        // Try to locate d8 inside Android SDK build-tools (so PATH setup is optional), fallback to PATH lookup
+        def buildToolsDir = new File(sdkRoot, "build-tools")
+        def d8File = null
+        if(buildToolsDir.exists()){
+            def candidates = buildToolsDir.listFiles()?.findAll{ it.isDirectory() }?.sort{ a, b -> b.name <=> a.name }
+            d8File = candidates?.find{ new File(it, d8Name).exists() }?.with{ new File(it, d8Name) }
+        }
+        def d8 = d8File?.exists() ? d8File.absolutePath : d8Name
 
-        //dex and desugar files - this requires d8 in your PATH
-        "$d8 $dependencies --min-api 14 --output ${projectName}Android.jar ${projectName}Desktop.jar"
-                .execute(null, new File("build/libs")).waitForProcessOutput(System.out, System.err)
+        def libsDir = layout.buildDirectory.dir("libs").get().asFile
+        libsDir.mkdirs()
+
+        def cmd = "$d8 $dependencies --min-api 14 --output ${projectName}Android.jar ${projectName}Desktop.jar"
+        def proc = cmd.execute(null, libsDir)
+        proc.waitForProcessOutput(System.out, System.err)
+        if(proc.exitValue() != 0) throw new GradleException("d8 failed with exit code ${proc.exitValue()}")
     }
 }
 
@@ -46,16 +58,18 @@ jar{
 }
 
 tasks.register('deploy', Jar){
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
     def projectName = rootProject.name
     dependsOn jarAndroid
     dependsOn jar
     archiveFileName = "${projectName}.jar"
 
-    from{ [zipTree("build/libs/${projectName}Desktop.jar"), zipTree("build/libs/${projectName}Android.jar")] }
+    def libsDir = layout.buildDirectory.dir("libs").get().asFile
+    from{ [zipTree(new File(libsDir, "${projectName}Desktop.jar")), zipTree(new File(libsDir, "${projectName}Android.jar"))] }
 
     doLast{
         delete{
-            delete "build/libs/${projectName}Android.jar"
+            delete new File(libsDir, "${projectName}Android.jar")
         }
     }
 }
