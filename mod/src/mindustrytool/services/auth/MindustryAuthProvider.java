@@ -253,8 +253,8 @@ public class MindustryAuthProvider implements AuthProvider {
                 .whenComplete((token, err) -> {
                     if (err != null) {
                         String msg = err.getMessage() != null ? err.getMessage().toLowerCase() : "";
-                        boolean isTimeout = err instanceof java.net.http.HttpTimeoutException
-                                || (err.getCause() instanceof java.net.http.HttpTimeoutException)
+                        boolean isTimeout = err instanceof java.net.SocketTimeoutException
+                                || (err.getCause() instanceof java.net.SocketTimeoutException)
                                 || msg.contains("timed out") || msg.contains("timeout");
                         if (isTimeout) {
                             future.completeExceptionally(err);

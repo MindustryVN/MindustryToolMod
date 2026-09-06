@@ -76,9 +76,9 @@ class InputWidgetsTest {
     void selectBinding() {
         Signal<String> sel = Signal.of("A");
         SolimSelect<String> s = new SolimSelect<>(sel, List.of("A", "B", "C"));
-        assertEquals("A", s.selectBox().getSelected());
+        assertEquals("A", s.selectBox().getText().toString());
         sel.set("B");
-        assertEquals("B", s.selectBox().getSelected());
+        assertEquals("B", s.selectBox().getText().toString());
         s.dispose();
     }
 

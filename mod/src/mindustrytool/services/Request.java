@@ -1,26 +1,37 @@
 package mindustrytool.services;
 
+import java.io.BufferedReader;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.net.http.HttpResponse.BodyHandler;
-import java.net.http.HttpResponse.BodyHandlers;
-import java.net.http.HttpRequest.BodyPublishers;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
+import java.net.HttpURLConnection;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
+import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.stream.Stream;
 
 import mindustrytool.services.auth.AuthProvider;
 
 public final class Request {
 
-    private static final HttpClient CLIENT = HttpClient.newBuilder()
-            .connectTimeout(Duration.ofSeconds(10))
-            .build();
+    private static final AtomicLong THREAD_ID = new AtomicLong(0);
+    private static final ExecutorService EXECUTOR = Executors.newCachedThreadPool(runnable -> {
+        Thread thread = new Thread(runnable);
+        thread.setName("Request-Worker-" + THREAD_ID.incrementAndGet());
+        thread.setDaemon(true);
+        return thread;
+    });
 
     private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(10);
 
@@ -81,6 +92,74 @@ public final class Request {
         return new RequestBuilder(this, "DELETE", url);
     }
 
+    // ─── Response & Handlers ───────────────────────────────────────
+
+    public static final class Response<T> {
+        private final int statusCode;
+        private final Map<String, List<String>> headers;
+        private final T body;
+
+        public Response(int statusCode, Map<String, List<String>> headers, T body) {
+            this.statusCode = statusCode;
+            this.headers = headers != null ? headers : Collections.emptyMap();
+            this.body = body;
+        }
+
+        public int statusCode() {
+            return statusCode;
+        }
+
+        public T body() {
+            return body;
+        }
+
+        public Map<String, List<String>> headers() {
+            return headers;
+        }
+
+        public String header(String name) {
+            if (headers == null || name == null) return null;
+            for (Map.Entry<String, List<String>> entry : headers.entrySet()) {
+                if (name.equalsIgnoreCase(entry.getKey())) {
+                    List<String> values = entry.getValue();
+                    return (values != null && !values.isEmpty()) ? values.get(0) : null;
+                }
+            }
+            return null;
+        }
+    }
+
+    @FunctionalInterface
+    public interface BodyHandler<T> {
+        T apply(InputStream stream) throws IOException;
+    }
+
+    public static final class BodyHandlers {
+        private BodyHandlers() {}
+
+        public static BodyHandler<String> ofString() {
+            return stream -> {
+                byte[] bytes = readAllBytes(stream);
+                return new String(bytes, StandardCharsets.UTF_8);
+            };
+        }
+
+        public static BodyHandler<byte[]> ofByteArray() {
+            return Request::readAllBytes;
+        }
+
+        public static BodyHandler<Stream<String>> ofLines() {
+            return stream -> {
+                BufferedReader reader = new BufferedReader(new InputStreamReader(stream, StandardCharsets.UTF_8));
+                return reader.lines().onClose(() -> {
+                    try {
+                        reader.close();
+                    } catch (IOException ignored) {}
+                });
+            };
+        }
+    }
+
     // ─── Builder ───────────────────────────────────────────────────
 
     public static final class RequestBuilder {
@@ -89,7 +168,7 @@ public final class Request {
         private final String url;
         private Duration timeoutOverride;
         private final Map<String, String> headers = new LinkedHashMap<>();
-        private HttpRequest.BodyPublisher bodyPublisher;
+        private byte[] bodyBytes;
         private boolean useAuth = true;
 
         private RequestBuilder(Request outer, String method, String url) {
@@ -109,18 +188,18 @@ public final class Request {
         }
 
         public RequestBuilder body(String body) {
-            this.bodyPublisher = BodyPublishers.ofString(body != null ? body : "");
+            this.bodyBytes = body != null ? body.getBytes(StandardCharsets.UTF_8) : new byte[0];
             return this;
         }
 
         public RequestBuilder json(String json) {
-            this.bodyPublisher = BodyPublishers.ofString(json != null ? json : "");
+            this.bodyBytes = json != null ? json.getBytes(StandardCharsets.UTF_8) : new byte[0];
             headers.put("Content-Type", "application/json");
             return this;
         }
 
         public RequestBuilder bytes(byte[] bytes) {
-            this.bodyPublisher = BodyPublishers.ofByteArray(bytes != null ? bytes : new byte[0]);
+            this.bodyBytes = bytes != null ? bytes : new byte[0];
             return this;
         }
 
@@ -129,61 +208,99 @@ public final class Request {
             return this;
         }
 
-        public CompletableFuture<HttpResponse<String>> sendAsync() {
+        public CompletableFuture<Response<String>> sendAsync() {
             return sendAsync(BodyHandlers.ofString());
         }
 
-        public <T> CompletableFuture<HttpResponse<T>> sendAsync(BodyHandler<T> handler) {
+        public <T> CompletableFuture<Response<T>> sendAsync(BodyHandler<T> handler) {
             String resolvedUrl = resolveUrl(outer.baseUrl, url);
             Duration effectiveTimeout = timeoutOverride != null ? timeoutOverride : outer.timeout;
 
             if (useAuth && outer.authProvider != null) {
                 return outer.authProvider.refreshIfNeeded().thenCompose(v -> {
                     String token = outer.authProvider.getAccessToken();
-                    HttpRequest request = buildHttpRequest(resolvedUrl, effectiveTimeout, token);
-                    return CLIENT.sendAsync(request, handler);
+                    return executeAsync(resolvedUrl, effectiveTimeout, token, handler);
                 });
             } else {
-                HttpRequest request = buildHttpRequest(resolvedUrl, effectiveTimeout, null);
-                return CLIENT.sendAsync(request, handler);
+                return executeAsync(resolvedUrl, effectiveTimeout, null, handler);
             }
         }
 
-        private HttpRequest buildHttpRequest(String resolvedUrl, Duration effectiveTimeout, String token) {
-            HttpRequest.Builder builder = HttpRequest.newBuilder()
-                    .uri(URI.create(resolvedUrl))
-                    .timeout(effectiveTimeout);
+        private <T> CompletableFuture<Response<T>> executeAsync(
+                String resolvedUrl,
+                Duration effectiveTimeout,
+                String token,
+                BodyHandler<T> handler
+        ) {
+            CompletableFuture<Response<T>> future = new CompletableFuture<>();
+            EXECUTOR.execute(() -> {
+                try {
+                    Response<T> resp = executeSync(resolvedUrl, effectiveTimeout, token, handler);
+                    future.complete(resp);
+                } catch (Throwable t) {
+                    future.completeExceptionally(t);
+                }
+            });
+            return future;
+        }
 
-            headers.forEach(builder::header);
+        private <T> Response<T> executeSync(
+                String resolvedUrl,
+                Duration effectiveTimeout,
+                String token,
+                BodyHandler<T> handler
+        ) throws IOException {
+            URL targetUrl = new URL(resolvedUrl);
+            HttpURLConnection conn = (HttpURLConnection) targetUrl.openConnection();
+            conn.setRequestMethod(method);
+
+            if (effectiveTimeout != null) {
+                int timeoutMillis = (int) Math.min(effectiveTimeout.toMillis(), Integer.MAX_VALUE);
+                conn.setConnectTimeout(timeoutMillis);
+                conn.setReadTimeout(timeoutMillis);
+            }
+
+            conn.setInstanceFollowRedirects(true);
+
+            for (Map.Entry<String, String> header : headers.entrySet()) {
+                conn.setRequestProperty(header.getKey(), header.getValue());
+            }
 
             if (token != null) {
-                builder.header("Authorization", "Bearer " + token);
+                conn.setRequestProperty("Authorization", "Bearer " + token);
             }
 
-            switch (method) {
-                case "GET" -> builder.GET();
-                case "DELETE" -> builder.DELETE();
-                case "POST" -> {
-                    if (bodyPublisher != null) {
-                        builder.POST(bodyPublisher);
-                    } else {
-                        builder.POST(BodyPublishers.noBody());
+            byte[] payload = bodyBytes;
+            if ("POST".equals(method) || "PUT".equals(method) || (payload != null && payload.length > 0)) {
+                byte[] toWrite = payload != null ? payload : new byte[0];
+                conn.setDoOutput(true);
+                conn.setFixedLengthStreamingMode(toWrite.length);
+                try (OutputStream out = conn.getOutputStream()) {
+                    if (toWrite.length > 0) {
+                        out.write(toWrite);
                     }
+                    out.flush();
                 }
-                case "PUT" -> {
-                    if (bodyPublisher != null) {
-                        builder.PUT(bodyPublisher);
-                    } else {
-                        builder.PUT(BodyPublishers.noBody());
-                    }
-                }
-                default -> throw new IllegalArgumentException("Unsupported method: " + method);
             }
 
-            return builder.build();
+            int statusCode = conn.getResponseCode();
+            Map<String, List<String>> respHeaders = conn.getHeaderFields();
+
+            InputStream in;
+            try {
+                in = conn.getInputStream();
+            } catch (IOException e) {
+                in = conn.getErrorStream();
+            }
+            if (in == null) {
+                in = new ByteArrayInputStream(new byte[0]);
+            }
+
+            T body = handler.apply(in);
+            return new Response<>(statusCode, respHeaders, body);
         }
 
-        private static String resolveUrl(String baseUrl, String url) {
+        static String resolveUrl(String baseUrl, String url) {
             if (url == null) return baseUrl != null ? baseUrl : "";
             if (url.isEmpty()) return baseUrl != null ? baseUrl : "";
             if (url.startsWith("http://") || url.startsWith("https://")) {
@@ -205,6 +322,26 @@ public final class Request {
                 return baseUrl + "/" + url;
             }
             return baseUrl + url;
+        }
+    }
+
+    // ─── Helpers ───────────────────────────────────────────────────
+
+    public static byte[] readAllBytes(InputStream in) throws IOException {
+        if (in == null) {
+            return new byte[0];
+        }
+        try (ByteArrayOutputStream out = new ByteArrayOutputStream()) {
+            byte[] buffer = new byte[8192];
+            int n;
+            while ((n = in.read(buffer)) != -1) {
+                out.write(buffer, 0, n);
+            }
+            return out.toByteArray();
+        } finally {
+            try {
+                in.close();
+            } catch (IOException ignored) {}
         }
     }
 
@@ -232,10 +369,5 @@ public final class Request {
             throw new RuntimeException("Failed to build multipart body", e);
         }
         return out.toByteArray();
-    }
-
-    // Expose shared client if needed (kept for compatibility)
-    public static HttpClient client() {
-        return CLIENT;
     }
 }

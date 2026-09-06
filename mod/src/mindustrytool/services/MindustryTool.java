@@ -1,7 +1,7 @@
 package mindustrytool.services;
 
 import java.net.URLEncoder;
-import java.net.http.HttpResponse.BodyHandlers;
+import mindustrytool.services.Request.BodyHandlers;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.List;

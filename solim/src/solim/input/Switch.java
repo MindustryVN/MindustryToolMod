@@ -1,16 +1,16 @@
 package solim.input;
 
-import arc.scene.ui.Button;
+import arc.scene.ui.TextButton;
 import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
 /**
  * Switch widget bound to Signal&lt;Boolean&gt;.
- * Uses Button as a visual toggle; state held in signal.
+ * Uses TextButton as a visual toggle; state held in signal.
  */
 public final class Switch implements Disposable {
-    private final Button button = new Button();
+    private final TextButton button = new TextButton("");
     private final Signal<Boolean> signal;
     private Effect effect;
     private boolean updating = false;
@@ -40,7 +40,7 @@ public final class Switch implements Disposable {
         }
     }
 
-    public Button button() {
+    public TextButton button() {
         return button;
     }
 
