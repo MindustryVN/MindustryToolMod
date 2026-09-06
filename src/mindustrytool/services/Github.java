@@ -4,7 +4,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 
 import mindustrytool.Config;
-import mindustrytool.models.TaskResponse;
+import mindustrytool.models.response.TaskResponse;
 import mindustrytool.utils.JsonUtils;
 
 public final class Github {

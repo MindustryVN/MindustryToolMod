@@ -10,22 +10,28 @@ import java.util.concurrent.Flow;
 import java.util.concurrent.SubmissionPublisher;
 
 import mindustrytool.Config;
-import mindustrytool.models.ChannelDto;
-import mindustrytool.models.ChatMessage;
-import mindustrytool.models.ChatUser;
-import mindustrytool.models.AuthTokenResponse;
-import mindustrytool.models.LoginUriResponse;
-import mindustrytool.models.MapData;
-import mindustrytool.models.MapDetailData;
-import mindustrytool.models.ModData;
-import mindustrytool.models.PlayerConnectProvider;
-import mindustrytool.models.PlayerConnectRoom;
-import mindustrytool.models.SchematicData;
-import mindustrytool.models.SchematicDetailData;
-import mindustrytool.models.ServerData;
-import mindustrytool.models.TagCategory;
-import mindustrytool.models.UserData;
-import mindustrytool.models.UserSession;
+import mindustrytool.models.request.CrashReportRequest;
+import mindustrytool.models.request.LogoutRequest;
+import mindustrytool.models.request.RefreshTokenRequest;
+import mindustrytool.models.request.SendChatMessageRequest;
+import mindustrytool.models.request.UpdateChatStateRequest;
+import mindustrytool.models.request.UserBatchRequest;
+import mindustrytool.models.response.AuthTokenResponse;
+import mindustrytool.models.response.ChannelDto;
+import mindustrytool.models.response.ChatMessage;
+import mindustrytool.models.response.ChatUser;
+import mindustrytool.models.response.LoginUriResponse;
+import mindustrytool.models.response.MapData;
+import mindustrytool.models.response.MapDetailData;
+import mindustrytool.models.response.ModData;
+import mindustrytool.models.response.PlayerConnectProvider;
+import mindustrytool.models.response.PlayerConnectRoom;
+import mindustrytool.models.response.SchematicData;
+import mindustrytool.models.response.SchematicDetailData;
+import mindustrytool.models.response.ServerData;
+import mindustrytool.models.response.TagCategory;
+import mindustrytool.models.response.UserData;
+import mindustrytool.models.response.UserSession;
 import mindustrytool.utils.JsonUtils;
 
 public final class MindustryTool {
@@ -107,7 +113,7 @@ public final class MindustryTool {
     // ─── Users ─────────────────────────────────────────────────────
 
     public static CompletableFuture<List<UserData>> getUserBatch(List<String> ids) {
-        String json = JsonUtils.toJson(java.util.Map.of("ids", ids));
+        String json = JsonUtils.toJson(new UserBatchRequest(ids));
         return publicApi.post("/users/batches")
                 .json(json)
                 .sendAsync()
@@ -155,12 +161,8 @@ public final class MindustryTool {
     }
 
     public static CompletableFuture<ChatMessage> sendChatMessage(String endpoint, String channelId, String content, String replyTo) {
-        java.util.Map<String, Object> payload = new java.util.HashMap<>();
-        payload.put("content", content);
-        payload.put("channelId", channelId);
-        if (replyTo != null && !replyTo.isEmpty()) {
-            payload.put("replyTo", replyTo);
-        }
+        String normalizedReplyTo = (replyTo != null && !replyTo.isEmpty()) ? replyTo : null;
+        SendChatMessageRequest payload = new SendChatMessageRequest(content, channelId, normalizedReplyTo);
         return api.post("/chats/" + endpoint)
                 .json(JsonUtils.toJson(payload))
                 .sendAsync()
@@ -190,7 +192,7 @@ public final class MindustryTool {
     }
 
     public static CompletableFuture<Void> updateChatState(String state) {
-        String json = JsonUtils.toJson(java.util.Map.of("state", state));
+        String json = JsonUtils.toJson(new UpdateChatStateRequest(state));
         return api.put("/chats/users/state")
                 .json(json)
                 .sendAsync()
@@ -243,9 +245,7 @@ public final class MindustryTool {
     }
 
     public static CompletableFuture<Void> logout(String accessToken, String refreshToken) {
-        String json = JsonUtils.toJson(java.util.Map.of(
-                "accessToken", accessToken,
-                "refreshToken", refreshToken));
+        String json = JsonUtils.toJson(new LogoutRequest(accessToken, refreshToken));
         // Use withoutAuth and manually attach token to avoid refresh recursion
         if (accessToken != null && !accessToken.isEmpty()) {
             return publicApi.post("/auth/app/logout")
@@ -264,7 +264,7 @@ public final class MindustryTool {
     }
 
     public static CompletableFuture<AuthTokenResponse> refreshToken(String refreshToken) {
-        String json = JsonUtils.toJson(java.util.Map.of("refreshToken", refreshToken));
+        String json = JsonUtils.toJson(new RefreshTokenRequest(refreshToken));
         return publicApi.post("/auth/app/refresh")
                 .withoutAuth()
                 .json(json)
@@ -275,7 +275,7 @@ public final class MindustryTool {
     // ─── Crash Report ──────────────────────────────────────────────
 
     public static CompletableFuture<Void> submitCrashReport(String crashData) {
-        String json = JsonUtils.toJson(java.util.Map.of("content", crashData));
+        String json = JsonUtils.toJson(new CrashReportRequest(crashData));
         return publicApi.post("/crashes")
                 .json(json)
                 .sendAsync()
