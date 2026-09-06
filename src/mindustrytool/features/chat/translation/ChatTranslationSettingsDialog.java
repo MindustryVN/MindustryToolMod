@@ -133,7 +133,9 @@ public class ChatTranslationSettingsDialog extends BaseDialog {
                 Core.app.post(() -> {
                     testButton.setDisabled(false);
                     testButton.setText(Core.bundle.get("chat-translation.settings.test-button"));
-                    resultLabel.setText(Core.bundle.get("chat-translation.settings.failed") + e.getMessage());
+                    Throwable cause = e.getCause() != null ? e.getCause() : e;
+                    String message = cause.getMessage() != null ? cause.getMessage() : cause.toString();
+                    resultLabel.setText(Core.bundle.get("chat-translation.settings.failed") + message);
                 });
                 return null;
             });

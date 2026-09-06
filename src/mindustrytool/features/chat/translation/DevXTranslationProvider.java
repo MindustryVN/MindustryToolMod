@@ -23,7 +23,8 @@ public class DevXTranslationProvider implements TranslationProvider {
     }
 
     private int getTimeoutSeconds() {
-        return Core.settings.getInt(ChatTranslationConfig.DEVX_TIMEOUT, 15);
+        int timeout = Core.settings.getInt(ChatTranslationConfig.DEVX_TIMEOUT, 35);
+        return Math.max(timeout, 25);
     }
 
     private void setTimeoutSeconds(int timeout) {
@@ -108,8 +109,7 @@ public class DevXTranslationProvider implements TranslationProvider {
     }
 
     private String buildRequestBody(String message, String targetLang) {
-        String prompt = "Translate the following Mindustry game chat message to " + targetLang
-                + ". Return ONLY the translated text without quotes, explanation, or notes:\n" + message;
+        String prompt = "Translate to " + targetLang + ": " + message;
 
         Jval msgObj = Jval.newObject();
         msgObj.put("role", "user");
@@ -121,8 +121,8 @@ public class DevXTranslationProvider implements TranslationProvider {
         Jval body = Jval.newObject();
         body.put("model", MODEL);
         body.put("messages", messages);
-        body.put("temperature", 0.2);
-        body.put("max_tokens", 1024);
+        body.put("temperature", 0.1);
+        body.put("max_tokens", 256);
 
         return body.toString();
     }
@@ -133,8 +133,13 @@ public class DevXTranslationProvider implements TranslationProvider {
             future.completeExceptionally(new RuntimeException(mapHttpStatusMessage(httpEx)));
             return;
         }
+        String errorMsg = error.getMessage() != null ? error.getMessage() : error.toString();
+        if (errorMsg.contains("timed out") || errorMsg.contains("Timeout")) {
+            future.completeExceptionally(new RuntimeException(Core.bundle.get("chat-translation.error.timeout", "Request timed out. Please try again or increase timeout in settings.")));
+            return;
+        }
         String prefix = Core.bundle.get("chat-translation.error.prefix", "Error: ");
-        future.completeExceptionally(new RuntimeException(prefix + error.getMessage()));
+        future.completeExceptionally(new RuntimeException(prefix + errorMsg));
     }
 
     private String mapHttpStatusMessage(HttpStatusException httpEx) {
@@ -197,7 +202,7 @@ public class DevXTranslationProvider implements TranslationProvider {
                 .update(l -> l.setText(label + ": " + getTimeoutSeconds() + "s"))
                 .row();
 
-        Slider slider = new Slider(2, 30, 1, false);
+        Slider slider = new Slider(5, 60, 5, false);
         slider.setValue(getTimeoutSeconds());
         slider.moved(val -> setTimeoutSeconds((int) val));
         table.add(slider).growX().row();
