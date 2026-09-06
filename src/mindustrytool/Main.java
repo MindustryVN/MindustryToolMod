@@ -10,6 +10,7 @@ import mindustrytool.components.FileIcon;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.services.MindustryAuthProvider;
 import mindustrytool.services.PacketReplacer;
+import mindustrytool.services.ServerService;
 import mindustrytool.ui.AuthOverlay;
 import mindustrytool.update.UpdateService;
 import mindustry.mod.Mod;
@@ -36,6 +37,7 @@ public class Main extends Mod {
                 FeatureManager.init();
                 AuthOverlay.getInstance().init();
                 MindustryAuthProvider.getInstance().init();
+                ServerService.getInstance().init();
                 PacketReplacer.replace();
 
                 registerMindustryToolButton();
