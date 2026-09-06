@@ -1,7 +1,8 @@
 {
     "java.configuration.updateBuildConfiguration": "automatic",
     "java.project.sourcePaths": [
-        "src/"
+        "mod/src",
+        "solim/src"
     ],
     "files.encoding": "utf8"
 }

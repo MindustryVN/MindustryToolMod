@@ -1,0 +1,4 @@
+rootProject.name = 'MindustryToolMod'
+
+include 'mod'
+include 'solim'

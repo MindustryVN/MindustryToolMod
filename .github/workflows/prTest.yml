@@ -16,9 +16,9 @@ jobs:
            with:
               java-version: 16
          - name: Build mod jar
-           run: ./gradlew deploy
-         - name: Upload built jar file
-           uses: actions/upload-artifact@v4
-           with:
-              name: ${{ github.event.repository.name }} Pull Request
-              path: build/libs/${{ github.event.repository.name }}.jar
+            run: ./gradlew deploy
+          - name: Upload built jar file
+            uses: actions/upload-artifact@v4
+            with:
+               name: ${{ github.event.repository.name }} Pull Request
+               path: mod/build/libs/${{ github.event.repository.name }}.jar
