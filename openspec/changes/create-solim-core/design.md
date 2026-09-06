@@ -119,6 +119,6 @@ Stakeholders: mod developers (declarative API consumers), `solim` library users,
 - Should `grid().columns(n)` be builder-style returning `Grid` self-type vs static `grid(3, Runnable)`? Support both per requirement but confirm API symmetry with `column`/`row`.
 - Should `Binding` be exposed as public API or internal only via widget overloads? Lean internal + `Effect` for advanced users.
 - Exact `Style` fields: does `Style` wrap Arc drawable per widget type or generic `background` + `pad`? Defer to spike with `TextButtonStyle`/`LabelStyle` mapping.
-- Headless Arc test harness availability in `Anuken.Mindustry:v159.7` dependencies.jar — needs spike to confirm `HeadlessApplication` can be instantiated in JUnit without `Vars`.
-- `solim` package prefix already `solim.*`; confirm import ergonomics `import static solim.ui.Ui.*` works without extra nesting.
+- Headless Arc test harness availability in `Anuken.Mindustry:v159.7` dependencies.jar — resolved: Arc provides `arc.mock.MockApplication` and `arc.mock.MockGraphics` out of the box in `arc-core` which initializes `Core.app` and `Core.graphics` for headless layout calculations (`LayoutTest`). Skin/Atlas-dependent tests (`Core.scene`, `Core.atlas`) are gated on `Core.scene != null` since full Scene skin assets require the Mindustry runtime.
+- `solim` package prefix already `solim.*`; confirm import ergonomics `import static solim.ui.Ui.*` works without extra nesting — resolved: works cleanly and concisely in components like `SettingsPanel`.
 

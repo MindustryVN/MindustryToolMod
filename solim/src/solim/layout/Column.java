@@ -1,12 +1,14 @@
 package solim.layout;
 
+import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import arc.scene.ui.layout.Cell;
+import solim.core.Component;
 
 /**
  * Column layout - vertical Table wrapper.
  */
-public final class Column {
+public final class Column implements Component {
     private final Table table;
 
     public Column() {
@@ -18,13 +20,18 @@ public final class Column {
         return table;
     }
 
+    @Override
+    public Element element() {
+        return table;
+    }
+
     public Column gap(float g) {
         table.defaults().pad(g / 2f);
         return this;
     }
 
     public Column padding(float p) {
-        // Use defaults pad and apply to table itself via element fields
+        table.margin(p);
         return this;
     }
 

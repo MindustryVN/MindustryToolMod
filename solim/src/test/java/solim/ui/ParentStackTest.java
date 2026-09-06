@@ -60,22 +60,22 @@ class ParentStackTest {
     void columnDeclarative() {
         Table root = new Table();
         ParentStack.push(root);
-        Table col = Ui.column(() -> {
+        var col = Ui.column(() -> {
             Element e = new Element();
             ParentStack.add(e);
         });
         assertEquals(1, root.getChildren().size);
-        assertTrue(root.getChildren().contains(col, true));
+        assertTrue(root.getChildren().contains(col.table(), true));
     }
 
     @Test
     void nestedColumnRow() {
         Table root = new Table();
         ParentStack.push(root);
-        Table col = Ui.column(() -> {
+        var col = Ui.column(() -> {
             Element t = new Element();
             ParentStack.add(t);
-            Table row = Ui.row(() -> {
+            var row = Ui.row(() -> {
                 Element b1 = new Element();
                 ParentStack.add(b1);
                 Element b2 = new Element();
@@ -83,8 +83,8 @@ class ParentStackTest {
             });
         });
         assertEquals(1, root.getChildren().size);
-        assertEquals(2, col.getChildren().size);
-        Table row = (Table) col.getChildren().get(1);
+        assertEquals(2, col.table().getChildren().size);
+        Table row = (Table) col.table().getChildren().get(1);
         assertEquals(2, row.getChildren().size);
     }
 

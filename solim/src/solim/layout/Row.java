@@ -1,12 +1,14 @@
 package solim.layout;
 
+import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import arc.scene.ui.layout.Cell;
+import solim.core.Component;
 
 /**
  * Row layout - horizontal Table wrapper.
  */
-public final class Row {
+public final class Row implements Component {
     private final Table table;
 
     public Row() {
@@ -18,12 +20,18 @@ public final class Row {
         return table;
     }
 
+    @Override
+    public Element element() {
+        return table;
+    }
+
     public Row gap(float g) {
         table.defaults().pad(g / 2f);
         return this;
     }
 
     public Row padding(float p) {
+        table.margin(p);
         return this;
     }
 
