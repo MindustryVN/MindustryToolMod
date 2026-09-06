@@ -7,13 +7,13 @@ import mindustry.editor.MapResizeDialog;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
-import mindustrytool.crash.CrashReportService;
 import mindustrytool.features.FeatureManager;
-import mindustrytool.services.MindustryAuthProvider;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
-import mindustrytool.ui.AuthOverlay;
-import mindustrytool.update.UpdateService;
+import mindustrytool.services.auth.AuthOverlay;
+import mindustrytool.services.auth.MindustryAuthProvider;
+import mindustrytool.services.crash.CrashReportService;
+import mindustrytool.services.update.UpdateService;
 import mindustry.mod.Mod;
 
 public class Main extends Mod {

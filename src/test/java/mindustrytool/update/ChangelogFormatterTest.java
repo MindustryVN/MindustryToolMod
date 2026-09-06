@@ -2,6 +2,8 @@ package mindustrytool.update;
 
 import org.junit.jupiter.api.Test;
 
+import mindustrytool.services.update.ChangelogFormatter;
+
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;

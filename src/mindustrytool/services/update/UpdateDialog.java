@@ -1,4 +1,4 @@
-package mindustrytool.update;
+package mindustrytool.services.update;
 
 import arc.Core;
 import arc.graphics.Color;

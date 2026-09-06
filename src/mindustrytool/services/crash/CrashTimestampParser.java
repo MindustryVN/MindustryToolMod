@@ -1,4 +1,4 @@
-package mindustrytool.crash;
+package mindustrytool.services.crash;
 
 import arc.files.Fi;
 import arc.util.Log;

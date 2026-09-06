@@ -1,4 +1,4 @@
-package mindustrytool.ui;
+package mindustrytool.services.auth;
 
 import arc.Core;
 import arc.Events;
@@ -9,9 +9,9 @@ import arc.util.Log;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
+import mindustrytool.components.NetworkImage;
 import mindustrytool.events.LoginUriEvent;
 import mindustrytool.events.SessionLoadEvent;
-import mindustrytool.services.MindustryAuthProvider;
 
 public class AuthOverlay {
     private static AuthOverlay instance;

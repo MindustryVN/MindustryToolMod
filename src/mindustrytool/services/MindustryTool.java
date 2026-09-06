@@ -32,6 +32,7 @@ import mindustrytool.models.response.ServerData;
 import mindustrytool.models.response.TagCategory;
 import mindustrytool.models.response.UserData;
 import mindustrytool.models.response.UserSession;
+import mindustrytool.services.auth.MindustryAuthProvider;
 import mindustrytool.utils.JsonUtils;
 
 public final class MindustryTool {

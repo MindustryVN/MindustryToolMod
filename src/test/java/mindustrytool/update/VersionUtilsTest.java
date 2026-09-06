@@ -2,6 +2,8 @@ package mindustrytool.update;
 
 import org.junit.jupiter.api.Test;
 
+import mindustrytool.services.update.VersionUtils;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class VersionUtilsTest {

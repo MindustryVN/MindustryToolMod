@@ -1,4 +1,4 @@
-package mindustrytool.update;
+package mindustrytool.services.update;
 
 /**
  * Pure version utilities extracted from {@code old.mindustrytool.services.UpdateService}.

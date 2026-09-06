@@ -1,4 +1,4 @@
-package mindustrytool.update;
+package mindustrytool.services.update;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

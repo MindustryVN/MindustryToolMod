@@ -1,9 +1,8 @@
-package mindustrytool.ui;
+package mindustrytool.services.auth;
 
 import arc.Core;
 import mindustry.Vars;
 import mindustry.ui.dialogs.BaseDialog;
-import mindustrytool.services.MindustryAuthProvider;
 
 public class AuthLoginDialog extends BaseDialog {
     public AuthLoginDialog(MindustryAuthProvider authService) {

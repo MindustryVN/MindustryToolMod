@@ -1,4 +1,4 @@
-package mindustrytool.services;
+package mindustrytool.services.auth;
 
 import java.util.concurrent.CompletableFuture;
 

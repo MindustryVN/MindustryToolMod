@@ -14,6 +14,8 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
+import mindustrytool.services.auth.AuthProvider;
+
 public final class Request {
 
     private static final HttpClient CLIENT = HttpClient.newBuilder()

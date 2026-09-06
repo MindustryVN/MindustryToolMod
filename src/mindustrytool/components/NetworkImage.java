@@ -1,4 +1,4 @@
-package mindustrytool.ui;
+package mindustrytool.components;
 
 import java.util.concurrent.ConcurrentHashMap;
 

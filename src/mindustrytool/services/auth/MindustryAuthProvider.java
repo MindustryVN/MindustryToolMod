@@ -1,4 +1,4 @@
-package mindustrytool.services;
+package mindustrytool.services.auth;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -16,6 +16,8 @@ import mindustrytool.events.LoginUriEvent;
 import mindustrytool.events.LogoutEvent;
 import mindustrytool.events.SessionLoadEvent;
 import mindustrytool.models.response.UserSession;
+import mindustrytool.services.MindustryTool;
+import mindustrytool.services.Request;
 
 /**
  * Merged auth provider for the rewritten codebase.
