@@ -1,15 +1,20 @@
 package solim.ui;
 
 import arc.scene.Element;
-import arc.scene.ui.Label;
+import arc.scene.style.Drawable;
+import arc.scene.ui.Image;
 import arc.scene.ui.layout.Table;
 import solim.display.Text;
 import solim.input.Button;
+import solim.input.SolimTextField;
 import solim.layout.Column;
 import solim.layout.Divider;
 import solim.layout.Row;
+import solim.layout.Scroll;
 import solim.layout.Spacer;
+import solim.overlay.SolimDialog;
 import solim.signal.Computed;
+import solim.signal.Readable;
 import solim.signal.Signal;
 
 /**
@@ -64,8 +69,16 @@ public final class Ui {
         return row(r).table();
     }
 
-    public static Table scroll(Runnable r) {
-        return column(r).table();
+    public static Scroll scroll(Runnable r) {
+        Scroll s = new Scroll();
+        ParentStack.push(s.content());
+        try {
+            r.run();
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(s.element());
+        return s;
     }
 
     public static Table container(Runnable r) {
@@ -84,8 +97,27 @@ public final class Ui {
         return s.element();
     }
 
+    public static Image image(Drawable drawable) {
+        Image img = new Image(drawable);
+        ParentStack.attachToParent(img);
+        return img;
+    }
+
+    public static Image icon(Drawable drawable) {
+        return image(drawable);
+    }
+
     public static Button button(String text, Runnable onClick) {
         Button b = Button.of(text, onClick);
+        ParentStack.attachToParent(b.textButton());
+        return b;
+    }
+
+    public static Button button(String text, Drawable icon, Runnable onClick) {
+        Button b = Button.of(text, onClick);
+        if (icon != null) {
+            b.textButton().add(new Image(icon)).size(24f).padRight(6f);
+        }
         ParentStack.attachToParent(b.textButton());
         return b;
     }
@@ -102,10 +134,10 @@ public final class Ui {
         return b;
     }
 
-    public static Element text(String s) {
-        Label l = new Label(s);
-        ParentStack.add(l);
-        return l;
+    public static Text text(String s) {
+        Text t = Text.of(s);
+        ParentStack.attachToParent(t.label());
+        return t;
     }
 
     public static Text text(Signal<String> s) {
@@ -118,6 +150,22 @@ public final class Ui {
         Text t = Text.of(s);
         ParentStack.attachToParent(t.label());
         return t;
+    }
+
+    public static Text text(Readable<String> s) {
+        Text t = Text.of(s);
+        ParentStack.attachToParent(t.label());
+        return t;
+    }
+
+    public static SolimTextField textField(Signal<String> signal) {
+        SolimTextField tf = SolimTextField.of(signal);
+        ParentStack.attachToParent(tf.field());
+        return tf;
+    }
+
+    public static SolimDialog dialog(String title, Runnable content) {
+        return SolimDialog.of(title, content);
     }
 
     public static <T> Dynamic<T> dynamic(solim.signal.Readable<T> source, java.util.function.Function<T, solim.core.Component> factory) {

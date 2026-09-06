@@ -35,6 +35,21 @@ public final class Row implements Component {
         return this;
     }
 
+    public Row grow() {
+        table.setFillParent(true);
+        return this;
+    }
+
+    public Row growX() {
+        table.setFillParent(true);
+        return this;
+    }
+
+    public Row growY() {
+        table.setFillParent(true);
+        return this;
+    }
+
     public Row justify(Justify j) {
         switch (j) {
             case START: table.left(); break;
@@ -43,6 +58,7 @@ public final class Row implements Component {
             case BETWEEN: break;
             case AROUND: break;
             case EVENLY: break;
+            default: break;
         }
         return this;
     }
@@ -53,6 +69,7 @@ public final class Row implements Component {
             case CENTER: table.center(); break;
             case END: table.bottom(); break;
             case STRETCH: table.top(); break;
+            default: break;
         }
         return this;
     }

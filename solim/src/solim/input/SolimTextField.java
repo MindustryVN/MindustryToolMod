@@ -1,6 +1,8 @@
 package solim.input;
 
+import arc.Core;
 import arc.scene.ui.TextField;
+import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
@@ -8,14 +10,20 @@ import solim.signal.Signal;
 /**
  * TextField widget with two-way binding to a Signal&lt;String&gt;.
  * Equality guard prevents feedback loop.
+ * Automatically registers with the active ComponentContext if created during a component build.
  */
 public final class SolimTextField implements Disposable {
-    private final TextField field = new TextField();
+    private final TextField field;
     private final Signal<String> signal;
     private Effect effect;
     private boolean updating = false;
 
     public SolimTextField(Signal<String> signal) {
+        this(signal, Core.scene == null ? new TextField.TextFieldStyle() : null);
+    }
+
+    public SolimTextField(Signal<String> signal, TextField.TextFieldStyle style) {
+        this.field = style != null ? new TextField("", style) : new TextField("");
         this.signal = signal;
         field.setText(signal.get());
         // listener: type -> signal
@@ -36,10 +44,17 @@ public final class SolimTextField implements Disposable {
                 }
             }
         });
+
+        ComponentContext.register(this);
     }
 
     public static SolimTextField of(Signal<String> signal) {
         return new SolimTextField(signal);
+    }
+
+    public SolimTextField placeholder(String placeholder) {
+        field.setMessageText(placeholder);
+        return this;
     }
 
     public TextField field() {
@@ -48,6 +63,9 @@ public final class SolimTextField implements Disposable {
 
     @Override
     public void dispose() {
-        if (effect != null) effect.dispose();
+        if (effect != null) {
+            effect.dispose();
+            effect = null;
+        }
     }
 }

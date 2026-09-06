@@ -1,11 +1,17 @@
 package solim.ui;
 
+import arc.Core;
+import arc.graphics.Color;
 import arc.scene.Element;
+import arc.scene.ui.Button;
+import arc.scene.ui.Label;
 import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
+
 import java.util.concurrent.atomic.AtomicReference;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class BindingTest {
@@ -21,8 +27,6 @@ class BindingTest {
 
     @Test
     void staticTextImmediateApply() {
-        // The text(String) is static and does not need binding.
-        // The reactive binding test is below.
         TestElement t = new TestElement();
         t.setText("Hello");
         assertEquals("Hello", t.text);
@@ -91,5 +95,53 @@ class BindingTest {
         b.dispose();
         s.set("b");
         assertEquals("a", target.get());
+    }
+
+    @Test
+    void directElementWidthAndColorBinding() {
+        Element el = new Element();
+        Signal<Float> width = Signal.of(100f);
+        Signal<Color> color = Signal.of(Color.red);
+
+        Effect bWidth = Binding.bindWidth(el, width);
+        Effect bColor = Binding.bindColor(el, color);
+
+        assertEquals(100f, el.getWidth());
+        assertEquals(Color.red, el.color);
+
+        width.set(250f);
+        color.set(Color.green);
+
+        assertEquals(250f, el.getWidth());
+        assertEquals(Color.green, el.color);
+
+        bWidth.dispose();
+        bColor.dispose();
+
+        width.set(500f);
+        color.set(Color.blue);
+        assertEquals(250f, el.getWidth());
+        assertEquals(Color.green, el.color);
+    }
+
+    @Test
+    void directElementVisibleAndDisabledBinding() {
+        Element el = new Element();
+        Signal<Boolean> vis = Signal.of(false);
+        Effect bVis = Binding.bindVisible(el, vis);
+        assertFalse(el.visible);
+        vis.set(true);
+        assertTrue(el.visible);
+        bVis.dispose();
+
+        if (Core.scene != null) {
+            Button btn = new Button();
+            Signal<Boolean> dis = Signal.of(false);
+            Effect bDis = Binding.bindDisabled(btn, dis);
+            assertFalse(btn.isDisabled());
+            dis.set(true);
+            assertTrue(btn.isDisabled());
+            bDis.dispose();
+        }
     }
 }

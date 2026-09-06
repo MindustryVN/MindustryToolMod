@@ -1,6 +1,7 @@
 package solim.input;
 
 import arc.scene.ui.TextButton;
+import arc.scene.ui.Tooltip;
 import solim.core.Disposable;
 import solim.signal.Computed;
 import solim.signal.Effect;
@@ -48,6 +49,16 @@ public final class Button implements Disposable {
         });
         b.bindings.add(e);
         return b;
+    }
+
+    public Button tooltip(String tip) {
+        if (tip != null && !tip.isEmpty()) {
+            try {
+                textButton.addListener(new Tooltip(t -> t.add(tip)));
+            } catch (Throwable ignored) {
+            }
+        }
+        return this;
     }
 
     public Button enabled(Signal<Boolean> signal) {

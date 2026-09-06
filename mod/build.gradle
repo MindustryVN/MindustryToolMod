@@ -10,11 +10,17 @@ tasks.register('jarAndroid'){
     def projectName = rootProject.name
 
     doLast{
-        if(!sdkRoot || !new File(sdkRoot).exists()) throw new GradleException("No valid Android SDK found. Ensure that ANDROID_HOME is set to your Android SDK directory.")
+        if(!sdkRoot || !new File(sdkRoot).exists()){
+            logger.warn("No valid Android SDK found (ANDROID_HOME not set). Skipping Android dexing.")
+            return
+        }
 
-        def platformRoot = new File("$sdkRoot/platforms/").listFiles().sort().reverse().find{ f -> new File(f, "android.jar").exists() }
+        def platformRoot = new File("$sdkRoot/platforms/").listFiles()?.sort()?.reverse()?.find{ f -> new File(f, "android.jar").exists() }
 
-        if(!platformRoot) throw new GradleException("No android.jar found. Ensure that you have an Android platform installed.")
+        if(!platformRoot){
+            logger.warn("No android.jar found in $sdkRoot/platforms. Skipping Android dexing.")
+            return
+        }
 
         //collect dependencies needed for desugaring
         def dependencies = (configurations.compileClasspath.asList() + configurations.runtimeClasspath.asList() + [new File(platformRoot, "android.jar")]).collect{ "--classpath $it.path" }.join(" ")
@@ -56,6 +62,21 @@ jar{
     from(new File(rootProject.projectDir, "assets")){
         include "**"
     }
+
+    exclude "META-INF/versions/**"
+    exclude "**/module-info.class"
+    exclude "META-INF/*.SF"
+    exclude "META-INF/*.DSA"
+    exclude "META-INF/*.RSA"
+
+    doLast{
+        def rootLibsDir = new File(rootProject.projectDir, "build/libs")
+        rootLibsDir.mkdirs()
+        copy{
+            from archiveFile
+            into rootLibsDir
+        }
+    }
 }
 
 tasks.register('deploy', Jar){
@@ -66,11 +87,26 @@ tasks.register('deploy', Jar){
     archiveFileName = "${projectName}.jar"
 
     def libsDir = layout.buildDirectory.dir("libs").get().asFile
-    from{ [zipTree(new File(libsDir, "${projectName}Desktop.jar")), zipTree(new File(libsDir, "${projectName}Android.jar"))] }
+    from{
+        def desktopJar = new File(libsDir, "${projectName}Desktop.jar")
+        def androidJar = new File(libsDir, "${projectName}Android.jar")
+        if(androidJar.exists()){
+            return [zipTree(desktopJar), zipTree(androidJar)]
+        }else{
+            return [zipTree(desktopJar)]
+        }
+    }
 
     doLast{
-        delete{
-            delete new File(libsDir, "${projectName}Android.jar")
+        def androidJar = new File(libsDir, "${projectName}Android.jar")
+        if(androidJar.exists()){
+            delete androidJar
+        }
+        def rootLibsDir = new File(rootProject.projectDir, "build/libs")
+        rootLibsDir.mkdirs()
+        copy{
+            from archiveFile
+            into rootLibsDir
         }
     }
 }

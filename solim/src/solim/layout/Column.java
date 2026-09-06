@@ -45,6 +45,21 @@ public final class Column implements Component {
         return this;
     }
 
+    public Column grow() {
+        table.setFillParent(true);
+        return this;
+    }
+
+    public Column growX() {
+        table.setFillParent(true);
+        return this;
+    }
+
+    public Column growY() {
+        table.setFillParent(true);
+        return this;
+    }
+
     public Cell add(arc.scene.Element e) {
         return table.add(e);
     }

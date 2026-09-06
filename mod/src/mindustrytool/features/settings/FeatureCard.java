@@ -7,49 +7,52 @@ import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
-import arc.scene.ui.layout.Table;
+import arc.scene.ui.Label;
 import arc.util.Log;
 import arc.util.Scaling;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
 import solim.core.BaseComponent;
-
-import solim.signal.Effect;
 import solim.signal.Readable;
+import solim.ui.Binding;
 
 /**
  * Component responsible for building and managing a single feature's visual card.
  * Handles display of metadata, action shortcuts (help, settings, main dialog),
- * and state toggling.
+ * and state toggling with direct property reactivity.
  */
 public class FeatureCard extends BaseComponent {
 
     private final Feature feature;
     private final Readable<Float> cardWidth;
+    private final Readable<Boolean> enabled;
     private final Runnable onStateChanged;
 
-    public FeatureCard(Feature feature, Readable<Float> cardWidth, Runnable onStateChanged) {
+    public FeatureCard(Feature feature, Readable<Float> cardWidth, Readable<Boolean> enabled, Runnable onStateChanged) {
         this.feature = feature;
         this.cardWidth = cardWidth;
+        this.enabled = enabled != null ? enabled : Readable.of(feature.isEnabled());
         this.onStateChanged = onStateChanged;
     }
 
+    public FeatureCard(Feature feature, Readable<Float> cardWidth, Readable<Boolean> enabled) {
+        this(feature, cardWidth, enabled, null);
+    }
+
+    public FeatureCard(Feature feature, Readable<Float> cardWidth, Runnable onStateChanged) {
+        this(feature, cardWidth, Readable.of(feature.isEnabled()), onStateChanged);
+    }
+
     public FeatureCard(Feature feature, float cardWidth, Runnable onStateChanged) {
-        this(feature, Readable.of(cardWidth), onStateChanged);
+        this(feature, Readable.of(cardWidth), Readable.of(feature.isEnabled()), onStateChanged);
     }
 
     @Override
     protected Element build() {
-        boolean enabled = feature.isEnabled();
         var metadata = feature.getMetadata();
 
         var card = new Button(Styles.black8) {
-            @Override
-            public float getPrefWidth() {
-                return cardWidth != null ? Math.max(0f, cardWidth.get() - 10f) : super.getPrefWidth();
-            }
-
             @Override
             public float getPrefHeight() {
                 return 180f;
@@ -57,19 +60,14 @@ public class FeatureCard extends BaseComponent {
         };
 
         card.name = "FeatureCard-" + (metadata != null ? metadata.getId() : "unknown");
-        card.setColor(enabled ? Color.green : Color.scarlet);
         card.top().left();
 
+        // Direct property bindings without manual Effect
         if (cardWidth != null) {
-            own(Effect.of(() -> {
-                float w = Math.max(0f, cardWidth.get() - 10f);
-                card.setWidth(w);
-                card.invalidate();
-                if (card.parent != null) {
-                    card.parent.invalidate();
-                }
-            }));
+            Binding.bindWidth(card, cardWidth.map(w -> Math.max(0f, w - 10f)));
         }
+
+        Binding.bindColor(card, enabled.map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet));
 
         card.addListener(new ClickListener() {
             @Override
@@ -97,7 +95,7 @@ public class FeatureCard extends BaseComponent {
             container.table(header -> {
                 header.left();
 
-                Drawable icon = metadata.getIcon();
+                Drawable icon = metadata != null ? metadata.getIcon() : null;
                 if (icon != null) {
                     header.image(icon)
                             .scaling(Scaling.fit)
@@ -117,7 +115,7 @@ public class FeatureCard extends BaseComponent {
                 if (feature.getMainDialog() != null) {
                     var mainBtn = header.button(Icon.linkSmall, Styles.clearNonei, () -> {})
                             .size(32f)
-                            .tooltip(Core.bundle.get("feature.button.open-dialog"))
+                            .tooltip(Core.bundle != null ? Core.bundle.get("feature.button.open-dialog") : "")
                             .get();
                     attachChildClick(mainBtn, () -> Core.app.post(() -> feature.getMainDialog().show()));
                 }
@@ -126,7 +124,7 @@ public class FeatureCard extends BaseComponent {
                 if (feature.getSettingDialog() != null) {
                     var settingBtn = header.button(Icon.settings, Styles.clearNonei, () -> {})
                             .size(32f)
-                            .tooltip(Core.bundle.get("feature.button.settings"))
+                            .tooltip(Core.bundle != null ? Core.bundle.get("feature.button.settings") : "")
                             .get();
                     attachChildClick(settingBtn, () -> Core.app.post(() -> feature.getSettingDialog().show()));
                 }
@@ -134,7 +132,7 @@ public class FeatureCard extends BaseComponent {
                 // Help button
                 var helpBtn = header.button(Icon.infoCircle, Styles.clearNonei, () -> {})
                         .size(32f)
-                        .tooltip(Core.bundle.get("feature.button.help"))
+                        .tooltip(Core.bundle != null ? Core.bundle.get("feature.button.help") : "")
                         .get();
                 attachChildClick(helpBtn, () -> new FeatureHelpDialog(feature).show());
             }).growX().row();
@@ -152,34 +150,30 @@ public class FeatureCard extends BaseComponent {
             // Spacer
             container.add().growY().row();
 
-            // Enabled / Disabled status
-            String statusText = enabled
-                    ? Core.bundle.get("feature.status.enabled")
-                    : Core.bundle.get("feature.status.disabled");
-            container.add(statusText)
-                    .color(enabled ? Color.green : Color.scarlet)
-                    .left();
+            // Enabled / Disabled status label with direct reactive property binding
+            Label statusLabel = new Label("");
+            statusLabel.setStyle(Styles.defaultLabel);
+            Binding.bindText(statusLabel, enabled.map(val -> {
+                if (Core.bundle != null) {
+                    return Boolean.TRUE.equals(val)
+                            ? Core.bundle.get("feature.status.enabled")
+                            : Core.bundle.get("feature.status.disabled");
+                }
+                return Boolean.TRUE.equals(val) ? "Enabled" : "Disabled";
+            }));
+            Binding.bindColor(statusLabel, enabled.map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet));
+            container.add(statusLabel).left();
         }).pad(4f).grow().top().left();
 
         return card;
     }
 
-    /**
-     * Builds a feature card and attaches it to the given parent table.
-     *
-     * @param parent         the parent container table
-     * @param feature        the feature to render
-     * @param cardWidth      computed card width for responsive layout
-     * @param onStateChanged callback to invoke when feature state is modified
-     */
-    public static void build(Table parent, Feature feature, float cardWidth, Runnable onStateChanged) {
-        FeatureCard card = new FeatureCard(feature, cardWidth, onStateChanged);
-        parent.add(card.element())
-                .width(cardWidth - 10f)
-                .height(180f)
-                .pad(5f)
-                .top()
-                .left();
+    public Readable<Boolean> enabled() {
+        return enabled;
+    }
+
+    public Readable<Float> cardWidth() {
+        return cardWidth;
     }
 
     private static void attachChildClick(Button button, Runnable action) {

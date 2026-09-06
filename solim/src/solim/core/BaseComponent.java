@@ -3,32 +3,48 @@ package solim.core;
 import arc.Events;
 import arc.func.Cons;
 import arc.scene.Element;
+import arc.scene.ui.layout.Table;
+import solim.ui.ParentStack;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Base class with lazy single-build semantics and lifecycle resource management.
+ * Base class with lazy single-build semantics, ambient lifecycle resource management,
+ * and automatic child registration.
  */
 public abstract class BaseComponent implements Component {
     private Element cached;
     private final List<Disposable> disposables = new ArrayList<>();
     private boolean disposed = false;
 
+    public BaseComponent() {
+        ComponentContext.registerChild(this);
+        Table parent = ParentStack.current();
+        if (parent != null) {
+            ParentStack.registerPendingComponent(this, parent);
+        }
+    }
+
     protected abstract Element build();
 
     @Override
     public final Element element() {
         if (cached == null) {
-            cached = build();
+            ComponentContext.push(this);
+            try {
+                cached = build();
+            } finally {
+                ComponentContext.pop();
+            }
         }
         return cached;
     }
 
     /**
-     * Registers a disposable resource to be automatically disposed when this component is disposed.
+     * Registers a disposable resource with this component's lifecycle.
      */
-    protected <T extends Disposable> T own(T disposable) {
+    public <T extends Disposable> T registerDisposable(T disposable) {
         if (disposable != null) {
             disposables.add(disposable);
         }
@@ -36,7 +52,16 @@ public abstract class BaseComponent implements Component {
     }
 
     /**
-     * Registers a child component whose lifecycle should be tied to this parent component.
+     * Internal/legacy helper for registering a disposable.
+     * Application components should rely on ambient automatic registration.
+     */
+    protected <T extends Disposable> T own(T disposable) {
+        return registerDisposable(disposable);
+    }
+
+    /**
+     * Internal/legacy helper for registering a child component.
+     * Application components should rely on ambient automatic registration.
      */
     protected <T extends Component> T ownChild(T child) {
         if (child != null) {
@@ -48,7 +73,7 @@ public abstract class BaseComponent implements Component {
     /**
      * Registers an Arc event listener that automatically unregisters when this component is disposed.
      */
-    protected <T> Disposable listen(Class<T> eventType, Cons<T> listener) {
+    public <T> Disposable listen(Class<T> eventType, Cons<T> listener) {
         Events.on(eventType, listener);
         Disposable d = () -> Events.remove(eventType, listener);
         disposables.add(d);

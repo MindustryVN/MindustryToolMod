@@ -1,25 +1,22 @@
 package mindustrytool.features.settings;
 
-import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import arc.scene.ui.Label;
-import arc.scene.ui.layout.Scl;
-import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
-import mindustry.gen.Icon;
-import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.features.FeatureStateChanged;
 import solim.core.BaseComponent;
 import solim.input.SolimTextField;
-import solim.layout.ReactiveGrid;
-import solim.layout.Row;
 import solim.signal.Computed;
 import solim.signal.Signal;
 
-import static solim.ui.Ui.reactiveGrid;
+import java.util.HashMap;
+import java.util.Map;
+
+import static mindustrytool.features.settings.FeatureSettingDialog.bundle;
+import static mindustrytool.features.settings.FeatureSettingDialog.calcContentWidth;
+import static solim.ui.Ui.*;
 
 /**
  * Declarative Solim component representing the complete feature settings view.
@@ -29,7 +26,8 @@ public final class FeatureSettingsView extends BaseComponent {
 
     private final Signal<String> filter = Signal.of("");
     private final Signal<Integer> revision = Signal.of(0);
-    private final Signal<Float> contentWidth = Signal.of(calcInitialWidth());
+    private final Signal<Float> contentWidth = Signal.of(calcContentWidth());
+    private final Map<Feature, Signal<Boolean>> featureStates = new HashMap<>();
 
     private final Computed<Integer> columnCount = new Computed<>(() -> {
         float width = contentWidth.get();
@@ -41,7 +39,7 @@ public final class FeatureSettingsView extends BaseComponent {
     });
 
     private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(() -> {
-        revision.get(); // dynamic reactive dependency
+        revision.get(); // dynamic reactive dependency for structural changes
         String query = filter.get().trim().toLowerCase();
         Seq<Feature> all = FeatureManager.getFeatures();
         if (query.isEmpty()) {
@@ -52,11 +50,40 @@ public final class FeatureSettingsView extends BaseComponent {
 
     public FeatureSettingsView() {
         // Lifecycle-safe listener for global feature state changes
-        listen(FeatureStateChanged.class, event -> refresh());
+        listen(FeatureStateChanged.class, event -> {
+            if (event != null && event.getFeature() != null) {
+                updateFeatureState(event.getFeature());
+            } else {
+                syncAllFeatureStates();
+            }
+        });
+    }
+
+    public Signal<Boolean> getFeatureEnabledSignal(Feature feature) {
+        Signal<Boolean> signal = featureStates.get(feature);
+        if (signal == null) {
+            signal = Signal.of(feature.isEnabled());
+            featureStates.put(feature, signal);
+        }
+        return signal;
+    }
+
+    public void updateFeatureState(Feature feature) {
+        Signal<Boolean> signal = featureStates.get(feature);
+        if (signal != null) {
+            signal.set(feature.isEnabled());
+        }
+    }
+
+    public void syncAllFeatureStates() {
+        for (Map.Entry<Feature, Signal<Boolean>> entry : featureStates.entrySet()) {
+            entry.getValue().set(entry.getKey().isEnabled());
+        }
     }
 
     public void onShown() {
-        updateWidth(calcInitialWidth());
+        updateWidth(calcContentWidth());
+        syncAllFeatureStates();
         refresh();
     }
 
@@ -70,73 +97,46 @@ public final class FeatureSettingsView extends BaseComponent {
 
     @Override
     protected Element build() {
-        Table root = new Table();
-        root.top().left();
+        return column(() -> {
+            toolbar();
 
-        // Toolbar row
-        root.add(buildToolbar()).growX().pad(6f).row();
-
-        // Scrollable reactive grid pane
-        Table scrollTable = new Table();
-        scrollTable.top().left();
-
-        ReactiveGrid<Feature, String> grid = reactiveGrid(
-                columnCount,
-                filteredFeatures,
-                f -> f.getMetadata() != null ? f.getMetadata().getId() : f.getName(),
-                feature -> new FeatureCard(feature, cardWidth, this::refresh)
-        ).emptyView(() -> new BaseComponent() {
-            @Override
-            protected Element build() {
-                String emptyText = Core.bundle != null ? Core.bundle.get("feature.search.empty") : "No features found";
-                Label label = new Label(emptyText);
-                label.setStyle(Styles.defaultLabel);
-                label.setColor(Color.gray);
-                return label;
-            }
-        });
-
-        ownChild(grid);
-
-        scrollTable.add(grid.element()).growX().top().left();
-        root.pane(scrollTable).scrollX(false).scrollY(true).grow();
-
-        return root;
+            scroll(() -> {
+                reactiveGrid(
+                        columnCount,
+                        filteredFeatures,
+                        FeatureSettingsView::featureKey,
+                        feature -> new FeatureCard(
+                                feature,
+                                cardWidth,
+                                getFeatureEnabledSignal(feature),
+                                () -> updateFeatureState(feature)
+                        )
+                ).empty(() -> {
+                    text(bundle("feature.search.empty", "No features found"))
+                            .color(Color.gray)
+                            .padding(40f);
+                });
+            }).grow();
+        }).grow().element();
     }
 
-    private Table buildToolbar() {
-        Row bar = new Row();
-        bar.padding(10f);
-        Table barTable = bar.table();
-        barTable.left();
+    private void toolbar() {
+        row(() -> {
+            icon(FeatureSettingDialog.icon("zoom"));
 
-        if (Icon.zoom != null) {
-            barTable.image(Icon.zoom).padRight(8f);
-        }
+            SolimTextField searchField = textField(filter);
+            searchField.placeholder(bundle("feature.search.placeholder"));
 
-        // Two-way bound search field
-        SolimTextField searchField = own(SolimTextField.of(filter));
-        if (Core.bundle != null) {
-            searchField.field().setMessageText(Core.bundle.get("feature.search.placeholder"));
-        }
-        barTable.add(searchField.field()).growX();
-
-        // Re-enable button
-        String reenableText = Core.bundle != null ? Core.bundle.get("feature.button.re-enable") : "Re-enable";
-        String reenableTooltip = Core.bundle != null ? Core.bundle.get("feature.button.re-enable.tooltip") : "";
-        barTable.button(reenableText, Icon.refresh, () -> {
-            FeatureManager.reenable();
-            refresh();
-        }).padLeft(12f).height(46f).tooltip(reenableTooltip);
-
-        return barTable;
+            button(bundle("feature.button.re-enable"), FeatureSettingDialog.icon("refresh"), () -> {
+                FeatureManager.reenable();
+                syncAllFeatureStates();
+                refresh();
+            }).tooltip(bundle("feature.button.re-enable.tooltip"));
+        }).padding(10f);
     }
 
-    private static float calcInitialWidth() {
-        if (Core.graphics == null) {
-            return 800f;
-        }
-        return Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
+    static String featureKey(Feature feature) {
+        return feature.getMetadata() != null ? feature.getMetadata().getId() : feature.getName();
     }
 
     static boolean matchesFilter(Feature feature, String query) {

@@ -146,7 +146,7 @@ public class MindustryAuthProvider implements AuthProvider {
                         refreshFuture.completeExceptionally(new RuntimeException("Refresh failed: HTTP 401 " + body));
                         return;
                     }
-                    if (code != 200) {
+                    if (code < 200 || code >= 300) {
                         Log.err("Failed to refresh token: HTTP " + code + " " + body);
                         refreshFuture.completeExceptionally(new RuntimeException("Refresh failed: HTTP " + code + " " + body));
                         return;

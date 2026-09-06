@@ -4,8 +4,10 @@ import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import solim.core.BaseComponent;
 import solim.core.Component;
+import solim.core.ComponentContext;
 import solim.signal.Effect;
 import solim.signal.Readable;
+import solim.ui.ParentStack;
 
 import java.util.*;
 import java.util.function.Function;
@@ -23,6 +25,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
     private final Function<T, Component> itemFactory;
     private final Map<K, Component> activeComponents = new LinkedHashMap<>();
 
+    private Runnable emptyRunnable;
     private Supplier<Component> emptyViewSupplier;
     private Component currentEmptyComponent;
     private float gap = 10f;
@@ -48,6 +51,11 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
         return new ReactiveGrid<>(columnCount, items, keyExtractor, itemFactory);
     }
 
+    public ReactiveGrid<T, K> empty(Runnable emptyRunnable) {
+        this.emptyRunnable = emptyRunnable;
+        return this;
+    }
+
     public ReactiveGrid<T, K> emptyView(Supplier<Component> supplier) {
         this.emptyViewSupplier = supplier;
         return this;
@@ -66,7 +74,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
     protected Element build() {
         table.top().left();
 
-        own(Effect.of(() -> {
+        registerDisposable(Effect.of(() -> {
             Iterable<T> itemList = items.get();
             int cols = Math.max(1, columnCount.get() != null ? columnCount.get() : 1);
             updateItemsAndReflow(itemList, cols);
@@ -83,15 +91,20 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
         Map<K, Component> nextComponents = new LinkedHashMap<>();
         Set<K> currentKeys = new HashSet<>();
 
-        for (T item : itemList) {
-            K key = keyExtractor.apply(item);
-            currentKeys.add(key);
+        ComponentContext.pause();
+        try {
+            for (T item : itemList) {
+                K key = keyExtractor.apply(item);
+                currentKeys.add(key);
 
-            Component comp = activeComponents.get(key);
-            if (comp == null) {
-                comp = itemFactory.apply(item);
+                Component comp = activeComponents.get(key);
+                if (comp == null) {
+                    comp = itemFactory.apply(item);
+                }
+                nextComponents.put(key, comp);
             }
-            nextComponents.put(key, comp);
+        } finally {
+            ComponentContext.resume();
         }
 
         // Dispose components no longer present in collection
@@ -112,7 +125,16 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
         table.top().left();
 
         if (activeComponents.isEmpty()) {
-            if (emptyViewSupplier != null) {
+            if (emptyRunnable != null) {
+                Table emptyTable = new Table();
+                ParentStack.push(emptyTable);
+                try {
+                    emptyRunnable.run();
+                } finally {
+                    ParentStack.pop();
+                }
+                table.add(emptyTable).center().pad(40f);
+            } else if (emptyViewSupplier != null) {
                 if (currentEmptyComponent == null) {
                     currentEmptyComponent = emptyViewSupplier.get();
                 }

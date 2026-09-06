@@ -2,6 +2,7 @@ package solim.ui;
 
 import arc.scene.Element;
 import solim.core.Component;
+import solim.core.ComponentContext;
 
 /**
  * Resolves children that may be Element or Component.
@@ -15,7 +16,9 @@ public final class ElementResolver {
             return (Element) child;
         }
         if (child instanceof Component) {
-            return ((Component) child).element();
+            Component c = (Component) child;
+            ComponentContext.registerChild(c);
+            return c.element();
         }
         throw new IllegalArgumentException("Cannot resolve child to Element: " + child);
     }
