@@ -7,7 +7,9 @@ import mindustry.editor.MapResizeDialog;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
+import mindustrytool.features.FeatureManager;
 import mindustrytool.services.PacketReplacer;
+import mindustrytool.update.UpdateService;
 import mindustry.mod.Mod;
 
 public class Main extends Mod {
@@ -28,11 +30,12 @@ public class Main extends Mod {
         }
 
         Events.on(ClientLoadEvent.class, event -> {
-            registerMindustryToolButton();
-
-            PacketReplacer.replace();
-
-            mindustrytool.update.UpdateService.getInstance().checkForUpdate(() -> {});
+            UpdateService.getInstance().checkForUpdate(() -> {
+                FeatureManager.init();
+                PacketReplacer.replace();
+                
+                registerMindustryToolButton();
+            });
         });
     }
 

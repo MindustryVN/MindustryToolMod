@@ -17,21 +17,15 @@ import mindustrytool.Config;
 public class UpdateDialog extends BaseDialog {
 
     public UpdateDialog(String currentVer, String latestVer, String changelog, Runnable done) {
-        super(bundleGet("update.dialog.title", "Update Available"));
+        super(Core.bundle.get("update.dialog.title"));
         name = "updateAvailableDialog";
 
         Table table = new Table();
         table.defaults().left();
 
-        String newVersionText = bundleFormat("update.message.new-version",
+        String newVersionText = Core.bundle.format("update.message.new-version",
                 "[#" + Color.crimson.toString() + "]" + currentVer,
                 "[#" + Color.green.toString() + "]" + latestVer);
-        // fallback if bundle returns key
-        if (newVersionText.equals("update.message.new-version")) {
-            newVersionText = Core.bundle.format("message.new-version",
-                    "[#" + Color.crimson.toString() + "]" + currentVer,
-                    "[#" + Color.green.toString() + "]" + latestVer);
-        }
 
         table.add(newVersionText)
                 .wrap()
@@ -54,8 +48,8 @@ public class UpdateDialog extends BaseDialog {
 
         cont.add(table);
 
-        String cancelLabel = bundleGet("update.button.cancel", "Cancel");
-        String updateLabel = bundleGet("update.button.update", "Update");
+        String cancelLabel = Core.bundle.get("update.button.cancel");
+        String updateLabel = Core.bundle.get("update.button.update");
 
         buttons.button(cancelLabel, () -> {
             remove();
@@ -77,21 +71,5 @@ public class UpdateDialog extends BaseDialog {
         }).size(100f, 50f);
     }
 
-    private static String bundleGet(String key, String fallback) {
-        try {
-            String val = Core.bundle.get(key);
-            if (val != null && !val.equals(key)) return val;
-        } catch (Exception ignored) {
-        }
-        return fallback;
-    }
 
-    private static String bundleFormat(String key, Object... args) {
-        try {
-            String val = Core.bundle.format(key, args);
-            if (val != null && !val.equals(key)) return val;
-        } catch (Exception ignored) {
-        }
-        return key;
-    }
 }

@@ -6,7 +6,7 @@ import arc.struct.Seq;
 public class FeatureManager {
     private static final Seq<Feature> features = new Seq<>();
 
-    public void reenable() {
+    public static void reenable() {
         @SuppressWarnings("unchecked")
         Seq<String> enableds = Core.settings.getJson("mindustrytool.enabled-features", Seq.class, String.class,
                 Seq::new);
@@ -18,7 +18,7 @@ public class FeatureManager {
         }
     }
 
-    public void disableAll() {
+    public static void disableAll() {
         Seq<String> enableds = getEnableds().map(f -> f.getMetadata().getId());
 
         Core.settings.putJson("mindustrytool.enabled-features", String.class, enableds);
@@ -28,16 +28,16 @@ public class FeatureManager {
         }
     }
 
-    public void register(Feature... feature) {
+    public static void register(Feature... feature) {
         features.addAll(feature);
         features.sort((a, b) -> Integer.compare(a.getMetadata().getOrder(), b.getMetadata().getOrder()));
     }
 
-    public <T extends Feature> T getFeature(Class<T> featureClass) {
+    public static <T extends Feature> T getFeature(Class<T> featureClass) {
         return featureClass.cast(features.find(f -> f.getClass() == featureClass));
     }
 
-    public void init() {
+    public static void init() {
         for (Feature feature : features) {
             if (feature.isEnabled()) {
                 feature.onEnable();
@@ -45,11 +45,11 @@ public class FeatureManager {
         }
     }
 
-    public Seq<Feature> getFeatures() {
+    public static Seq<Feature> getFeatures() {
         return features;
     }
 
-    public <T extends Feature> T get(Class<T> featureClass) {
+    public static <T extends Feature> T get(Class<T> featureClass) {
         var feature = features.find(f -> f.getClass().equals(featureClass));
         if (feature == null) {
             throw new IllegalArgumentException("Feature not found: " + featureClass);
@@ -57,7 +57,7 @@ public class FeatureManager {
         return featureClass.cast(feature);
     }
 
-    public Seq<Feature> getEnableds() {
+    public static Seq<Feature> getEnableds() {
         return features.select(f -> f.isEnabled());
     }
 }

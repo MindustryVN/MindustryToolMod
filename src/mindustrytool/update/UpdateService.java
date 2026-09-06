@@ -59,10 +59,10 @@ public final class UpdateService {
                 String latestVerStr = VersionUtils.format(latestVersion);
 
                 if (VersionUtils.isGreater(latestVersion, currentVersion)) {
-                    Log.info(bundleFormat("update.status.require-update", currentVerStr, latestVerStr, fallbackRequireUpdate(currentVerStr, latestVerStr)));
+                    Log.info(Core.bundle.format("update.status.require-update", currentVerStr, latestVerStr));
                     fetchReleasesAndShowDialog(currentVerStr, latestVerStr, finalDone);
                 } else {
-                    Log.info(bundleGet("update.status.up-to-date", "Mod up to date"));
+                    Log.info(Core.bundle.get("update.status.up-to-date"));
                     safeDone(finalDone);
                 }
             } catch (Exception e) {
@@ -79,9 +79,9 @@ public final class UpdateService {
                 String detail = err.getMessage() != null ? err.getMessage() : "";
                 String msg;
                 if (!detail.isEmpty()) {
-                    msg = bundleFormat("update.error.fetch-releases-with-status", detail, "Could not fetch release notes: " + detail);
+                    msg = Core.bundle.format("update.error.fetch-releases-with-status", detail);
                 } else {
-                    msg = bundleGet("update.error.fetch-releases", "Could not fetch release notes.");
+                    msg = Core.bundle.get("update.error.fetch-releases");
                 }
                 String finalMsg = msg;
                 Core.app.post(() -> new UpdateDialog(currentVer, latestVer, finalMsg, done).show());
@@ -90,13 +90,13 @@ public final class UpdateService {
             try {
                 String changelog = ChangelogFormatter.format(body);
                 if (changelog == null || changelog.isBlank()) {
-                    changelog = bundleGet("update.error.parse-releases", "Could not parse release notes.");
+                    changelog = Core.bundle.get("update.error.parse-releases");
                 }
                 String finalChangelog = changelog;
                 Core.app.post(() -> new UpdateDialog(currentVer, latestVer, finalChangelog, done).show());
             } catch (Exception e) {
                 Log.err("Failed to parse releases", e);
-                String msg = bundleGet("update.error.parse-releases", "Could not parse release notes.");
+                String msg = Core.bundle.get("update.error.parse-releases");
                 Core.app.post(() -> new UpdateDialog(currentVer, latestVer, msg, done).show());
             }
         });
@@ -110,40 +110,5 @@ public final class UpdateService {
         }
     }
 
-    private static String bundleGet(String key, String fallback) {
-        try {
-            if (Core.bundle != null) {
-                String val = Core.bundle.get(key);
-                if (val != null && !val.equals(key)) return val;
-            }
-        } catch (Exception ignored) {
-        }
-        return fallback;
-    }
 
-    private static String bundleFormat(String key, String arg1, String arg2, String fallback) {
-        try {
-            if (Core.bundle != null) {
-                String val = Core.bundle.format(key, arg1, arg2);
-                if (val != null && !val.equals(key)) return val;
-            }
-        } catch (Exception ignored) {
-        }
-        return fallback;
-    }
-
-    private static String bundleFormat(String key, String arg, String fallback) {
-        try {
-            if (Core.bundle != null) {
-                String val = Core.bundle.format(key, arg);
-                if (val != null && !val.equals(key)) return val;
-            }
-        } catch (Exception ignored) {
-        }
-        return fallback;
-    }
-
-    private static String fallbackRequireUpdate(String cur, String latest) {
-        return "Mod requires update, current version: " + cur + ", latest version: " + latest;
-    }
 }
