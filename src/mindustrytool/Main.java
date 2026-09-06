@@ -31,6 +31,8 @@ public class Main extends Mod {
             registerMindustryToolButton();
 
             PacketReplacer.replace();
+
+            mindustrytool.update.UpdateService.getInstance().checkForUpdate(() -> {});
         });
     }
 

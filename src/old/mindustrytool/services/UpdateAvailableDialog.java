@@ -10,6 +10,10 @@ import mindustry.Vars;
 import mindustry.ui.dialogs.BaseDialog;
 import old.mindustrytool.Config;
 
+/**
+ * @deprecated Use {@link mindustrytool.update.UpdateDialog} instead.
+ */
+@Deprecated
 public class UpdateAvailableDialog extends BaseDialog {
     public UpdateAvailableDialog(String currentVer, String latestVer, String changelog, Runnable done) {
         super("Update Available");

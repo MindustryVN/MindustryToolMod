@@ -45,6 +45,20 @@ ext{
     sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
 }
 
+sourceSets {
+    main {
+        java {
+            srcDirs = ["src"]
+            exclude "**/test/**"
+        }
+    }
+    test {
+        java {
+            srcDirs = ["src/test/java"]
+        }
+    }
+}
+
 dependencies{    
     compileOnly mindustryVersion == "be" ? "Anuken:MindustryBuilds:latest" : "Anuken:Mindustry:$mindustryVersion"
 	compileOnly 'org.projectlombok:lombok:1.18.32'
@@ -53,6 +67,13 @@ dependencies{
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2'
     
     annotationProcessor 'org.projectlombok:lombok:1.18.32'
+
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+}
+
+test {
+    useJUnitPlatform()
 }
 
 tasks.register('jarAndroid'){

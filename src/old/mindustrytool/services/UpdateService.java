@@ -14,6 +14,10 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * @deprecated Use {@link mindustrytool.update.UpdateService} instead.
+ */
+@Deprecated
 public class UpdateService {
 
     private static UpdateService instance;
