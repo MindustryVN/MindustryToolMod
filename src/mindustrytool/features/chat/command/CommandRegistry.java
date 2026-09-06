@@ -4,7 +4,10 @@ import arc.Core;
 import arc.struct.ObjectMap;
 import arc.struct.Seq;
 import mindustry.Vars;
+import mindustry.gen.Call;
+import mindustrytool.features.FeatureManager;
 import mindustrytool.features.chat.translation.ChatTranslationConfig;
+import mindustrytool.features.chat.translation.ChatTranslationFeature;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,20 +108,45 @@ public class CommandRegistry {
             }
         }, null));
 
-        register(new ChatCommand("tr", "[mã_ngôn_ngữ]", "Xem hoặc đổi ngôn ngữ đích của Chat Translation (VD: /tr vi, /tr en)", true, args -> {
+        register(new ChatCommand("tr", "<tin_nhắn>", "Dịch tin nhắn sang ngôn ngữ đích và gửi vào chat (Ctrl+T để dịch trực tiếp)", true, args -> {
+            if (args != null && args.length > 0) {
+                String textToTranslate = String.join(" ", args).trim();
+                ChatTranslationFeature feature = FeatureManager.getInstance().getFeature(ChatTranslationFeature.class);
+                if (feature != null && !textToTranslate.isEmpty()) {
+                    feature.translateOutgoing(textToTranslate).thenAccept(translated -> {
+                        String clean = (translated != null && !translated.trim().isEmpty()) ? translated.trim() : textToTranslate;
+                        String toSend = ChatTranslationConfig.isReverseIncludeOriginal()
+                                ? clean + " [lightgray](" + textToTranslate + ")"
+                                : clean;
+                        Call.sendChatMessage(toSend);
+                    }).exceptionally(err -> {
+                        Call.sendChatMessage(textToTranslate);
+                        return null;
+                    });
+                }
+            } else {
+                String currentLang = ChatTranslationConfig.getReverseTargetLang();
+                if (Vars.ui != null && Vars.ui.chatfrag != null) {
+                    Vars.ui.chatfrag.addMessage("[accent]MindustryTool:[] [white]Dùng: [accent]/tr <tin nhắn>[] để dịch và gửi ngay.\nĐổi ngôn ngữ bằng: [accent]/trlang <mã>[] (hiện tại: [accent]" + currentLang + "[]). Phím tắt: [accent]Ctrl + T[]");
+                }
+            }
+        }, null, "translate", "trans"));
+
+        register(new ChatCommand("trlang", "[mã_ngôn_ngữ]", "Xem hoặc đổi ngôn ngữ đích của Chat Translation (VD: /trlang en, /trlang vi)", true, args -> {
             if (args != null && args.length > 0 && !args[0].trim().isEmpty()) {
                 String target = args[0].trim().toLowerCase();
+                ChatTranslationConfig.setReverseTargetLang(target);
                 ChatTranslationConfig.setOutgoingTargetLang(target);
                 if (Vars.ui != null && Vars.ui.chatfrag != null) {
                     Vars.ui.chatfrag.addMessage("[accent]MindustryTool:[] [white]Ngôn ngữ dịch đích đổi thành: [accent]" + target + "[]");
                 }
             } else {
-                String currentLang = ChatTranslationConfig.getOutgoingTargetLang();
+                String currentLang = ChatTranslationConfig.getReverseTargetLang();
                 if (Vars.ui != null && Vars.ui.chatfrag != null) {
-                    Vars.ui.chatfrag.addMessage("[accent]MindustryTool:[] [white]Ngôn ngữ dịch hiện tại: [accent]" + currentLang + "[] (Dùng: [accent]/tr <mã_ngôn_ngữ>[])");
+                    Vars.ui.chatfrag.addMessage("[accent]MindustryTool:[] [white]Ngôn ngữ dịch hiện tại: [accent]" + currentLang + "[] (Dùng: [accent]/trlang <mã_ngôn_ngữ>[])");
                 }
             }
-        }, null, "translate", "trans"));
+        }, null));
 
         register(new ChatCommand("zoom", "<tỷ_lệ>", "Đặt tỷ lệ thu phóng camera (VD: /zoom 1.5, /zoom 0.5)", true, args -> {
             if (args != null && args.length > 0) {

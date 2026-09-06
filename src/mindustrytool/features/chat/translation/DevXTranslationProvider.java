@@ -8,13 +8,14 @@ import arc.util.Http.HttpStatusException;
 import arc.util.Log;
 import arc.util.serialization.Jval;
 
+import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
 
 public class DevXTranslationProvider implements TranslationProvider {
     private static final String API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
     private static final String MODEL = "nvidia/riva-translate-4b-instruct-v2";
     public static final String DEFAULT_API_KEY = "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";
-    private static final String DEFAULT_TARGET_LANG = "English";
+    private static final String DEFAULT_TARGET_LANG = "Vietnamese";
 
     private String getApiKey() {
         String key = Core.settings.getString(ChatTranslationConfig.DEVX_API_KEY, DEFAULT_API_KEY);
@@ -29,20 +30,51 @@ public class DevXTranslationProvider implements TranslationProvider {
         Core.settings.put(ChatTranslationConfig.DEVX_TIMEOUT, timeout);
     }
 
-    private String resolveTargetLanguage(String targetLang) {
-        if (targetLang != null && !targetLang.trim().isEmpty()) {
-            return targetLang.trim();
+    private String normalizeLanguage(String lang) {
+        if (lang == null || lang.trim().isEmpty()) {
+            return resolveDefaultTargetLanguage();
         }
-        return Core.bundle.getLocale() != null ? Core.bundle.getLocale().getDisplayName() : DEFAULT_TARGET_LANG;
+        String clean = lang.trim().toLowerCase();
+        return switch (clean) {
+            case "vi", "vn", "vietnamese", "tiếng việt" -> "Vietnamese";
+            case "en", "us", "uk", "english", "tiếng anh" -> "English";
+            case "ru", "russian", "tiếng nga" -> "Russian";
+            case "zh", "cn", "chinese", "tiếng trung" -> "Chinese";
+            case "ja", "japanese", "tiếng nhật" -> "Japanese";
+            case "ko", "korean", "tiếng hàn" -> "Korean";
+            case "fr", "french", "tiếng pháp" -> "French";
+            case "de", "german", "tiếng đức" -> "German";
+            case "es", "spanish", "tiếng tây ban nha" -> "Spanish";
+            default -> lang.trim();
+        };
+    }
+
+    private String resolveDefaultTargetLanguage() {
+        Locale locale = Core.bundle.getLocale();
+        if (locale != null && locale.getLanguage() != null) {
+            String l = locale.getLanguage().toLowerCase();
+            if (l.equals("vi")) return "Vietnamese";
+            if (l.equals("en")) return "English";
+            if (l.equals("ru")) return "Russian";
+            if (l.equals("zh")) return "Chinese";
+            if (l.equals("ja")) return "Japanese";
+            if (l.equals("ko")) return "Korean";
+        }
+        return DEFAULT_TARGET_LANG;
     }
 
     @Override
     public CompletableFuture<String> translate(String message) {
-        return translate(message, resolveTargetLanguage(null));
+        return translate(message, resolveDefaultTargetLanguage());
     }
 
     @Override
     public CompletableFuture<String> translate(String message, String targetLang) {
+        return translate(message, "auto", targetLang);
+    }
+
+    @Override
+    public CompletableFuture<String> translate(String message, String sourceLang, String targetLang) {
         CompletableFuture<String> future = new CompletableFuture<>();
 
         if (message == null || message.trim().isEmpty()) {
@@ -56,8 +88,8 @@ public class DevXTranslationProvider implements TranslationProvider {
             return future;
         }
 
-        String lang = resolveTargetLanguage(targetLang);
-        executeTranslationRequest(message, lang, apiKey, future);
+        String resolvedTarget = normalizeLanguage(targetLang);
+        executeTranslationRequest(message, resolvedTarget, apiKey, future);
         return future;
     }
 
@@ -143,14 +175,23 @@ public class DevXTranslationProvider implements TranslationProvider {
             result = firstChoice.getString("text", fallback).trim();
         }
 
+        if (result.contains("<think>")) {
+            result = result.replaceAll("(?s)<think>.*?</think>", "").trim();
+        }
+        result = result.replaceAll("(?i)^(translation|translated|bản dịch|vietnamese|tiếng việt|english|tiếng anh)\\s*:\\s*", "").trim();
+        if (result.startsWith("\"") && result.endsWith("\"") && result.length() > 1) {
+            result = result.substring(1, result.length() - 1).trim();
+        }
+
         return result.isEmpty() ? fallback : result;
     }
 
     @Override
     public Table settings() {
         Table table = new Table();
-        String label = Core.bundle.get("chat-translation.timeout-label", "Timeout");
+        table.add("[green]✓ " + Core.bundle.get("chat-translation.devx.ready", "Ready to use (Built-in API)") + "[]").left().row();
 
+        String label = Core.bundle.get("chat-translation.timeout-label", "Timeout");
         table.add(label + ": " + getTimeoutSeconds() + "s").left()
                 .padTop(4)
                 .update(l -> l.setText(label + ": " + getTimeoutSeconds() + "s"))
@@ -166,7 +207,7 @@ public class DevXTranslationProvider implements TranslationProvider {
 
     @Override
     public String getName() {
-        return "DevX";
+        return "DevX (Nvidia Riva)";
     }
 
     @Override
