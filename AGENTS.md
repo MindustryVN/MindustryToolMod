@@ -353,6 +353,45 @@ However, if the text can be displayed to a player or end user, it **must be tran
 
 ---
 
+## HTTP Client — Mandatory
+
+All HTTP requests MUST be executed via a `mindustrytool.services.Request` instance.
+
+Do not construct `java.net.http.HttpClient` or `java.net.http.HttpRequest` directly outside `Request.java`. All calls must go through `Request` — either via the existing facades `mindustrytool.services.MindustryTool` / `mindustrytool.services.Github`, or via a new class that owns a `Request` instance built with `Request.builder().baseUrl(...).timeout(...).authProvider(...).build()`.
+
+❌ Bad:
+
+```java
+HttpClient client = HttpClient.newHttpClient();
+HttpRequest req = HttpRequest.newBuilder(URI.create("https://api.example.com/data")).GET().build();
+client.sendAsync(req, BodyHandlers.ofString());
+```
+
+```java
+// HttpClient/HttpRequest construction outside Request.java
+var request = HttpRequest.newBuilder().uri(URI.create(url)).timeout(Duration.ofSeconds(10)).build();
+```
+
+✅ Good:
+
+```java
+private final Request api = Request.builder()
+        .baseUrl(Config.API_URL)
+        .timeout(Duration.ofSeconds(10))
+        .authProvider(authProvider)
+        .build();
+
+api.get("/maps/1").sendAsync().thenApply(r -> JsonUtils.fromJson(MapData.class, r.body()));
+```
+
+```java
+// Via facades that delegate to Request internally
+MindustryTool.getSession();
+Github.getReleases();
+```
+
+---
+
 ## Before Completing Any Task
 
 Before finishing a task, the AI agent must verify:
@@ -367,5 +406,6 @@ Before finishing a task, the AI agent must verify:
 * [ ] Dynamic values use `Core.bundle.format()` where appropriate.
 * [ ] Translation keys follow the project's naming conventions.
 * [ ] No duplicate translation keys were introduced.
+* [ ] All HTTP calls go through `mindustrytool.services.Request` (via `MindustryTool`/`Github` or an owned `Request` instance); no direct `HttpClient`/`HttpRequest` construction outside `Request.java`.
 
 **A UI or player-facing feature is not considered complete until all of its display text has been properly added to the translation bundle with sufficient context for translators.**
