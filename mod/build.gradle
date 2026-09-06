@@ -2,6 +2,7 @@
 
 dependencies{
     implementation project(':solim')
+    testImplementation "Anuken:Mindustry:${mindustryVersion}"
 }
 
 tasks.register('jarAndroid'){

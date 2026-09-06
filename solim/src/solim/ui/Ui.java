@@ -119,4 +119,35 @@ public final class Ui {
         ParentStack.attachToParent(t.label());
         return t;
     }
+
+    public static <T> Dynamic<T> dynamic(solim.signal.Readable<T> source, java.util.function.Function<T, solim.core.Component> factory) {
+        Dynamic<T> d = Dynamic.of(source, factory);
+        ParentStack.attachToParent(d.element());
+        return d;
+    }
+
+    public static <T, K> ForEach<T, K> forEach(
+            solim.signal.Readable<? extends Iterable<T>> collection,
+            java.util.function.Function<T, K> keyExtractor,
+            java.util.function.Function<T, solim.core.Component> itemFactory
+    ) {
+        ForEach<T, K> fe = ForEach.of(collection, keyExtractor, itemFactory);
+        ParentStack.attachToParent(fe.element());
+        return fe;
+    }
+
+    public static <T, K> solim.layout.ReactiveGrid<T, K> reactiveGrid(
+            solim.signal.Readable<Integer> columnCount,
+            solim.signal.Readable<? extends Iterable<T>> items,
+            java.util.function.Function<T, K> keyExtractor,
+            java.util.function.Function<T, solim.core.Component> itemFactory
+    ) {
+        solim.layout.ReactiveGrid<T, K> grid = solim.layout.ReactiveGrid.of(columnCount, items, keyExtractor, itemFactory);
+        ParentStack.attachToParent(grid.element());
+        return grid;
+    }
+
+    public static <T> solim.core.Disposable listen(Class<T> type, arc.func.Cons<T> listener) {
+        return solim.core.EventsUtil.listen(type, listener);
+    }
 }

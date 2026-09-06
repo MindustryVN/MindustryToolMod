@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * Lazy computed value with dynamic dependency tracking.
  */
-public final class Computed<T> implements ReactiveObserver {
+public final class Computed<T> implements ReactiveObserver, Readable<T> {
     private final Supplier<T> supplier;
     private T cachedValue;
     private boolean hasValue = false;

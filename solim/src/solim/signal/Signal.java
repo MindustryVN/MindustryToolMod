@@ -13,7 +13,7 @@ import java.util.function.Supplier;
 /**
  * Mutable reactive value.
  */
-public final class Signal<T> {
+public final class Signal<T> implements Readable<T> {
     private T value;
     private final List<Consumer<T>> listeners = new ArrayList<>();
     private final Set<ReactiveObserver> observers = new LinkedHashSet<>();
@@ -30,6 +30,7 @@ public final class Signal<T> {
         return new Computed<>(supplier);
     }
 
+    @Override
     public T get() {
         ReactiveContext.track(this);
         return value;
@@ -59,6 +60,10 @@ public final class Signal<T> {
                 e.printStackTrace();
             }
         }
+    }
+
+    public void update(Function<T, T> updater) {
+        set(updater.apply(value));
     }
 
     public Subscription subscribe(Consumer<T> listener) {

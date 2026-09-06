@@ -2,6 +2,7 @@ package mindustrytool.features.settings;
 
 import arc.Core;
 import arc.graphics.Color;
+import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
 import arc.scene.style.Drawable;
@@ -12,35 +13,63 @@ import arc.util.Scaling;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
+import solim.core.BaseComponent;
+
+import solim.signal.Effect;
+import solim.signal.Readable;
 
 /**
  * Component responsible for building and managing a single feature's visual card.
  * Handles display of metadata, action shortcuts (help, settings, main dialog),
  * and state toggling.
  */
-public class FeatureCard {
+public class FeatureCard extends BaseComponent {
 
-    /**
-     * Builds a feature card and attaches it to the given parent table.
-     *
-     * @param parent         the parent container table
-     * @param feature        the feature to render
-     * @param cardWidth      computed card width for responsive layout
-     * @param onStateChanged callback to invoke when feature state is modified
-     */
-    public static void build(Table parent, Feature feature, float cardWidth, Runnable onStateChanged) {
+    private final Feature feature;
+    private final Readable<Float> cardWidth;
+    private final Runnable onStateChanged;
+
+    public FeatureCard(Feature feature, Readable<Float> cardWidth, Runnable onStateChanged) {
+        this.feature = feature;
+        this.cardWidth = cardWidth;
+        this.onStateChanged = onStateChanged;
+    }
+
+    public FeatureCard(Feature feature, float cardWidth, Runnable onStateChanged) {
+        this(feature, Readable.of(cardWidth), onStateChanged);
+    }
+
+    @Override
+    protected Element build() {
         boolean enabled = feature.isEnabled();
         var metadata = feature.getMetadata();
 
-        var card = parent.button(Styles.black8, () -> {})
-                .name("FeatureCard-" + metadata.getId())
-                .width(cardWidth - 10f)
-                .height(180f)
-                .pad(5f)
-                .top()
-                .left()
-                .color(enabled ? Color.green : Color.scarlet)
-                .get();
+        var card = new Button(Styles.black8) {
+            @Override
+            public float getPrefWidth() {
+                return cardWidth != null ? Math.max(0f, cardWidth.get() - 10f) : super.getPrefWidth();
+            }
+
+            @Override
+            public float getPrefHeight() {
+                return 180f;
+            }
+        };
+
+        card.name = "FeatureCard-" + (metadata != null ? metadata.getId() : "unknown");
+        card.setColor(enabled ? Color.green : Color.scarlet);
+        card.top().left();
+
+        if (cardWidth != null) {
+            own(Effect.of(() -> {
+                float w = Math.max(0f, cardWidth.get() - 10f);
+                card.setWidth(w);
+                card.invalidate();
+                if (card.parent != null) {
+                    card.parent.invalidate();
+                }
+            }));
+        }
 
         card.addListener(new ClickListener() {
             @Override
@@ -54,7 +83,7 @@ public class FeatureCard {
                         onStateChanged.run();
                     }
                 } catch (Exception e) {
-                    Log.err("Failed to toggle feature " + metadata.getId(), e);
+                    Log.err("Failed to toggle feature " + (metadata != null ? metadata.getId() : ""), e);
                 }
             }
         });
@@ -108,7 +137,7 @@ public class FeatureCard {
                         .tooltip(Core.bundle.get("feature.button.help"))
                         .get();
                 attachChildClick(helpBtn, () -> new FeatureHelpDialog(feature).show());
-            }).width(cardWidth - 34f).growX().row();
+            }).growX().row();
 
             // Feature description
             container.add(feature.getDescription())
@@ -131,6 +160,26 @@ public class FeatureCard {
                     .color(enabled ? Color.green : Color.scarlet)
                     .left();
         }).pad(4f).grow().top().left();
+
+        return card;
+    }
+
+    /**
+     * Builds a feature card and attaches it to the given parent table.
+     *
+     * @param parent         the parent container table
+     * @param feature        the feature to render
+     * @param cardWidth      computed card width for responsive layout
+     * @param onStateChanged callback to invoke when feature state is modified
+     */
+    public static void build(Table parent, Feature feature, float cardWidth, Runnable onStateChanged) {
+        FeatureCard card = new FeatureCard(feature, cardWidth, onStateChanged);
+        parent.add(card.element())
+                .width(cardWidth - 10f)
+                .height(180f)
+                .pad(5f)
+                .top()
+                .left();
     }
 
     private static void attachChildClick(Button button, Runnable action) {
