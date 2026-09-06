@@ -153,7 +153,7 @@ public class ChatOverlay extends Table {
 
             Button btn = new Button(Styles.clearNoneTogglei);
             Stack stack = new Stack();
-            stack.add(new Image(Icon.chat));
+            stack.add(new Image(Icon.planet));
 
             badgeTable = new Table();
             stack.add(badgeTable);

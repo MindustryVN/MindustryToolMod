@@ -31,7 +31,8 @@ public class ChatFeature implements Feature {
         return FeatureMetadata.builder()
                 .name("@feature.chat")
                 .description("@feature.chat.description")
-                .icon(Icon.chat)
+                .icon(Icon.planet)
+                .quickAccess(true)
                 .enabledByDefault(false)
                 .build();
     }
