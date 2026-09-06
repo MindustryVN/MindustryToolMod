@@ -7,6 +7,7 @@ import mindustry.editor.MapResizeDialog;
 import mindustry.game.EventType.ClientLoadEvent;
 import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
+import mindustrytool.crash.CrashReportService;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.services.MindustryAuthProvider;
 import mindustrytool.services.PacketReplacer;
@@ -33,14 +34,21 @@ public class Main extends Mod {
         }
 
         Events.on(ClientLoadEvent.class, event -> {
-            UpdateService.getInstance().checkForUpdate(() -> {
-                FeatureManager.init();
-                AuthOverlay.getInstance().init();
-                MindustryAuthProvider.getInstance().init();
-                ServerService.getInstance().init();
-                PacketReplacer.replace();
+            registerMindustryToolButton();
 
-                registerMindustryToolButton();
+            UpdateService.getInstance().checkForUpdate(() -> {
+                Core.app.post(() -> {
+                    boolean hasCrashed = new CrashReportService().checkForCrashes();
+                    if (hasCrashed) {
+                        // Try to disable all feature — mirrors old Main.setup() crash handling
+                        FeatureManager.disableAll();
+                    }
+                    FeatureManager.init();
+                    AuthOverlay.getInstance().init();
+                    MindustryAuthProvider.getInstance().init();
+                    ServerService.getInstance().init();
+                    PacketReplacer.replace();
+                });
             });
         });
     }
