@@ -19,7 +19,8 @@ import solim.signal.Signal;
 
 /**
  * Declarative UI facades for Solim.
- * Each method pushes a layout, runs the lambda, pops, and returns the layout element.
+ * Each method pushes a layout, runs the lambda, pops, and returns the layout
+ * element.
  */
 public final class Ui {
     private Ui() {
@@ -168,7 +169,8 @@ public final class Ui {
         return SolimDialog.of(title, content);
     }
 
-    public static <T> Dynamic<T> dynamic(solim.signal.Readable<T> source, java.util.function.Function<T, solim.core.Component> factory) {
+    public static <T> Dynamic<T> dynamic(solim.signal.Readable<T> source,
+            java.util.function.Function<T, solim.core.Component> factory) {
         Dynamic<T> d = Dynamic.of(source, factory);
         ParentStack.attachToParent(d.element());
         return d;
@@ -177,20 +179,19 @@ public final class Ui {
     public static <T, K> ForEach<T, K> forEach(
             solim.signal.Readable<? extends Iterable<T>> collection,
             java.util.function.Function<T, K> keyExtractor,
-            java.util.function.Function<T, solim.core.Component> itemFactory
-    ) {
+            java.util.function.Function<T, solim.core.Component> itemFactory) {
         ForEach<T, K> fe = ForEach.of(collection, keyExtractor, itemFactory);
         ParentStack.attachToParent(fe.element());
         return fe;
     }
 
-    public static <T, K> solim.layout.ReactiveGrid<T, K> reactiveGrid(
+    public static <T, K> solim.layout.ReactiveGrid<T, K> grid(
             solim.signal.Readable<Integer> columnCount,
             solim.signal.Readable<? extends Iterable<T>> items,
             java.util.function.Function<T, K> keyExtractor,
-            java.util.function.Function<T, solim.core.Component> itemFactory
-    ) {
-        solim.layout.ReactiveGrid<T, K> grid = solim.layout.ReactiveGrid.of(columnCount, items, keyExtractor, itemFactory);
+            java.util.function.Function<T, solim.core.Component> itemFactory) {
+        solim.layout.ReactiveGrid<T, K> grid = solim.layout.ReactiveGrid.of(columnCount, items, keyExtractor,
+                itemFactory);
         ParentStack.attachToParent(grid.element());
         return grid;
     }
@@ -207,7 +208,8 @@ public final class Ui {
         return solim.core.EventsUtil.createSignal(eventType, mapper, initial);
     }
 
-    public static <T> Signal<T> createSignal(java.util.function.Consumer<Runnable> callbackRegistrar, java.util.function.Supplier<T> supplier) {
+    public static <T> Signal<T> createSignal(java.util.function.Consumer<Runnable> callbackRegistrar,
+            java.util.function.Supplier<T> supplier) {
         return solim.core.EventsUtil.createSignal(callbackRegistrar, supplier);
     }
 }

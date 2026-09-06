@@ -38,7 +38,7 @@ public final class FeatureSettingsView extends BaseComponent {
         return column(() -> {
             toolbar();
             scroll(() -> {
-                reactiveGrid(columnCount, filteredFeatures, FeatureSettingsView::featureKey,
+                grid(columnCount, filteredFeatures, FeatureSettingsView::featureKey,
                         feature -> new FeatureCard(feature, cardWidth, feature.enabled()))
                         .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
                                 .color(Color.gray)
