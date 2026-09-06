@@ -1,10 +1,8 @@
 # solim-styling Specification
 
 ## Purpose
-Lightweight styling system for Solim — immutable `Style` objects applied to Arc widgets with static and reactive style binding support.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Style immutable value object
 `Style` SHALL be an immutable object holding Arc-relevant styling data (e.g., `Drawable background`, `Color`, `font`, `pad`/`margin` variants relevant to widget, or a reference to Arc `TextButtonStyle`/`LabelStyle` wrapper) and SHALL NOT be mutated after creation. Predefined instances SHALL be provided via `Styles` constants (`PRIMARY`, `GHOST`, etc.).
 
@@ -51,3 +49,4 @@ Framework SHALL NOT implement CSS parsing, CSS Grid/Flexbox recreation, or style
 #### Scenario: Compose from base
 - **WHEN** `Style custom = Styles.PRIMARY.withPad(16).withBackground(otherDrawable)`
 - **THEN** `custom` has primary fields plus overrides without mutating `PRIMARY`
+

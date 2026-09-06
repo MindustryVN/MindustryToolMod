@@ -1,5 +1,8 @@
-## ADDED Requirements
+# solim-property-bindings Specification
 
+## Purpose
+TBD - created by archiving change clean-up-solim-refactor. Update Purpose after archive.
+## Requirements
 ### Requirement: Direct Reactive Element Property Bindings
 Solim SHALL provide direct property binding mechanisms that mutate existing Arc scene elements when reactive signals or computeds change without requiring standalone `Effect` definitions in user code.
 
@@ -21,3 +24,4 @@ Arc layout lifecycle methods (`getPrefWidth`, `getPrefHeight`, `layout`, `draw`,
 #### Scenario: Arc layout pass execution
 - **WHEN** Arc invokes layout passes on Solim-backed elements
 - **THEN** the layout passes execute without registering reactive dependencies or triggering unintended effect re-runs
+

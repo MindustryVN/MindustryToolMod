@@ -1,10 +1,8 @@
 # solim-binding Specification
 
 ## Purpose
-Reactive property binding that connects `Signal`/`Computed` values to Arc `Element` properties via direct mutation (no rebuilding), with immediate apply, subscription, and disposal.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Widgets support static and reactive values
 Widget factory methods (e.g., `text(...)`, `button(...)`, `visible(...)`, `enabled(...)`) SHALL accept both plain values (`String`, `boolean`) and reactive values (`Signal<T>`, `Computed<T>`). Reactive overloads SHALL apply current value immediately and update on change.
 
@@ -62,3 +60,4 @@ Dynamic text SHALL use bundle formatting or `Computed` mapping, not manual `Core
 #### Scenario: Bundle formatted binding
 - **WHEN** display needs `Core.bundle.format("message.player", name.get())`
 - **THEN** it is expressed as `Signal.computed(() -> Core.bundle.format("message.player", name.get()))` and bound as reactive text
+

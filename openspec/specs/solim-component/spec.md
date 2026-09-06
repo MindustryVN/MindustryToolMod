@@ -1,10 +1,8 @@
 # solim-component Specification
 
 ## Purpose
-Minimal component abstraction for Solim — `Component` interface, `BaseComponent` base class, lifecycle, composition via normal Java classes with constructor props, and parent-stack integration.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Component interface
 The framework SHALL provide `solim.core.Component` with `arc.scene.Element element()` and `default void dispose()` . `element()` SHALL return the underlying Arc `Element` built for this component.
 
@@ -66,3 +64,4 @@ The framework SHALL NOT expose React-style hooks (`useState`, `useEffect`) nor a
 #### Scenario: No hooks API
 - **WHEN** `solim.core` package is inspected
 - **THEN** it contains no `useState`, `useEffect`, `useMemo`, or JSX-like APIs
+

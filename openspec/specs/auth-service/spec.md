@@ -1,5 +1,8 @@
-## ADDED Requirements
+# auth-service Specification
 
+## Purpose
+TBD - created by archiving change rewrite-auth-service. Update Purpose after archive.
+## Requirements
 ### Requirement: AuthService logic split from UI
 `mindustrytool.services.AuthService` SHALL be a pure-logic singleton with no Arc scene/UI imports, owning `UserSession currentSession`, `CompletableFuture<Void> loginFuture`, `KEY_*` constants (`mindustrytool.auth.access-token`, `mindustrytool.auth.refresh-token`, `mindustrytool.auth.login-id`, `mindustrytool.auth.login-expiry`), and delegating every HTTP call through `mindustrytool.services.MindustryTool` typed methods (`getSession`, `getLoginUri`, `pollLoginToken`, `logout`) rather than constructing `Request` directly. `mindustrytool.ui.AuthOverlay` (and `mindustrytool.ui.AuthLoginDialog`) SHALL be the sole UI owners of `authWindow`/`wholeViewport` and dialog rendering. `MindustryAuthProvider` SHALL remain preserved unchanged as the sole `AuthProvider` and `MindustryTool.api` wiring `authProvider(MindustryAuthProvider.getInstance())` SHALL NOT change.
 
@@ -88,3 +91,4 @@ All user-visible auth text SHALL be under `auth.*` keys in `assets/bundles/bundl
 #### Scenario: No old imports and correct baseUrl
 - **WHEN** `grep -R "old\.mindustrytool" src/mindustrytool/services/AuthService.java src/mindustrytool/ui/AuthOverlay.java` is run
 - **THEN** returns no results and files reference `Config.API_URL` only
+

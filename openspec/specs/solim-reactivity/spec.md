@@ -1,10 +1,8 @@
 # solim-reactivity Specification
 
 ## Purpose
-Reactive core for Solim — `Signal`, `Computed`, `Effect`, `ReactiveContext`/`ReactiveObserver`, `Subscription`/`Disposable` that enables `Signal/Computed → Effect/Binding → Arc Element` flow without Virtual DOM, diffing, or re-render.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Signal primitive
 `Signal<T>` SHALL be a mutable reactive value created via `Signal.of(initial)` with `T get()`, `void set(T)`, equality-guarded notification, `Subscription subscribe(Consumer<T>)` returning disposable handle, and `Computed<U> map(Function<T,U>)` convenience. `get()` SHALL register as dependency when called inside a `Computed` or `Effect` evaluation.
 
@@ -117,3 +115,4 @@ A shared dependency-tracking mechanism SHALL allow the currently executing `Comp
 #### Scenario: Map reactive updates
 - **WHEN** `Signal<Boolean> dark = Signal.of(false)` and `Computed<String> label = dark.map(v -> v ? "On" : "Off")`
 - **THEN** `label.get()` is "Off", after `dark.set(true)` `label.get()` is "On", and `label` notifies subscribers
+

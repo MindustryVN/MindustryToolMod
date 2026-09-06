@@ -2,16 +2,18 @@ package mindustrytool.features;
 
 import arc.Core;
 import arc.struct.Seq;
+import solim.signal.Signal;
 
 public class FeatureManager {
-    private static final Seq<Feature> features = new Seq<>();
+    private static final Signal<Seq<Feature>> features = Signal.of(new Seq<>());
 
     public static void reenable() {
         @SuppressWarnings("unchecked")
-        Seq<String> enableds = Core.settings.getJson("mindustrytool.enabled-features", Seq.class, String.class,
-                Seq::new);
+        Seq<String> enableds = Core.settings != null
+                ? Core.settings.getJson("mindustrytool.enabled-features", Seq.class, String.class, Seq::new)
+                : new Seq<>();
 
-        for (Feature feature : features) {
+        for (Feature feature : features.get()) {
             if (enableds.contains(feature.getMetadata().getId())) {
                 feature.enable();
             }
@@ -21,24 +23,44 @@ public class FeatureManager {
     public static void disableAll() {
         Seq<String> enableds = getEnableds().map(f -> f.getMetadata().getId());
 
-        Core.settings.putJson("mindustrytool.enabled-features", String.class, enableds);
+        if (Core.settings != null) {
+            Core.settings.putJson("mindustrytool.enabled-features", String.class, enableds);
+        }
 
-        for (Feature feature : features) {
+        for (Feature feature : features.get()) {
             feature.disable();
         }
     }
 
     public static void register(Feature... feature) {
-        features.addAll(feature);
-        features.sort((a, b) -> Integer.compare(a.getMetadata().getOrder(), b.getMetadata().getOrder()));
+        features.update(seq -> {
+            Seq<Feature> copy = new Seq<>(seq);
+            copy.addAll(feature);
+            copy.sort((a, b) -> Integer.compare(a.getMetadata().getOrder(), b.getMetadata().getOrder()));
+            return copy;
+        });
+    }
+
+    public static void unregister(Feature... feature) {
+        features.update(seq -> {
+            Seq<Feature> copy = new Seq<>(seq);
+            for (Feature f : feature) {
+                copy.remove(f);
+            }
+            return copy;
+        });
     }
 
     public static <T extends Feature> T getFeature(Class<T> featureClass) {
-        return featureClass.cast(features.find(f -> f.getClass() == featureClass));
+        return featureClass.cast(features.get().find(f -> f.getClass() == featureClass));
     }
 
     public static void init() {
-        for (Feature feature : features) {
+        for (Feature feature : features.get()) {
+            if (Core.settings != null) {
+                boolean isEnabled = Core.settings.getBool(feature.getSettingKey(), feature.getMetadata().isEnabledByDefault());
+                feature.enabled().set(isEnabled);
+            }
             if (feature.isEnabled()) {
                 feature.onEnable();
             }
@@ -46,11 +68,15 @@ public class FeatureManager {
     }
 
     public static Seq<Feature> getFeatures() {
+        return features.get();
+    }
+
+    public static Signal<Seq<Feature>> features() {
         return features;
     }
 
     public static <T extends Feature> T get(Class<T> featureClass) {
-        var feature = features.find(f -> f.getClass().equals(featureClass));
+        var feature = features.get().find(f -> f.getClass().equals(featureClass));
         if (feature == null) {
             throw new IllegalArgumentException("Feature not found: " + featureClass);
         }
@@ -58,6 +84,6 @@ public class FeatureManager {
     }
 
     public static Seq<Feature> getEnableds() {
-        return features.select(f -> f.isEnabled());
+        return features.get().select(f -> f.isEnabled());
     }
 }

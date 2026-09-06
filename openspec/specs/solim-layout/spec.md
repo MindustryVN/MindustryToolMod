@@ -1,10 +1,8 @@
 # solim-layout Specification
 
 ## Purpose
-Core layout primitives for Solim — `Column`, `Row`, `Stack`, `Grid`, `Wrap`, `Scroll`, `Container`, `Spacer`, `Divider`, `SplitPane` with `gap`/`justify`/`align`/`grow` semantics built on Arc `Table`/`Stack`/`ScrollPane` mechanisms.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Column and Row with flex-like modifiers
 `Column` and `Row` SHALL be vertical/horizontal layout containers supporting modifiers `gap(int/float)`, `justify(Justify)` (START/CENTER/END/BETWEEN/AROUND/EVENLY), `align(Align)` (START/CENTER/END/STRETCH), `padding(int)`, and `grow`. Each modifier SHALL map to Arc `Table` cell/alignment behavior without perfect CSS Flexbox replication.
 
@@ -90,3 +88,4 @@ All layout primitives SHALL delegate to Arc's existing `Table`, `Stack`, `Scroll
 #### Scenario: Enum values exist
 - **WHEN** `Justify.values()` and `Align.values()` are inspected
 - **THEN** they contain exactly the listed constants
+

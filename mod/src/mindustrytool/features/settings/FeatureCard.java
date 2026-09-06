@@ -32,7 +32,7 @@ public class FeatureCard extends BaseComponent {
     public FeatureCard(Feature feature, Readable<Float> cardWidth, Readable<Boolean> enabled, Runnable onStateChanged) {
         this.feature = feature;
         this.cardWidth = cardWidth;
-        this.enabled = enabled != null ? enabled : Readable.of(feature.isEnabled());
+        this.enabled = enabled != null ? enabled : (feature != null ? feature.enabled() : null);
         this.onStateChanged = onStateChanged;
     }
 
@@ -41,11 +41,19 @@ public class FeatureCard extends BaseComponent {
     }
 
     public FeatureCard(Feature feature, Readable<Float> cardWidth, Runnable onStateChanged) {
-        this(feature, cardWidth, Readable.of(feature.isEnabled()), onStateChanged);
+        this(feature, cardWidth, feature != null ? feature.enabled() : null, onStateChanged);
+    }
+
+    public FeatureCard(Feature feature, Readable<Float> cardWidth) {
+        this(feature, cardWidth, feature != null ? feature.enabled() : null, null);
     }
 
     public FeatureCard(Feature feature, float cardWidth, Runnable onStateChanged) {
-        this(feature, Readable.of(cardWidth), Readable.of(feature.isEnabled()), onStateChanged);
+        this(feature, Readable.of(cardWidth), feature != null ? feature.enabled() : null, onStateChanged);
+    }
+
+    public FeatureCard(Feature feature, float cardWidth) {
+        this(feature, Readable.of(cardWidth), feature != null ? feature.enabled() : null, null);
     }
 
     @Override

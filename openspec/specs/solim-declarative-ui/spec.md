@@ -1,10 +1,8 @@
 # solim-declarative-ui Specification
 
 ## Purpose
-Implicit parent stack for declarative UI construction that maps lambda-scoped `column`/`row`/`stack`/`grid`/`wrap`/`scroll` calls onto Arc `Element` tree with guaranteed cleanup and automatic child attachment.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Implicit parent stack with lambda scopes
 The framework SHALL provide `solim.ui.ParentStack` (or `Ui` facade) with static helpers `column(Runnable)`, `row(Runnable)`, `stack(Runnable)`, `grid(int columns, Runnable)`, `wrap(Runnable)`, `scroll(Runnable)`, `container(Runnable)` that push a layout `Element` onto a stack, execute the lambda, pop with `try/finally`, and return the layout `Element`. Every child created inside the lambda SHALL auto-attach to current parent.
 
@@ -62,3 +60,4 @@ Each declarative helper SHALL return the created layout `Element` so callers can
 #### Scenario: Stack is plain static
 - **WHEN** `ParentStack.java` is inspected
 - **THEN** it contains `private static final Deque<...> stack = new ArrayDeque<>()` and no `ThreadLocal` import
+

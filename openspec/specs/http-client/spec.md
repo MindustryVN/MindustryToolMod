@@ -2,7 +2,6 @@
 
 ## Purpose
 Instance-based HTTP client for `mindustrytool.services` that wraps `java.net.http.HttpClient`/`HttpRequest`/`HttpResponse`, supports per-`Request` optional `AuthProvider` (Bearer only), fluent per-request builder, and multiple independent API clients.
-
 ## Requirements
 ### Requirement: Instance-based Request with builder
 
@@ -81,19 +80,27 @@ Each `Request` SHALL expose `get/post/put/delete(String url)` returning a fluent
 
 ### Requirement: AuthService implements AuthProvider with deduplicated refresh
 
-`MindustryAuthProvider` (new `mindustrytool.services` auth service) SHALL implement `AuthProvider`, own its `Request api = Request.builder().baseUrl(Config.API_URL).authProvider(this).build()`, and handle token storage, JWT `exp` check (`<60s` near-expiry), and deduplicated concurrent refresh via single `refreshFuture: CompletableFuture<Void>`.
+`mindustrytool.services.MindustryAuthProvider` (preserved, NOT replaced by `AuthService`) SHALL implement `AuthProvider`, own `private final Request api = Request.builder().baseUrl(Config.API_URL).authProvider(this).build()`, handle token storage in `Core.settings` `mindustrytool.auth.*`, JWT `exp` check (`<60s` near-expiry via `Jval`), and deduplicated concurrent refresh via `single refreshFuture: CompletableFuture<Void>`. It SHALL remain the sole `AuthProvider` wired to `MindustryTool` (`Request.builder().baseUrl(Config.API_URL).authProvider(MindustryAuthProvider.getInstance()).build()` for `api`). New `mindustrytool.services.AuthService` SHALL NOT implement `AuthProvider`, SHALL NOT own a `Request` for `auth/*`, and SHALL delegate its `refreshIfNeeded`-like needs to the preserved provider indirectly via `MindustryTool`/`MindustryAuthProvider` (no second `api.post("auth/app/refresh").withoutAuth().json(...)` in `AuthService`).
 
-#### Scenario: Refresh deduplication
-- **WHEN** three concurrent `api.get("/auth/session").sendAsync()` calls find the access token near expiry
-- **THEN** only one `POST auth/app/refresh` with `withoutAuth()` is sent; all three await the same `refreshFuture`; success completes all, failure fails all exceptionally
+#### Scenario: Refresh deduplication still in preserved provider
+- **WHEN** three concurrent `api.get("/auth/session").sendAsync()` calls via `MindustryTool.getSession()` find the access token near expiry
+- **THEN** only one `POST auth/app/refresh` with `withoutAuth()` from `MindustryAuthProvider.refreshIfNeeded()` is sent; all three await the same `refreshFuture`; success completes all, failure fails all exceptionally; `AuthService` does not send its own refresh
 
-#### Scenario: Recursion prevention
-- **WHEN** `refreshIfNeeded()` triggers `api.post("auth/app/refresh").withoutAuth().json(...).sendAsync()`
-- **THEN** that inner request has `useAuth=false` so it does not call `refreshIfNeeded()` again; similarly `auth/app/login-uri` and `auth/app/login-token` use `withoutAuth()`
+#### Scenario: Recursion prevention unchanged
+- **WHEN** `MindustryAuthProvider.refreshIfNeeded()` triggers its `api.post("auth/app/refresh").withoutAuth().json(...).sendAsync()`
+- **THEN** that inner request has `useAuth=false` so it does not call `refreshIfNeeded()` again; similarly `MindustryTool.getLoginUri()`/`pollLoginToken()` use `publicApi.withoutAuth()`
 
-#### Scenario: Authenticated session fetch uses automatic Bearer
-- **WHEN** `api.get("auth/session").sendAsync()` is called (via `MindustryTool.getSession()`)
-- **THEN** it automatically refreshes if needed and sends `Authorization: Bearer <latest token>` without caller manually adding the header
+#### Scenario: Authenticated session fetch uses automatic Bearer via preserved provider
+- **WHEN** `MindustryTool.getSession()` (`api.get("/auth/session").sendAsync()`) is called or `AuthService.fetchSession()` delegates to it
+- **THEN** it automatically triggers `MindustryAuthProvider.refreshIfNeeded()` and sends `Authorization: Bearer <latest token>` without caller manually adding the header
+
+#### Scenario: AuthService does not own auth Request nor duplicate refresh
+- **WHEN** `src/mindustrytool/services/AuthService.java` and `src/mindustrytool/services/MindustryAuthProvider.java` are inspected
+- **THEN** `AuthService` contains no `Request api = Request.builder().baseUrl(Config.API_URL).authProvider(this).build()` and no `refreshFuture: CompletableFuture<Void>` for token refresh; only `MindustryAuthProvider` contains that `Request api` and `refreshFuture`; `AuthService` contains `CompletableFuture<Void> loginFuture` for login deduplication only
+
+#### Scenario: MindustryTool wiring preserved
+- **WHEN** `src/mindustrytool/services/MindustryTool.java` is inspected
+- **THEN** it still contains `private static final Request api = Request.builder().baseUrl(Config.API_URL).authProvider(MindustryAuthProvider.getInstance()).build()` and `private static final Request publicApi` without provider; it does NOT wire `AuthService.getInstance()` as `authProvider`
 
 ### Requirement: Multiple independent API clients
 
@@ -105,7 +112,7 @@ The architecture SHALL support `mindustrytool` API with auth, another API with d
 
 #### Scenario: MindustryTool uses two internal clients
 - **WHEN** `MindustryTool` is inspected
-- **THEN** it holds `private static final Request api` with `MindustryAuthProvider` and `private static final Request publicApi` without provider, using `api` for `/chats/*`/`/auth/session` and `publicApi` for `/ping`, `/maps/*`, `/schematics/*`, images, and unauth auth endpoints (`/auth/app/login-uri` with `withoutAuth`)
+- **THEN** it holds `private static final Request api` with `MindustryAuthProvider` (AuthProvider) and `private static final Request publicApi` without provider, using `api` for `/chats/*`/`/auth/session` and `publicApi` for `/ping`, `/maps/*`, `/schematics/*`, images, and unauth auth endpoints (`/auth/app/login-uri` with `withoutAuth`)
 
 ### Requirement: Multipart upload helper retained
 
@@ -122,3 +129,4 @@ The architecture SHALL support `mindustrytool` API with auth, another API with d
 #### Scenario: No fully-qualified Http types in method bodies
 - **WHEN** `src/mindustrytool/services/Request.java` is inspected
 - **THEN** it contains `import java.net.http.HttpRequest` etc. and bodies reference `HttpRequest`, `BodyHandlers`, `BodyPublishers`, `Duration` without `java.net.http.*` prefixes, and contains no `import old.*`
+

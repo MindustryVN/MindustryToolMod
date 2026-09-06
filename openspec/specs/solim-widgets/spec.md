@@ -1,10 +1,8 @@
 # solim-widgets Specification
 
 ## Purpose
-Core widget set for Solim — Display (`Text`, `Image`, `Icon`, `Badge`, `Avatar`), Input (`Button`, `IconButton`, `TextField`, `TextArea`, `Checkbox`, `Switch`, `Slider`, `Select`), Overlay (`Dialog`, `Popup`), Feedback (`Spinner`, `ProgressBar`, `Alert`) built on binding, styling, and layout foundations.
-
-## ADDED Requirements
-
+TBD - created by archiving change create-solim-core. Update Purpose after archive.
+## Requirements
 ### Requirement: Text widget with static and reactive content
 `Text` SHALL display string content via `text(String)` and `text(Signal<String>|Computed<String>)` (reactive). It SHALL wrap `arc.scene.ui.Label` or equivalent and support `style` binding and modifiers.
 
@@ -106,3 +104,4 @@ Widgets SHALL be implemented in order: `Text`, `Button`, then `TextField`, `Chec
 #### Scenario: Text and Button tests first
 - **WHEN** `gradle :solim:test` runs after initial implementation
 - **THEN** `Text`/`Button` reactive binding tests pass before `Dialog` tests are required
+

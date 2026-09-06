@@ -2,14 +2,14 @@ package mindustrytool.features;
 
 import java.util.Optional;
 
+import arc.Core;
 import arc.input.KeyBind;
 import arc.scene.style.Drawable;
 import arc.scene.style.TextureRegionDrawable;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
+import solim.signal.Signal;
 
 @Getter
-@AllArgsConstructor
 public class FeatureMetadata {
     private final String id;
     private final Drawable icon;
@@ -17,6 +17,24 @@ public class FeatureMetadata {
     private final boolean enabledByDefault;
     private final boolean quickAccess;
     private final Optional<KeyBind> keybind;
+    private final Signal<Boolean> enabled;
+
+    public FeatureMetadata(String id, Drawable icon, int order, boolean enabledByDefault, boolean quickAccess, Optional<KeyBind> keybind) {
+        this.id = id;
+        this.icon = icon;
+        this.order = order;
+        this.enabledByDefault = enabledByDefault;
+        this.quickAccess = quickAccess;
+        this.keybind = keybind != null ? keybind : Optional.empty();
+        boolean initial = (Core.settings != null)
+                ? Core.settings.getBool("mindustrytool.feature." + id + ".enabled", enabledByDefault)
+                : enabledByDefault;
+        this.enabled = Signal.of(initial);
+    }
+
+    public Signal<Boolean> enabled() {
+        return enabled;
+    }
 
     public static Builder builder() {
         return new Builder();

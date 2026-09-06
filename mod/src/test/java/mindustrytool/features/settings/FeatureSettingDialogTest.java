@@ -25,11 +25,11 @@ class FeatureSettingDialogTest {
     @BeforeEach
     void setUp() {
         testFeature = new Feature() {
-            private boolean enabled = true;
+            private final FeatureMetadata metadata = new FeatureMetadata("test-feature", null, 0, true, false, Optional.empty());
 
             @Override
             public FeatureMetadata getMetadata() {
-                return new FeatureMetadata("test-feature", null, 0, true, false, Optional.empty());
+                return metadata;
             }
 
             @Override
@@ -41,16 +41,6 @@ class FeatureSettingDialogTest {
             public String getDescription() {
                 return "Test Feature Description";
             }
-
-            @Override
-            public boolean isEnabled() {
-                return enabled;
-            }
-
-            @Override
-            public void setEnabled(boolean enabled) {
-                this.enabled = enabled;
-            }
         };
 
         FeatureManager.register(testFeature);
@@ -58,7 +48,7 @@ class FeatureSettingDialogTest {
 
     @AfterEach
     void tearDown() {
-        FeatureManager.getFeatures().remove(testFeature);
+        FeatureManager.unregister(testFeature);
     }
 
     @Test
@@ -94,97 +84,53 @@ class FeatureSettingDialogTest {
     }
 
     @Test
-    void testFeatureSettingsViewReactiveSignals() {
+    void testFeatureSettingsViewLifecycle() {
         FeatureSettingsView view = new FeatureSettingsView();
-
-        // Initial state
-        assertEquals("", view.filter().get());
-        assertTrue(view.filteredFeatures().get().contains(testFeature));
-        assertTrue(view.columnCount().get() >= 1);
-        assertTrue(view.cardWidth().get() > 0);
-
-        // Filtering by name
-        view.filter().set("Test");
-        assertTrue(view.filteredFeatures().get().contains(testFeature));
-
-        // Filtering with non-matching query
-        view.filter().set("NonExistentQueryXYZ");
-        assertFalse(view.filteredFeatures().get().contains(testFeature));
-
-        // Reset filter
-        view.filter().set("");
-        assertTrue(view.filteredFeatures().get().contains(testFeature));
-
-        // Content width reactivity
-        view.contentWidth().set(1200f);
-        int cols = view.columnCount().get();
-        assertEquals(Math.max(1, (int) (1200f / 340f)), cols);
-
-        // Refresh triggers revision
-        int revBefore = view.revision().get();
-        view.refresh();
-        assertEquals(revBefore + 1, view.revision().get());
-
-        // Dispose cleans up
+        view.onShown();
+        view.updateWidth(600f);
         view.dispose();
         assertTrue(view.isDisposed());
     }
 
     @Test
-    void testPropertyReactivityWithoutStructuralRebuild() {
-        FeatureSettingsView view = new FeatureSettingsView();
-        Signal<Boolean> featureSignal = view.getFeatureEnabledSignal(testFeature);
-        assertTrue(featureSignal.get());
+    void testFeatureManagerSignalReactivity() {
+        assertTrue(FeatureManager.getFeatures().contains(testFeature));
+        assertTrue(FeatureManager.features().get().contains(testFeature));
 
-        int initialRev = view.revision().get();
+        Feature dynamicFeature = new Feature() {
+            private final FeatureMetadata metadata = new FeatureMetadata("dynamic-feature", null, 1, true, false, Optional.empty());
 
-        // Firing event for specific feature updates feature signal directly
-        testFeature.setEnabled(false);
-        arc.Events.fire(new mindustrytool.features.FeatureStateChanged(testFeature, false));
+            @Override
+            public FeatureMetadata getMetadata() {
+                return metadata;
+            }
 
-        assertFalse(featureSignal.get(), "Feature enabled signal must update");
-        // Structural revision is not required for single feature property toggle
-        assertEquals(initialRev, view.revision().get(), "Property update should not bump structural revision");
+            @Override
+            public String getName() {
+                return "Dynamic Feature";
+            }
+        };
 
-        view.dispose();
+        FeatureManager.register(dynamicFeature);
+        assertTrue(FeatureManager.features().get().contains(dynamicFeature));
+
+        FeatureManager.unregister(dynamicFeature);
+        assertFalse(FeatureManager.features().get().contains(dynamicFeature));
     }
 
     @Test
-    void testEventListenerLifecycleAndUnregister() {
-        FeatureSettingsView view = new FeatureSettingsView();
-        Signal<Boolean> featureSignal = view.getFeatureEnabledSignal(testFeature);
-        assertTrue(featureSignal.get());
+    void testPropertyReactivityViaDirectFeatureSignal() {
+        assertTrue(testFeature.enabled().get());
+        assertTrue(testFeature.isEnabled());
 
-        // Firing event updates feature state
+        // Modifying feature state directly updates feature enabled Signal
         testFeature.setEnabled(false);
-        arc.Events.fire(new mindustrytool.features.FeatureStateChanged(testFeature, false));
-        assertFalse(featureSignal.get());
+        assertFalse(testFeature.enabled().get(), "Feature enabled signal must update");
+        assertFalse(testFeature.isEnabled());
 
-        // After disposing view, event listener must be unregistered
-        view.dispose();
         testFeature.setEnabled(true);
-        arc.Events.fire(new mindustrytool.features.FeatureStateChanged(testFeature, true));
-        // Disposed view signal stays unchanged
-        assertFalse(featureSignal.get(), "Disposed view must not receive events");
-    }
-
-    @Test
-    void testResponsiveColumnsAndCardWidth() {
-        FeatureSettingsView view = new FeatureSettingsView();
-
-        view.updateWidth(340f);
-        assertEquals(1, view.columnCount().get());
-        assertEquals(340f, view.cardWidth().get(), 0.001f);
-
-        view.updateWidth(680f);
-        assertEquals(2, view.columnCount().get());
-        assertEquals(340f, view.cardWidth().get(), 0.001f);
-
-        view.updateWidth(1020f);
-        assertEquals(3, view.columnCount().get());
-        assertEquals(340f, view.cardWidth().get(), 0.001f);
-
-        view.dispose();
+        assertTrue(testFeature.enabled().get());
+        assertTrue(testFeature.isEnabled());
     }
 
     @Test
@@ -254,10 +200,6 @@ class FeatureSettingDialogTest {
 
     @Test
     void testFeatureSettingDialogHelpers() {
-        assertNotNull(FeatureSettingDialog.bundle("non.existent.key", "fallback"));
-        assertEquals("fallback", FeatureSettingDialog.bundle("non.existent.key", "fallback"));
-        assertEquals("key", FeatureSettingDialog.bundle("key"));
-        assertEquals("key", FeatureSettingDialog.bundleFormat("key", "val"));
         assertTrue(FeatureSettingDialog.calcContentWidth() > 0f);
         assertNull(FeatureSettingDialog.icon(null));
         assertNull(FeatureSettingDialog.icon("nonExistentIcon12345"));

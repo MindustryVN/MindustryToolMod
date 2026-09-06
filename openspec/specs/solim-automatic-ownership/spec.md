@@ -1,5 +1,8 @@
-## ADDED Requirements
+# solim-automatic-ownership Specification
 
+## Purpose
+TBD - created by archiving change clean-up-solim-refactor. Update Purpose after archive.
+## Requirements
 ### Requirement: Ambient Lifecycle Ownership in Component Build
 The Solim framework SHALL automatically track child components, disposables, and Solim controls instantiated or attached during a component's `build()` execution without requiring explicit `own()` or `ownChild()` invocations.
 
@@ -21,3 +24,4 @@ Solim controls and reactive property bindings declared inside a component build 
 #### Scenario: Reactive property binding declared in build
 - **WHEN** a property binding is created during a component's `build()`
 - **THEN** the subscription is registered with the current component and cancelled upon component disposal
+
