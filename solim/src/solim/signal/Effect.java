@@ -1,5 +1,6 @@
 package solim.signal;
 
+import solim.core.Disposable;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.function.Supplier;
 /**
  * Reactive effect with auto-tracking and cleanup.
  */
-public final class Effect implements ReactiveObserver {
+public final class Effect implements ReactiveObserver, Disposable {
 
     public interface Cleanup {
         void add(Runnable runnable);

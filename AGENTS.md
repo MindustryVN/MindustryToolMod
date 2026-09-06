@@ -392,6 +392,33 @@ Github.getReleases();
 
 ---
 
+## Java Compatibility — Mandatory
+
+**This project uses Java 17 syntax running in a Java 8 runtime environment.**
+
+### Language Features vs Runtime APIs
+
+* **Java 17 Language Syntax is allowed**:
+  You may use Java 17 syntax supported by the compiler and desugaring toolchain, such as `var`, switch expressions, text blocks, etc.
+
+* **Java 8 Runtime APIs only**:
+  The application runs in a Java 8 runtime environment (including Mindustry JRE and Android runtime). You **MUST NOT** use standard library classes or methods introduced in Java 9 or later unless provided by an included library or backport.
+
+### Common Pitfalls & Replacements
+
+| Feature | ❌ Do NOT use (Java 9+) | ✅ Use instead (Java 8 compatible) |
+|---|---|---|
+| Immutable Collections | `List.of(...)`, `Set.of(...)`, `Map.of(...)` | `Arrays.asList(...)`, `new HashSet<>(...)`, `Collections.unmodifiableList(...)`, or Arc's `Seq.with(...)` |
+| Stream to List | `stream.toList()` | `stream.collect(Collectors.toList())` |
+| String Checks | `str.isBlank()`, `str.strip()` | `str.trim().isEmpty()`, `arc.util.Strings.isEmpty(...)` |
+| Optional | `opt.isEmpty()` | `!opt.isPresent()` |
+| Stream Predicate | `Predicate.not(...)` | Lambda `x -> !condition(x)` |
+| Stream Drop/Take | `stream.takeWhile(...)`, `stream.dropWhile(...)` | Java 8 stream filters or standard loops |
+| Input Stream | `in.readAllBytes()`, `in.transferTo(...)` | Byte buffers, `Streams.copy(...)`, or Java 8 loop |
+| File IO | `Files.readString(...)`, `Files.writeString(...)` | Arc's `Fi` utilities (`fi.readString()`), or Java 8 `BufferedReader` / `BufferedWriter` |
+
+---
+
 ## Before Completing Any Task
 
 Before finishing a task, the AI agent must verify:
@@ -407,5 +434,6 @@ Before finishing a task, the AI agent must verify:
 * [ ] Translation keys follow the project's naming conventions.
 * [ ] No duplicate translation keys were introduced.
 * [ ] All HTTP calls go through `mindustrytool.services.Request` (via `MindustryTool`/`Github` or an owned `Request` instance); no direct `HttpClient`/`HttpRequest` construction outside `Request.java`.
+* [ ] Java 8 runtime compatibility verified: no Java 9+ standard library APIs or methods (e.g., `List.of`, `Set.of`, `Map.of`, `Stream.toList`, `String.isBlank`, `Optional.isEmpty`) are used.
 
 **A UI or player-facing feature is not considered complete until all of its display text has been properly added to the translation bundle with sufficient context for translators.**
