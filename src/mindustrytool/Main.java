@@ -28,6 +28,7 @@ public class Main extends Mod {
         }
 
         Events.on(ClientLoadEvent.class, event -> {
+            registerMindustryToolButton();
 
             PacketReplacer.replace();
         });
@@ -36,7 +37,9 @@ public class Main extends Mod {
     private void registerMindustryToolButton() {
         Core.app.post(() -> {
             try {
-                Vars.ui.menufrag.addButton("Mindustry Tool", FileIcon.of("mod.png"), () -> featureSettingDialog.show());
+                Vars.ui.menufrag.addButton("Mindustry Tool", FileIcon.of("mod.png"), () -> {
+                    // Show feature setting dialog
+                });
             } catch (Exception err) {
                 Vars.ui.showException(err);
             }
