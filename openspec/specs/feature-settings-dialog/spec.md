@@ -1,5 +1,8 @@
-## ADDED Requirements
+# feature-settings-dialog Specification
 
+## Purpose
+Declarative feature settings dialog and view built with Solim reactive signals and structural layout components to manage, filter, re-enable, and inspect mod features.
+## Requirements
 ### Requirement: Declarative Search and Filter
 The feature settings dialog SHALL provide a search input backed by a Solim reactive `Signal<String>` that filters mod features in real time across feature names, descriptions, and metadata IDs.
 
@@ -39,3 +42,4 @@ The feature settings dialog SHALL adapt its grid layout dynamically to screen si
 #### Scenario: Dialog closed
 - **WHEN** the dialog is closed or hidden
 - **THEN** all associated Solim effects, reactive bindings, and event listeners are properly disposed
+
