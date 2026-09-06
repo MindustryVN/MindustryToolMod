@@ -52,8 +52,8 @@ public class SmartUpgradeFeature implements Feature {
     @Override
     public FeatureMetadata getMetadata() {
         return FeatureMetadata.builder()
-                .name("feature.smart-upgrade")
-                .description("feature.smart-upgrade.description")
+                .name("@feature.smart-upgrade")
+                .description("@feature.smart-upgrade.description")
                 .icon(Icon.up)
                 .quickAccess(true)
                 .build();

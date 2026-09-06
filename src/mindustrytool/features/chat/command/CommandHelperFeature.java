@@ -40,7 +40,7 @@ public class CommandHelperFeature implements Feature {
                 .icon(Icon.terminal)
                 .order(5)
                 .enabledByDefault(true)
-                .quickAccess(false)
+                .quickAccess(true)
                 .build();
     }
 

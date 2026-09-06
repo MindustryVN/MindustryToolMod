@@ -42,6 +42,9 @@ import mindustrytool.features.music.MusicFeature;
 import mindustrytool.features.music.dto.MusicRegisterEvent;
 import mindustrytool.features.display.wavepreview.WavePreviewFeature;
 import mindustrytool.features.chat.translation.ChatTranslationFeature;
+import mindustrytool.features.chat.command.CommandHelperFeature;
+import mindustrytool.features.chat.pretty.PrettyChatFeature;
+import mindustrytool.features.display.itemvisualizer.ItemVisualizerFeature;
 import mindustrytool.features.savesync.SaveSyncFeature;
 
 public class Main extends Mod {
@@ -129,11 +132,12 @@ public class Main extends Mod {
                 new QuickAccessFeature(), //
                 new ChatFeature(),
                 new ChatTranslationFeature(),
-                // new PrettyChatFeature(),
+                new CommandHelperFeature(),
+                new PrettyChatFeature(),
                 new AutoplayFeature(),
                 new WavePreviewFeature(),
                 new SaveSyncFeature(),
-                // new ItemVisualizerFeature(),
+                new ItemVisualizerFeature(),
                 new GodModeFeature(),
                 new SmartDrillFeature(),
                 new SmartUpgradeFeature(),

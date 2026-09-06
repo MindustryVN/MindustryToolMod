@@ -7,14 +7,18 @@ import arc.graphics.g2d.TextureRegion;
 import arc.math.Mathf;
 import arc.math.geom.Rect;
 import arc.scene.ui.Dialog;
+import arc.util.Time;
 import mindustry.Vars;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Building;
 import mindustry.gen.Icon;
 import mindustry.graphics.Layer;
 import mindustry.type.Item;
+import mindustry.type.Liquid;
 import mindustry.world.blocks.distribution.BufferedItemBridge.BufferedItemBridgeBuild;
 import mindustry.world.blocks.distribution.ItemBridge.ItemBridgeBuild;
+import mindustry.world.blocks.distribution.Router.RouterBuild;
+import mindustry.world.blocks.liquid.LiquidBridge.LiquidBridgeBuild;
 import mindustry.world.modules.ItemModule;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
@@ -29,9 +33,11 @@ public class ItemVisualizerFeature implements Feature {
     @Override
     public FeatureMetadata getMetadata() {
         return FeatureMetadata.builder()
-                .name("Item Visualizer")
-                .description("Visualizes item and liquid flow in bridges, routers and unloaders.")
+                .name("@feature.item-visualizer")
+                .description("@feature.item-visualizer.description")
                 .icon(Icon.distribution)
+                .quickAccess(true)
+                .enabledByDefault(false)
                 .build();
     }
 
@@ -57,7 +63,10 @@ public class ItemVisualizerFeature implements Feature {
     }
 
     private void draw() {
-        if (!active || !Vars.state.isGame()) return;
+        if (!active || !Vars.state.isGame() || Vars.world == null || Vars.indexer == null
+                || Vars.ui == null || Vars.ui.hudfrag == null || !Vars.ui.hudfrag.shown) {
+            return;
+        }
 
         Core.camera.bounds(viewBounds);
         float z = Draw.z();
@@ -67,17 +76,23 @@ public class ItemVisualizerFeature implements Feature {
         float cy = viewBounds.y + viewBounds.height / 2f;
         float range = Math.max(viewBounds.width, viewBounds.height) * 0.75f;
 
-        Vars.indexer.eachBlock(Vars.player.team(), cx, cy, range, b -> true, this::renderBuildingOverlay);
+        Vars.indexer.eachBlock(null, cx, cy, range, b -> true, this::renderBuildingOverlay);
 
         Draw.z(z);
         Draw.reset();
     }
 
     private void renderBuildingOverlay(Building build) {
-        if (build == null) return;
+        if (build == null || !build.isValid()) return;
 
         if (ItemVisualizerSettings.showItemBridges) {
             renderItemBridge(build);
+        }
+        if (ItemVisualizerSettings.showLiquidBridges) {
+            renderLiquidBridge(build);
+        }
+        if (ItemVisualizerSettings.showRouters) {
+            renderRouter(build);
         }
     }
 
@@ -105,13 +120,46 @@ public class ItemVisualizerFeature implements Feature {
 
         tempItemModule.set(items);
         int total = tempItemModule.total();
+        if (total <= 0) return;
+
         int index = total;
         Item item = tempItemModule.take();
 
-        while (item != null) {
+        while (item != null && index > 0) {
             drawFlow(from.x, from.y, to.x, to.y, item.uiIcon, (float) index / total);
             index--;
             item = tempItemModule.take();
+        }
+    }
+
+    private void renderLiquidBridge(Building build) {
+        if (build instanceof LiquidBridgeBuild bridge) {
+            if (bridge.link == -1 || bridge.liquids == null) return;
+            Building linked = Vars.world.build(bridge.link);
+            if (linked == null) return;
+
+            Liquid liquid = bridge.liquids.current();
+            if (liquid == null || bridge.liquids.currentAmount() <= 0.01f) return;
+
+            float progress = (Time.time % 60f) / 60f;
+            float lx = Mathf.lerp(build.x, linked.x, progress);
+            float ly = Mathf.lerp(build.y, linked.y, progress);
+
+            Draw.color(liquid.color);
+            Draw.rect(liquid.uiIcon, lx, ly, 6f, 6f);
+            Draw.color();
+        }
+    }
+
+    private void renderRouter(Building build) {
+        if (build instanceof RouterBuild router) {
+            if (router.items != null && router.items.total() > 0) {
+                Item item = router.items.first();
+                if (item != null && item.uiIcon != null) {
+                    Draw.color();
+                    Draw.rect(item.uiIcon, router.x, router.y, 6f, 6f);
+                }
+            }
         }
     }
 

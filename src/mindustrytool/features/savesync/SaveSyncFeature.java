@@ -26,8 +26,8 @@ public class SaveSyncFeature implements Feature {
     @Override
     public FeatureMetadata getMetadata() {
         return FeatureMetadata.builder()
-                .name("save-sync")
-                .description("Sync your saves with the cloud.")
+                .name("@feature.save-sync")
+                .description("@feature.save-sync.description")
                 .icon(Icon.save)
                 .order(10)
                 .enabledByDefault(false)

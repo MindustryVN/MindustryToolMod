@@ -4,6 +4,9 @@ import java.util.Optional;
 
 import arc.Core;
 import arc.Events;
+import arc.input.KeyCode;
+import arc.scene.event.InputEvent;
+import arc.scene.event.InputListener;
 import arc.scene.ui.Dialog;
 import arc.scene.ui.TextField;
 import arc.struct.Seq;
@@ -14,7 +17,6 @@ import lombok.Getter;
 import mindustry.Vars;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Icon;
-import mindustry.input.Binding;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 
@@ -23,54 +25,15 @@ public class PrettyChatFeature implements Feature {
     @Getter
     private static final Seq<Prettier> prettiers = new Seq<>();
 
+    private TextField lastHookedField = null;
+
     static {
-        prettiers.add(new Prettier(
-                "default",
-                "Default",
-                "<message>"));
-
-        prettiers.add(new Prettier(
-                "uwu",
-                "UwUifier",
-                "<message>"
-                        + ".replace(/r/g,'w').replace(/R/g,'W')"
-                        + ".replace(/l/g,'w').replace(/L/g,'W')"
-                        + ".replace(/ove/g,'uv')"
-                        + " + ' uwu'"));
-
-        prettiers.add(new Prettier(
-                "caps",
-                "CAPS LOCK",
-                "<message>.toUpperCase()"));
-
-        prettiers.add(new Prettier(
-                "lowercase",
-                "lowercase",
-                "<message>.toLowerCase()"));
-
-        prettiers.add(new Prettier(
-                "reverse",
-                "esreveR",
-                "<message>.split('').reverse().join('')"));
-
-        prettiers.add(new Prettier(
-                "rainbow",
-                "rainbow",
-                "(function(){"
-                        + "var c=['red','orange','yellow','green','cyan','blue','purple'];"
-                        + "var o='';"
-                        + "var ci=0;"
-                        + "var words=" + "<message>" + ".split(' ');"
-                        + "for(var j=0;j<words.length;j++){"
-                        + "if(j>0)o+=' ';"
-                        + "var word=words[j];"
-                        + "for(var i=0;i<word.length;i++){"
-                        + "o+='['+c[ci%c.length]+']'+word.charAt(i);"
-                        + "}"
-                        + "ci++;"
-                        + "}"
-                        + "return o+'[]';"
-                        + "})()"));
+        prettiers.add(new Prettier("default", "Default", "<message>"));
+        prettiers.add(new Prettier("uwu", "UwUifier", "<message>.replace(/r/g,'w').replace(/l/g,'w') + ' uwu'"));
+        prettiers.add(new Prettier("caps", "CAPS LOCK", "<message>.toUpperCase()"));
+        prettiers.add(new Prettier("lowercase", "lowercase", "<message>.toLowerCase()"));
+        prettiers.add(new Prettier("reverse", "esreveR", "<message>.split('').reverse().join('')"));
+        prettiers.add(new Prettier("rainbow", "rainbow", "rainbow(<message>)"));
     }
 
     @Override
@@ -79,27 +42,46 @@ public class PrettyChatFeature implements Feature {
                 .name("@feature.prettychat")
                 .description("@feature.prettychat.description")
                 .icon(Icon.chat)
+                .quickAccess(true)
                 .build();
     }
 
     @Override
     public void init() {
-        Events.run(Trigger.update, () -> {
-            if (Core.input.keyTap(Binding.chat) && Vars.ui.chatfrag.shown()) {
-                Core.app.post(this::applyPrettifiersToChatField);
-            }
-        });
+        Events.run(Trigger.update, this::hookChatField);
     }
 
-    private void applyPrettifiersToChatField() {
+    private void hookChatField() {
+        if (!isEnabled() || Vars.ui == null || Vars.ui.chatfrag == null) return;
+
         try {
             TextField chatfield = Reflect.get(Vars.ui.chatfrag, "chatfield");
-            if (chatfield == null) return;
+            if (chatfield == null || chatfield == lastHookedField) return;
 
-            String formatted = transform(chatfield.getText());
-            chatfield.setText(formatted.substring(0, Math.min(Vars.maxTextLength, formatted.length())));
+            lastHookedField = chatfield;
+            chatfield.addListener(new InputListener() {
+                @Override
+                public boolean keyDown(InputEvent event, KeyCode keycode) {
+                    if (keycode == KeyCode.enter && !Core.input.keyDown(KeyCode.shiftLeft)) {
+                        applyPrettifiersToChatField(chatfield);
+                    }
+                    return false;
+                }
+            });
         } catch (Exception e) {
-            Log.err(e);
+            Log.err("Failed to hook chatfield for PrettyChat", e);
+        }
+    }
+
+    private void applyPrettifiersToChatField(TextField chatfield) {
+        if (!isEnabled() || chatfield == null) return;
+
+        String raw = chatfield.getText();
+        if (raw == null || raw.trim().isEmpty()) return;
+
+        String formatted = transform(raw);
+        if (formatted != null && !formatted.equals(raw)) {
+            chatfield.setText(formatted.substring(0, Math.min(Vars.maxTextLength, formatted.length())));
         }
     }
 
@@ -109,7 +91,7 @@ public class PrettyChatFeature implements Feature {
     }
 
     public String transform(String message) {
-        if (!isEnabled() || message == null || message.isEmpty()) {
+        if (!isEnabled() || message == null || message.trim().isEmpty()) {
             return message;
         }
 
@@ -124,8 +106,8 @@ public class PrettyChatFeature implements Feature {
             if (!cmd.equals("/t") && !cmd.equals("/a")) {
                 return message;
             }
-            commandPrefix = cmd;
-            content = message.substring(subIndex);
+            commandPrefix = cmd + " ";
+            content = message.substring(subIndex).trim();
         }
 
         String result = content;
@@ -136,17 +118,66 @@ public class PrettyChatFeature implements Feature {
             }
         }
 
-        return commandPrefix + result;
+        return (commandPrefix + result).trim();
     }
 
     public static String transform(String message, Prettier prettier) {
-        var result = Vars.mods.getScripts().runConsole(prettier.getScript().replace("<message>", '"' + message + '"'));
+        if (message == null || message.isEmpty()) return message;
 
-        if (result == null) {
-            return "Script: " + prettier.getScript() + "\nreturn null";
+        switch (prettier.getId()) {
+            case "default":
+                return message;
+            case "uwu":
+                return applyUwU(message);
+            case "caps":
+                return message.toUpperCase();
+            case "lowercase":
+                return message.toLowerCase();
+            case "reverse":
+                return new StringBuilder(message).reverse().toString();
+            case "rainbow":
+                return applyRainbow(message);
+            default:
+                return applyCustomScript(message, prettier);
         }
+    }
 
-        return result;
+    private static String applyUwU(String message) {
+        return message.replaceAll("[rl]", "w")
+                .replaceAll("[RL]", "W")
+                .replaceAll("ove", "uv")
+                .replaceAll("OVE", "UV") + " uwu";
+    }
+
+    private static String applyRainbow(String message) {
+        String[] colors = {"red", "orange", "yellow", "green", "cyan", "blue", "purple"};
+        StringBuilder sb = new StringBuilder();
+        String[] words = message.split(" ");
+        for (int j = 0; j < words.length; j++) {
+            if (j > 0) sb.append(" ");
+            String word = words[j];
+            for (int i = 0; i < word.length(); i++) {
+                sb.append("[").append(colors[(j + i) % colors.length]).append("]").append(word.charAt(i));
+            }
+        }
+        return sb.append("[]").toString();
+    }
+
+    private static String applyCustomScript(String message, Prettier prettier) {
+        try {
+            String script = prettier.getScript();
+            if (script == null || script.trim().isEmpty()) return message;
+
+            String escaped = message.replace("\\", "\\\\")
+                    .replace("\"", "\\\"")
+                    .replace("\n", "\\n")
+                    .replace("\r", "");
+            String result = Vars.mods.getScripts().runConsole(script.replace("<message>", '"' + escaped + '"'));
+            return result != null ? result : message;
+        } catch (Exception e) {
+            Log.err("PrettyChat transform failed for " + prettier.getId(), e);
+            return message;
+        }
     }
 
     @Getter
