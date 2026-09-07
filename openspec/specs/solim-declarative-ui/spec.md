@@ -4,7 +4,7 @@
 TBD - created by archiving change create-solim-core. Update Purpose after archive.
 ## Requirements
 ### Requirement: Implicit parent stack with lambda scopes
-The framework SHALL provide `solim.ui.ParentStack` (or `Ui` facade) with static helpers `column(Runnable)`, `row(Runnable)`, `stack(Runnable)`, `grid(int columns, Runnable)`, `wrap(Runnable)`, `scroll(Runnable)`, `container(Runnable)` that push a layout `Element` onto a stack, execute the lambda, pop with `try/finally`, and return the layout `Element`. Every child created inside the lambda SHALL auto-attach to current parent.
+The framework SHALL provide `solim.ui.ParentStack` (and `Ui` facade) with static helpers `column(Runnable)`, `row(Runnable)`, `stack(Runnable)`, `grid(int columns, Runnable)`, `wrap(Runnable)`, `scroll(Runnable)`, `container(Runnable)`, and `card(Runnable)` / `card(ButtonStyle, Runnable)` that push a layout `Element` onto a stack, execute the lambda, pop with `try/finally`, and return the layout `Element` or component. Every child created inside the lambda SHALL auto-attach to current parent.
 
 #### Scenario: Push/pop with try/finally
 - **WHEN** `column(() -> { text("Settings"); row(() -> { button("Cancel"); button("Save"); }); })` executes
@@ -17,6 +17,17 @@ The framework SHALL provide `solim.ui.ParentStack` (or `Ui` facade) with static 
 #### Scenario: No start/end API
 - **WHEN** `solim.ui.Ui` is inspected
 - **THEN** it does NOT expose `startColumn()`/`endColumn()` or `startComponent()`/`endComponent()` — only lambda-scoped methods exist
+
+#### Scenario: Declarative card composition
+- **WHEN** `card(Styles.black8, () -> { text("Card Title"); })` is called
+- **THEN** a `Card` layout is pushed onto the stack, children are attached within the card's inner container, and the card is auto-attached to the current parent
+
+### Requirement: Icon button declarative facades
+`Ui` SHALL provide static facades `iconButton(Drawable icon, Runnable onClick)` and `iconButton(Drawable icon, ImageButtonStyle style, Runnable onClick)` that construct an `IconButton`, automatically attach it to the active parent in `ParentStack`, and return the component for chained modifier calls.
+
+#### Scenario: Attaching icon button via Ui facade
+- **WHEN** `iconButton(Icon.infoCircle, onClick)` is called inside a `row(...)`
+- **THEN** an `IconButton` is created, its element attached to the row table, and the `IconButton` instance returned
 
 ### Requirement: Stack cleanup guarantee
 `ParentStack` SHALL guarantee cleanup even if child construction throws, using `try { push; runnable.run(); } finally { pop; }`.

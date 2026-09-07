@@ -419,6 +419,49 @@ Github.getReleases();
 
 ---
 
+## Nullability — Mandatory
+
+**By default, all variables, fields, method parameters, and method return values are non-nullable.**
+
+If a variable, field, method parameter, or method return value can be null, you **MUST** annotate it with `@Nullable` (from `arc.util.Nullable`).
+
+Never use `javax.annotation.Nullable`, `org.jetbrains.annotations.Nullable`, or other third-party annotations. Always use `arc.util.Nullable`.
+
+❌ Bad:
+
+```java
+// Method return can be null, but lacks @Nullable
+public Dialog getSettingDialog() {
+    return null;
+}
+
+// Parameter can be null, but lacks @Nullable
+public void process(String value) {
+    if (value != null) { ... }
+}
+
+// Field can be null, but lacks @Nullable
+private String cachedToken;
+```
+
+✅ Good:
+
+```java
+import arc.util.Nullable;
+
+public @Nullable Dialog getSettingDialog() {
+    return null;
+}
+
+public void process(@Nullable String value) {
+    if (value != null) { ... }
+}
+
+private @Nullable String cachedToken;
+```
+
+---
+
 ## Before Completing Any Task
 
 Before finishing a task, the AI agent must verify:
@@ -435,6 +478,7 @@ Before finishing a task, the AI agent must verify:
 * [ ] No duplicate translation keys were introduced.
 * [ ] All HTTP calls go through `mindustrytool.services.Request` (via `MindustryTool`/`Github` or an owned `Request` instance); no direct HTTP connection construction outside `Request.java`.
 * [ ] Java 8 runtime compatibility verified: no Java 9+ standard library APIs or methods (e.g., `List.of`, `Set.of`, `Map.of`, `Stream.toList`, `String.isBlank`, `Optional.isEmpty`) are used.
+* [ ] Nullability verified: all variables, fields, parameters, and method return types that can be null are annotated with `@Nullable` (from `arc.util.Nullable`).
 
 **A UI or player-facing feature is not considered complete until all of its display text has been properly added to the translation bundle with sufficient context for translators.**
 
