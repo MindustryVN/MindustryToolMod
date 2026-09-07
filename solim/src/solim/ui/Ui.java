@@ -113,6 +113,7 @@ public final class Ui {
 	public static boolean isExpanding(Element child) {
 		if (child == null) return false;
 		if ("spacer".equals(child.name)) return true;
+		if ("expanding".equals(child.userObject) || Boolean.TRUE.equals(child.userObject)) return true;
 		if (child.fillParent) return true;
 		if (child instanceof ScrollPane) return true;
 		if (child instanceof Table) {

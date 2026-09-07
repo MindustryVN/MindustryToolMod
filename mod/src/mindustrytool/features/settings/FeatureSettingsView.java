@@ -36,8 +36,7 @@ public final class FeatureSettingsView extends BaseComponent {
                                         feature -> feature.getMetadata().getId(),
                                         feature -> new FeatureCard(feature, cardWidth))
                                         .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
-                                                .color(Color.gray)
-                                                .padding(40f));
+                                                .color(Color.gray));
                             });
                 })
                 .element();
@@ -45,7 +44,6 @@ public final class FeatureSettingsView extends BaseComponent {
 
     private void toolbar() {
         row()
-                .padding(10f)
                 .children(() -> {
                     icon(Icon.zoom);
                     textField(filter)

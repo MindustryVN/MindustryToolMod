@@ -196,6 +196,7 @@ class LayoutTest {
 		assertTrue(toolbar.getHeight() > 0f, "Toolbar must have non-zero height");
 		assertTrue(scroll.getWidth() > 0f, "Scroll must have non-zero width");
 		assertTrue(scroll.getHeight() > 0f, "Scroll must have non-zero height");
+		assertTrue(scroll.y + scroll.getHeight() <= toolbar.y, "Scroll and Toolbar must not overlap vertically");
 	}
 
 	@Test

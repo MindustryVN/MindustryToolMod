@@ -46,17 +46,17 @@ public final class Scroll implements Component {
 	}
 
 	public Scroll grow() {
-		outer.setFillParent(true);
+		outer.userObject = "expanding";
 		return this;
 	}
 
 	public Scroll growX() {
-		outer.setFillParent(true);
+		outer.userObject = "expanding";
 		return this;
 	}
 
 	public Scroll growY() {
-		outer.setFillParent(true);
+		outer.userObject = "expanding";
 		return this;
 	}
 

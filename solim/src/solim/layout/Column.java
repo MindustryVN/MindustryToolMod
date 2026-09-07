@@ -65,17 +65,17 @@ public final class Column implements Component {
 	}
 
 	public Column grow() {
-		table.setFillParent(true);
+		table.userObject = "expanding";
 		return this;
 	}
 
 	public Column growX() {
-		table.setFillParent(true);
+		table.userObject = "expanding";
 		return this;
 	}
 
 	public Column growY() {
-		table.setFillParent(true);
+		table.userObject = "expanding";
 		return this;
 	}
 

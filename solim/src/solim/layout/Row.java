@@ -46,17 +46,17 @@ public final class Row implements Component {
 	}
 
 	public Row grow() {
-		table.setFillParent(true);
+		table.userObject = "expanding";
 		return this;
 	}
 
 	public Row growX() {
-		table.setFillParent(true);
+		table.userObject = "expanding";
 		return this;
 	}
 
 	public Row growY() {
-		table.setFillParent(true);
+		table.userObject = "expanding";
 		return this;
 	}
 
