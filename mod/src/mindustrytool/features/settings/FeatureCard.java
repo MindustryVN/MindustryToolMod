@@ -14,81 +14,85 @@ import solim.core.BaseComponent;
 import solim.signal.Readable;
 
 /**
- * Component responsible for building and managing a single feature's visual card. Handles display
- * of metadata, action shortcuts (help, settings, main dialog), and state toggling with direct
+ * Component responsible for building and managing a single feature's visual
+ * card. Handles display
+ * of metadata, action shortcuts (help, settings, main dialog), and state
+ * toggling with direct
  * property reactivity using pure Solim components.
  */
 @AllArgsConstructor
 public class FeatureCard extends BaseComponent {
 
-	private final Feature feature;
-	private final Readable<Float> cardWidth;
+    private final Feature feature;
+    private final Readable<Float> cardWidth;
 
-	@Override
-	protected Element build() {
-		var metadata = feature.getMetadata();
+    @Override
+    protected Element build() {
+        var metadata = feature.getMetadata();
 
-		return card(Styles.black8)
-				.name("FeatureCard-" + metadata.getId())
-				.prefHeight(180f)
-				.padding(12f)
-				.width(cardWidth.map(w -> Math.max(0f, w - 10f)))
-				.color(feature.enabled().map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet))
-				.onClick(() -> feature.setEnabled(!feature.isEnabled()))
-				.children(() -> {
-					row().gap(8f).children(() -> {
-						image(metadata.getIcon()).scaling(Scaling.fit).size(24f);
+        return card(Styles.black8)
+                .name("FeatureCard-" + metadata.getId())
+                .prefHeight(180f)
+                .background(Styles.black8)
+                .padding(12f)
+                .width(cardWidth.map(w -> Math.max(0f, w - 10f)))
+                .color(feature.enabled().map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet))
+                .onClick(() -> feature.setEnabled(!feature.isEnabled()))
+                .children(() -> {
+                    row()
+                            .gap(8f)
+                            .children(() -> {
+                                image(metadata.getIcon()).scaling(Scaling.fit).size(24f);
 
-						text(feature.getName())
-								.style(Styles.defaultLabel)
-								.color(Color.white)
-								.ellipsis(true)
-								.left();
+                                text(feature.getName())
+                                        .style(Styles.defaultLabel)
+                                        .color(Color.white)
+                                        .ellipsis(true)
+                                        .left();
 
-						spacer();
+                                spacer();
 
-						if (feature.getMainDialog() != null) {
-							iconButton(
-											Icon.linkSmall,
-											Styles.clearNonei,
-											() -> Core.app.post(() ->
-													feature.getMainDialog().show()))
-									.size(32f)
-									.tooltip(Core.bundle.get("feature.button.open-dialog"));
-						}
+                                if (feature.getMainDialog() != null) {
+                                    iconButton(
+                                            Icon.linkSmall,
+                                            Styles.clearNonei,
+                                            () -> Core.app.post(() -> feature.getMainDialog().show()))
+                                            .size(32f)
+                                            .tooltip(Core.bundle.get("feature.button.open-dialog"));
+                                }
 
-						if (feature.getSettingDialog() != null) {
-							iconButton(
-											Icon.settings,
-											Styles.clearNonei,
-											() -> Core.app.post(() ->
-													feature.getSettingDialog().show()))
-									.size(32f)
-									.tooltip(Core.bundle.get("feature.button.settings"));
-						}
+                                if (feature.getSettingDialog() != null) {
+                                    iconButton(
+                                            Icon.settings,
+                                            Styles.clearNonei,
+                                            () -> Core.app.post(() -> feature.getSettingDialog().show()))
+                                            .size(32f)
+                                            .tooltip(Core.bundle.get("feature.button.settings"));
+                                }
 
-						iconButton(Icon.infoCircle, Styles.clearNonei, () -> new FeatureHelpDialog(feature).show())
-								.size(32f)
-								.tooltip(Core.bundle.get("feature.button.help"));
-					});
+                                iconButton(Icon.infoCircle, Styles.clearNonei,
+                                        () -> new FeatureHelpDialog(feature).show())
+                                        .size(32f)
+                                        .tooltip(Core.bundle.get("feature.button.help"));
+                            });
 
-					text(feature.getDescription())
-							.color(Color.lightGray)
-							.fontScale(0.9f)
-							.wrap(true)
-							.ellipsis(true)
-							.left();
+                    text(feature.getDescription())
+                            .color(Color.lightGray)
+                            .fontScale(0.9f)
+                            .wrap(true)
+                            .ellipsis(true)
+                            .left();
 
-					spacer();
+                    spacer();
 
-					text(feature.enabled()
-									.map(val -> Boolean.TRUE.equals(val)
-											? Core.bundle.get("feature.status.enabled")
-											: Core.bundle.get("feature.status.disabled")))
-							.style(Styles.defaultLabel)
-							.color(feature.enabled().map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
-							.left();
-				})
-				.element();
-	}
+                    text(feature.enabled()
+                            .map(val -> Boolean.TRUE.equals(val)
+                                    ? Core.bundle.get("feature.status.enabled")
+                                    : Core.bundle.get("feature.status.disabled")))
+                            .style(Styles.defaultLabel)
+                            .color(feature.enabled().map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
+                            .left();
+                })
+                .element();
+    }
 }

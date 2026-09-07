@@ -50,6 +50,7 @@ public final class FeatureSettingsView extends BaseComponent {
                     icon(Icon.zoom);
                     textField(filter)
                             .placeholder(Core.bundle.get("feature.search.placeholder"));
+
                     button(Core.bundle.get("feature.button.re-enable"), Icon.refresh, FeatureManager::reenable)
                             .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
                 });

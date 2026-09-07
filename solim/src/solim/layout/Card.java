@@ -222,6 +222,13 @@ public final class Card implements Component, Disposable {
 		}
 		return this;
 	}
+	
+    public Card background(Drawable background) {
+		if (background != null) {
+			cardButton.setBackground(background);
+		}
+		return this;
+	}
 
 	public Card name(String name) {
 		cardButton.name = name;

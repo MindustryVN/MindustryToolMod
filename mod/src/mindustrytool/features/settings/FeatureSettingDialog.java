@@ -15,7 +15,6 @@ import solim.overlay.SolimDialog;
 
 public final class FeatureSettingDialog extends SolimDialog {
     public FeatureSettingDialog() {
-        super(Core.bundle.get("feature.dialog.title", "Features"));
         addCloseButton();
         closeOnBack();
         content(new FeatureSettingsView());
