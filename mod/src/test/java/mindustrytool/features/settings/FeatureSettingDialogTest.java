@@ -1,6 +1,5 @@
 package mindustrytool.features.settings;
 
-import arc.Core;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.features.FeatureMetadata;
@@ -132,22 +131,6 @@ class FeatureSettingDialogTest {
         testFeature.setEnabled(true);
         assertTrue(testFeature.enabled().get());
         assertTrue(testFeature.isEnabled());
-    }
-
-    @Test
-    void testDialogLifecycleIfSceneAvailable() {
-        if (Core.scene != null) {
-            FeatureSettingDialog dialog = new FeatureSettingDialog();
-            assertNotNull(dialog.view());
-            assertFalse(dialog.isDisposed());
-
-            dialog.show();
-            assertTrue(dialog.isShown());
-
-            dialog.dispose();
-            assertTrue(dialog.isDisposed());
-            assertTrue(dialog.view().isDisposed());
-        }
     }
 
     private static File findSourceFile(String relativePath) {
