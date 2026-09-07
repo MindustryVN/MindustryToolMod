@@ -17,19 +17,19 @@ import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Dialog;
 
 public class BackgroundFeature extends Feature {
+
+    public BackgroundFeature() {
+        super(FeatureMetadata.builder()
+                .id("background")
+                .icon(Icon.image)
+                .build());
+    }
+
     static final String SETTING_KEY = "mindustrytool.background.path";
     static final String SETTING_OPACITY_KEY = "mindustrytool.background.opacity";
     private MenuRenderer originalRenderer;
     private CustomMenuRenderer customRenderer;
     private Dialog settingDialog;
-
-    @Override
-    public FeatureMetadata getMetadata() {
-        return FeatureMetadata.builder()
-                .id("background")
-                .icon(Icon.image)
-                .build();
-    }
 
     @Override
     public Dialog getSettingDialog() {

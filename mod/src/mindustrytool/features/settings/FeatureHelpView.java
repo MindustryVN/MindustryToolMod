@@ -3,7 +3,6 @@ package mindustrytool.features.settings;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import arc.scene.style.Drawable;
 import arc.util.Scaling;
 import lombok.AllArgsConstructor;
 import mindustry.ui.Styles;
@@ -12,9 +11,6 @@ import solim.core.BaseComponent;
 
 import static solim.ui.Ui.*;
 
-/**
- * Declarative Solim component for rendering help and documentation for a {@link Feature}.
- */
 @AllArgsConstructor
 public class FeatureHelpView extends BaseComponent {
 
@@ -33,8 +29,7 @@ public class FeatureHelpView extends BaseComponent {
             column(() -> {
                 if (feature.getMetadata() != null && feature.getMetadata().getIcon() != null) {
                     row(() -> {
-                        Drawable icon = feature.getMetadata().getIcon();
-                        image(icon).scaling(Scaling.fit).size(32f);
+                        image(feature.getMetadata().getIcon()).scaling(Scaling.fit).size(32f);
                         text(feature.getName() != null ? feature.getName() : "")
                                 .style(Styles.defaultLabel)
                                 .color(Color.white)

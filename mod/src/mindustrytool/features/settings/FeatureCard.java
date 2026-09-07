@@ -3,7 +3,6 @@ package mindustrytool.features.settings;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import arc.scene.style.Drawable;
 import arc.util.Scaling;
 import lombok.AllArgsConstructor;
 import mindustry.gen.Icon;
@@ -33,12 +32,9 @@ public class FeatureCard extends BaseComponent {
 
         return card(Styles.black8, () -> {
             row(() -> {
-                Drawable icon = metadata.getIcon();
-                if (icon != null) {
-                    image(icon)
-                            .scaling(Scaling.fit)
-                            .size(24f);
-                }
+                image(metadata.getIcon())
+                        .scaling(Scaling.fit)
+                        .size(24f);
 
                 text(feature.getName())
                         .style(Styles.defaultLabel)

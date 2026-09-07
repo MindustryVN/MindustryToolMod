@@ -3,17 +3,15 @@ package mindustrytool.features;
 import arc.Core;
 import arc.Events;
 import arc.scene.ui.Dialog;
+import arc.util.Nullable;
 import solim.signal.Signal;
 
 public abstract class Feature {
 
-    private FeatureMetadata metadata;
-    private Signal<Boolean> enabled;
+    private final FeatureMetadata metadata;
+    private @Nullable Signal<Boolean> enabled;
 
-    protected Feature() {
-    }
-
-    protected Feature(FeatureMetadata metadata) {
+    public Feature(FeatureMetadata metadata) {
         this.metadata = metadata;
     }
 
@@ -74,11 +72,11 @@ public abstract class Feature {
         return "mindustrytool.feature." + getMetadata().getId() + ".enabled";
     }
 
-    public Dialog getSettingDialog() {
+    public @Nullable Dialog getSettingDialog() {
         return null;
     }
 
-    public Dialog getMainDialog() {
+    public @Nullable Dialog getMainDialog() {
         return null;
     }
 

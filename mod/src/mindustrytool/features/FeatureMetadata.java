@@ -4,6 +4,7 @@ import java.util.Optional;
 
 import arc.input.KeyBind;
 import arc.scene.style.Drawable;
+import arc.util.Nullable;
 import lombok.Getter;
 
 @Getter
@@ -16,7 +17,7 @@ public class FeatureMetadata {
     private final Optional<KeyBind> keybind;
 
     private FeatureMetadata(String id, Drawable icon, int order, boolean enabledByDefault, boolean quickAccess,
-            KeyBind keybind) {
+            @Nullable KeyBind keybind) {
         this.id = id;
         this.icon = icon;
         this.order = order;
@@ -35,7 +36,7 @@ public class FeatureMetadata {
         private int order = 0;
         private boolean enabledByDefault = true;
         private boolean quickAccess = false;
-        private KeyBind keybind = null;
+        private @Nullable KeyBind keybind = null;
 
         public Builder id(String id) {
             this.id = id;
@@ -70,6 +71,10 @@ public class FeatureMetadata {
         public FeatureMetadata build() {
             if (id == null)
                 throw new IllegalStateException("ID is required");
+
+            if (icon == null) {
+                throw new IllegalStateException("Icon is required");
+            }
 
             return new FeatureMetadata(id, icon, order, enabledByDefault, quickAccess, keybind);
         }
