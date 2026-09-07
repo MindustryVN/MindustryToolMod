@@ -3,34 +3,38 @@ package mindustrytool.features;
 import arc.Core;
 import arc.Events;
 import arc.scene.ui.Dialog;
+import solim.signal.Signal;
 
-public interface Feature {
+public abstract class Feature {
 
-    FeatureMetadata getMetadata();
+    private FeatureMetadata metadata;
+    private Signal<Boolean> enabled;
 
-    default void enable() {
-        if (isEnabled()) {
-            return;
-        }
-
-        Core.settings.put(getSettingKey(), true);
-        getMetadata().enabled().set(true);
-        onEnable();
-        Events.fire(new FeatureStateChanged(this, true));
+    protected Feature() {
     }
 
-    default void disable() {
-        if (!isEnabled()) {
-            return;
-        }
-
-        Core.settings.put(getSettingKey(), false);
-        getMetadata().enabled().set(false);
-        onDisable();
-        Events.fire(new FeatureStateChanged(this, false));
+    protected Feature(FeatureMetadata metadata) {
+        this.metadata = metadata;
     }
 
-    default void setEnabled(boolean enabled) {
+    public FeatureMetadata getMetadata() {
+        return metadata;
+    }
+
+    public Signal<Boolean> enabled() {
+        if (enabled == null) {
+            FeatureMetadata meta = getMetadata();
+            boolean defaultVal = meta != null && meta.isEnabledByDefault();
+            enabled = Signal.of(Core.settings.getBool(getSettingKey(), defaultVal));
+        }
+        return enabled;
+    }
+
+    public boolean isEnabled() {
+        return Boolean.TRUE.equals(enabled().get());
+    }
+
+    public void setEnabled(boolean enabled) {
         if (enabled) {
             enable();
         } else {
@@ -38,54 +42,72 @@ public interface Feature {
         }
     }
 
-    default void onEnable() {
+    public void enable() {
+        if (isEnabled()) {
+            return;
+        }
+
+        Core.settings.put(getSettingKey(), true);
+        enabled().set(true);
+        onEnable();
+        Events.fire(new FeatureStateChanged(this, true));
     }
 
-    default void onDisable() {
+    public void disable() {
+        if (!isEnabled()) {
+            return;
+        }
+
+        Core.settings.put(getSettingKey(), false);
+        enabled().set(false);
+        onDisable();
+        Events.fire(new FeatureStateChanged(this, false));
     }
 
-    default boolean isEnabled() {
-        return Boolean.TRUE.equals(getMetadata().enabled().get());
+    public void onEnable() {
     }
 
-    default String getSettingKey() {
+    public void onDisable() {
+    }
+
+    public String getSettingKey() {
         return "mindustrytool.feature." + getMetadata().getId() + ".enabled";
     }
 
-    default Dialog getSettingDialog() {
+    public Dialog getSettingDialog() {
         return null;
     }
 
-    default Dialog getMainDialog() {
+    public Dialog getMainDialog() {
         return null;
     }
 
-    default String getName() {
+    public String getName() {
         String id = getMetadata().getId();
         String nameKey = "feature." + id + ".name";
-        if (Core.bundle != null && Core.bundle.has(nameKey)) {
+        if (Core.bundle.has(nameKey)) {
             return Core.bundle.get(nameKey);
         }
         String directKey = "feature." + id;
-        if (Core.bundle != null && Core.bundle.has(directKey)) {
+        if (Core.bundle.has(directKey)) {
             return Core.bundle.get(directKey);
         }
         return id;
     }
 
-    default String getDescription() {
+    public String getDescription() {
         String id = getMetadata().getId();
         String descKey = "feature." + id + ".description";
-        if (Core.bundle != null && Core.bundle.has(descKey)) {
+        if (Core.bundle.has(descKey)) {
             return Core.bundle.get(descKey);
         }
         return "";
     }
 
-    default String getHelp() {
+    public String getHelp() {
         String id = getMetadata().getId();
         String helpKey = "feature." + id + ".help";
-        if (Core.bundle != null && Core.bundle.has(helpKey)) {
+        if (Core.bundle.has(helpKey)) {
             return Core.bundle.get(helpKey);
         }
         return "";

@@ -34,11 +34,6 @@ public class AuthOverlay {
     }
 
     public void initUi() {
-        if (Vars.ui == null) {
-            Log.info("AuthOverlay init skipped: headless");
-            return;
-        }
-
         var wholeViewport = new Table();
         wholeViewport.name = "authWindow";
         wholeViewport.setFillParent(true);

@@ -2,12 +2,9 @@ package mindustrytool.features;
 
 import java.util.Optional;
 
-import arc.Core;
 import arc.input.KeyBind;
 import arc.scene.style.Drawable;
-import arc.scene.style.TextureRegionDrawable;
 import lombok.Getter;
-import solim.signal.Signal;
 
 @Getter
 public class FeatureMetadata {
@@ -17,7 +14,6 @@ public class FeatureMetadata {
     private final boolean enabledByDefault;
     private final boolean quickAccess;
     private final Optional<KeyBind> keybind;
-    private final Signal<Boolean> enabled;
 
     private FeatureMetadata(String id, Drawable icon, int order, boolean enabledByDefault, boolean quickAccess,
             KeyBind keybind) {
@@ -27,11 +23,6 @@ public class FeatureMetadata {
         this.enabledByDefault = enabledByDefault;
         this.quickAccess = quickAccess;
         this.keybind = Optional.ofNullable(keybind);
-        this.enabled = Signal.of(Core.settings.getBool("mindustrytool.feature." + id + ".enabled", enabledByDefault));
-    }
-
-    public Signal<Boolean> enabled() {
-        return enabled;
     }
 
     public static Builder builder() {
@@ -51,8 +42,8 @@ public class FeatureMetadata {
             return this;
         }
 
-        public Builder icon(TextureRegionDrawable icon) {
-            this.icon = new TextureRegionDrawable(icon.getRegion());
+        public Builder icon(Drawable icon) {
+            this.icon = icon;
             return this;
         }
 
@@ -79,8 +70,6 @@ public class FeatureMetadata {
         public FeatureMetadata build() {
             if (id == null)
                 throw new IllegalStateException("ID is required");
-            if (icon == null)
-                throw new IllegalStateException("Icon is required");
 
             return new FeatureMetadata(id, icon, order, enabledByDefault, quickAccess, keybind);
         }

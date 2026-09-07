@@ -16,7 +16,7 @@ import mindustrytool.features.FeatureMetadata;
 import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Dialog;
 
-public class BackgroundFeature implements Feature {
+public class BackgroundFeature extends Feature {
     static final String SETTING_KEY = "mindustrytool.background.path";
     static final String SETTING_OPACITY_KEY = "mindustrytool.background.opacity";
     private MenuRenderer originalRenderer;

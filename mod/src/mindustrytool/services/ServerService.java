@@ -23,7 +23,7 @@ public class ServerService {
     public void init() {
         fetchServers();
 
-        if (Vars.ui != null && Vars.ui.join != null) {
+        if (Vars.ui.join != null) {
             Vars.ui.join.shown(this::fetchServers);
         }
 

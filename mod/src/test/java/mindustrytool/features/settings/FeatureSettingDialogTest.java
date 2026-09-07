@@ -1,5 +1,6 @@
 package mindustrytool.features.settings;
 
+import arc.Core;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.features.FeatureMetadata;
@@ -21,6 +22,9 @@ class FeatureSettingDialogTest {
 
     @BeforeEach
     void setUp() {
+        if (Core.settings == null) {
+            Core.settings = new arc.Settings();
+        }
         testFeature = new Feature() {
             private final FeatureMetadata metadata = FeatureMetadata.builder()
                     .id("test-feature")
@@ -123,16 +127,16 @@ class FeatureSettingDialogTest {
 
     @Test
     void testPropertyReactivityViaDirectFeatureSignal() {
-        assertTrue(testFeature.getMetadata().enabled().get());
+        assertTrue(testFeature.enabled().get());
         assertTrue(testFeature.isEnabled());
 
         // Modifying feature state directly updates feature enabled Signal
         testFeature.setEnabled(false);
-        assertFalse(testFeature.getMetadata().enabled().get(), "Feature enabled signal must update");
+        assertFalse(testFeature.enabled().get(), "Feature enabled signal must update");
         assertFalse(testFeature.isEnabled());
 
         testFeature.setEnabled(true);
-        assertTrue(testFeature.getMetadata().enabled().get());
+        assertTrue(testFeature.enabled().get());
         assertTrue(testFeature.isEnabled());
     }
 
