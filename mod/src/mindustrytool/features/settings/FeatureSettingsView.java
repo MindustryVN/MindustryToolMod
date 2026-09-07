@@ -22,7 +22,6 @@ public final class FeatureSettingsView extends BaseComponent {
     private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(
             () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
 
-
     @Override
     protected Element build() {
         return column(() -> {
@@ -31,9 +30,8 @@ public final class FeatureSettingsView extends BaseComponent {
                 grid(
                         columnCount,
                         filteredFeatures,
-                        FeatureSettingsView::featureKey,
-                        feature -> new FeatureCard(feature, cardWidth)
-                )
+                        feature -> feature.getMetadata().getId(),
+                        feature -> new FeatureCard(feature, cardWidth))
                         .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
                                 .color(Color.gray)
                                 .padding(40f));
@@ -49,10 +47,6 @@ public final class FeatureSettingsView extends BaseComponent {
             button(Core.bundle.get("feature.button.re-enable"), Icon.refresh, FeatureManager::reenable)
                     .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
         }).padding(10f);
-    }
-
-    static String featureKey(Feature feature) {
-        return feature.getMetadata() != null ? feature.getMetadata().getId() : feature.getName();
     }
 
     static boolean matchesFilter(Feature feature, String query) {
