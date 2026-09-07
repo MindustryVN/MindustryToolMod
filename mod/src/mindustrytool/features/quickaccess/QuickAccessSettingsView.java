@@ -35,9 +35,12 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.opacity"))
                                                                 .left();
+
+                                                        spacer();
                                                         slider(feature.opacityConfig.signal(), 0.05f, 1.0f, 0.05f);
                                                         text(feature.opacityConfig.signal()
-                                                                .map(v -> String.format("%.0f%%", v * 100)));
+                                                                .map(v -> String.format("%.0f%%", v * 100)))
+                                                                .width(unit(10));
                                                     });
 
                                             row()
@@ -45,9 +48,11 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.scale"))
                                                                 .left();
+                                                        spacer();
                                                         slider(feature.scaleConfig.signal(), 0.5f, 1.5f, 0.1f);
                                                         text(feature.scaleConfig.signal()
-                                                                .map(v -> String.format("%.0f%%", v * 100)));
+                                                                .map(v -> String.format("%.0f%%", v * 100)))
+                                                                .width(unit(10));
                                                     });
 
                                             row()
@@ -55,8 +60,10 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.columns"))
                                                                 .left();
+                                                        spacer();
                                                         slider(feature.colsConfig.signal(), 1, 9, 1);
-                                                        text(feature.colsConfig.signal().map(String::valueOf));
+                                                        text(feature.colsConfig.signal().map(String::valueOf))
+                                                                .width(unit(10));
                                                     });
 
                                             divider();

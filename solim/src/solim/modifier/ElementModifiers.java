@@ -67,6 +67,11 @@ public final class ElementModifiers {
 		element.visible = visible;
 	}
 
+	public static void name(@Nullable Element element, @Nullable String name) {
+		if (element == null) return;
+		element.name = name;
+	}
+
 	public static void align(@Nullable Table table, int align) {
 		if (table == null) return;
 		table.align(align);

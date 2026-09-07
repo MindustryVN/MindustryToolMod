@@ -13,7 +13,7 @@ import solim.ui.ParentStack;
 /** Scroll container wrapping a Table in a ScrollPane. */
 public final class Scroll implements Component {
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
-		Cell<?> cell = table.add(child).growX();
+		Cell<?> cell = table.add(child);
 		cell.row();
 		return cell;
 	};
@@ -26,7 +26,7 @@ public final class Scroll implements Component {
 		outer.top().left();
 		content.top().left();
 		if (Core.scene != null) {
-			this.pane = outer.pane(content).scrollX(false).scrollY(true).grow().get();
+			this.pane = outer.pane(content).scrollX(false).scrollY(true).get();
 			this.pane.setScrollingDisabled(true, false);
 		} else {
 			this.pane = null;
@@ -115,7 +115,7 @@ public final class Scroll implements Component {
 	}
 
 	public Scroll add(Element child) {
-		content.add(child).growX().row();
+		content.add(child).row();
 		return this;
 	}
 
