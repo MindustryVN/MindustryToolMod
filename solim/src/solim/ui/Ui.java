@@ -3,6 +3,9 @@ package solim.ui;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
+import arc.scene.ui.ScrollPane;
+import arc.scene.ui.TextField;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import solim.display.Text;
 import solim.input.Button;
@@ -28,7 +31,15 @@ public final class Ui {
 
     public static Column column(Runnable r) {
         Column col = new Column();
-        ParentStack.push(col.table());
+        ParentStack.push(col.table(), (table, child) -> {
+            Cell<?> cell = table.add(child);
+            cell.growX();
+            if (isExpanding(child)) {
+                cell.growY();
+            }
+            cell.row();
+            return cell;
+        });
         try {
             r.run();
         } finally {
@@ -40,7 +51,13 @@ public final class Ui {
 
     public static Row row(Runnable r) {
         Row row = new Row();
-        ParentStack.push(row.table());
+        ParentStack.push(row.table(), (table, child) -> {
+            Cell<?> cell = table.add(child);
+            if (child instanceof TextField || isExpanding(child)) {
+                cell.growX();
+            }
+            return cell;
+        });
         try {
             r.run();
         } finally {
@@ -56,7 +73,14 @@ public final class Ui {
 
     public static Table grid(int columns, Runnable r) {
         Table t = new Table();
-        ParentStack.push(t);
+        int[] count = new int[]{0};
+        ParentStack.push(t, (table, child) -> {
+            Cell<?> cell = table.add(child);
+            if (++count[0] % Math.max(1, columns) == 0) {
+                table.row();
+            }
+            return cell;
+        });
         try {
             r.run();
         } finally {
@@ -72,7 +96,11 @@ public final class Ui {
 
     public static Scroll scroll(Runnable r) {
         Scroll s = new Scroll();
-        ParentStack.push(s.content());
+        ParentStack.push(s.content(), (table, child) -> {
+            Cell<?> cell = table.add(child).growX();
+            cell.row();
+            return cell;
+        });
         try {
             r.run();
         } finally {
@@ -81,6 +109,20 @@ public final class Ui {
         ParentStack.attachToParent(s.element());
         return s;
     }
+
+    public static boolean isExpanding(Element child) {
+        if (child == null) return false;
+        if (child.fillParent) return true;
+        if (child instanceof ScrollPane) return true;
+        if (child instanceof Table) {
+            Table t = (Table) child;
+            if (t.getChildren().size > 0 && t.getChildren().first() instanceof ScrollPane) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public static Table container(Runnable r) {
         return column(r).table();

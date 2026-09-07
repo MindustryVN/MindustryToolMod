@@ -3,7 +3,6 @@ package solim.layout;
 import arc.Core;
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.ui.ParentStack;
@@ -139,4 +138,38 @@ class LayoutTest {
             assertNotNull(r.table());
         }
     }
+
+    @Test
+    void declarativeColumnAndRowCellLayout() {
+        Column col = Ui.column(() -> {
+            Ui.row(() -> {
+                Element e1 = new Element() {
+                    @Override public float getPrefWidth() { return 100f; }
+                    @Override public float getPrefHeight() { return 40f; }
+                };
+                ParentStack.add(e1);
+            });
+            Ui.scroll(() -> {
+                Element e2 = new Element() {
+                    @Override public float getPrefWidth() { return 200f; }
+                    @Override public float getPrefHeight() { return 200f; }
+                };
+                ParentStack.add(e2);
+            }).grow();
+        });
+
+        Table t = col.table();
+        assertEquals(2, t.getCells().size, "Column must have 2 cells for its 2 children");
+        t.setSize(600f, 800f);
+        t.layout();
+
+        Element toolbar = t.getChildren().get(0);
+        Element scroll = t.getChildren().get(1);
+
+        assertTrue(toolbar.getWidth() > 0f, "Toolbar must have non-zero width");
+        assertTrue(toolbar.getHeight() > 0f, "Toolbar must have non-zero height");
+        assertTrue(scroll.getWidth() > 0f, "Scroll must have non-zero width");
+        assertTrue(scroll.getHeight() > 0f, "Scroll must have non-zero height");
+    }
 }
+
