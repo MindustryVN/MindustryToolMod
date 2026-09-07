@@ -4,15 +4,15 @@
 TBD - created by archiving change create-solim-core. Update Purpose after archive.
 ## Requirements
 ### Requirement: Column and Row with flex-like modifiers
-`Column` and `Row` SHALL be vertical/horizontal layout containers supporting modifiers `gap(int/float)`, `justify(Justify)` (START/CENTER/END/BETWEEN/AROUND/EVENLY), `align(Align)` (START/CENTER/END/STRETCH), `padding(int)`, and `grow`. Each modifier SHALL map to Arc `Table` cell/alignment behavior without perfect CSS Flexbox replication.
+`Column` and `Row` SHALL be vertical/horizontal layout containers supporting fluent configuration modifiers `gap(int/float)`, `justify(Justify)` (START/CENTER/END/BETWEEN/AROUND/EVENLY), `align(Align)` (START/CENTER/END/STRETCH), `padding(int)`, and `grow()`, followed by `.children(Runnable)` for declaring children.
 
 #### Scenario: Row justify and align
-- **WHEN** `row(() -> { button("A"); button("B"); }).justify(Justify.BETWEEN).align(Align.CENTER).gap(8)` is called
-- **THEN** row distributes children with space-between and centers vertically, gap 8 between cells
+- **WHEN** `row().justify(Justify.BETWEEN).align(Align.CENTER).gap(8).children(() -> { button("A"); button("B"); })` is called
+- **THEN** row configuration is applied before children are declared, distributing children with space-between and centered vertically
 
 #### Scenario: Column gap and padding
-- **WHEN** `column(() -> { text("Title"); divider(); text("Body"); }).gap(16).padding(24)` is called
-- **THEN** column has 16px gap between children and 24px padding, verified via Arc `Table` defaults/padding
+- **WHEN** `column().gap(16).padding(24).children(() -> { text("Title"); divider(); text("Body"); })` is called
+- **THEN** column configuration is set before children execution, applying 16px gap and 24px padding
 
 ### Requirement: Grow semantics
 Layouts SHALL support `growX()`, `growY()`, `grow()` on cells and convenience on widgets (e.g., `textField(input).growX()` or `cell(textField(input)).growX()`). Grow SHALL map to Arc `cell.growX()`/`grow()`.
@@ -33,15 +33,11 @@ Layouts SHALL support `growX()`, `growY()`, `grow()` on cells and convenience on
 - **THEN** spacer expands and "Back" is left-aligned while "Save" is right-aligned
 
 ### Requirement: Grid with columns and gap
-`grid(int columns, Runnable)` and `grid().columns(n).gap(g)` SHALL provide a simple grid layout with fixed column count and gap. `grid(3, () -> { button("One"); button("Two"); button("Three"); })` SHALL arrange 3 columns. Optional `minCellWidth` responsive mode may be added later but SHALL NOT implement full CSS Grid spec.
+`grid(int columns)` and `grid(columns).gap(g)` SHALL provide a grid layout container supporting `.children(Runnable)` after column count and gap configuration.
 
 #### Scenario: Grid 3 columns
-- **WHEN** `grid(3, () -> { button("One"); button("Two"); button("Three"); button("Four"); })` is rendered
-- **THEN** buttons are arranged 3 per row, fourth wraps to next row, with uniform cell sizes
-
-#### Scenario: Grid with gap
-- **WHEN** `grid().columns(3).gap(8).addChildren(...)` equivalent is used
-- **THEN** cells have 8px gap both directions
+- **WHEN** `grid(3).children(() -> { button("One"); button("Two"); button("Three"); button("Four"); })` is rendered
+- **THEN** grid configuration sets 3 columns before children are attached, arranging 3 buttons per row and wrapping the fourth
 
 ### Requirement: Wrap children wrapping
 `wrap(() -> { ... })` SHALL layout children horizontally and wrap to next line when exceeding container width, using Arc wrapping container or `Table` with wrap enabled.
@@ -58,11 +54,11 @@ Layouts SHALL support `growX()`, `growY()`, `grow()` on cells and convenience on
 - **THEN** both children occupy same bounds with text drawn over image
 
 ### Requirement: Scroll container
-`scroll(() -> { column(...) })` SHALL wrap content in a `ScrollPane` or Arc `Scroll` widget enabling scrolling when content overflows.
+`scroll().grow().children(() -> { column().children(...) })` SHALL wrap content in a `ScrollPane` or Arc `Scroll` widget with configuration declared prior to child content.
 
 #### Scenario: Scroll overflow
-- **WHEN** `scroll(() -> { column(() -> { for (i in 0..100) text("Item "+i); }) })` exceeds viewport
-- **THEN** content is scrollable vertically
+- **WHEN** `scroll().grow().children(() -> { column().children(() -> { for (i in 0..100) text("Item "+i); }); })` is declared
+- **THEN** scroll is configured to grow before child column elements are populated
 
 ### Requirement: Container, Divider, SplitPane
 Framework SHALL provide `Container` (single child with padding/background), `Divider` (horizontal/vertical line), and `SplitPane` (if Arc provides `SplitPane` primitive) as thin wrappers.

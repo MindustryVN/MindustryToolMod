@@ -4,7 +4,7 @@
 TBD - created by archiving change create-solim-core. Update Purpose after archive.
 ## Requirements
 ### Requirement: Text widget with static and reactive content
-`Text` SHALL display string content via `text(String)` and `text(Signal<String>|Computed<String>)` (reactive). It SHALL wrap `arc.scene.ui.Label` or equivalent and support `style` binding and modifiers.
+`Text` SHALL display string content via `text(String)` and `text(Readable<String>)` (reactive). It SHALL wrap `arc.scene.ui.Label` and provide fluent chained property modifiers including `.color(Color)`, `.color(Readable<Color>)`, `.style(LabelStyle)`, `.wrap(boolean)`, `.ellipsis(boolean)`, `.fontScale(float)`, and text alignment (`.left()`, `.center()`, `.right()`). Reactive bindings SHALL be managed internally by the component lifecycle.
 
 #### Scenario: Static Text
 - **WHEN** `text("Settings")` is called
@@ -13,6 +13,14 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 #### Scenario: Reactive Text
 - **WHEN** `Computed<String> t = count.map(v -> "Count: " + v)` and `text(t)` then `count.set(5)`
 - **THEN** label text updates to "Count: 5" via binding without recreation
+
+#### Scenario: Chained text styling and layout modifiers
+- **WHEN** `text("Description").wrap(true).ellipsis(true).color(Color.lightGray).fontScale(0.9f)` is declared
+- **THEN** the underlying `Label` has word-wrapping, ellipsis truncation, light gray color, and 0.9 font scale configured directly
+
+#### Scenario: Reactive text color binding
+- **WHEN** `text("Status").color(statusColorReadable)` is declared and the status color changes
+- **THEN** the label's color updates immediately via internal component binding without external `Binding` calls
 
 ### Requirement: Image and Icon widgets
 `Image` SHALL display `Drawable`/`TextureRegion` with `image(Drawable)` and `image(Signal<Drawable>)`. `Icon` SHALL display icon drawable with `icon(IconType)` and reactive overload. Both SHALL support size/style bindings.
@@ -33,7 +41,7 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 - **THEN** badge text updates reactively
 
 ### Requirement: Button and IconButton with click handler and reactive props
-`Button` SHALL support `button(String|Signal|Computed, Runnable onClick)` plus modifiers `.enabled(Signal<Boolean>)`, `.visible(Signal<Boolean>)`, `.style(Signal<Style>)`. `IconButton` SHALL be variant with icon drawable.
+`Button` and `IconButton` SHALL support `button(String|Signal|Computed|Readable, Runnable onClick)` and `iconButton(Drawable, Runnable onClick)` / `iconButton(Drawable, ImageButtonStyle, Runnable onClick)` plus chained modifiers `.enabled(Readable<Boolean>)`, `.visible(Readable<Boolean>)`, `.size(float)`, `.tooltip(String)`, `.style(...)`, and `.stopClickPropagation()`. Reactive bindings SHALL be managed internally by the component.
 
 #### Scenario: Button click handler
 - **WHEN** `button("Save", () -> save())` is clicked
@@ -46,6 +54,10 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 #### Scenario: Button disabled via binding
 - **WHEN** `button("Toggle").enabled(Signal.of(false))` is rendered
 - **THEN** underlying `TextButton` is disabled
+
+#### Scenario: IconButton creation and event stop propagation
+- **WHEN** `iconButton(Icon.settings, Styles.clearNonei, onSettings).size(32f).tooltip("Settings")` is placed inside a clickable parent and clicked
+- **THEN** the icon button executes `onSettings` and stops event bubbling to prevent triggering parent click handlers
 
 ### Requirement: TextField and TextArea with Signal binding
 `TextField` SHALL bind to `Signal<String>` via `textField(signal)` with two-way sync: typing updates signal, signal changes update field text (without cursor jump when possible). `TextArea` SHALL be multiline variant.

@@ -2,9 +2,7 @@
 
 ## Purpose
 Clickable, styled card container component with declarative child composition, fluent chained reactive property bindings, and click event bubbling control.
-
 ## Requirements
-
 ### Requirement: Declarative Card Container Component
 The framework SHALL provide a `Card` component wrapping a clickable, styled container element. It SHALL support declarative child composition via `ParentStack`, custom click handling, and event bubbling control.
 
@@ -29,3 +27,4 @@ The `Card` component and child widgets SHALL support event bubbling control such
 #### Scenario: Clicking child button inside card
 - **WHEN** an interactive control inside a clickable card is clicked and stops event propagation
 - **THEN** the child control's handler executes and the card's `onClick` handler is not triggered.
+
