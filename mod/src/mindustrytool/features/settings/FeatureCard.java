@@ -15,9 +15,11 @@ import solim.signal.Readable;
 import static solim.ui.Ui.*;
 
 /**
- * Component responsible for building and managing a single feature's visual card.
+ * Component responsible for building and managing a single feature's visual
+ * card.
  * Handles display of metadata, action shortcuts (help, settings, main dialog),
- * and state toggling with direct property reactivity using pure Solim components.
+ * and state toggling with direct property reactivity using pure Solim
+ * components.
  */
 public class FeatureCard extends BaseComponent {
 
@@ -44,7 +46,7 @@ public class FeatureCard extends BaseComponent {
         return card(Styles.black8, () -> {
             // Card Header
             row(() -> {
-                Drawable icon = metadata != null ? metadata.getIcon() : null;
+                Drawable icon = metadata.getIcon();
                 if (icon != null) {
                     image(icon)
                             .scaling(Scaling.fit)
@@ -61,14 +63,16 @@ public class FeatureCard extends BaseComponent {
 
                 // Main dialog button (if feature has a dedicated primary dialog)
                 if (feature.getMainDialog() != null) {
-                    iconButton(Icon.linkSmall, Styles.clearNonei, () -> Core.app.post(() -> feature.getMainDialog().show()))
+                    iconButton(Icon.linkSmall, Styles.clearNonei,
+                            () -> Core.app.post(() -> feature.getMainDialog().show()))
                             .size(32f)
                             .tooltip(Core.bundle.get("feature.button.open-dialog"));
                 }
 
                 // Settings button (if feature provides settings dialog)
                 if (feature.getSettingDialog() != null) {
-                    iconButton(Icon.settings, Styles.clearNonei, () -> Core.app.post(() -> feature.getSettingDialog().show()))
+                    iconButton(Icon.settings, Styles.clearNonei,
+                            () -> Core.app.post(() -> feature.getSettingDialog().show()))
                             .size(32f)
                             .tooltip(Core.bundle.get("feature.button.settings"));
                 }
@@ -98,7 +102,7 @@ public class FeatureCard extends BaseComponent {
                     .color(enabled.map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
                     .left();
         })
-                .name("FeatureCard-" + (metadata != null ? metadata.getId() : "unknown"))
+                .name("FeatureCard-" + metadata.getId())
                 .prefHeight(180f)
                 .padding(12f)
                 .width(cardWidth != null ? cardWidth.map(w -> Math.max(0f, w - 10f)) : null)
@@ -114,11 +118,7 @@ public class FeatureCard extends BaseComponent {
                 onStateChanged.run();
             }
         } catch (Exception e) {
-            Log.err("Failed to toggle feature " + (feature.getMetadata() != null ? feature.getMetadata().getId() : ""), e);
+            Log.err("Failed to toggle feature " + feature.getMetadata().getId(), e);
         }
-    }
-
-    public Readable<Boolean> enabled() {
-        return enabled;
     }
 }

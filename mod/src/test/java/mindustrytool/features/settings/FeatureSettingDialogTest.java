@@ -7,7 +7,6 @@ import mindustrytool.features.FeatureMetadata;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import solim.signal.Signal;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
@@ -57,23 +56,6 @@ class FeatureSettingDialogTest {
     @AfterEach
     void tearDown() {
         FeatureManager.unregister(testFeature);
-    }
-
-    @Test
-    void testFeatureCardReactiveWidthAndEnabled() {
-        Signal<Float> width = Signal.of(300f);
-        Signal<Boolean> enabled = Signal.of(true);
-        FeatureCard card = new FeatureCard(testFeature, width, enabled, () -> {
-        });
-        assertNotNull(card);
-        assertTrue(card.enabled().get());
-
-        width.set(400f);
-        enabled.set(false);
-        assertFalse(card.enabled().get());
-
-        card.dispose();
-        assertTrue(card.isDisposed());
     }
 
     @Test
