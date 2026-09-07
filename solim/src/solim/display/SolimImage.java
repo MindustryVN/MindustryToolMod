@@ -1,5 +1,6 @@
 package solim.display;
 
+import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
@@ -7,9 +8,11 @@ import arc.util.Nullable;
 import arc.util.Scaling;
 import java.util.function.Consumer;
 import solim.core.Component;
+import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
+import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for drawable content. */
@@ -45,6 +48,40 @@ public final class SolimImage implements Component, Disposable {
 
 		public SizedImage scaling(Scaling scaling) {
 			setScaling(scaling);
+			return this;
+		}
+
+		public SizedImage color(Color color) {
+			if (color != null) {
+				setColor(color);
+			}
+			return this;
+		}
+
+		public SizedImage color(Readable<Color> color) {
+			if (color != null) {
+				Effect e = Effect.of(() -> {
+					Color c = color.get();
+					if (c != null) {
+						setColor(c);
+					}
+				});
+				ComponentContext.register(e);
+			}
+			return this;
+		}
+
+		public SizedImage height(float height) {
+			this.customPrefHeight = height;
+			setHeight(height);
+			invalidateHierarchy();
+			return this;
+		}
+
+		public SizedImage width(float width) {
+			this.customPrefWidth = width;
+			setWidth(width);
+			invalidateHierarchy();
 			return this;
 		}
 
@@ -118,6 +155,26 @@ public final class SolimImage implements Component, Disposable {
 
 	public SolimImage visible(boolean visible) {
 		ElementModifiers.visible(image, visible);
+		return this;
+	}
+
+	public SolimImage color(Color color) {
+		if (color != null) {
+			image.setColor(color);
+		}
+		return this;
+	}
+
+	public SolimImage color(Readable<Color> color) {
+		if (color != null) {
+			Effect e = Effect.of(() -> {
+				Color c = color.get();
+				if (c != null) {
+					image.setColor(c);
+				}
+			});
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 

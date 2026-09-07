@@ -8,6 +8,7 @@ import arc.scene.Element;
 import arc.util.Scaling;
 import lombok.AllArgsConstructor;
 import mindustry.gen.Icon;
+import mindustry.gen.Tex;
 import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
 import solim.core.BaseComponent;
@@ -32,8 +33,7 @@ public class FeatureCard extends BaseComponent {
 
         return card(Styles.black8)
                 .name("FeatureCard-" + metadata.getId())
-                .prefHeight(unit(40))
-                .background(Styles.black8)
+                .height(unit(40))
                 .padding(unit(2))
                 .width(cardWidth.map(w -> Math.max(0f, w - 10f)))
                 .color(feature.enabled().map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet))
@@ -95,7 +95,11 @@ public class FeatureCard extends BaseComponent {
                                         .color(feature.enabled()
                                                 .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
                                         .left();
-                                        
+
+                                image(Tex.whiteui)
+                                        .color(feature.enabled()
+                                                .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
+                                        .height(unit(0.5f));
                             });
                 })
                 .element();
