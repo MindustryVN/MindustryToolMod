@@ -5,7 +5,6 @@ import arc.func.Func;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button.ButtonStyle;
-import arc.scene.ui.Image;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
@@ -34,229 +33,241 @@ import solim.signal.Signal;
 
 /** Declarative UI facades for Solim. */
 public final class Ui {
-	private Ui() {}
+    private Ui() {
+    }
 
-	public static Column column() {
-		return new Column();
-	}
+    private static final float BASE_UNIT = 4;
 
-	public static Column column(@Nullable Runnable r) {
-		return column().children(r);
-	}
+    public static Column column() {
+        return new Column();
+    }
 
-	public static Card card() {
-		return new Card();
-	}
+    public static Column column(@Nullable Runnable r) {
+        return column().children(r);
+    }
 
-	public static Card card(@Nullable Runnable r) {
-		return card().children(r);
-	}
+    public static Card card() {
+        return new Card();
+    }
 
-	public static Card card(@Nullable Drawable background) {
-		return new Card(background);
-	}
+    public static Card card(@Nullable Runnable r) {
+        return card().children(r);
+    }
 
-	public static Card card(@Nullable Drawable background, @Nullable Runnable r) {
-		return card(background).children(r);
-	}
+    public static Card card(@Nullable Drawable background) {
+        return new Card(background);
+    }
 
-	public static Card card(@Nullable ButtonStyle style) {
-		return new Card(style);
-	}
+    public static Card card(@Nullable Drawable background, @Nullable Runnable r) {
+        return card(background).children(r);
+    }
 
-	public static Card card(@Nullable ButtonStyle style, @Nullable Runnable r) {
-		return card(style).children(r);
-	}
+    public static Card card(@Nullable ButtonStyle style) {
+        return new Card(style);
+    }
 
-	public static Row row() {
-		return new Row();
-	}
+    public static Card card(@Nullable ButtonStyle style, @Nullable Runnable r) {
+        return card(style).children(r);
+    }
 
-	public static Row row(@Nullable Runnable r) {
-		return row().children(r);
-	}
+    public static Row row() {
+        return new Row();
+    }
 
-	public static Row stack() {
-		return row();
-	}
+    public static Row row(@Nullable Runnable r) {
+        return row().children(r);
+    }
 
-	public static Row stack(@Nullable Runnable r) {
-		return row().children(r);
-	}
+    public static Row stack() {
+        return row();
+    }
 
-	public static Grid grid(int columns) {
-		return new Grid(columns);
-	}
+    public static Row stack(@Nullable Runnable r) {
+        return row().children(r);
+    }
 
-	public static Grid grid(int columns, @Nullable Runnable r) {
-		return grid(columns).children(r);
-	}
+    public static Grid grid(int columns) {
+        return new Grid(columns);
+    }
 
-	public static Row wrap() {
-		return row();
-	}
+    public static Grid grid(int columns, @Nullable Runnable r) {
+        return grid(columns).children(r);
+    }
 
-	public static Row wrap(@Nullable Runnable r) {
-		return row().children(r);
-	}
+    public static Row wrap() {
+        return row();
+    }
 
-	public static Scroll scroll() {
-		return new Scroll();
-	}
+    public static Row wrap(@Nullable Runnable r) {
+        return row().children(r);
+    }
 
-	public static Scroll scroll(@Nullable Runnable r) {
-		return scroll().children(r);
-	}
+    public static Scroll scroll() {
+        return new Scroll();
+    }
 
-	public static boolean isExpanding(Element child) {
-		if (child == null) return false;
-		if ("spacer".equals(child.name)) return true;
-		if ("expanding".equals(child.userObject) || Boolean.TRUE.equals(child.userObject)) return true;
-		if (child.fillParent) return true;
-		if (child instanceof ScrollPane) return true;
-		if (child instanceof Table) {
-			Table t = (Table) child;
-			if (t.getChildren().size > 0 && t.getChildren().first() instanceof ScrollPane) {
-				return true;
-			}
-		}
-		return false;
-	}
+    public static Scroll scroll(@Nullable Runnable r) {
+        return scroll().children(r);
+    }
 
-	public static Column container() {
-		return column();
-	}
+    public static boolean isExpanding(Element child) {
+        if (child == null)
+            return false;
+        if ("spacer".equals(child.name))
+            return true;
+        if ("expanding".equals(child.userObject) || Boolean.TRUE.equals(child.userObject))
+            return true;
+        if (child.fillParent)
+            return true;
+        if (child instanceof ScrollPane)
+            return true;
+        if (child instanceof Table) {
+            Table t = (Table) child;
+            if (t.getChildren().size > 0 && t.getChildren().first() instanceof ScrollPane) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-	public static Column container(@Nullable Runnable r) {
-		return column().children(r);
-	}
+    public static Column container() {
+        return column();
+    }
 
-	public static Element divider() {
-		Divider d = new Divider();
-		ParentStack.attachToParent(d.table());
-		return d.table();
-	}
+    public static Column container(@Nullable Runnable r) {
+        return column().children(r);
+    }
 
-	public static Element spacer() {
-		Spacer s = new Spacer();
-		ParentStack.attachToParent(s.element());
-		return s.element();
-	}
+    public static Element divider() {
+        Divider d = new Divider();
+        ParentStack.attachToParent(d.table());
+        return d.table();
+    }
 
-	public static SolimImage.SizedImage image(Drawable drawable) {
-		SolimImage.SizedImage img = new SolimImage.SizedImage(drawable);
-		ParentStack.attachToParent(img);
-		return img;
-	}
+    public static Element spacer() {
+        Spacer s = new Spacer();
+        ParentStack.attachToParent(s.element());
+        return s.element();
+    }
 
-	public static SolimImage.SizedImage icon(Drawable drawable) {
-		return image(drawable);
-	}
+    public static SolimImage.SizedImage image(Drawable drawable) {
+        SolimImage.SizedImage img = new SolimImage.SizedImage(drawable);
+        ParentStack.attachToParent(img);
+        return img;
+    }
 
-	public static Button button() {
-		Button b = new Button();
-		ParentStack.attachToParent(b.element());
-		return b;
-	}
+    public static SolimImage.SizedImage icon(Drawable drawable) {
+        return image(drawable);
+    }
 
-	public static Button button(@Nullable Runnable onClick) {
-		Button b = new Button(onClick);
-		ParentStack.attachToParent(b.element());
-		return b;
-	}
+    public static Button button() {
+        Button b = new Button();
+        ParentStack.attachToParent(b.element());
+        return b;
+    }
 
-	public static Text text(String s) {
-		Text t = Text.of(s);
-		ParentStack.attachToParent(t.label());
-		return t;
-	}
+    public static Button button(@Nullable Runnable onClick) {
+        Button b = new Button(onClick);
+        ParentStack.attachToParent(b.element());
+        return b;
+    }
 
-	public static Text text(Signal<String> s) {
-		Text t = Text.of(s);
-		ParentStack.attachToParent(t.label());
-		return t;
-	}
+    public static Text text(String s) {
+        Text t = Text.of(s);
+        ParentStack.attachToParent(t.label());
+        return t;
+    }
 
-	public static Text text(Computed<String> s) {
-		Text t = Text.of(s);
-		ParentStack.attachToParent(t.label());
-		return t;
-	}
+    public static Text text(Signal<String> s) {
+        Text t = Text.of(s);
+        ParentStack.attachToParent(t.label());
+        return t;
+    }
 
-	public static Text text(Readable<String> s) {
-		Text t = Text.of(s);
-		ParentStack.attachToParent(t.label());
-		return t;
-	}
+    public static Text text(Computed<String> s) {
+        Text t = Text.of(s);
+        ParentStack.attachToParent(t.label());
+        return t;
+    }
 
-	public static SolimTextField textField(Signal<String> signal) {
-		SolimTextField tf = SolimTextField.of(signal);
-		ParentStack.attachToParent(tf.field());
-		return tf;
-	}
+    public static Text text(Readable<String> s) {
+        Text t = Text.of(s);
+        ParentStack.attachToParent(t.label());
+        return t;
+    }
 
-	public static SolimDialog dialog(String title) {
-		return new SolimDialog(title);
-	}
+    public static SolimTextField textField(Signal<String> signal) {
+        SolimTextField tf = SolimTextField.of(signal);
+        ParentStack.attachToParent(tf.field());
+        return tf;
+    }
 
-	public static SolimDialog dialog(String title, @Nullable Runnable content) {
-		return dialog(title).children(content);
-	}
+    public static SolimDialog dialog(String title) {
+        return new SolimDialog(title);
+    }
 
-	public static <T> Dynamic<T> dynamic(Readable<T> source, Function<T, Component> factory) {
-		Dynamic<T> d = Dynamic.of(source, factory);
-		ParentStack.attachToParent(d.element());
-		return d;
-	}
+    public static SolimDialog dialog(String title, @Nullable Runnable content) {
+        return dialog(title).children(content);
+    }
 
-	public static <T, K> ForEach<T, K> forEach(
-			Readable<? extends Iterable<T>> collection,
-			Function<T, K> keyExtractor,
-			Function<T, Component> itemFactory) {
-		ForEach<T, K> fe = ForEach.of(collection, keyExtractor, itemFactory);
-		ParentStack.attachToParent(fe.element());
-		return fe;
-	}
+    public static <T> Dynamic<T> dynamic(Readable<T> source, Function<T, Component> factory) {
+        Dynamic<T> d = Dynamic.of(source, factory);
+        ParentStack.attachToParent(d.element());
+        return d;
+    }
 
-	public static <T, K> ReactiveGrid<T, K> grid(
-			Readable<Integer> columnCount,
-			Readable<? extends Iterable<T>> items,
-			Function<T, K> keyExtractor,
-			Function<T, Component> itemFactory) {
-		ReactiveGrid<T, K> grid = ReactiveGrid.of(columnCount, items, keyExtractor, itemFactory);
-		ParentStack.attachToParent(grid.element());
-		return grid;
-	}
+    public static <T, K> ForEach<T, K> forEach(
+            Readable<? extends Iterable<T>> collection,
+            Function<T, K> keyExtractor,
+            Function<T, Component> itemFactory) {
+        ForEach<T, K> fe = ForEach.of(collection, keyExtractor, itemFactory);
+        ParentStack.attachToParent(fe.element());
+        return fe;
+    }
 
-	public static <T> Disposable listen(Class<T> type, Cons<T> listener) {
-		return EventsUtil.listen(type, listener);
-	}
+    public static <T, K> ReactiveGrid<T, K> grid(
+            Readable<Integer> columnCount,
+            Readable<? extends Iterable<T>> items,
+            Function<T, K> keyExtractor,
+            Function<T, Component> itemFactory) {
+        ReactiveGrid<T, K> grid = ReactiveGrid.of(columnCount, items, keyExtractor, itemFactory);
+        ParentStack.attachToParent(grid.element());
+        return grid;
+    }
 
-	public static <E, T> Signal<T> createSignal(Class<E> eventType, Supplier<T> supplier) {
-		return EventsUtil.createSignal(eventType, supplier);
-	}
+    public static <T> Disposable listen(Class<T> type, Cons<T> listener) {
+        return EventsUtil.listen(type, listener);
+    }
 
-	public static <E, T> Signal<T> createSignal(Class<E> eventType, Func<E, T> mapper, T initial) {
-		return EventsUtil.createSignal(eventType, mapper, initial);
-	}
+    public static <E, T> Signal<T> createSignal(Class<E> eventType, Supplier<T> supplier) {
+        return EventsUtil.createSignal(eventType, supplier);
+    }
 
-	public static <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
-		return EventsUtil.createSignal(callbackRegistrar, supplier);
-	}
+    public static <E, T> Signal<T> createSignal(Class<E> eventType, Func<E, T> mapper, T initial) {
+        return EventsUtil.createSignal(eventType, mapper, initial);
+    }
 
-	public static Computed<Float> dvw(float percentage) {
-		return Units.dvw(percentage);
-	}
+    public static <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
+        return EventsUtil.createSignal(callbackRegistrar, supplier);
+    }
 
-	public static Computed<Float> dvh(float percentage) {
-		return Units.dvh(percentage);
-	}
+    public static Computed<Float> dvw(float percentage) {
+        return Units.dvw(percentage);
+    }
 
-	public static Computed<Float> dvw(Readable<Float> percentage) {
-		return Units.dvw(percentage);
-	}
+    public static Computed<Float> dvh(float percentage) {
+        return Units.dvh(percentage);
+    }
 
-	public static Computed<Float> dvh(Readable<Float> percentage) {
-		return Units.dvh(percentage);
-	}
+    public static Computed<Float> dvw(Readable<Float> percentage) {
+        return Units.dvw(percentage);
+    }
+
+    public static Computed<Float> dvh(Readable<Float> percentage) {
+        return Units.dvh(percentage);
+    }
+
+    public static float unit(float value) {
+        return value * BASE_UNIT;
+    }
 }

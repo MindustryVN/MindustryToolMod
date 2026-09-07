@@ -16,7 +16,7 @@ import solim.signal.Signal;
 
 public final class FeatureSettingsView extends BaseComponent {
     private final Signal<String> filter = Signal.of("");
-    private final Computed<Float> contentWidth = dvw(90f).map(w -> w - 40f);
+    private final Computed<Float> contentWidth = dvw(90f).map(w -> w - unit(10));
     private final Computed<Integer> columnCount = new Computed<>(() -> Math.max(1, (int) (contentWidth.get() / 340f)));
     private final Computed<Float> cardWidth = new Computed<>(() -> contentWidth.get() / columnCount.get());
     private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(() -> FeatureManager.getFeatures()
@@ -38,7 +38,7 @@ public final class FeatureSettingsView extends BaseComponent {
                                         feature -> new FeatureCard(feature, cardWidth))
                                         .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
                                                 .color(Color.gray)
-                                                .padding(40f));
+                                                .padding(unit(4)));
                             });
                 })
                 .element();
@@ -46,6 +46,7 @@ public final class FeatureSettingsView extends BaseComponent {
 
     private void toolbar() {
         row()
+                .gap(unit(2))
                 .children(() -> {
                     icon(Icon.zoom);
                     textField(filter)
@@ -53,8 +54,8 @@ public final class FeatureSettingsView extends BaseComponent {
 
                     button(FeatureManager::reenable)
                             .style(Styles.defaultb)
-                            .width(200)
-                            .height(48)
+                            .width(unit(50))
+                            .height(unit(10))
                             .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"))
                             .children(() -> {
                                 image(Icon.refresh);

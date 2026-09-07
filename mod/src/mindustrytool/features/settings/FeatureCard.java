@@ -32,65 +32,70 @@ public class FeatureCard extends BaseComponent {
 
         return card(Styles.black8)
                 .name("FeatureCard-" + metadata.getId())
-                .prefHeight(180f)
+                .prefHeight(unit(40))
                 .background(Styles.black8)
-                .padding(12f)
+                .padding(unit(2))
                 .width(cardWidth.map(w -> Math.max(0f, w - 10f)))
                 .color(feature.enabled().map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet))
                 .onClick(() -> feature.setEnabled(!feature.isEnabled()))
                 .children(() -> {
-                    row()
-                            .gap(8f)
+                    column()
+                            .grow()
                             .children(() -> {
-                                image(metadata.getIcon()).scaling(Scaling.fit).size(24f);
+                                row()
+                                        .gap(unit(2))
+                                        .children(() -> {
+                                            image(metadata.getIcon()).scaling(Scaling.fit).size(unit(6));
 
-                                text(feature.getName())
-                                        .style(Styles.defaultLabel)
-                                        .color(Color.white)
+                                            text(feature.getName())
+                                                    .style(Styles.defaultLabel)
+                                                    .color(Color.white)
+                                                    .ellipsis(true)
+                                                    .left();
+
+                                            spacer();
+
+                                            if (feature.getMainDialog() != null) {
+                                                button(() -> feature.getMainDialog().show())
+                                                        .style(Styles.clearNonei)
+                                                        .size(unit(9))
+                                                        .tooltip(Core.bundle.get("feature.button.open-dialog"))
+                                                        .children(() -> image(Icon.linkSmall));
+                                            }
+
+                                            if (feature.getSettingDialog() != null) {
+                                                button(() -> feature.getSettingDialog().show())
+                                                        .style(Styles.clearNonei)
+                                                        .size(unit(9))
+                                                        .tooltip(Core.bundle.get("feature.button.settings"))
+                                                        .children(() -> image(Icon.settings));
+                                            }
+
+                                            button(() -> new FeatureHelpDialog(feature).show())
+                                                    .style(Styles.clearNonei)
+                                                    .size(unit(9))
+                                                    .tooltip(Core.bundle.get("feature.button.help"))
+                                                    .children(() -> image(Icon.infoCircle));
+                                        });
+
+                                text(feature.getDescription())
+                                        .color(Color.lightGray)
+                                        .fontScale(0.9f)
+                                        .wrap(true)
                                         .ellipsis(true)
                                         .left();
 
                                 spacer();
 
-                                if (feature.getMainDialog() != null) {
-                                    button(() -> feature.getMainDialog().show())
-                                            .style(Styles.clearNonei)
-                                            .size(32f)
-                                            .tooltip(Core.bundle.get("feature.button.open-dialog"))
-                                            .children(() -> image(Icon.linkSmall));
-                                }
-
-                                if (feature.getSettingDialog() != null) {
-                                    button(() -> feature.getSettingDialog().show())
-                                            .style(Styles.clearNonei)
-                                            .size(32f)
-                                            .tooltip(Core.bundle.get("feature.button.settings"))
-                                            .children(() -> image(Icon.settings));
-                                }
-
-                                button(() -> new FeatureHelpDialog(feature).show())
-                                        .style(Styles.clearNonei)
-                                        .size(32f)
-                                        .tooltip(Core.bundle.get("feature.button.help"))
-                                        .children(() -> image(Icon.infoCircle));
+                                text(feature.enabled()
+                                        .map(val -> Boolean.TRUE.equals(val)
+                                                ? Core.bundle.get("feature.status.enabled")
+                                                : Core.bundle.get("feature.status.disabled")))
+                                        .style(Styles.defaultLabel)
+                                        .color(feature.enabled()
+                                                .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
+                                        .left();
                             });
-
-                    text(feature.getDescription())
-                            .color(Color.lightGray)
-                            .fontScale(0.9f)
-                            .wrap(true)
-                            .ellipsis(true)
-                            .left();
-
-                    spacer();
-
-                    text(feature.enabled()
-                            .map(val -> Boolean.TRUE.equals(val)
-                                    ? Core.bundle.get("feature.status.enabled")
-                                    : Core.bundle.get("feature.status.disabled")))
-                            .style(Styles.defaultLabel)
-                            .color(feature.enabled().map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
-                            .left();
                 })
                 .element();
     }

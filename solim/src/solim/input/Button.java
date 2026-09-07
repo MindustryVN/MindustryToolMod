@@ -86,7 +86,7 @@ public final class Button implements Component, Disposable {
 
 	public Button(SizedButton sizedButton) {
 		this.sizedButton = sizedButton;
-		this.sizedButton.top().left();
+		this.sizedButton.center();
 	}
 
 	public Button children(@Nullable Runnable r) {
