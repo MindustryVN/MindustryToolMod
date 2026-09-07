@@ -1,5 +1,7 @@
 package solim.ui;
 
+import static solim.ui.Ui.*;
+
 import arc.Core;
 import arc.scene.Element;
 import arc.util.Log;
@@ -9,122 +11,95 @@ import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
 import solim.style.Styles;
-import static solim.ui.Ui.*;
 
-/**
- * Example final API settings panel from requirement.md §16.
- */
+/** Example final API settings panel from requirement.md §16. */
 public final class SettingsPanel extends BaseComponent {
 
-    private final Signal<Boolean> darkMode =
-        Signal.of(false);
+	private final Signal<Boolean> darkMode = Signal.of(false);
 
-    private final Signal<Boolean> dirty =
-        Signal.of(false);
+	private final Signal<Boolean> dirty = Signal.of(false);
 
-    private final Computed<String> saveText =
-        dirty.map(value ->
-            value
-                ? t("solim.settings.save-dirty", "● Save Changes")
-                : t("solim.settings.save", "Save Changes")
-        );
+	private final Computed<String> saveText = dirty.map(value ->
+			value ? t("solim.settings.save-dirty", "● Save Changes") : t("solim.settings.save", "Save Changes"));
 
-    private Effect logger;
+	private Effect logger;
 
-    private static String t(String key, String fallback) {
-        if (Core.bundle != null && Core.bundle.has(key)) {
-            try {
-                return Core.bundle.get(key);
-            } catch (Throwable ignored) {
-                return fallback;
-            }
-        }
-        return fallback;
-    }
+	private static String t(String key, String fallback) {
+		if (Core.bundle != null && Core.bundle.has(key)) {
+			try {
+				return Core.bundle.get(key);
+			} catch (Throwable ignored) {
+				return fallback;
+			}
+		}
+		return fallback;
+	}
 
-    @Override
-    protected Element build() {
+	@Override
+	protected Element build() {
 
-        logger = Effect.of(() -> {
-            Log.info("Dirty state: @", dirty.get());
-        });
+		logger = Effect.of(() -> {
+			Log.info("Dirty state: @", dirty.get());
+		});
 
-        return column()
-            .padding(24)
-            .gap(16)
-            .children(() -> {
+		return column().padding(24)
+				.gap(16)
+				.children(() -> {
+					text(t("solim.settings.title", "Settings"));
 
-                text(t("solim.settings.title", "Settings"));
+					divider();
 
-                divider();
+					row().children(() -> {
+						text(t("solim.settings.dark-mode", "Dark Mode"));
 
-                row()
-                    .children(() -> {
+						button(
+										darkMode.map(value -> value
+												? t("solim.settings.dark-mode.on", "On")
+												: t("solim.settings.dark-mode.off", "Off")),
+										() -> {
+											darkMode.set(!darkMode.get());
+											dirty.set(true);
+										})
+								.style(darkMode.map(value -> value ? Styles.PRIMARY : Styles.GHOST));
+					});
 
-                        text(t("solim.settings.dark-mode", "Dark Mode"));
+					spacer();
 
-                        button(
-                            darkMode.map(value ->
-                                value ? t("solim.settings.dark-mode.on", "On") : t("solim.settings.dark-mode.off", "Off")
-                            ),
-                            () -> {
-                                darkMode.set(!darkMode.get());
-                                dirty.set(true);
-                            }
-                        )
-                            .style(
-                                darkMode.map(value ->
-                                    value
-                                        ? Styles.PRIMARY
-                                        : Styles.GHOST
-                                )
-                            );
+					row().justify(Justify.END).gap(8).children(() -> {
+						button(t("solim.settings.discard", "Discard"), () -> {
+							dirty.set(false);
+						});
 
-                    });
+						button(saveText, () -> {
+									dirty.set(false);
+								})
+								.enabled(dirty)
+								.style(Styles.PRIMARY);
+					});
+				})
+				.element();
+	}
 
-                spacer();
+	@Override
+	public void dispose() {
+		if (logger != null) {
+			logger.dispose();
+		}
+	}
 
-                row()
-                    .justify(Justify.END)
-                    .gap(8)
-                    .children(() -> {
+	public Signal<Boolean> darkMode() {
+		return darkMode;
+	}
 
-                        button(t("solim.settings.discard", "Discard"), () -> {
-                            dirty.set(false);
-                        });
+	public Signal<Boolean> dirty() {
+		return dirty;
+	}
 
-                        button(saveText, () -> {
-                            dirty.set(false);
-                        })
-                            .enabled(dirty)
-                            .style(Styles.PRIMARY);
+	public Computed<String> saveText() {
+		return saveText;
+	}
 
-                    });
-
-            })
-            .element();
-    }
-
-    @Override
-    public void dispose() {
-        if (logger != null) {
-            logger.dispose();
-        }
-    }
-
-    public Signal<Boolean> darkMode() {
-        return darkMode;
-    }
-
-    public Signal<Boolean> dirty() {
-        return dirty;
-    }
-
-    public Computed<String> saveText() {
-        return saveText;
-    }
-
-    public Effect logger() {
-        return logger;
-    }
+	public Effect logger() {
+		return logger;
+	}
 }

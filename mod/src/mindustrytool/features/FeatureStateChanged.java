@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FeatureStateChanged {
-    private final Feature feature;
-    private final boolean enabled;
+	private final Feature feature;
+	private final boolean enabled;
 }

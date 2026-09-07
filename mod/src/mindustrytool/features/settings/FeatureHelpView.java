@@ -1,5 +1,7 @@
 package mindustrytool.features.settings;
 
+import static solim.ui.Ui.*;
+
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
@@ -9,56 +11,51 @@ import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
 import solim.core.BaseComponent;
 
-import static solim.ui.Ui.*;
-
 @AllArgsConstructor
 public class FeatureHelpView extends BaseComponent {
 
-    private final Feature feature;
+	private final Feature feature;
 
-    @Override
-    protected Element build() {
-        String help = feature.getHelp();
-        boolean hasHelp = help != null && !help.trim().isEmpty();
-        String text = hasHelp ? help : Core.bundle.get("feature.help.no-description");
+	@Override
+	protected Element build() {
+		String help = feature.getHelp();
+		boolean hasHelp = help != null && !help.trim().isEmpty();
+		String text = hasHelp ? help : Core.bundle.get("feature.help.no-description");
 
-        String description = feature.getDescription();
-        boolean hasDescription = description != null && !description.trim().isEmpty();
+		String description = feature.getDescription();
+		boolean hasDescription = description != null && !description.trim().isEmpty();
 
-        return scroll()
-            .grow()
-            .children(() -> {
-                column()
-                    .padding(16f)
-                    .gap(12f)
-                    .children(() -> {
-                        if (feature.getMetadata() != null && feature.getMetadata().getIcon() != null) {
-                            row()
-                                .gap(10f)
-                                .children(() -> {
-                                    image(feature.getMetadata().getIcon()).scaling(Scaling.fit).size(32f);
-                                    text(feature.getName() != null ? feature.getName() : "")
-                                            .style(Styles.defaultLabel)
-                                            .color(Color.white)
-                                            .left();
-                                });
-                        }
+		return scroll().grow()
+				.children(() -> {
+					column().padding(16f).gap(12f).children(() -> {
+						if (feature.getMetadata() != null
+								&& feature.getMetadata().getIcon() != null) {
+							row().gap(10f).children(() -> {
+								image(feature.getMetadata().getIcon())
+										.scaling(Scaling.fit)
+										.size(32f);
+								text(feature.getName() != null ? feature.getName() : "")
+										.style(Styles.defaultLabel)
+										.color(Color.white)
+										.left();
+							});
+						}
 
-                        if (hasDescription) {
-                            text(description)
-                                    .color(Color.lightGray)
-                                    .fontScale(0.95f)
-                                    .wrap(true)
-                                    .left();
-                            divider();
-                        }
+						if (hasDescription) {
+							text(description)
+									.color(Color.lightGray)
+									.fontScale(0.95f)
+									.wrap(true)
+									.left();
+							divider();
+						}
 
-                        text(text)
-                                .color(hasHelp ? Color.white : Color.lightGray)
-                                .wrap(true)
-                                .left();
-                    });
-            })
-            .element();
-    }
+						text(text)
+								.color(hasHelp ? Color.white : Color.lightGray)
+								.wrap(true)
+								.left();
+					});
+				})
+				.element();
+	}
 }

@@ -18,7 +18,7 @@ public class BackgroundSettingsDialog extends BaseDialog {
 
         Table table = cont;
         table.button("Select Background Image", Icon.file, () -> {
-            FileChooser.open("png").submit( file -> {
+            FileChooser.open("png").submit(file -> {
                 try {
                     if (file != null) {
                         Fi dest = Folders.backgroundsDir.child(file.name());
@@ -31,13 +31,17 @@ public class BackgroundSettingsDialog extends BaseDialog {
                     Vars.ui.showException("Failed to apply background", e);
                 }
             });
-        }).size(250, 60);
+        })
+                .size(250, 60);
 
         table.row();
         table.slider(5, 100, 5, Core.settings.getInt(BackgroundFeature.SETTING_OPACITY_KEY, 100), value -> {
             Core.settings.put(BackgroundFeature.SETTING_OPACITY_KEY, (int) value);
-        }).width(180).padTop(10);
-        table.label(() -> Core.settings.getInt(BackgroundFeature.SETTING_OPACITY_KEY, 100) + "%").padTop(10)
+        })
+                .width(180)
+                .padTop(10);
+        table.label(() -> Core.settings.getInt(BackgroundFeature.SETTING_OPACITY_KEY, 100) + "%")
+                .padTop(10)
                 .padLeft(10);
     }
 }

@@ -2,15 +2,13 @@ package solim.overlay;
 
 import arc.scene.ui.layout.Table;
 
-/**
- * Popup (lightweight tooltip) placeholder.
- */
+/** Popup (lightweight tooltip) placeholder. */
 public final class Popup {
-    private final Table table = new Table();
+	private final Table table = new Table();
 
-    public Popup() {}
+	public Popup() {}
 
-    public Table table() {
-        return table;
-    }
+	public Table table() {
+		return table;
+	}
 }

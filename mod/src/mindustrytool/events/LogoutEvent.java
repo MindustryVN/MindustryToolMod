@@ -1,4 +1,3 @@
 package mindustrytool.events;
 
-public class LogoutEvent {
-}
+public class LogoutEvent {}

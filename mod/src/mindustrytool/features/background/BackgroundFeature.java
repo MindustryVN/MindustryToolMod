@@ -4,6 +4,8 @@ import arc.Core;
 import arc.files.Fi;
 import arc.graphics.Texture;
 import arc.graphics.g2d.Draw;
+import arc.graphics.g2d.TextureRegion;
+import arc.scene.ui.Dialog;
 import arc.util.Log;
 import arc.util.Reflect;
 import mindustry.Vars;
@@ -13,16 +15,10 @@ import mindustrytool.Folders;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 
-import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.Dialog;
-
 public class BackgroundFeature extends Feature {
 
     public BackgroundFeature() {
-        super(FeatureMetadata.builder()
-                .id("background")
-                .icon(Icon.image)
-                .build());
+        super(FeatureMetadata.builder().id("background").icon(Icon.image).build());
     }
 
     static final String SETTING_KEY = "mindustrytool.background.path";
@@ -124,8 +120,12 @@ public class BackgroundFeature extends Feature {
                     Draw.alpha(opacity / 100f);
                 }
 
-                Draw.rect(region, Core.graphics.getWidth() / 2f, Core.graphics.getHeight() / 2f,
-                        Core.graphics.getWidth(), Core.graphics.getHeight());
+                Draw.rect(
+                        region,
+                        Core.graphics.getWidth() / 2f,
+                        Core.graphics.getHeight() / 2f,
+                        Core.graphics.getWidth(),
+                        Core.graphics.getHeight());
             } catch (Exception e) {
                 Log.err(e);
             } finally {

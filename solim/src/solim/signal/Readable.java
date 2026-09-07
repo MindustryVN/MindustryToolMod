@@ -3,24 +3,22 @@ package solim.signal;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * Common read-only interface for reactive sources (Signal, Computed) or static values.
- */
+/** Common read-only interface for reactive sources (Signal, Computed) or static values. */
 @FunctionalInterface
 public interface Readable<T> extends Supplier<T> {
 
-    @Override
-    T get();
+	@Override
+	T get();
 
-    default <R> Computed<R> map(Function<T, R> mapper) {
-        return new Computed<>(() -> mapper.apply(get()));
-    }
+	default <R> Computed<R> map(Function<T, R> mapper) {
+		return new Computed<>(() -> mapper.apply(get()));
+	}
 
-    static <T> Readable<T> of(T value) {
-        return () -> value;
-    }
+	static <T> Readable<T> of(T value) {
+		return () -> value;
+	}
 
-    static <T> Readable<T> from(Supplier<T> supplier) {
-        return supplier::get;
-    }
+	static <T> Readable<T> from(Supplier<T> supplier) {
+		return supplier::get;
+	}
 }

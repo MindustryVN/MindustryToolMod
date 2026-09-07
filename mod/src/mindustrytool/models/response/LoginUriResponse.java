@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class LoginUriResponse {
-    private String loginUrl;
-    private String loginId;
+	private String loginUrl;
+	private String loginId;
 }

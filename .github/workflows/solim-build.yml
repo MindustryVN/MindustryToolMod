@@ -21,6 +21,8 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
+      - name: Run Spotless Check
+        run: ./gradlew :solim:spotlessCheck
       - name: Build solim
         run: ./gradlew :solim:build
       - name: Upload solim jar

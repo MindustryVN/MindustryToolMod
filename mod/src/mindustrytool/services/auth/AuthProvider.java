@@ -4,7 +4,7 @@ import java.util.concurrent.CompletableFuture;
 
 public interface AuthProvider {
 
-    CompletableFuture<Void> refreshIfNeeded();
+	CompletableFuture<Void> refreshIfNeeded();
 
-    String getAccessToken();
+	String getAccessToken();
 }

@@ -2,12 +2,9 @@ package solim.core;
 
 import arc.scene.Element;
 
-/**
- * Minimal component abstraction.
- */
+/** Minimal component abstraction. */
 public interface Component {
-    Element element();
+	Element element();
 
-    default void dispose() {
-    }
+	default void dispose() {}
 }

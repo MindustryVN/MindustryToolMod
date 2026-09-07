@@ -1,7 +1,5 @@
 package mindustrytool.components;
 
-import java.util.concurrent.ConcurrentHashMap;
-
 import arc.Core;
 import arc.graphics.Color;
 import arc.graphics.Pixmap;
@@ -17,126 +15,127 @@ import arc.util.Http.HttpStatus;
 import arc.util.Http.HttpStatusException;
 import arc.util.Log;
 import arc.util.Scaling;
+import java.util.concurrent.ConcurrentHashMap;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 
 public class NetworkImage extends Image {
-    public Color borderColor = Pal.gray;
-    public float scaling = 16f;
-    public float thickness = 1f;
+	public Color borderColor = Pal.gray;
+	public float scaling = 16f;
+	public float thickness = 1f;
 
-    private boolean isError = false;
-    private String url;
-    private TextureRegion lastTexture;
+	private boolean isError = false;
+	private String url;
+	private TextureRegion lastTexture;
 
-    private static ConcurrentHashMap<String, TextureRegion> cache = new ConcurrentHashMap<>();
+	private static ConcurrentHashMap<String, TextureRegion> cache = new ConcurrentHashMap<>();
 
-    public NetworkImage(String url) {
-        super(Tex.clear);
-        this.url = url;
-        setScaling(Scaling.fit);
-    }
+	public NetworkImage(String url) {
+		super(Tex.clear);
+		this.url = url;
+		setScaling(Scaling.fit);
+	}
 
-    public static boolean isValidImageLink(String url) {
-        return url != null && url.matches("^https?://[^?\\s]+\\.(png|jpg|jpeg)(\\?.*)?$");
-    }
+	public static boolean isValidImageLink(String url) {
+		return url != null && url.matches("^https?://[^?\\s]+\\.(png|jpg|jpeg)(\\?.*)?$");
+	}
 
-    @Override
-    public void draw() {
-        super.draw();
+	@Override
+	public void draw() {
+		super.draw();
 
-        var next = cache.get(url);
+		var next = cache.get(url);
 
-        if (lastTexture != next) {
-            lastTexture = next;
-            setDrawable(next);
+		if (lastTexture != next) {
+			lastTexture = next;
+			setDrawable(next);
 
-            Draw.color(borderColor);
-            Lines.stroke(Scl.scl(thickness));
-            Lines.rect(x, y, width, height);
-            Draw.reset();
-        }
+			Draw.color(borderColor);
+			Lines.stroke(Scl.scl(thickness));
+			Lines.rect(x, y, width, height);
+			Draw.reset();
+		}
 
-        if (isError) {
-            return;
-        }
+		if (isError) {
+			return;
+		}
 
-        try {
-            if (!cache.containsKey(url)) {
-                cache.put(url, Icon.refresh.getRegion());
+		try {
+			if (!cache.containsKey(url)) {
+				cache.put(url, Icon.refresh.getRegion());
 
-                if (url == null || (!url.endsWith("png") && !url.endsWith("jpg") && !url.endsWith("jpeg"))) {
-                    return;
-                }
+				if (url == null || (!url.endsWith("png") && !url.endsWith("jpg") && !url.endsWith("jpeg"))) {
+					return;
+				}
 
-                var file = Vars.dataDirectory.child("mindustry-tool-caches").child(url
-                        .replace(":", "-")
-                        .replace("/", "-")
-                        .replace("?", "-")
-                        .replace("&", "-"));
+				var file = Vars.dataDirectory
+						.child("mindustry-tool-caches")
+						.child(url.replace(":", "-")
+								.replace("/", "-")
+								.replace("?", "-")
+								.replace("&", "-"));
 
-                if (file.exists()) {
-                    try {
-                        byte[] result = file.readBytes();
-                        Pixmap pix = new Pixmap(result);
-                        Core.app.post(() -> {
-                            try {
-                                var tex = new Texture(pix);
-                                tex.setFilter(TextureFilter.linear);
-                                cache.put(url, new TextureRegion(tex));
-                                pix.dispose();
-                            } catch (Exception e) {
-                                Log.err(url, e);
-                                isError = true;
-                            }
-                        });
-                    } catch (Exception e) {
-                        isError = true;
-                        file.delete();
-                        Log.err(url, e);
-                    }
-                } else {
-                    Http.get(url + "?format=jpeg")
-                            .timeout(10000)
-                            .error(error -> {
-                                isError = true;
-                                if (!(error instanceof HttpStatusException requestError)
-                                        || requestError.status != HttpStatus.NOT_FOUND) {
-                                    Log.err(url, error);
-                                }
-                            })
-                            .submit(res -> {
-                                byte[] result = res.getResult();
-                                if (result.length == 0)
-                                    return;
+				if (file.exists()) {
+					try {
+						byte[] result = file.readBytes();
+						Pixmap pix = new Pixmap(result);
+						Core.app.post(() -> {
+							try {
+								var tex = new Texture(pix);
+								tex.setFilter(TextureFilter.linear);
+								cache.put(url, new TextureRegion(tex));
+								pix.dispose();
+							} catch (Exception e) {
+								Log.err(url, e);
+								isError = true;
+							}
+						});
+					} catch (Exception e) {
+						isError = true;
+						file.delete();
+						Log.err(url, e);
+					}
+				} else {
+					Http.get(url + "?format=jpeg")
+							.timeout(10000)
+							.error(error -> {
+								isError = true;
+								if (!(error instanceof HttpStatusException requestError)
+										|| requestError.status != HttpStatus.NOT_FOUND) {
+									Log.err(url, error);
+								}
+							})
+							.submit(res -> {
+								byte[] result = res.getResult();
+								if (result.length == 0) return;
 
-                                try {
-                                    file.writeBytes(result);
-                                } catch (Exception error) {
-                                    Log.err(url, error);
-                                    isError = true;
-                                }
+								try {
+									file.writeBytes(result);
+								} catch (Exception error) {
+									Log.err(url, error);
+									isError = true;
+								}
 
-                                Core.app.post(() -> {
-                                    try {
-                                        Pixmap pix = new Pixmap(result);
-                                        var tex = new Texture(pix);
-                                        tex.setFilter(TextureFilter.linear);
-                                        cache.put(url, new TextureRegion(tex));
-                                        pix.dispose();
-                                    } catch (Exception e) {
-                                        Log.err(url, e);
-                                        isError = true;
-                                    }
-                                });
-                            });
-                }
-            }
-        } catch (Exception error) {
-            Log.err(url, error);
-            isError = true;
-        }
-    }
+								Core.app.post(() -> {
+									try {
+										Pixmap pix = new Pixmap(result);
+										var tex = new Texture(pix);
+										tex.setFilter(TextureFilter.linear);
+										cache.put(url, new TextureRegion(tex));
+										pix.dispose();
+									} catch (Exception e) {
+										Log.err(url, e);
+										isError = true;
+									}
+								});
+							});
+				}
+			}
+		} catch (Exception error) {
+			Log.err(url, error);
+			isError = true;
+		}
+	}
 }

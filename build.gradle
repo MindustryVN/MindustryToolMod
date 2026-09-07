@@ -2,93 +2,117 @@
 // Shared configuration for :mod and :solim is defined via subprojects
 // Main mod artifact is built via :mod, UI library via :solim
 
+plugins {
+	id 'com.diffplug.spotless' version '6.25.0'
+}
+
+spotless {
+	groovyGradle {
+		target '**/*.gradle'
+		trimTrailingWhitespace()
+		endWithNewline()
+		indentWithTabs()
+	}
+}
+
 subprojects{
-    apply plugin: "java"
+	apply plugin: "java"
+	apply plugin: "com.diffplug.spotless"
 
-    version '1.0'
+	spotless {
+		java {
+			target 'src/**/*.java'
+			removeUnusedImports()
+			indentWithTabs()
+			trimTrailingWhitespace()
+			endWithNewline()
+		}
+	}
 
-    repositories{
-        mavenCentral()
+	version '1.0'
 
-        //Downloads the dependencies JAR file from Mindustry releases; does not use any real repository. Surprisingly, this is the most reliable option.
-        ivy{
-            url = 'https://github.com/'
-            patternLayout{artifact '/[organisation]/[module]/releases/download/[revision]/dependencies.jar'}
-            metadataSources{ artifact() }
-        }
+	repositories{
+		mavenCentral()
 
-        //If the version is set to 'latest', downloads the latest Mindustry *release* as a dependency
-        ivy{
-            url = 'https://github.com/'
-            patternLayout{artifact '/[organisation]/[module]/releases/[revision]/download/dependencies.jar'}
-            metadataSources{ artifact() }
-        }
+		//Downloads the dependencies JAR file from Mindustry releases; does not use any real repository. Surprisingly, this is the most reliable option.
+		ivy{
+			url = 'https://github.com/'
+			patternLayout{artifact '/[organisation]/[module]/releases/download/[revision]/dependencies.jar'}
+			metadataSources{ artifact() }
+		}
 
-        //For depending on the absolute newest commit for Mindustry
-        ivy{
-            url = 'https://github.com/'
-            patternLayout{artifact '/[organisation]/[module]/releases/download/master/[revision].jar'}
-            metadataSources{ artifact() }
-        }
-    }
+		//If the version is set to 'latest', downloads the latest Mindustry *release* as a dependency
+		ivy{
+			url = 'https://github.com/'
+			patternLayout{artifact '/[organisation]/[module]/releases/[revision]/download/dependencies.jar'}
+			metadataSources{ artifact() }
+		}
 
-    java{
-        targetCompatibility = JavaVersion.VERSION_17
-        sourceCompatibility = JavaVersion.VERSION_17
-    }
+		//For depending on the absolute newest commit for Mindustry
+		ivy{
+			url = 'https://github.com/'
+			patternLayout{artifact '/[organisation]/[module]/releases/download/master/[revision].jar'}
+			metadataSources{ artifact() }
+		}
+	}
 
-    ext{
-        // Mindustry version to depend on.
-        // Valid values:
-        // - latest: depend on the latest release of mindustry
-        // - be: depend on the very latest commit of mindustry
-        // - v<number>: depend on a specific commit
-        mindustryVersion = "v159.7"
-        isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
-        sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
-    }
+	java{
+		targetCompatibility = JavaVersion.VERSION_17
+		sourceCompatibility = JavaVersion.VERSION_17
+	}
 
-    sourceSets{
-        main{
-            java{
-                srcDirs = ["src"]
-                exclude "**/test/**"
-            }
-        }
-        test{
-            java{
-                srcDirs = ["src/test/java"]
-            }
-        }
-    }
+	ext{
+		// Mindustry version to depend on.
+		// Valid values:
+		// - latest: depend on the latest release of mindustry
+		// - be: depend on the very latest commit of mindustry
+		// - v<number>: depend on a specific commit
+		mindustryVersion = "v159.7"
+		isWindows = System.getProperty("os.name").toLowerCase().contains("windows")
+		sdkRoot = System.getenv("ANDROID_HOME") ?: System.getenv("ANDROID_SDK_ROOT")
+	}
 
-    dependencies{
-        compileOnly mindustryVersion == "be" ? "Anuken:MindustryBuilds:latest" : "Anuken:Mindustry:$mindustryVersion"
-        compileOnly 'org.projectlombok:lombok:1.18.32'
+	sourceSets{
+		main{
+			java{
+				srcDirs = ["src"]
+				exclude "**/test/**"
+			}
+		}
+		test{
+			java{
+				srcDirs = ["src/test/java"]
+			}
+		}
+	}
 
-        implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.2'
-        implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2'
+	dependencies{
+		compileOnly mindustryVersion == "be" ? "Anuken:MindustryBuilds:latest" : "Anuken:Mindustry:$mindustryVersion"
+		compileOnly 'org.projectlombok:lombok:1.18.32'
 
-        annotationProcessor 'org.projectlombok:lombok:1.18.32'
+		implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.2'
+		implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2'
 
-        testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
-        testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
-    }
+		annotationProcessor 'org.projectlombok:lombok:1.18.32'
 
-    test{
-        useJUnitPlatform()
-    }
+		testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
+		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
+	}
+
+	test{
+		useJUnitPlatform()
+	}
 }
 
 // Convenience delegates so `gradlew jar` / `gradlew deploy` still work from root
 tasks.register('jar'){
-    dependsOn ':mod:jar'
+	dependsOn ':mod:jar'
 }
 
 tasks.register('jarAndroid'){
-    dependsOn ':mod:jarAndroid'
+	dependsOn ':mod:jarAndroid'
 }
 
 tasks.register('deploy'){
-    dependsOn ':mod:deploy'
+	dependsOn ':mod:deploy'
 }
