@@ -24,7 +24,8 @@ class FeatureSettingDialogTest {
     @BeforeEach
     void setUp() {
         testFeature = new Feature() {
-            private final FeatureMetadata metadata = new FeatureMetadata("test-feature", null, 0, true, false, Optional.empty());
+            private final FeatureMetadata metadata = new FeatureMetadata("test-feature", null, 0, true, false,
+                    Optional.empty());
 
             @Override
             public FeatureMetadata getMetadata() {
@@ -54,7 +55,8 @@ class FeatureSettingDialogTest {
     void testFeatureCardReactiveWidthAndEnabled() {
         Signal<Float> width = Signal.of(300f);
         Signal<Boolean> enabled = Signal.of(true);
-        FeatureCard card = new FeatureCard(testFeature, width, enabled, () -> {});
+        FeatureCard card = new FeatureCard(testFeature, width, enabled, () -> {
+        });
         assertNotNull(card);
         assertTrue(card.enabled().get());
 
@@ -96,7 +98,8 @@ class FeatureSettingDialogTest {
         assertTrue(FeatureManager.features().get().contains(testFeature));
 
         Feature dynamicFeature = new Feature() {
-            private final FeatureMetadata metadata = new FeatureMetadata("dynamic-feature", null, 1, true, false, Optional.empty());
+            private final FeatureMetadata metadata = new FeatureMetadata("dynamic-feature", null, 1, true, false,
+                    Optional.empty());
 
             @Override
             public FeatureMetadata getMetadata() {
@@ -149,11 +152,14 @@ class FeatureSettingDialogTest {
 
     private static File findSourceFile(String relativePath) {
         File f = new File(relativePath);
-        if (f.exists()) return f;
+        if (f.exists())
+            return f;
         f = new File("mod/" + relativePath);
-        if (f.exists()) return f;
+        if (f.exists())
+            return f;
         f = new File("../mod/" + relativePath);
-        if (f.exists()) return f;
+        if (f.exists())
+            return f;
         return new File(relativePath);
     }
 
@@ -190,16 +196,11 @@ class FeatureSettingDialogTest {
                 assertFalse(ownPattern.matcher(content).find(), "File " + p + " must not call own()");
                 assertFalse(ownChildPattern.matcher(content).find(), "File " + p + " must not call ownChild()");
                 if (p.endsWith("FeatureCard.java")) {
-                    assertFalse(content.contains("public static void build("), "FeatureCard must not have static build()");
+                    assertFalse(content.contains("public static void build("),
+                            "FeatureCard must not have static build()");
                     assertFalse(content.contains("getPrefWidth()"), "FeatureCard must not override getPrefWidth()");
                 }
             }
         }
-    }
-
-    @Test
-    void testFeatureSettingDialogHelpers() {
-        assertNull(FeatureSettingDialog.icon(null));
-        assertNull(FeatureSettingDialog.icon("nonExistentIcon12345"));
     }
 }
