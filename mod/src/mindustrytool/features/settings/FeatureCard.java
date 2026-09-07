@@ -40,7 +40,7 @@ public class FeatureCard extends BaseComponent {
                             .size(24f);
                 }
 
-                text(feature.getName() != null ? feature.getName() : "")
+                text(feature.getName())
                         .style(Styles.defaultLabel)
                         .color(Color.white)
                         .ellipsis(true)
@@ -67,7 +67,7 @@ public class FeatureCard extends BaseComponent {
                         .tooltip(Core.bundle.get("feature.button.help"));
             }).gap(8f);
 
-            text(feature.getDescription() != null ? feature.getDescription() : "")
+            text(feature.getDescription())
                     .color(Color.lightGray)
                     .fontScale(0.9f)
                     .wrap(true)
