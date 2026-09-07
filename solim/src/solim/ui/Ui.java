@@ -17,6 +17,8 @@ import solim.core.EventsUtil;
 import solim.display.SolimImage;
 import solim.display.Text;
 import solim.input.Button;
+import solim.input.Checkbox;
+import solim.input.SolimSlider;
 import solim.input.SolimTextField;
 import solim.layout.Card;
 import solim.layout.Column;
@@ -172,6 +174,12 @@ public final class Ui {
         return b;
     }
 
+    public static Button button(String text, @Nullable Runnable onClick) {
+        Button b = button(onClick);
+        b.children(() -> text(text));
+        return b;
+    }
+
     public static Text text(String s) {
         Text t = Text.of(s);
         ParentStack.attachToParent(t.label());
@@ -200,6 +208,30 @@ public final class Ui {
         SolimTextField tf = SolimTextField.of(signal);
         ParentStack.attachToParent(tf.field());
         return tf;
+    }
+
+    public static SolimSlider slider(Signal<Float> signal, float min, float max, float step) {
+        SolimSlider s = SolimSlider.of(signal, min, max, step);
+        ParentStack.attachToParent(s.slider());
+        return s;
+    }
+
+    public static SolimSlider slider(Signal<Integer> signal, int min, int max, int step) {
+        SolimSlider s = SolimSlider.of(signal, min, max, step);
+        ParentStack.attachToParent(s.slider());
+        return s;
+    }
+
+    public static Checkbox checkbox(String label, Signal<Boolean> signal) {
+        Checkbox cb = Checkbox.of(label, signal);
+        ParentStack.attachToParent(cb.checkBox());
+        return cb;
+    }
+
+    public static Checkbox checkbox(String label, boolean initial, Consumer<Boolean> onChanged) {
+        Checkbox cb = Checkbox.of(label, initial, onChanged);
+        ParentStack.attachToParent(cb.checkBox());
+        return cb;
     }
 
     public static SolimDialog dialog(String title) {

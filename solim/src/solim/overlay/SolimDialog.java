@@ -4,6 +4,7 @@ import arc.Core;
 import arc.Events;
 import arc.func.Cons;
 import arc.func.Func;
+import arc.scene.Element;
 import arc.scene.Scene;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Dialog;
@@ -17,6 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.signal.Signal;
@@ -67,12 +69,20 @@ public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disp
 
     public SolimDialog content(@Nullable Runnable contentBuilder) {
         if (contentBuilder != null) {
-            ParentStack.push(cont);
-            try {
-                contentBuilder.run();
-            } finally {
-                ParentStack.pop();
-            }
+            BaseComponent comp = new BaseComponent() {
+                @Override
+                protected Element build() {
+                    ParentStack.push(cont);
+                    try {
+                        contentBuilder.run();
+                    } finally {
+                        ParentStack.pop();
+                    }
+                    return cont;
+                }
+            };
+            registerDisposable(comp::dispose);
+            comp.element();
         }
         return this;
     }

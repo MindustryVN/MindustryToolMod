@@ -75,6 +75,12 @@ subprojects{
 		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'
 	}
 
+	afterEvaluate {
+		tasks.withType(JavaCompile).configureEach {
+			options.annotationProcessorPath = configurations.annotationProcessor
+		}
+	}
+
 	test{
 		useJUnitPlatform()
 	}

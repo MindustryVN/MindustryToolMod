@@ -74,6 +74,27 @@ class InputWidgetsTest {
 	}
 
 	@Test
+	void integerSliderBinding() {
+		Signal<Integer> cols = Signal.of(3);
+		SolimSlider sl = new SolimSlider(cols, 1, 9, 1);
+		sl.slider().setValue(6f);
+		assertEquals(6, cols.get().intValue());
+		cols.set(4);
+		assertEquals(4f, sl.slider().getValue(), 0.0001f);
+		sl.dispose();
+	}
+
+	@Test
+	void checkboxCallback() {
+		boolean[] toggled = {true};
+		Checkbox cb = new Checkbox("Enable", true, val -> toggled[0] = val);
+		assertTrue(cb.checkBox().isChecked());
+		cb.checkBox().setChecked(false);
+		assertFalse(toggled[0]);
+		cb.dispose();
+	}
+
+	@Test
 	void selectBinding() {
 		Signal<String> sel = Signal.of("A");
 		SolimSelect<String> s = new SolimSelect<>(sel, Arrays.asList("A", "B", "C"));

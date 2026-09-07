@@ -18,7 +18,7 @@ import mindustrytool.features.FeatureMetadata;
 public class BackgroundFeature extends Feature {
 
     public BackgroundFeature() {
-        super(FeatureMetadata.builder().id("background").icon(Icon.image).build());
+        super(FeatureMetadata.builder().id("background").icon(Icon.image).quickAccess(true).build());
     }
 
     static final String SETTING_KEY = "mindustrytool.background.path";

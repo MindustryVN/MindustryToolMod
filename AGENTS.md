@@ -1,162 +1,67 @@
 # AGENTS.md
 
-## Internationalization (i18n) — Mandatory
+## Project Rules
+
+This project is a **Mindustry game mod**, not a backend application.
+
+Prioritize:
+
+1. Correctness
+2. Simple game-mod architecture
+3. Clear ownership and lifecycle
+4. Declarative Solim UI
+5. Automatic reactive bindings
+6. Localized structural updates
+7. Performance optimization
+
+Do not introduce complexity unless it provides clear value.
+
+---
+
+# Internationalization (i18n) — Mandatory
+
+## Core Rule
 
 **All user-visible text must be translatable.**
 
-Never introduce hardcoded display text into the codebase unless it is explicitly intended to be non-user-facing data.
+Never hardcode display text in Java code unless it is explicitly non-user-facing.
 
-The primary translation bundle is:
-
-```text
-assets/bundles/bundle.properties
-```
-
----
-
-## Core Rules
-
-### Never hardcode user-visible text
-
-Do not write display text directly in Java code.
-
-❌ Bad:
-
-```java
-player.sendMessage("You don't have permission.");
-```
-
-```java
-button.setText("Start Game");
-```
-
-✅ Good:
-
-```java
-player.sendMessage(Core.bundle.get("error.no-permission"));
-```
-
-```java
-button.setText(Core.bundle.get("ui.start-game"));
-```
-
----
-
-## Adding New Text
-
-Whenever new user-visible text is introduced:
-
-1. Check whether an existing translation key already represents the same text.
-2. Reuse the existing key if possible.
-3. Otherwise, create a new meaningful key.
-4. Add the English/default translation to:
+Primary translation bundle:
 
 ```text
 assets/bundles/bundle.properties
 ```
 
-5. **Always add a descriptive comment directly above every new translation key.**
-6. Use the translation key in code instead of hardcoding the text.
+This applies to all user-visible text, including:
 
----
+* Buttons
+* Labels
+* Menus
+* Dialogs
+* Tooltips
+* Notifications
+* Chat and player messages
+* Errors and warnings
+* Status messages
+* Command responses
+* Validation messages
+* Empty and loading states
+* Help text
+* Settings descriptions
 
-## Translation Comments — Mandatory
+### Static text
 
-Every translation key added to `assets/bundles/bundle.properties` **must have a comment directly above it** explaining:
-
-* What the text means.
-* Where the text is displayed.
-* When the key should be used.
-* Any important context needed by translators.
-* The meaning of placeholders such as `{0}`, `{1}`, etc., when applicable.
-
-These comments exist to help translators understand the context and choose accurate translations.
-
-### Basic Example
-
-```properties
-# Displayed on the confirmation button when the user confirms an action.
-# Use for generic confirmation actions.
-ui.confirm=Confirm
+```java
+Core.bundle.get("translation.key");
 ```
 
-### Context-Specific Example
+### Dynamic text
 
-```properties
-# Displayed when a player attempts an action without the required permission.
-# Used in player-facing error messages.
-error.no-permission=You don't have permission.
+Use bundle formatting instead of string concatenation:
+
+```java
+Core.bundle.format("translation.key", value1, value2);
 ```
-
-### Dynamic Text Example
-
-```properties
-# Welcome message displayed to a player.
-# {0} is the player's display name.
-message.welcome=Welcome, {0}!
-```
-
-### Multiple Parameters Example
-
-```properties
-# Displays a player's current score.
-# {0} is the player's name.
-# {1} is the player's score.
-message.player-score={0} has {1} points.
-```
-
-### Important Rules for Comments
-
-* The comment must be **directly above the key** it describes.
-* Do not place unrelated comments between the comment and its key.
-* Write comments in clear English.
-* Describe the **usage and context**, not just repeat the text.
-* Include placeholder descriptions when the value contains parameters.
-* Avoid vague comments such as:
-
-```properties
-# Save
-button.save=Save
-```
-
-Prefer:
-
-```properties
-# Displayed on a button that saves the current configuration or changes.
-button.save=Save
-```
-
-### Group Comments vs Key Comments
-
-Group comments may be used for organization, but they **do not replace the required comment for each key**.
-
-❌ Not sufficient:
-
-```properties
-# General buttons
-button.save=Save
-button.cancel=Cancel
-button.delete=Delete
-```
-
-✅ Correct:
-
-```properties
-# Displayed on a button that saves the current configuration or changes.
-button.save=Save
-
-# Displayed on a button that cancels the current operation without applying changes.
-button.cancel=Cancel
-
-# Displayed on a button that permanently deletes the selected item.
-button.delete=Delete
-```
-
----
-
-## Dynamic Text and Parameters
-
-For text containing dynamic values, use bundle formatting instead of string concatenation.
 
 ❌ Bad:
 
@@ -164,43 +69,62 @@ For text containing dynamic values, use bundle formatting instead of string conc
 player.sendMessage("Welcome, " + player.name + "!");
 ```
 
-❌ Bad:
-
-```java
-player.sendMessage("You have " + coins + " coins.");
-```
-
 ✅ Good:
-
-### `bundle.properties`
 
 ```properties
 # Welcome message displayed to a player.
 # {0} is the player's display name.
 message.welcome=Welcome, {0}!
-
-# Displays the number of coins currently owned by the player.
-# {0} is the number of coins.
-message.coins=You have {0} coins.
 ```
-
-### Java
 
 ```java
 player.sendMessage(Core.bundle.format("message.welcome", player.name));
 ```
 
-```java
-player.sendMessage(Core.bundle.format("message.coins", coins));
+## Adding Translation Keys
+
+When introducing new user-visible text:
+
+1. Check whether an existing key already represents the same concept.
+2. Reuse it when appropriate.
+3. Otherwise create a meaningful new key.
+4. Add it to `assets/bundles/bundle.properties`.
+5. Add a descriptive comment directly above the key.
+6. Use the key in code instead of hardcoding text.
+
+### Translation Comments
+
+**Every translation key must have a descriptive comment directly above it.**
+
+Comments should explain:
+
+* What the text means
+* Where it is displayed
+* When it should be used
+* Important context for translators
+* Placeholder meanings such as `{0}` and `{1}`
+
+❌ Bad:
+
+```properties
+# Save
+button.save=Save
 ```
 
----
+✅ Good:
 
-## Translation Key Naming
+```properties
+# Displayed on a button that saves the current configuration or changes.
+button.save=Save
+```
 
-Use lowercase dot-separated keys.
+Group comments do **not** replace comments for individual keys.
 
-Preferred structure:
+### Key Naming
+
+Use lowercase, dot-separated keys.
+
+Preferred categories:
 
 ```text
 ui.*
@@ -215,164 +139,49 @@ command.*
 setting.*
 ```
 
-Examples:
-
-```properties
-# Displayed on a generic confirmation button.
-ui.confirm=Confirm
-
-# Displayed on a generic cancel button.
-ui.cancel=Cancel
-
-# Displayed on a button that saves the current changes.
-button.save=Save
-
-# Displayed on a button that permanently deletes the selected item.
-button.delete=Delete
-
-# Title of a dialog asking the user to confirm deletion.
-dialog.confirm-delete=Confirm Deletion
-
-# Welcome message displayed to a player.
-# {0} is the player's display name.
-message.welcome=Welcome, {0}!
-
-# Displayed when a user attempts an action without sufficient permission.
-error.no-permission=You don't have permission.
-
-# Displayed when the requested item cannot be found.
-error.not-found=The requested item was not found.
-
-# Indicates that a service, server, or process is currently running.
-status.running=Running
-
-# Indicates that a service, server, or process has stopped.
-status.stopped=Stopped
-```
-
-### Key Naming Rules
+Rules:
 
 * Use meaningful names.
-* Keep keys grouped by feature or purpose.
-* Prefer existing naming conventions in the project.
+* Group keys by feature or purpose.
+* Follow existing project conventions.
 * Do not create duplicate keys for the same concept.
-* Do not use vague keys such as:
-
-```text
-text1
-message2
-label
-button1
-```
-
----
-
-## What Must Be Translated
-
-This rule applies to **all user-visible text**, including:
-
-* Buttons
-* Labels
-* Menus
-* Dialog titles
-* Dialog descriptions
-* Tooltips
-* Notifications
-* Chat messages
-* Error messages
-* Warning messages
-* Status messages
-* Command responses
-* Form validation messages
-* Empty states
-* Loading messages
-* Help text
-* Settings descriptions
-* Game messages
-* Player-facing messages
-
----
-
-## Core.bundle Usage
-
-Use:
-
-```java
-Core.bundle.get("translation.key");
-```
-
-for static text.
-
-Use:
-
-```java
-Core.bundle.format("translation.key", value1, value2);
-```
-
-for text containing dynamic values.
-
-Do not manually concatenate translated text when formatting can be used.
-
-❌ Bad:
-
-```java
-Core.bundle.get("message.player") + player.name;
-```
-
-✅ Good:
-
-```properties
-# Displays a player's name.
-# {0} is the player's display name.
-message.player=Player: {0}
-```
-
-```java
-Core.bundle.format("message.player", player.name);
-```
-
----
+* Avoid vague names such as `text1`, `label`, or `message2`.
 
 ## Exceptions
 
-The following generally do **not** need translation:
+These generally do not require translation:
 
-* Internal logs not shown to users
+* Internal logs
 * Debug messages
-* Developer-only error messages
-* Class names
-* Method names
-* Variable names
+* Developer-only errors
+* Class, method, and variable names
 * Configuration keys
-* API field names
+* API fields
 * Database values
-* Protocol messages
-* Machine-readable strings
+* Protocol and machine-readable strings
 
-However, if the text can be displayed to a player or end user, it **must be translated**.
+If text can be shown to a player or end user, it must be translated.
 
 ---
 
-## HTTP Client — Mandatory
+# HTTP Client — Mandatory
 
-All HTTP requests MUST be executed via a `mindustrytool.services.Request` instance (backed by pure Java 8 `HttpURLConnection`).
+All HTTP requests must use `mindustrytool.services.Request`.
 
-Do not construct `HttpURLConnection`, `URL.openConnection()`, or any HTTP client directly outside `Request.java`. All calls must go through `Request` — either via the existing facades `mindustrytool.services.MindustryTool` / `mindustrytool.services.Github`, or via a new class that owns a `Request` instance built with `Request.builder().baseUrl(...).timeout(...).authProvider(...).build()`.
+Do not construct HTTP clients directly outside `Request.java`, including:
 
-❌ Bad:
+* `HttpURLConnection`
+* `URL.openConnection()`
+* Other direct HTTP connection APIs
 
-```java
-URL url = new URL("https://api.example.com/data");
-HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-conn.setRequestMethod("GET");
-```
+Use either existing facades:
 
 ```java
-// Direct HTTP connection construction outside Request.java
-var conn = (HttpURLConnection) new URL(url).openConnection();
+MindustryTool.getSession();
+Github.getReleases();
 ```
 
-✅ Good:
+Or own a configured `Request` instance:
 
 ```java
 private final Request api = Request.builder()
@@ -380,231 +189,158 @@ private final Request api = Request.builder()
         .timeout(Duration.ofSeconds(10))
         .authProvider(authProvider)
         .build();
-
-api.get("/maps/1").sendAsync().thenApply(r -> JsonUtils.fromJson(MapData.class, r.body()));
 ```
 
-```java
-// Via facades that delegate to Request internally
-MindustryTool.getSession();
-Github.getReleases();
-```
+Direct connection construction is forbidden outside `Request.java`.
 
 ---
 
-## Java Compatibility — Mandatory
+# Java Compatibility — Mandatory
 
-**This project uses Java 17 syntax running in a Java 8 runtime environment.**
+## Language vs Runtime
 
-### Language Features vs Runtime APIs
+The project supports **Java 17 language syntax** through its compiler/desugaring toolchain, but runs against a **Java 8 runtime environment**.
 
-* **Java 17 Language Syntax is allowed**:
-  You may use Java 17 syntax supported by the compiler and desugaring toolchain, such as `var`, switch expressions, text blocks, etc.
+You may use supported modern language syntax such as:
 
-* **Java 8 Runtime APIs only**:
-  The application runs in a Java 8 runtime environment (including Mindustry JRE and Android runtime). You **MUST NOT** use standard library classes or methods introduced in Java 9 or later unless provided by an included library or backport.
+* `var`
+* Switch expressions
+* Text blocks
 
-### Common Pitfalls & Replacements
+However, **do not use Java standard library APIs introduced after Java 8** unless they are explicitly provided by an included library or backport.
 
-| Feature | ❌ Do NOT use (Java 9+) | ✅ Use instead (Java 8 compatible) |
-|---|---|---|
-| Immutable Collections | `List.of(...)`, `Set.of(...)`, `Map.of(...)` | `Arrays.asList(...)`, `new HashSet<>(...)`, `Collections.unmodifiableList(...)`, or Arc's `Seq.with(...)` |
-| Stream to List | `stream.toList()` | `stream.collect(Collectors.toList())` |
-| String Checks | `str.isBlank()`, `str.strip()` | `str.trim().isEmpty()`, `arc.util.Strings.isEmpty(...)` |
-| Optional | `opt.isEmpty()` | `!opt.isPresent()` |
-| Stream Predicate | `Predicate.not(...)` | Lambda `x -> !condition(x)` |
-| Stream Drop/Take | `stream.takeWhile(...)`, `stream.dropWhile(...)` | Java 8 stream filters or standard loops |
-| Input Stream | `in.readAllBytes()`, `in.transferTo(...)` | Byte buffers, `Streams.copy(...)`, or Java 8 loop |
-| File IO | `Files.readString(...)`, `Files.writeString(...)` | Arc's `Fi` utilities (`fi.readString()`), or Java 8 `BufferedReader` / `BufferedWriter` |
+### Common Replacements
+
+| Do not use                             | Use instead                                            |
+| -------------------------------------- | ------------------------------------------------------ |
+| `List.of()`, `Set.of()`, `Map.of()`    | Java 8 collections, `Arrays.asList()`, Arc collections |
+| `stream.toList()`                      | `collect(Collectors.toList())`                         |
+| `String.isBlank()`                     | `trim().isEmpty()`                                     |
+| `String.strip()`                       | `trim()`                                               |
+| `Optional.isEmpty()`                   | `!isPresent()`                                         |
+| `Predicate.not()`                      | Lambda                                                 |
+| `takeWhile()` / `dropWhile()`          | Filters or loops                                       |
+| `readAllBytes()` / `transferTo()`      | Java 8-compatible streams                              |
+| `Files.readString()` / `writeString()` | `Fi` or Java 8 I/O                                     |
+
+Always verify Java 8 runtime compatibility before finishing.
 
 ---
 
-## Nullability — Mandatory
+# Nullability — Mandatory
 
-**By default, all variables, fields, method parameters, and method return values are non-nullable.**
+By default, values are non-nullable.
 
-If a variable, field, method parameter, or method return value can be null, you **MUST** annotate it with `@Nullable` (from `arc.util.Nullable`).
-
-Never use `javax.annotation.Nullable`, `org.jetbrains.annotations.Nullable`, or other third-party annotations. Always use `arc.util.Nullable`.
-
-❌ Bad:
-
-```java
-// Method return can be null, but lacks @Nullable
-public Dialog getSettingDialog() {
-    return null;
-}
-
-// Parameter can be null, but lacks @Nullable
-public void process(String value) {
-    if (value != null) { ... }
-}
-
-// Field can be null, but lacks @Nullable
-private String cachedToken;
-```
-
-✅ Good:
+If a field, parameter, local value, or return value can legitimately be `null`, annotate it with:
 
 ```java
 import arc.util.Nullable;
+```
 
+Example:
+
+```java
 public @Nullable Dialog getSettingDialog() {
     return null;
 }
 
 public void process(@Nullable String value) {
-    if (value != null) { ... }
+    if (value != null) {
+        // ...
+    }
 }
 
 private @Nullable String cachedToken;
 ```
 
----
+Do not use other `@Nullable` annotations.
 
-## Java Imports — Mandatory
-
-**Never use fully qualified class names directly in Java source code when an import can be used.** Always prefer importing the class and using its simple name. Fully qualified names are only allowed when required to resolve an unavoidable naming conflict between classes with the same simple name.
-
-### Rules
-
-- Prefer `import` statements over fully qualified class names.
-- Do not write types like:
-
-  ```java
-  arc.scene.ui.ImageButton.ImageButtonStyle
-  ```
+Only add null checks when null is genuinely possible.
 
 ---
 
-## Legacy Code — Mandatory
+# Java Imports — Mandatory
 
-**Ignore the `old/` folder entirely.** Do not modify or refactor code inside it unless explicitly requested. Treat `old/` as legacy code outside the scope of normal tasks.
+Prefer imports over fully qualified class names.
 
----
+❌ Avoid:
 
-## Before Completing Any Task
+```java
+arc.scene.ui.ImageButton.ImageButtonStyle
+```
 
-Before finishing a task, the AI agent must verify:
+Import the type instead whenever possible.
 
-* [ ] No new user-visible text is unnecessarily hardcoded.
-* [ ] Existing translation keys were reused where appropriate.
-* [ ] Every new display string has a translation key.
-* [ ] Every translation key has a descriptive comment directly above it.
-* [ ] Comments explain the purpose and usage context of the key.
-* [ ] All placeholders such as `{0}` and `{1}` are explained in comments.
-* [ ] New keys were added to `assets/bundles/bundle.properties`.
-* [ ] Dynamic values use `Core.bundle.format()` where appropriate.
-* [ ] Translation keys follow the project's naming conventions.
-* [ ] No duplicate translation keys were introduced.
-* [ ] All HTTP calls go through `mindustrytool.services.Request` (via `MindustryTool`/`Github` or an owned `Request` instance); no direct HTTP connection construction outside `Request.java`.
-* [ ] Java 8 runtime compatibility verified: no Java 9+ standard library APIs or methods (e.g., `List.of`, `Set.of`, `Map.of`, `Stream.toList`, `String.isBlank`, `Optional.isEmpty`) are used.
-* [ ] Nullability verified: all variables, fields, parameters, and method return types that can be null are annotated with `@Nullable` (from `arc.util.Nullable`).
-* [ ] Java imports verified: imports are used for referenced classes instead of fully qualified class names.
-
-**A UI or player-facing feature is not considered complete until all of its display text has been properly added to the translation bundle with sufficient context for translators.**
+Fully qualified names are allowed only when necessary to resolve unavoidable naming conflicts.
 
 ---
 
-# Architecture & Coding Rules
+# Legacy Code
 
-## Communication
+**Ignore the `old/` folder entirely.**
 
-* Always address the user as **Sir**.
-* Be concise and direct unless Sir requests detailed explanation.
-* Point out architectural problems instead of blindly implementing bad designs.
+Do not modify or refactor it unless explicitly requested.
+
+Treat it as legacy code outside the scope of normal tasks.
 
 ---
 
-# Project Context
+# Architecture & Coding Style
 
-This project is a **Mindustry game mod**, not a backend application.
+## Feature-Oriented Architecture
 
-Do not apply backend architecture patterns by default.
+Organize code primarily around **features and game functionality**, not artificial technical layers.
 
-Avoid introducing unnecessary concepts such as:
+Prefer:
+
+```text
+features/
+├── settings/
+│   ├── FeatureSettingDialog
+│   ├── FeatureSettingsView
+│   └── FeatureCard
+├── chat/
+│   ├── ChatFeature
+│   └── ChatView
+└── server/
+    ├── ServerFeature
+    └── ServerDialog
+
+core/
+signal/
+ui/
+utils/
+```
+
+Avoid backend-style architecture unless the project genuinely needs it.
+
+Do not introduce unnecessary:
 
 * Repository layers
 * DAO layers
 * Service layers for trivial logic
 * Dependency injection frameworks
-* Enterprise-style abstractions
+* Controllers
+* DTOs
+* Mappers
 * Request/response architecture
-* Controller patterns
-* Database-oriented architecture
+* Enterprise abstractions
 
-Use architecture appropriate for a game mod:
+Prefer direct, understandable code.
 
-```text
-Feature
-├── UI
-├── Game logic
-├── State
-├── Events
-└── Utilities
-```
+## SOLID — Pragmatic Use
 
-Organize code primarily around **features and game functionality**, not artificial technical layers.
+Follow SOLID principles when they improve the code.
 
----
+Do not apply them mechanically.
 
-# SOLID Principles — Pragmatic Usage
-
-Follow SOLID principles where they improve the code.
-
-Do not apply SOLID mechanically.
-
-## Single Responsibility
-
-Classes should have a clear responsibility.
-
-For example:
-
-```text
-FeatureSettingsView
-→ Feature settings UI
-
-FeatureManager
-→ Feature registration and lifecycle
-
-FeatureCard
-→ Rendering one feature
-
-FeatureState
-→ Shared feature state, when necessary
-```
-
-Do not split a simple feature into many layers without a real reason.
-
----
-
-## Avoid Enterprise Architecture
-
-Do not automatically create:
-
-```text
-FeatureRepository
-FeatureRepositoryImpl
-FeatureService
-FeatureServiceImpl
-FeatureController
-FeatureDTO
-FeatureMapper
-```
-
-This is a game mod.
-
-Prefer direct and understandable code.
-
-If a manager, registry, event system, or utility is sufficient, use that.
-
----
+Classes should have a clear responsibility, but do not split simple functionality into unnecessary layers.
 
 ## Interfaces
 
 Do not create interfaces for every class.
 
-Create an interface when there is a meaningful behavioral contract or multiple implementations.
+Create an interface only when there is a meaningful behavioral contract or multiple implementations.
 
 Good:
 
@@ -614,676 +350,33 @@ Disposable
 Feature
 ```
 
-Bad:
+Avoid meaningless patterns such as:
 
-```java
+```text
 FeatureManagerInterface
 FeatureManagerImpl
 ```
 
 unless multiple implementations are genuinely required.
 
----
-
-# Solim UI Philosophy
-
-## Declarative by Default
-
-Application UI should be written declaratively.
-
-Prefer:
-
-```java
-@Override
-protected Element build() {
-    return column(() -> {
-        header();
-        content();
-        footer();
-    });
-}
-```
-
-Avoid manually constructing large imperative UI trees:
-
-```java
-Table root = new Table();
-
-root.add(...);
-root.row();
-root.add(...);
-```
-
-unless Solim does not provide the required capability.
-
----
-
-# Automatic Binding Through Components
-
-## The User Must Not Bind Elements Manually
-
-This is a core Solim rule.
-
-Application developers should **not** manually create bindings:
-
-```java
-signal.bind(value -> {
-    label.setText(value);
-});
-```
-
-or:
-
-```java
-Effect.of(() -> {
-    label.setText(signal.get());
-});
-```
-
-for normal UI usage.
-
-The **component itself** must handle reactive binding automatically.
-
-The developer should declare reactive values:
-
-```java
-text(name);
-```
-
-not:
-
-```java
-Label label = new Label();
-
-name.bind(value -> {
-    label.setText(value);
-});
-```
-
----
-
-## Components Accept Reactive Values
-
-Solim components should support both static and reactive values.
-
-For example:
-
-```java
-text("Hello");
-```
-
-and:
-
-```java
-text(username);
-```
-
-where:
-
-```java
-Signal<String> username
-```
-
-or:
-
-```java
-Readable<String> username
-```
-
-Both should work.
-
-Internally:
-
-```text
-Component API
-      ↓
-Detect static or Readable value
-      ↓
-Component installs binding automatically
-      ↓
-Component owns binding
-      ↓
-Signal changes
-      ↓
-Arc element updates
-```
-
-The user should only describe what they want.
-
----
-
-## Example: Automatic Text Binding
-
-Desired user API:
-
-```java
-text(featureName);
-```
-
-Where:
-
-```java
-Readable<String> featureName;
-```
-
-Solim internally handles:
-
-```text
-featureName changes
-        ↓
-Label text updates
-```
-
-The application code does not manually subscribe.
-
----
-
-## Example: Automatic Style Binding
-
-Desired API:
-
-```java
-button()
-    .color(enabled.map(value ->
-        value ? Color.green : Color.scarlet
-    ));
-```
-
-The developer declares the value.
-
-Solim handles:
-
-```text
-Readable<Color>
-        ↓
-Internal component binding
-        ↓
-Button color updates
-```
-
-No manual `Effect`.
-
-No manual listener.
-
-No manual disposal.
-
----
-
-## Example: Automatic Width Binding
-
-Desired:
-
-```java
-card()
-    .width(cardWidth);
-```
-
-or:
-
-```java
-card()
-    .width(cardWidth.map(width -> width - 10f));
-```
-
-Solim automatically:
-
-```text
-cardWidth changes
-        ↓
-Element width updates
-        ↓
-Element invalidates layout
-```
-
-The user should never manually write:
-
-```java
-Effect.of(...)
-```
-
-for ordinary component properties.
-
----
-
-# Binding Ownership
-
-Every binding created by a Solim component must automatically belong to the current component.
-
-Example:
-
-```java
-text(username);
-```
-
-Internally:
-
-```text
-FeatureCard
-    │
-    ├── Label
-    │
-    └── Text Binding
-```
-
-When:
-
-```text
-FeatureCard.dispose()
-```
-
-happens:
-
-```text
-Label binding disposed automatically
-```
-
-Application code must not manually dispose bindings.
-
----
-
-# Property Reactivity
-
-Use automatic component bindings for simple property updates.
-
-Examples:
-
-* Text
-* Color
-* Width
-* Height
-* Visibility
-* Enabled
-* Disabled
-* Drawable
-* Style values
-
-Desired application code:
-
-```java
-text(status);
-```
-
-```java
-visible(isVisible);
-```
-
-```java
-color(colorSignal);
-```
-
-```java
-width(sizeSignal);
-```
-
-Solim handles the subscriptions internally.
-
----
-
-# Effects Are Only for Side Effects
-
-Keep `Effect` support.
-
-However, `Effect` is for non-UI side effects.
-
-Good:
-
-```java
-effect(() -> {
-    Log.info("Feature enabled: " + enabled.get());
-});
-```
-
-Good:
-
-```java
-effect(() -> {
-    saveConfig();
-});
-```
-
-Do not use effects for normal UI properties:
-
-```java
-Effect.of(() -> {
-    label.setText(name.get());
-});
-```
-
-That behavior belongs inside the `Text` component.
-
----
-
-# Structural Reactivity
-
-Property binding updates existing elements.
-
-Structural changes are different.
-
-Use structural Solim components for:
-
-* Dynamic lists
-* Dynamic children
-* Conditional UI
-* Keyed collections
-
-Example:
-
-```java
-reactiveGrid(
-    features,
-    Feature::id,
-    feature -> new FeatureCard(feature)
-);
-```
-
-Solim handles:
-
-```text
-Item added
-→ Create component
-
-Item removed
-→ Remove element
-→ Dispose component
-
-Existing key
-→ Reuse component
-
-Order changed
-→ Reorder existing elements
-```
-
-Do not manually:
-
-```java
-table.clear();
-```
-
-and recreate everything when keyed structural reactivity can handle it.
-
----
-
-# Build Once, Bind Automatically
-
-Normal component lifecycle:
-
-```text
-build()
-   ↓
-Create Arc elements once
-   ↓
-Components automatically install bindings
-   ↓
-Signals update existing elements
-```
-
-Avoid:
-
-```text
-Signal changes
-   ↓
-Rebuild entire component
-```
-
-unless the actual structure changed.
-
----
-
-# No Manual Binding API Required for Normal UI
-
-The public Solim developer experience should prioritize this:
-
-```java
-text(name);
-
-button("Save")
-    .visible(canSave)
-    .enabled(canSave);
-
-image(imageUrl)
-    .width(imageWidth);
-```
-
-Instead of:
-
-```java
-Label label = ...;
-
-name.bind(label::setText);
-
-canSave.bind(button::setVisible);
-```
-
-Solim should hide subscription mechanics.
-
-The framework owns the reactive complexity.
-
----
-
-# Automatic Component Ownership
-
-Application code should not manually register ownership.
-
-Avoid:
-
-```java
-own(...)
-ownChild(...)
-scope.own(...)
-```
-
-Components created during `build()` should automatically be owned.
-
-Example:
-
-```java
-@Override
-protected Element build() {
-    return column(() -> {
-
-        new FeatureCard(featureA);
-
-        new FeatureCard(featureB);
-
-    });
-}
-```
-
-The framework automatically tracks:
-
-```text
-Parent Component
-    │
-    ├── FeatureCard A
-    └── FeatureCard B
-```
-
-When the parent is disposed, children are disposed automatically.
-
----
-
-# Automatic Resource Ownership
-
-Solim-created resources must automatically belong to their creating component.
-
-This includes:
-
-* Child components
-* Reactive bindings
-* Effects
-* Solim event listeners
-* Solim input controls
-* Structural reactive children
-
-Application developers should not manually track these resources.
-
----
-
-# Mindustry and Arc API Rules
-
-## Do Not Add Unnecessary Null Checks
-
-**Any static value from `Core.*` and `Vars.*` is always non-null at runtime — you do not have to check for null.**
-
-Mindustry and Arc runtime APIs that are guaranteed to exist during normal mod execution should be used directly.
-
-Do not write:
-
-```java
-if (Core.app != null) {
-    Core.app.post(...);
-}
-```
-
-```java
-if (Core.bundle != null) {
-    return Core.bundle.get("key");
-}
-```
-
-Use:
-
-```java
-Core.app.post(...);
-```
-
-```java
-return Core.bundle.get("key");
-```
-
-Do not wrap normal runtime APIs with defensive null checks.
-
-Examples include normal mod runtime usage of:
-
-```java
-Core.app
-Core.graphics
-Core.scene
-Core.bundle
-Core.atlas
-Core.settings
-Core.camera
-Vars.ui
-Vars.player
-Vars.state
-Vars.world
-Vars.control
-```
-
-Any static value from `Core.*` and `Vars.*` is always non-null during mod runtime execution.
-
----
-
-## Only Check Null When Null Is Actually Possible
-
-Use null checks for:
-
-* Explicitly nullable API values
-* Optional feature implementations
-* User-provided values
-* Lifecycle states where initialization is genuinely uncertain
-
-Do not check everything defensively.
-
-Null checks should communicate a real possibility, not hide uncertainty.
-
----
-
-# Do Not Wrap Mindustry APIs Without Value
-
-Do not create wrappers that merely rename APIs.
-
-Bad:
-
-```java
-public static void addToScene(Element element) {
-    Core.scene.add(element);
-}
-```
-
-Bad:
-
-```java
-public static boolean openUri(String uri) {
-    return Core.app.openURI(uri);
-}
-```
-
-Wrap Mindustry or Arc APIs only when Solim provides meaningful functionality such as:
-
-* Declarative integration
-* Automatic lifecycle ownership
-* Reactive binding
-* Reusable UI behavior
-
----
-
-# Game Mod Architecture
-
-Prefer feature-oriented organization.
-
-Example:
-
-```text
-features/
-├── settings/
-│   ├── FeatureSettingDialog
-│   ├── FeatureSettingsView
-│   └── FeatureCard
-│
-├── chat/
-│   ├── ChatFeature
-│   └── ChatView
-│
-└── server/
-    ├── ServerFeature
-    └── ServerDialog
-```
-
-Shared functionality can live in:
-
-```text
-core/
-signal/
-ui/
-utils/
-```
-
-Do not force everything into:
-
-```text
-controllers/
-services/
-repositories/
-dto/
-```
-
-unless the project genuinely needs those concepts.
-
----
-
-# One Source of Truth
+## One Source of Truth
 
 Do not duplicate state.
 
-Bad:
+❌ Avoid:
 
 ```text
 boolean enabled
-+
 Signal<Boolean> enabledSignal
 ```
 
-unless synchronization is explicitly required.
-
-Prefer one reactive source:
+Prefer a single reactive source:
 
 ```java
-private final Signal<Boolean> enabled =
-    Signal.of(false);
+private final Signal<Boolean> enabled = Signal.of(false);
 ```
 
-Then expose normal and reactive access:
+Expose normal and reactive access when useful:
 
 ```java
 public boolean isEnabled() {
@@ -1299,25 +392,284 @@ public Readable<Boolean> enabled() {
 }
 ```
 
-This allows:
+---
+
+# Solim UI — Mandatory
+
+## Solim-First
+
+**All application UI must use Solim and follow its declarative style.**
+
+Prefer `solim.*` APIs over direct `arc.scene.*` APIs.
+
+Do not manually construct Arc widgets when Solim provides an equivalent abstraction.
+
+Avoid imperative UI construction such as:
 
 ```java
-if (feature.isEnabled()) {
-    ...
-}
+Table table = new Table();
+Label label = new Label("Title");
+
+table.add(label);
+table.row();
 ```
 
-and:
+Prefer declarative Solim code:
 
 ```java
-visible(feature.enabled());
+column()
+        .grow()
+        .gap(unit(2))
+        .children(() -> {
+            text("Title");
+
+            row()
+                    .gap(unit(1))
+                    .children(() -> {
+                        text("Label");
+                        button("Action", this::onAction);
+                    });
+        });
 ```
 
-without duplicate state.
+Direct Arc usage is allowed only when:
+
+1. Solim has no reasonable equivalent.
+2. Arc interoperability with Mindustry is required.
+3. Solim itself needs access to Arc internals.
+
+When direct Arc usage is necessary, isolate it behind Solim abstractions when practical.
+
+**Do not bypass Solim for convenience.**
 
 ---
 
-# Performance Philosophy
+# Declarative UI Style
+
+UI should describe **what the UI is**, not manually describe how to construct and mutate it step by step.
+
+Prefer clear component hierarchies:
+
+```java
+@Override
+protected Element build() {
+    return column(() -> {
+        header();
+        content();
+        footer();
+    });
+}
+```
+
+## Modifier Order
+
+Keep modifiers visually associated with their component.
+
+Use this general order:
+
+1. Create component
+2. Size and growth
+3. Spacing
+4. Alignment
+5. Visual styling
+6. Behavior and events
+7. `children()` last
+
+Example:
+
+```java
+row()
+        .growX()
+        .padding(unit(2))
+        .gap(unit(1))
+        .left()
+        .children(() -> {
+            // children
+        });
+```
+
+For complex UI, preserve readability through nested declarative `children()` blocks rather than introducing unnecessary temporary variables.
+
+---
+
+# Reactive UI
+
+Use Solim's reactive APIs:
+
+* `Signal<T>`
+* `Computed<T>`
+* `Readable<T>`
+* Reactive component bindings
+
+Application code should declare relationships; Solim should manage subscriptions and updates.
+
+Prefer:
+
+```java
+Computed<String> label = value.map(v -> v + "%");
+text(label);
+```
+
+Do not manually update Arc widgets when a Solim binding can express the relationship.
+
+❌ Avoid:
+
+```java
+value.subscribe(v -> {
+    label.setText(v + "%");
+});
+```
+
+---
+
+# Automatic Component Binding
+
+Solim components should accept both static and reactive values.
+
+For example:
+
+```java
+text("Hello");
+text(username);
+```
+
+Properties should support reactive values where appropriate:
+
+```java
+text(status);
+
+button("Save")
+        .visible(canSave)
+        .enabled(canSave);
+
+card()
+        .width(cardWidth);
+
+button()
+        .color(enabled.map(value ->
+                value ? Color.green : Color.scarlet
+        ));
+```
+
+The component must:
+
+1. Detect reactive values.
+2. Install bindings automatically.
+3. Update the underlying Arc element.
+4. Own and dispose those bindings automatically.
+
+Application developers should not manually subscribe for normal UI properties.
+
+---
+
+# Binding and Resource Ownership
+
+Resources created by Solim belong automatically to their creating component.
+
+This includes:
+
+* Child components
+* Reactive bindings
+* Effects
+* Solim event listeners
+* Input controls
+* Structural reactive children
+
+Application code should not manually manage normal component ownership with APIs such as:
+
+```java
+own(...)
+ownChild(...)
+scope.own(...)
+```
+
+Components created during `build()` should automatically become children of the current component.
+
+When a parent is disposed, its owned children and resources must also be disposed.
+
+---
+
+# Effects
+
+Use `Effect` only for genuine side effects.
+
+Good:
+
+```java
+effect(() -> {
+    Log.info("Feature enabled: " + enabled.get());
+});
+```
+
+```java
+effect(this::saveConfig);
+```
+
+Do not use effects for ordinary UI property updates.
+
+❌ Avoid:
+
+```java
+Effect.of(() -> {
+    label.setText(name.get());
+});
+```
+
+That behavior belongs inside the relevant Solim component binding.
+
+---
+
+# Structural Reactivity
+
+Property changes should update existing elements.
+
+Structural changes require structural reactive components.
+
+Use structural reactivity for:
+
+* Dynamic lists
+* Dynamic children
+* Conditional UI
+* Keyed collections
+
+Example:
+
+```java
+reactiveGrid(
+        features,
+        Feature::id,
+        FeatureCard::new
+);
+```
+
+For keyed collections, preserve existing components whenever possible:
+
+* Added item → create component
+* Removed item → remove and dispose component
+* Existing key → reuse component
+* Order changed → reorder existing elements
+
+Do not clear and rebuild an entire UI tree when targeted structural updates are possible.
+
+---
+
+# Build Once, Bind Automatically
+
+Normal lifecycle:
+
+```text
+build()
+    ↓
+Create Arc elements once
+    ↓
+Install bindings automatically
+    ↓
+Signals update existing elements
+```
+
+Do not rebuild an entire component when only a property changes.
+
+Rebuild or reconcile structure only when the actual structure changes.
 
 Solim uses Arc's retained UI tree.
 
@@ -1327,63 +679,145 @@ Do not introduce:
 * Global diffing
 * Full render reconciliation
 
-Instead:
+Prefer:
 
 ```text
-Property changes
-→ Update existing Arc element
+Property change
+    → Update existing element
 
-Structural changes
-→ Targeted keyed reconciliation
+Structural change
+    → Targeted keyed reconciliation
 ```
-
-Preserve existing components whenever possible.
 
 ---
 
-# Core Philosophy
+# Mindustry and Arc APIs
 
-Follow this order:
+## Do Not Add Unnecessary Null Checks
 
-```text
-Correctness
-    ↓
-Simple game-mod architecture
-    ↓
-Clear ownership
-    ↓
-Declarative Solim components
-    ↓
-Automatic reactive bindings
-    ↓
-Localized structural reactivity
-    ↓
-Performance optimization
+During normal mod runtime, guaranteed `Core.*` and `Vars.*` values should be used directly.
+
+Do not write defensive checks such as:
+
+```java
+if (Core.app != null) {
+    Core.app.post(...);
+}
 ```
 
-The developer should primarily write:
+Use:
 
-```text
-What the UI is
+```java
+Core.app.post(...);
 ```
 
-not:
+This applies to normal runtime APIs such as:
 
 ```text
-How to subscribe
-How to update elements
-How to dispose bindings
-How to mount children manually
+Core.app
+Core.graphics
+Core.scene
+Core.bundle
+Core.atlas
+Core.settings
+Core.camera
+
+Vars.ui
+Vars.player
+Vars.state
+Vars.world
+Vars.control
 ```
 
-Solim is responsible for those mechanics.
+Only check for null when null is genuinely possible, such as:
+
+* Explicitly nullable APIs
+* Optional implementations
+* User-provided values
+* Uncertain lifecycle states
+
+## Do Not Wrap APIs Without Value
+
+Do not create wrappers that merely rename Mindustry or Arc APIs.
+
+❌ Avoid:
+
+```java
+public static void addToScene(Element element) {
+    Core.scene.add(element);
+}
+```
+
+Create abstractions only when they provide meaningful functionality such as:
+
+* Declarative integration
+* Automatic ownership
+* Reactive binding
+* Reusable behavior
 
 ---
 
 # Testing Rules
 
-## UI Testing — Solim vs Mod
+## Mod UI
 
-* **Always: you do NOT have to write UI tests for the mod (`mod/` module).** The mod runs inside Mindustry's engine where scene, atlas, graphics, skins, fonts, and game state are initialized at runtime. Headless unit tests for mod UI components are prone to mock/skin failures and are explicitly NOT required.
-* **Only Solim needs UI tests.** The Solim UI framework (`solim/` module) is where UI primitives, reactive bindings, components, layouts, and signal pipelines must be tested.
+UI tests are **not required** for the `mod/` module.
 
+The mod runs inside Mindustry's initialized runtime, where scene, graphics, skins, fonts, atlas, and game state are available. Headless tests for mod UI are prone to runtime and mocking failures.
+
+## Solim
+
+UI primitives and framework behavior in the `solim/` module should be tested.
+
+This includes:
+
+* Components
+* Reactive bindings
+* Layout behavior
+* Signals
+* Lifecycle ownership
+* Structural reactivity
+
+Test framework behavior where it can be tested independently of the Mindustry runtime.
+
+---
+
+# Before Completing Any Task
+
+Verify:
+
+### Internationalization
+
+* [ ] No new user-visible text is unnecessarily hardcoded.
+* [ ] Existing translation keys were reused where appropriate.
+* [ ] Every new display string has a translation key.
+* [ ] New keys were added to `assets/bundles/bundle.properties`.
+* [ ] Every new key has a descriptive comment directly above it.
+* [ ] Placeholder meanings are documented.
+* [ ] Dynamic text uses `Core.bundle.format()` where appropriate.
+* [ ] No duplicate translation keys were introduced.
+
+### Java
+
+* [ ] All HTTP calls go through `Request`.
+* [ ] No unsupported Java 9+ runtime APIs are used.
+* [ ] Nullable values use `arc.util.Nullable`.
+* [ ] Imports are used instead of unnecessary fully qualified class names.
+
+### Architecture
+
+* [ ] The implementation follows feature-oriented game-mod architecture.
+* [ ] No unnecessary enterprise layers or abstractions were introduced.
+* [ ] State has a clear source of truth.
+* [ ] `old/` was not modified unless explicitly requested.
+
+### UI
+
+* [ ] Solim was used instead of direct Arc UI where possible.
+* [ ] UI is declarative and readable.
+* [ ] Reactive properties use automatic component bindings.
+* [ ] Effects are only used for genuine side effects.
+* [ ] Bindings and resources are automatically owned and disposed.
+* [ ] Structural changes use targeted reconciliation instead of unnecessary full rebuilds.
+
+**A UI or player-facing feature is not complete until its user-visible text is properly translated and its UI follows the Solim architecture.**
