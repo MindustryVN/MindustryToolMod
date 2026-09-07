@@ -57,6 +57,7 @@ public final class FeatureSettingsView extends BaseComponent {
                             .width(unit(50))
                             .height(unit(10))
                             .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"))
+                            .gap(unit(2))
                             .children(() -> {
                                 image(Icon.refresh);
                                 text(Core.bundle.get("feature.button.re-enable"));
@@ -71,11 +72,6 @@ public final class FeatureSettingsView extends BaseComponent {
 
         String q = query.trim().toLowerCase();
 
-        return (feature.getName() != null && feature.getName().toLowerCase().contains(q))
-                || (feature.getDescription() != null
-                        && feature.getDescription().toLowerCase().contains(q))
-                || (feature.getMetadata() != null
-                        && feature.getMetadata().getId() != null
-                        && feature.getMetadata().getId().toLowerCase().contains(q));
+        return feature.getName().toLowerCase().contains(q);
     }
 }

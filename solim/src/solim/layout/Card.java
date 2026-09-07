@@ -1,6 +1,5 @@
 package solim.layout;
 
-import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
@@ -220,6 +219,11 @@ public final class Card implements Component, Disposable {
 
 	public Card center() {
 		ElementModifiers.center(container);
+		return this;
+	}
+
+	public Card gap(float g) {
+		ElementModifiers.gap(container, g);
 		return this;
 	}
 

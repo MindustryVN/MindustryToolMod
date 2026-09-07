@@ -37,7 +37,7 @@ public final class Row implements Component {
 	}
 
 	public Row gap(float g) {
-		table.defaults().pad(g / 2f);
+		ElementModifiers.gap(table, g);
 		return this;
 	}
 

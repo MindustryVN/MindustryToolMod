@@ -174,4 +174,15 @@ public final class ElementModifiers {
 	public static void paddingRight(@Nullable Table table, float right) {
 		marginRight(table, right);
 	}
+
+	public static void gap(@Nullable Table table, float gap) {
+		if (table == null) return;
+		table.defaults().pad(gap / 2f);
+	}
+
+	public static void gap(@Nullable Element element, float gap) {
+		if (element instanceof Table) {
+			gap((Table) element, gap);
+		}
+	}
 }

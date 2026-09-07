@@ -8,6 +8,7 @@ import java.util.function.Supplier;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.core.ComponentContext;
+import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.ui.ParentStack;
@@ -60,6 +61,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 
 	public ReactiveGrid<T, K> gap(float gap) {
 		this.gap = gap;
+		ElementModifiers.gap(table, gap);
 		return this;
 	}
 

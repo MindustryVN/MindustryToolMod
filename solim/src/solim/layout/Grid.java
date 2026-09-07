@@ -5,6 +5,7 @@ import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
+import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
 
 /** Simple grid with fixed column count. */
@@ -36,7 +37,7 @@ public final class Grid implements Component {
 
 	public Grid gap(float g) {
 		this.gap = g;
-		table.defaults().pad(g / 2f);
+		ElementModifiers.gap(table, g);
 		return this;
 	}
 

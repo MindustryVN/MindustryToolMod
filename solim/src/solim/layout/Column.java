@@ -38,7 +38,7 @@ public final class Column implements Component {
 	}
 
 	public Column gap(float g) {
-		table.defaults().pad(g / 2f);
+		ElementModifiers.gap(table, g);
 		return this;
 	}
 

@@ -4,15 +4,15 @@
 TBD - created by archiving change create-solim-core. Update Purpose after archive.
 ## Requirements
 ### Requirement: Column and Row with flex-like modifiers
-`Column` and `Row` SHALL be vertical/horizontal layout containers supporting fluent configuration modifiers `gap(int/float)`, `justify(Justify)` (START/CENTER/END/BETWEEN/AROUND/EVENLY), `align(Align)` (START/CENTER/END/STRETCH), `padding(int)`, and `grow()`, followed by `.children(Runnable)` for declaring children.
+`Column` and `Row` SHALL be vertical/horizontal layout containers supporting fluent configuration modifiers `gap(int/float)`, `justify(Justify)` (START/CENTER/END/BETWEEN/AROUND/EVENLY), `align(Align)` (START/CENTER/END/STRETCH), `padding(int)`, and `grow()`, followed by `.children(Runnable)` for declaring children. Components SHALL delegate `gap` calculations to `ElementModifiers.gap()`.
 
 #### Scenario: Row justify and align
 - **WHEN** `row().justify(Justify.BETWEEN).align(Align.CENTER).gap(8).children(() -> { button("A"); button("B"); })` is called
-- **THEN** row configuration is applied before children are declared, distributing children with space-between and centered vertically
+- **THEN** row configuration is applied before children are declared, distributing children with space-between and centered vertically using `ElementModifiers.gap()`
 
 #### Scenario: Column gap and padding
 - **WHEN** `column().gap(16).padding(24).children(() -> { text("Title"); divider(); text("Body"); })` is called
-- **THEN** column configuration is set before children execution, applying 16px gap and 24px padding
+- **THEN** column configuration is set before children execution, applying 16px gap and 24px padding using `ElementModifiers`
 
 ### Requirement: Grow semantics
 Layouts SHALL support `growX()`, `growY()`, `grow()` on cells and convenience on widgets (e.g., `textField(input).growX()` or `cell(textField(input)).growX()`). Grow SHALL map to Arc `cell.growX()`/`grow()`.
@@ -84,4 +84,3 @@ All layout primitives SHALL delegate to Arc's existing `Table`, `Stack`, `Scroll
 #### Scenario: Enum values exist
 - **WHEN** `Justify.values()` and `Align.values()` are inspected
 - **THEN** they contain exactly the listed constants
-

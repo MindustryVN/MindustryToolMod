@@ -2,6 +2,7 @@ package solim.layout;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
+import solim.modifier.ElementModifiers;
 
 /** Wrap container: lays out children in a row that wraps. */
 public final class Wrap {
@@ -16,6 +17,7 @@ public final class Wrap {
 
 	public Wrap gap(float g) {
 		this.gap = g;
+		ElementModifiers.gap(table, g);
 		return this;
 	}
 

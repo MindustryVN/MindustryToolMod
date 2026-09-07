@@ -254,6 +254,11 @@ public final class Button implements Component, Disposable {
 		return this;
 	}
 
+	public Button gap(float g) {
+		ElementModifiers.gap(sizedButton, g);
+		return this;
+	}
+
 	public Button x(float x) {
 		ElementModifiers.x(sizedButton, x);
 		return this;

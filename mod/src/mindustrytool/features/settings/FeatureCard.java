@@ -43,7 +43,6 @@ public class FeatureCard extends BaseComponent {
                             .grow()
                             .children(() -> {
                                 row()
-                                        .gap(unit(2))
                                         .children(() -> {
                                             image(metadata.getIcon()).scaling(Scaling.fit).size(unit(6));
 
