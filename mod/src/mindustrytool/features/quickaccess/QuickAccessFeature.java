@@ -18,17 +18,17 @@ import solim.signal.Signal;
 
 public class QuickAccessFeature extends Feature {
 
-	private final ConfigGroup config;
-	private final ConfigValue<Float> opacityConfig;
-	private final ConfigValue<Float> scaleConfig;
-	private final ConfigValue<Integer> colsConfig;
-	private final ConfigValue<Set<String>> hiddenFeaturesConfig;
+	public final ConfigGroup config;
+	public final ConfigValue<Float> opacityConfig;
+	public final ConfigValue<Float> scaleConfig;
+	public final ConfigValue<Integer> colsConfig;
+	public final ConfigValue<Set<String>> hiddenFeaturesConfig;
 
-	private final ConfigGroup portraitGroup;
-	private final ConfigGroup landscapeGroup;
+	public final ConfigGroup portraitGroup;
+	public final ConfigGroup landscapeGroup;
 
-	private final Signal<Float> xSignal;
-	private final Signal<Float> ySignal;
+	public final Signal<Float> xSignal;
+	public final Signal<Float> ySignal;
 
 	private @Nullable QuickAccessHudView hudView;
 	private @Nullable QuickAccessSettingsDialog settingsDialog;
@@ -131,50 +131,6 @@ public class QuickAccessFeature extends Feature {
 	public void resetPosition() {
 		x(Core.graphics.getWidth() / 2f);
 		y(Core.graphics.getHeight() / 2f);
-	}
-
-	public ConfigGroup getConfigGroup() {
-		return config;
-	}
-
-	public ConfigValue<Float> getOpacityConfig() {
-		return opacityConfig;
-	}
-
-	public ConfigValue<Float> getScaleConfig() {
-		return scaleConfig;
-	}
-
-	public ConfigValue<Integer> getColsConfig() {
-		return colsConfig;
-	}
-
-	public ConfigValue<Set<String>> getHiddenFeaturesConfig() {
-		return hiddenFeaturesConfig;
-	}
-
-	public Signal<Float> getOpacitySignal() {
-		return opacityConfig.signal();
-	}
-
-	public Signal<Float> getScaleSignal() {
-		return scaleConfig.signal();
-	}
-
-	public Signal<Integer> getColsSignal() {
-		return colsConfig.signal();
-	}
-
-	public Signal<Set<String>> getHiddenFeaturesSignal() {
-		return hiddenFeaturesConfig.signal();
-	}
-
-	public Signal<Float> getXSignal() {
-		return xSignal;
-	}
-
-	public Signal<Float> getYSignal() {
-		return ySignal;
 	}
 
 	@Override
