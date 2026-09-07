@@ -5,6 +5,7 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.ui.layout.Scl;
 import arc.struct.Seq;
+import mindustry.gen.Icon;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
 import solim.core.BaseComponent;
@@ -50,11 +51,10 @@ public final class FeatureSettingsView extends BaseComponent {
 
     private void toolbar() {
         row(() -> {
-            icon(FeatureSettingDialog.icon("zoom"));
+            icon(Icon.zoom);
             SolimTextField searchField = textField(filter);
             searchField.placeholder(Core.bundle.get("feature.search.placeholder"));
-            button(Core.bundle.get("feature.button.re-enable"), FeatureSettingDialog.icon("refresh"),
-                    FeatureManager::reenable)
+            button(Core.bundle.get("feature.button.re-enable"), Icon.refresh, FeatureManager::reenable)
                     .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
         }).padding(10f);
     }
