@@ -24,11 +24,7 @@ public final class FeatureSettingsView extends BaseComponent {
             () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
 
     public float calcContentWidth() {
-        return Core.graphics == null ? 800f : Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
-    }
-
-    public void updateWidth(float width) {
-        contentWidth.set(width);
+        return Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
     }
 
     @Override

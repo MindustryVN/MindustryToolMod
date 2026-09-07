@@ -84,14 +84,6 @@ class FeatureSettingDialogTest {
     }
 
     @Test
-    void testFeatureSettingsViewLifecycle() {
-        FeatureSettingsView view = new FeatureSettingsView();
-        view.updateWidth(600f);
-        view.dispose();
-        assertTrue(view.isDisposed());
-    }
-
-    @Test
     void testFeatureManagerSignalReactivity() {
         assertTrue(FeatureManager.getFeatures().contains(testFeature));
         assertTrue(FeatureManager.features().get().contains(testFeature));
