@@ -14,6 +14,7 @@ import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.layout.Row;
+import solim.modifier.ElementModifiers;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -206,9 +207,7 @@ public final class Button implements Component, Disposable {
 	}
 
 	public Button width(float width) {
-		float val = Math.max(0f, width);
-		sizedButton.setWidth(val);
-		sizedButton.setCustomPrefWidth(val);
+		ElementModifiers.width(sizedButton, width);
 		return this;
 	}
 
@@ -227,9 +226,7 @@ public final class Button implements Component, Disposable {
 	}
 
 	public Button height(float height) {
-		float val = Math.max(0f, height);
-		sizedButton.setHeight(val);
-		sizedButton.setCustomPrefHeight(val);
+		ElementModifiers.height(sizedButton, height);
 		return this;
 	}
 
@@ -248,13 +245,28 @@ public final class Button implements Component, Disposable {
 	}
 
 	public Button size(float width, float height) {
-		width(width);
-		height(height);
+		ElementModifiers.size(sizedButton, width, height);
 		return this;
 	}
 
 	public Button size(float size) {
-		return size(size, size);
+		ElementModifiers.size(sizedButton, size);
+		return this;
+	}
+
+	public Button x(float x) {
+		ElementModifiers.x(sizedButton, x);
+		return this;
+	}
+
+	public Button y(float y) {
+		ElementModifiers.y(sizedButton, y);
+		return this;
+	}
+
+	public Button position(float x, float y) {
+		ElementModifiers.position(sizedButton, x, y);
+		return this;
 	}
 
 	public SizedButton sizedButton() {

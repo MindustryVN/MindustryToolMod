@@ -95,6 +95,7 @@ public class FeatureCard extends BaseComponent {
                                         .color(feature.enabled()
                                                 .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
                                         .left();
+                                        
                             });
                 })
                 .element();

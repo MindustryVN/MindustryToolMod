@@ -7,6 +7,7 @@ import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
+import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
 
 /** Scroll container wrapping a Table in a ScrollPane. */
@@ -43,6 +44,46 @@ public final class Scroll implements Component {
 
 	public ScrollPane pane() {
 		return pane;
+	}
+
+	public Scroll width(float width) {
+		ElementModifiers.width(outer, width);
+		return this;
+	}
+
+	public Scroll height(float height) {
+		ElementModifiers.height(outer, height);
+		return this;
+	}
+
+	public Scroll size(float width, float height) {
+		ElementModifiers.size(outer, width, height);
+		return this;
+	}
+
+	public Scroll size(float size) {
+		ElementModifiers.size(outer, size);
+		return this;
+	}
+
+	public Scroll x(float x) {
+		ElementModifiers.x(outer, x);
+		return this;
+	}
+
+	public Scroll y(float y) {
+		ElementModifiers.y(outer, y);
+		return this;
+	}
+
+	public Scroll position(float x, float y) {
+		ElementModifiers.position(outer, x, y);
+		return this;
+	}
+
+	public Scroll visible(boolean visible) {
+		ElementModifiers.visible(outer, visible);
+		return this;
 	}
 
 	public Scroll grow() {

@@ -5,11 +5,13 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.ui.Label;
 import arc.util.Align;
+import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.modifier.ElementModifiers;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -133,6 +135,55 @@ public final class Text implements Component, Disposable {
 
 	public Text fontScale(float scale) {
 		label.setFontScale(scale);
+		return this;
+	}
+
+	public Text width(float width) {
+		ElementModifiers.width(label, width);
+		return this;
+	}
+
+	public Text height(float height) {
+		ElementModifiers.height(label, height);
+		return this;
+	}
+
+	public Text size(float width, float height) {
+		ElementModifiers.size(label, width, height);
+		return this;
+	}
+
+	public Text size(float size) {
+		ElementModifiers.size(label, size);
+		return this;
+	}
+
+	public Text x(float x) {
+		ElementModifiers.x(label, x);
+		return this;
+	}
+
+	public Text y(float y) {
+		ElementModifiers.y(label, y);
+		return this;
+	}
+
+	public Text position(float x, float y) {
+		ElementModifiers.position(label, x, y);
+		return this;
+	}
+
+	public Text visible(boolean visible) {
+		ElementModifiers.visible(label, visible);
+		return this;
+	}
+
+	public Text visible(@Nullable Readable<Boolean> signal) {
+		if (signal != null) {
+			Effect e = Effect.of(() -> ElementModifiers.visible(label, Boolean.TRUE.equals(signal.get())));
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 

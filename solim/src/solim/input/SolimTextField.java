@@ -1,10 +1,13 @@
 package solim.input;
 
 import arc.Core;
+import arc.scene.Element;
 import arc.scene.ui.TextField;
 import java.util.function.Consumer;
+import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
@@ -13,7 +16,7 @@ import solim.signal.Signal;
  * loop. Automatically registers with the active ComponentContext if created during a component
  * build.
  */
-public final class SolimTextField implements Disposable {
+public final class SolimTextField implements Component, Disposable {
 	private final TextField field;
 	private final Signal<String> signal;
 	private Effect effect;
@@ -58,7 +61,52 @@ public final class SolimTextField implements Disposable {
 		return this;
 	}
 
+	public SolimTextField width(float width) {
+		ElementModifiers.width(field, width);
+		return this;
+	}
+
+	public SolimTextField height(float height) {
+		ElementModifiers.height(field, height);
+		return this;
+	}
+
+	public SolimTextField size(float width, float height) {
+		ElementModifiers.size(field, width, height);
+		return this;
+	}
+
+	public SolimTextField size(float size) {
+		ElementModifiers.size(field, size);
+		return this;
+	}
+
+	public SolimTextField x(float x) {
+		ElementModifiers.x(field, x);
+		return this;
+	}
+
+	public SolimTextField y(float y) {
+		ElementModifiers.y(field, y);
+		return this;
+	}
+
+	public SolimTextField position(float x, float y) {
+		ElementModifiers.position(field, x, y);
+		return this;
+	}
+
+	public SolimTextField visible(boolean visible) {
+		ElementModifiers.visible(field, visible);
+		return this;
+	}
+
 	public TextField field() {
+		return field;
+	}
+
+	@Override
+	public Element element() {
 		return field;
 	}
 

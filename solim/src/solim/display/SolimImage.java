@@ -1,14 +1,19 @@
 package solim.display;
 
+import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
+import arc.util.Nullable;
 import arc.util.Scaling;
 import java.util.function.Consumer;
+import solim.core.Component;
+import solim.core.Disposable;
+import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
 /** Display widget for drawable content. */
-public final class SolimImage {
+public final class SolimImage implements Component, Disposable {
 
 	public static class SizedImage extends Image {
 		private float customPrefWidth = -1f;
@@ -55,7 +60,7 @@ public final class SolimImage {
 	}
 
 	private final Image image = new Image();
-	private Effect binding;
+	private @Nullable Effect binding;
 
 	public SolimImage() {}
 
@@ -76,10 +81,56 @@ public final class SolimImage {
 		return img;
 	}
 
+	public SolimImage width(float width) {
+		ElementModifiers.width(image, width);
+		return this;
+	}
+
+	public SolimImage height(float height) {
+		ElementModifiers.height(image, height);
+		return this;
+	}
+
+	public SolimImage size(float width, float height) {
+		ElementModifiers.size(image, width, height);
+		return this;
+	}
+
+	public SolimImage size(float size) {
+		ElementModifiers.size(image, size);
+		return this;
+	}
+
+	public SolimImage x(float x) {
+		ElementModifiers.x(image, x);
+		return this;
+	}
+
+	public SolimImage y(float y) {
+		ElementModifiers.y(image, y);
+		return this;
+	}
+
+	public SolimImage position(float x, float y) {
+		ElementModifiers.position(image, x, y);
+		return this;
+	}
+
+	public SolimImage visible(boolean visible) {
+		ElementModifiers.visible(image, visible);
+		return this;
+	}
+
 	public Image image() {
 		return image;
 	}
 
+	@Override
+	public Element element() {
+		return image;
+	}
+
+	@Override
 	public void dispose() {
 		if (binding != null) binding.dispose();
 	}

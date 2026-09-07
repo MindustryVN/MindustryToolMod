@@ -6,6 +6,7 @@ import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
+import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
 
@@ -41,7 +42,157 @@ public final class Row implements Component {
 	}
 
 	public Row padding(float p) {
-		table.margin(p);
+		ElementModifiers.padding(table, p);
+		return this;
+	}
+
+	public Row padding(float top, float left, float bottom, float right) {
+		ElementModifiers.padding(table, top, left, bottom, right);
+		return this;
+	}
+
+	public Row paddingTop(float top) {
+		ElementModifiers.paddingTop(table, top);
+		return this;
+	}
+
+	public Row paddingBottom(float bottom) {
+		ElementModifiers.paddingBottom(table, bottom);
+		return this;
+	}
+
+	public Row paddingLeft(float left) {
+		ElementModifiers.paddingLeft(table, left);
+		return this;
+	}
+
+	public Row paddingRight(float right) {
+		ElementModifiers.paddingRight(table, right);
+		return this;
+	}
+
+	public Row margin(float m) {
+		ElementModifiers.margin(table, m);
+		return this;
+	}
+
+	public Row margin(float top, float left, float bottom, float right) {
+		ElementModifiers.margin(table, top, left, bottom, right);
+		return this;
+	}
+
+	public Row marginTop(float top) {
+		ElementModifiers.marginTop(table, top);
+		return this;
+	}
+
+	public Row marginBottom(float bottom) {
+		ElementModifiers.marginBottom(table, bottom);
+		return this;
+	}
+
+	public Row marginLeft(float left) {
+		ElementModifiers.marginLeft(table, left);
+		return this;
+	}
+
+	public Row marginRight(float right) {
+		ElementModifiers.marginRight(table, right);
+		return this;
+	}
+
+	public Row pad(float p) {
+		ElementModifiers.pad(table, p);
+		return this;
+	}
+
+	public Row pad(float top, float left, float bottom, float right) {
+		ElementModifiers.pad(table, top, left, bottom, right);
+		return this;
+	}
+
+	public Row padTop(float top) {
+		ElementModifiers.padTop(table, top);
+		return this;
+	}
+
+	public Row padBottom(float bottom) {
+		ElementModifiers.padBottom(table, bottom);
+		return this;
+	}
+
+	public Row padLeft(float left) {
+		ElementModifiers.padLeft(table, left);
+		return this;
+	}
+
+	public Row padRight(float right) {
+		ElementModifiers.padRight(table, right);
+		return this;
+	}
+
+	public Row width(float width) {
+		ElementModifiers.width(table, width);
+		return this;
+	}
+
+	public Row height(float height) {
+		ElementModifiers.height(table, height);
+		return this;
+	}
+
+	public Row size(float width, float height) {
+		ElementModifiers.size(table, width, height);
+		return this;
+	}
+
+	public Row size(float size) {
+		ElementModifiers.size(table, size);
+		return this;
+	}
+
+	public Row x(float x) {
+		ElementModifiers.x(table, x);
+		return this;
+	}
+
+	public Row y(float y) {
+		ElementModifiers.y(table, y);
+		return this;
+	}
+
+	public Row position(float x, float y) {
+		ElementModifiers.position(table, x, y);
+		return this;
+	}
+
+	public Row visible(boolean visible) {
+		ElementModifiers.visible(table, visible);
+		return this;
+	}
+
+	public Row top() {
+		ElementModifiers.top(table);
+		return this;
+	}
+
+	public Row bottom() {
+		ElementModifiers.bottom(table);
+		return this;
+	}
+
+	public Row left() {
+		ElementModifiers.left(table);
+		return this;
+	}
+
+	public Row right() {
+		ElementModifiers.right(table);
+		return this;
+	}
+
+	public Row center() {
+		ElementModifiers.center(table);
 		return this;
 	}
 

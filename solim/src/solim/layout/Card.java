@@ -16,6 +16,7 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.ui.ParentStack;
@@ -122,10 +123,7 @@ public final class Card implements Component, Disposable {
 	}
 
 	public Card width(float width) {
-		float val = Math.max(0f, width);
-		cardButton.setWidth(val);
-		cardButton.setCustomPrefWidth(val);
-		cardButton.invalidateHierarchy();
+		ElementModifiers.width(cardButton, width);
 		return this;
 	}
 
@@ -133,10 +131,9 @@ public final class Card implements Component, Disposable {
 		if (width != null) {
 			Effect e = Effect.of(() -> {
 				Float w = width.get();
-				float val = Math.max(0f, w != null ? w : 0f);
-				cardButton.setWidth(val);
-				cardButton.setCustomPrefWidth(val);
-				cardButton.invalidateHierarchy();
+				if (w != null) {
+					width(w);
+				}
 			});
 			bindings.add(e);
 			ComponentContext.register(e);
@@ -145,10 +142,7 @@ public final class Card implements Component, Disposable {
 	}
 
 	public Card height(float height) {
-		float val = Math.max(0f, height);
-		cardButton.setHeight(val);
-		cardButton.setCustomPrefHeight(val);
-		cardButton.invalidateHierarchy();
+		ElementModifiers.height(cardButton, height);
 		return this;
 	}
 
@@ -156,10 +150,9 @@ public final class Card implements Component, Disposable {
 		if (height != null) {
 			Effect e = Effect.of(() -> {
 				Float h = height.get();
-				float val = Math.max(0f, h != null ? h : 0f);
-				cardButton.setHeight(val);
-				cardButton.setCustomPrefHeight(val);
-				cardButton.invalidateHierarchy();
+				if (h != null) {
+					height(h);
+				}
 			});
 			bindings.add(e);
 			ComponentContext.register(e);
@@ -167,13 +160,66 @@ public final class Card implements Component, Disposable {
 		return this;
 	}
 
-	public Card prefHeight(float prefHeight) {
-		cardButton.setCustomPrefHeight(prefHeight);
+	public Card size(float width, float height) {
+		ElementModifiers.size(cardButton, width, height);
 		return this;
 	}
 
+	public Card size(float size) {
+		ElementModifiers.size(cardButton, size);
+		return this;
+	}
+
+	public Card prefHeight(float prefHeight) {
+		return height(prefHeight);
+	}
+
 	public Card prefWidth(float prefWidth) {
-		cardButton.setCustomPrefWidth(prefWidth);
+		return width(prefWidth);
+	}
+
+	public Card x(float x) {
+		ElementModifiers.x(cardButton, x);
+		return this;
+	}
+
+	public Card y(float y) {
+		ElementModifiers.y(cardButton, y);
+		return this;
+	}
+
+	public Card position(float x, float y) {
+		ElementModifiers.position(cardButton, x, y);
+		return this;
+	}
+
+	public Card visible(boolean visible) {
+		ElementModifiers.visible(cardButton, visible);
+		return this;
+	}
+
+	public Card top() {
+		ElementModifiers.top(container);
+		return this;
+	}
+
+	public Card bottom() {
+		ElementModifiers.bottom(container);
+		return this;
+	}
+
+	public Card left() {
+		ElementModifiers.left(container);
+		return this;
+	}
+
+	public Card right() {
+		ElementModifiers.right(container);
+		return this;
+	}
+
+	public Card center() {
+		ElementModifiers.center(container);
 		return this;
 	}
 
@@ -211,8 +257,93 @@ public final class Card implements Component, Disposable {
 		return this;
 	}
 
-	public Card padding(float padding) {
-		container.margin(padding);
+	public Card padding(float p) {
+		ElementModifiers.padding(container, p);
+		return this;
+	}
+
+	public Card padding(float top, float left, float bottom, float right) {
+		ElementModifiers.padding(container, top, left, bottom, right);
+		return this;
+	}
+
+	public Card paddingTop(float top) {
+		ElementModifiers.paddingTop(container, top);
+		return this;
+	}
+
+	public Card paddingBottom(float bottom) {
+		ElementModifiers.paddingBottom(container, bottom);
+		return this;
+	}
+
+	public Card paddingLeft(float left) {
+		ElementModifiers.paddingLeft(container, left);
+		return this;
+	}
+
+	public Card paddingRight(float right) {
+		ElementModifiers.paddingRight(container, right);
+		return this;
+	}
+
+	public Card margin(float m) {
+		ElementModifiers.margin(container, m);
+		return this;
+	}
+
+	public Card margin(float top, float left, float bottom, float right) {
+		ElementModifiers.margin(container, top, left, bottom, right);
+		return this;
+	}
+
+	public Card marginTop(float top) {
+		ElementModifiers.marginTop(container, top);
+		return this;
+	}
+
+	public Card marginBottom(float bottom) {
+		ElementModifiers.marginBottom(container, bottom);
+		return this;
+	}
+
+	public Card marginLeft(float left) {
+		ElementModifiers.marginLeft(container, left);
+		return this;
+	}
+
+	public Card marginRight(float right) {
+		ElementModifiers.marginRight(container, right);
+		return this;
+	}
+
+	public Card pad(float p) {
+		ElementModifiers.pad(container, p);
+		return this;
+	}
+
+	public Card pad(float top, float left, float bottom, float right) {
+		ElementModifiers.pad(container, top, left, bottom, right);
+		return this;
+	}
+
+	public Card padTop(float top) {
+		ElementModifiers.padTop(container, top);
+		return this;
+	}
+
+	public Card padBottom(float bottom) {
+		ElementModifiers.padBottom(container, bottom);
+		return this;
+	}
+
+	public Card padLeft(float left) {
+		ElementModifiers.padLeft(container, left);
+		return this;
+	}
+
+	public Card padRight(float right) {
+		ElementModifiers.padRight(container, right);
 		return this;
 	}
 
