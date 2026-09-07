@@ -32,7 +32,7 @@ public final class FeatureSettingsView extends BaseComponent {
                         columnCount,
                         filteredFeatures,
                         FeatureSettingsView::featureKey,
-                        feature -> new FeatureCard(feature, cardWidth, feature.enabled())//
+                        feature -> new FeatureCard(feature, cardWidth, feature.getMetadata().enabled())//
                 )
                         .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
                                 .color(Color.gray)

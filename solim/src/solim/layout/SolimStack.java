@@ -1,7 +1,6 @@
 package solim.layout;
 
 import arc.scene.ui.layout.Stack;
-import arc.scene.ui.layout.Table;
 
 /**
  * Stack container: overlays children on top of each other.

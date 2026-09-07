@@ -72,7 +72,7 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
 
     public SolimDialog actionButton(String text, Runnable action) {
         if (buttons != null) {
-            buttons.button(text != null ? text : "", action);
+            buttons.button(text != null ? text : "", action).wrapLabel(false);
         }
         return this;
     }
@@ -80,9 +80,9 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
     public SolimDialog actionButton(String text, Drawable icon, Runnable action) {
         if (buttons != null) {
             if (icon != null) {
-                buttons.button(text != null ? text : "", icon, action);
+                buttons.button(text != null ? text : "", icon, action).wrapLabel(false);
             } else {
-                buttons.button(text != null ? text : "", action);
+                buttons.button(text != null ? text : "", action).wrapLabel(false);
             }
         }
         return this;
@@ -92,9 +92,9 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
         if (buttons != null) {
             Cell<?> cell;
             if (icon != null) {
-                cell = buttons.button(text != null ? text : "", icon, action);
+                cell = buttons.button(text != null ? text : "", icon, action).wrapLabel(false);
             } else {
-                cell = buttons.button(text != null ? text : "", action);
+                cell = buttons.button(text != null ? text : "", action).wrapLabel(false);   
             }
             if (cell != null) {
                 cell.size(width, height);

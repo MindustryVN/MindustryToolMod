@@ -1,7 +1,6 @@
 package solim.display;
 
 import arc.Core;
-import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;

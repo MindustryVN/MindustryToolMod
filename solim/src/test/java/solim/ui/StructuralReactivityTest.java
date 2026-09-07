@@ -3,7 +3,6 @@ package solim.ui;
 import arc.scene.Element;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
-import solim.core.Component;
 import solim.layout.ReactiveGrid;
 import solim.signal.Signal;
 

@@ -69,7 +69,6 @@ class EffectTest {
         cond.set(false);
         assertEquals(2, e.dependencyCount());
         // a should no longer be tracked
-        AtomicInteger runsBefore = new AtomicInteger(0);
         // we already tested via previous dynamic test, but check counts
         a.set(10);
         // should not rerun effect

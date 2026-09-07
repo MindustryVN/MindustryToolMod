@@ -4,7 +4,6 @@ import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.ui.Button;
-import arc.scene.ui.Label;
 import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Effect;

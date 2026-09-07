@@ -59,7 +59,7 @@ public class FeatureManager {
         for (Feature feature : features.get()) {
             if (Core.settings != null) {
                 boolean isEnabled = Core.settings.getBool(feature.getSettingKey(), feature.getMetadata().isEnabledByDefault());
-                feature.enabled().set(isEnabled);
+                feature.getMetadata().enabled().set(isEnabled);
             }
             if (feature.isEnabled()) {
                 feature.onEnable();

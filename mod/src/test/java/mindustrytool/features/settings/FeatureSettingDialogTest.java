@@ -112,16 +112,16 @@ class FeatureSettingDialogTest {
 
     @Test
     void testPropertyReactivityViaDirectFeatureSignal() {
-        assertTrue(testFeature.enabled().get());
+        assertTrue(testFeature.getMetadata().enabled().get());
         assertTrue(testFeature.isEnabled());
 
         // Modifying feature state directly updates feature enabled Signal
         testFeature.setEnabled(false);
-        assertFalse(testFeature.enabled().get(), "Feature enabled signal must update");
+        assertFalse(testFeature.getMetadata().enabled().get(), "Feature enabled signal must update");
         assertFalse(testFeature.isEnabled());
 
         testFeature.setEnabled(true);
-        assertTrue(testFeature.enabled().get());
+        assertTrue(testFeature.getMetadata().enabled().get());
         assertTrue(testFeature.isEnabled());
     }
 

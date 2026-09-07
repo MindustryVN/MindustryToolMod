@@ -1,15 +1,12 @@
 package solim.core;
 
-import arc.scene.Element;
-import arc.scene.ui.layout.Table;
-import solim.ui.ParentStack;
-
 import java.util.ArrayDeque;
 import java.util.Deque;
 
 /**
  * Ambient component build context tracking the active building component.
- * Allows child components, disposables, and reactive bindings instantiated during build()
+ * Allows child components, disposables, and reactive bindings instantiated
+ * during build()
  * to be automatically registered and owned without manual own() calls.
  */
 public final class ComponentContext {
@@ -71,7 +68,8 @@ public final class ComponentContext {
     }
 
     /**
-     * Registers a child component with the currently active building component, if any.
+     * Registers a child component with the currently active building component, if
+     * any.
      */
     public static <T extends Component> T registerChild(T child) {
         if (paused > 0 || child == null) {

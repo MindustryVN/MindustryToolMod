@@ -75,7 +75,7 @@ class ParentStackTest {
         var col = Ui.column(() -> {
             Element t = new Element();
             ParentStack.add(t);
-            var row = Ui.row(() -> {
+            Ui.row(() -> {
                 Element b1 = new Element();
                 ParentStack.add(b1);
                 Element b2 = new Element();

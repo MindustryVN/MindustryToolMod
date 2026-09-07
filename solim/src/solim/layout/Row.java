@@ -74,7 +74,7 @@ public final class Row implements Component {
         return this;
     }
 
-    public Cell add(arc.scene.Element e) {
+    public Cell<?> add(arc.scene.Element e) {
         return table.add(e);
     }
 }

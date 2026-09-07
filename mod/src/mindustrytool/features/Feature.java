@@ -3,15 +3,10 @@ package mindustrytool.features;
 import arc.Core;
 import arc.Events;
 import arc.scene.ui.Dialog;
-import solim.signal.Signal;
 
 public interface Feature {
 
     FeatureMetadata getMetadata();
- 
-    default Signal<Boolean> enabled() {
-        return getMetadata().enabled();
-    }
 
     default void enable() {
         if (isEnabled())
@@ -20,7 +15,7 @@ public interface Feature {
         if (Core.settings != null) {
             Core.settings.put(getSettingKey(), true);
         }
-        enabled().set(true);
+        getMetadata().enabled().set(true);
         onEnable();
         Events.fire(new FeatureStateChanged(this, true));
     }
@@ -32,7 +27,7 @@ public interface Feature {
         if (Core.settings != null) {
             Core.settings.put(getSettingKey(), false);
         }
-        enabled().set(false);
+        getMetadata().enabled().set(false);
         onDisable();
         Events.fire(new FeatureStateChanged(this, false));
     }
@@ -52,7 +47,7 @@ public interface Feature {
     }
 
     default boolean isEnabled() {
-        return Boolean.TRUE.equals(enabled().get());
+        return Boolean.TRUE.equals(getMetadata().enabled().get());
     }
 
     default String getSettingKey() {

@@ -5,7 +5,6 @@ import arc.scene.ui.layout.Table;
 import solim.core.Disposable;
 import solim.signal.Computed;
 import solim.signal.Effect;
-import solim.signal.Signal;
 
 /**
  * Badge - lightweight label for counts/status.

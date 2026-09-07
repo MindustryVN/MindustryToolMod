@@ -29,7 +29,7 @@ public class FeatureCard extends BaseComponent {
     public FeatureCard(Feature feature, Readable<Float> cardWidth, Readable<Boolean> enabled, Runnable onStateChanged) {
         this.feature = feature;
         this.cardWidth = cardWidth;
-        this.enabled = enabled != null ? enabled : (feature != null ? feature.enabled() : null);
+        this.enabled = enabled != null ? enabled : (feature != null ? feature.getMetadata().enabled() : null);
         this.onStateChanged = onStateChanged;
     }
 

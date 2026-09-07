@@ -4,7 +4,6 @@ import arc.graphics.Color;
 import org.junit.jupiter.api.Test;
 import solim.signal.Effect;
 import solim.signal.Signal;
-import java.util.concurrent.atomic.AtomicReference;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StyleTest {

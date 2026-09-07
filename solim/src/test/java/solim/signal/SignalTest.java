@@ -15,7 +15,7 @@ class SignalTest {
         c.set(0);
         assertEquals(0, calls.get(), "Equal value should not notify");
         // also computed/effect not re-run test: use computed
-        Computed<String> comp = Signal.computed(() -> "val:" + c.get());
+        Signal.computed(() -> "val:" + c.get());
         AtomicInteger compRuns = new AtomicInteger(0);
         Computed<String> comp2 = Signal.computed(() -> { compRuns.incrementAndGet(); return "val:" + c.get(); });
         comp2.get();

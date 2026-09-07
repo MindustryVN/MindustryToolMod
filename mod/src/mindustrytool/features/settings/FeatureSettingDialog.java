@@ -20,8 +20,11 @@ public final class FeatureSettingDialog extends SolimDialog {
         addCloseButton();
         closeOnBack();
         content(new FeatureSettingsView());
+
         actionButton(Core.bundle.get("feature.button.report-bug"), Icon.infoCircle,
-                () -> Core.app.openURI(Config.DISCORD_INVITE_URL));
+                () -> Core.app.openURI(Config.DISCORD_INVITE_URL))
+                .setWidth(200);
+
         actionButton("Copy UI tree", () -> {
             UiNode root = new UiNode(
                     "Scene",
@@ -31,10 +34,11 @@ public final class FeatureSettingDialog extends SolimDialog {
                     Core.graphics.getHeight(),
                     new ArrayList<>());
 
-            discoverSolimElements(root, Core.scene.root, element -> isSolimElement(element) && element instanceof FeatureSettingDialog);
+            discoverSolimElements(root, Core.scene.root,
+                    element -> isSolimElement(element) && element instanceof FeatureSettingDialog);
 
             Core.app.setClipboardText(JsonUtils.toJsonPretty(root));
-        });
+        }).setWidth(200);
     }
 
     private void discoverSolimElements(UiNode parent, Element element, Predicate<Element> pred) {

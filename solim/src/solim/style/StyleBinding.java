@@ -3,7 +3,6 @@ package solim.style;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
-import java.util.function.Consumer;
 
 /**
  * Static and reactive style application for widgets.

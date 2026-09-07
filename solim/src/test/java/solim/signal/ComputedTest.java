@@ -48,6 +48,7 @@ class ComputedTest {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     void cycleDetection() {
         Computed<Integer>[] a = new Computed[1];
         Computed<Integer>[] b = new Computed[1];
