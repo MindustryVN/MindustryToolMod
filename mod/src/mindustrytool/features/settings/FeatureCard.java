@@ -53,27 +53,26 @@ public class FeatureCard extends BaseComponent {
                                 spacer();
 
                                 if (feature.getMainDialog() != null) {
-                                    iconButton(
-                                            Icon.linkSmall,
-                                            Styles.clearNonei,
-                                            () -> Core.app.post(() -> feature.getMainDialog().show()))
+                                    button(() -> feature.getMainDialog().show())
+                                            .style(Styles.clearNonei)
                                             .size(32f)
-                                            .tooltip(Core.bundle.get("feature.button.open-dialog"));
+                                            .tooltip(Core.bundle.get("feature.button.open-dialog"))
+                                            .children(() -> image(Icon.linkSmall));
                                 }
 
                                 if (feature.getSettingDialog() != null) {
-                                    iconButton(
-                                            Icon.settings,
-                                            Styles.clearNonei,
-                                            () -> Core.app.post(() -> feature.getSettingDialog().show()))
+                                    button(() -> feature.getSettingDialog().show())
+                                            .style(Styles.clearNonei)
                                             .size(32f)
-                                            .tooltip(Core.bundle.get("feature.button.settings"));
+                                            .tooltip(Core.bundle.get("feature.button.settings"))
+                                            .children(() -> image(Icon.settings));
                                 }
 
-                                iconButton(Icon.infoCircle, Styles.clearNonei,
-                                        () -> new FeatureHelpDialog(feature).show())
+                                button(() -> new FeatureHelpDialog(feature).show())
+                                        .style(Styles.clearNonei)
                                         .size(32f)
-                                        .tooltip(Core.bundle.get("feature.button.help"));
+                                        .tooltip(Core.bundle.get("feature.button.help"))
+                                        .children(() -> image(Icon.infoCircle));
                             });
 
                     text(feature.getDescription())

@@ -7,6 +7,7 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.struct.Seq;
 import mindustry.gen.Icon;
+import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureManager;
 import solim.core.BaseComponent;
@@ -36,7 +37,8 @@ public final class FeatureSettingsView extends BaseComponent {
                                         feature -> feature.getMetadata().getId(),
                                         feature -> new FeatureCard(feature, cardWidth))
                                         .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
-                                                .color(Color.gray));
+                                                .color(Color.gray)
+                                                .padding(40f));
                             });
                 })
                 .element();
@@ -49,10 +51,15 @@ public final class FeatureSettingsView extends BaseComponent {
                     textField(filter)
                             .placeholder(Core.bundle.get("feature.search.placeholder"));
 
-                    button(Core.bundle.get("feature.button.re-enable"), Icon.refresh, FeatureManager::reenable)
+                    button(FeatureManager::reenable)
+                            .style(Styles.defaultb)
                             .width(200)
-                            .height(80)
-                            .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
+                            .height(48)
+                            .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"))
+                            .children(() -> {
+                                image(Icon.refresh);
+                                text(Core.bundle.get("feature.button.re-enable"));
+                            });
                 });
     }
 

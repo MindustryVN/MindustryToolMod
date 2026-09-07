@@ -6,7 +6,6 @@ import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button.ButtonStyle;
 import arc.scene.ui.Image;
-import arc.scene.ui.ImageButton.ImageButtonStyle;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
@@ -19,7 +18,6 @@ import solim.core.EventsUtil;
 import solim.display.SolimImage;
 import solim.display.Text;
 import solim.input.Button;
-import solim.input.IconButton;
 import solim.input.SolimTextField;
 import solim.layout.Card;
 import solim.layout.Column;
@@ -155,42 +153,15 @@ public final class Ui {
 		return image(drawable);
 	}
 
-	public static Button button(String text, Runnable onClick) {
-		Button b = Button.of(text, onClick);
-		ParentStack.attachToParent(b.textButton());
+	public static Button button() {
+		Button b = new Button();
+		ParentStack.attachToParent(b.element());
 		return b;
 	}
 
-	public static Button button(String text, Drawable icon, Runnable onClick) {
-		Button b = Button.of(text, onClick);
-		if (icon != null) {
-			b.textButton().add(new Image(icon)).size(24f).padRight(6f);
-		}
-		ParentStack.attachToParent(b.textButton());
-		return b;
-	}
-
-	public static Button button(Signal<String> text, Runnable onClick) {
-		Button b = Button.of(text, onClick);
-		ParentStack.attachToParent(b.textButton());
-		return b;
-	}
-
-	public static Button button(Computed<String> text, Runnable onClick) {
-		Button b = Button.of(text, onClick);
-		ParentStack.attachToParent(b.textButton());
-		return b;
-	}
-
-	public static IconButton iconButton(Drawable icon, Runnable onClick) {
-		IconButton b = IconButton.of(icon, onClick);
-		ParentStack.attachToParent(b.imageButton());
-		return b;
-	}
-
-	public static IconButton iconButton(Drawable icon, ImageButtonStyle style, Runnable onClick) {
-		IconButton b = IconButton.of(icon, style, onClick);
-		ParentStack.attachToParent(b.imageButton());
+	public static Button button(@Nullable Runnable onClick) {
+		Button b = new Button(onClick);
+		ParentStack.attachToParent(b.element());
 		return b;
 	}
 

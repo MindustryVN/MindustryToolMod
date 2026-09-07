@@ -52,29 +52,29 @@ public final class SettingsPanel extends BaseComponent {
 					row().children(() -> {
 						text(t("solim.settings.dark-mode", "Dark Mode"));
 
-						button(
-										darkMode.map(value -> value
-												? t("solim.settings.dark-mode.on", "On")
-												: t("solim.settings.dark-mode.off", "Off")),
-										() -> {
-											darkMode.set(!darkMode.get());
-											dirty.set(true);
-										})
-								.style(darkMode.map(value -> value ? Styles.PRIMARY : Styles.GHOST));
+						button(() -> {
+							darkMode.set(!darkMode.get());
+							dirty.set(true);
+						})
+								.style(darkMode.map(value -> value ? Styles.PRIMARY : Styles.GHOST))
+								.children(() -> text(darkMode.map(value -> value
+										? t("solim.settings.dark-mode.on", "On")
+										: t("solim.settings.dark-mode.off", "Off"))));
 					});
 
 					spacer();
 
 					row().justify(Justify.END).gap(8).children(() -> {
-						button(t("solim.settings.discard", "Discard"), () -> {
+						button(() -> {
 							dirty.set(false);
-						});
+						}).children(() -> text(t("solim.settings.discard", "Discard")));
 
-						button(saveText, () -> {
+						button(() -> {
 									dirty.set(false);
 								})
 								.enabled(dirty)
-								.style(Styles.PRIMARY);
+								.style(Styles.PRIMARY)
+								.children(() -> text(saveText));
 					});
 				})
 				.element();

@@ -42,7 +42,7 @@ public final class Card implements Component, Disposable {
 		private float customPrefHeight = -1f;
 
 		public CardButton() {
-			this(Core.scene != null ? null : new ButtonStyle());
+			this(new ButtonStyle());
 		}
 
 		public CardButton(Drawable up) {
@@ -52,8 +52,8 @@ public final class Card implements Component, Disposable {
 			}
 		}
 
-		public CardButton(ButtonStyle style) {
-			super((style != null || Core.scene == null) ? (style != null ? style : new ButtonStyle()) : null);
+		public CardButton(@Nullable ButtonStyle style) {
+			super(style != null ? style : new ButtonStyle());
 		}
 
 		public void setCustomPrefWidth(float width) {
