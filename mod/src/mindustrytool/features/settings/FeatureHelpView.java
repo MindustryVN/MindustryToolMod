@@ -25,32 +25,40 @@ public class FeatureHelpView extends BaseComponent {
         String description = feature.getDescription();
         boolean hasDescription = description != null && !description.trim().isEmpty();
 
-        return scroll(() -> {
-            column(() -> {
-                if (feature.getMetadata() != null && feature.getMetadata().getIcon() != null) {
-                    row(() -> {
-                        image(feature.getMetadata().getIcon()).scaling(Scaling.fit).size(32f);
-                        text(feature.getName() != null ? feature.getName() : "")
-                                .style(Styles.defaultLabel)
-                                .color(Color.white)
+        return scroll()
+            .grow()
+            .children(() -> {
+                column()
+                    .padding(16f)
+                    .gap(12f)
+                    .children(() -> {
+                        if (feature.getMetadata() != null && feature.getMetadata().getIcon() != null) {
+                            row()
+                                .gap(10f)
+                                .children(() -> {
+                                    image(feature.getMetadata().getIcon()).scaling(Scaling.fit).size(32f);
+                                    text(feature.getName() != null ? feature.getName() : "")
+                                            .style(Styles.defaultLabel)
+                                            .color(Color.white)
+                                            .left();
+                                });
+                        }
+
+                        if (hasDescription) {
+                            text(description)
+                                    .color(Color.lightGray)
+                                    .fontScale(0.95f)
+                                    .wrap(true)
+                                    .left();
+                            divider();
+                        }
+
+                        text(text)
+                                .color(hasHelp ? Color.white : Color.lightGray)
+                                .wrap(true)
                                 .left();
-                    }).gap(10f);
-                }
-
-                if (hasDescription) {
-                    text(description)
-                            .color(Color.lightGray)
-                            .fontScale(0.95f)
-                            .wrap(true)
-                            .left();
-                    divider();
-                }
-
-                text(text)
-                        .color(hasHelp ? Color.white : Color.lightGray)
-                        .wrap(true)
-                        .left();
-            }).padding(16f).gap(12f);
-        }).grow().element();
+                    });
+            })
+            .element();
     }
 }

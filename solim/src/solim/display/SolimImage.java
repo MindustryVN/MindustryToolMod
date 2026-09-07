@@ -6,6 +6,8 @@ import arc.util.Scaling;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * Display widget for drawable content.
  */
@@ -60,17 +62,17 @@ public final class SolimImage {
 
     public SolimImage() {}
 
-    public SolimImage(arc.scene.style.Drawable d) {
+    public SolimImage(Drawable d) {
         image.setDrawable(d);
     }
 
-    public static SolimImage of(arc.scene.style.Drawable d) {
+    public static SolimImage of(Drawable d) {
         return new SolimImage(d);
     }
 
-    public static SolimImage of(Signal<arc.scene.style.Drawable> s) {
+    public static SolimImage of(Signal<Drawable> s) {
         SolimImage img = new SolimImage();
-        Effect e = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        Effect e = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             img.image.setDrawable(s.get());
         });
         img.binding = e;

@@ -6,6 +6,8 @@ import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * ProgressBar bound to Signal&lt;Float&gt; 0..1.
  */
@@ -19,7 +21,7 @@ public final class ProgressBar implements Disposable {
         this.signal = signal;
         bar.top().left();
         updateBar();
-        this.effect = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             updateBar();
         });
     }

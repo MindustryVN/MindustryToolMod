@@ -1,8 +1,11 @@
 package solim.display;
 
+import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
 import solim.signal.Effect;
 import solim.signal.Signal;
+
+import java.util.function.Consumer;
 
 /**
  * Display widget for icon drawables.
@@ -13,17 +16,17 @@ public final class Icon {
 
     public Icon() {}
 
-    public Icon(arc.scene.style.Drawable d) {
+    public Icon(Drawable d) {
         image.setDrawable(d);
     }
 
-    public static Icon of(arc.scene.style.Drawable d) {
+    public static Icon of(Drawable d) {
         return new Icon(d);
     }
 
-    public static Icon of(Signal<arc.scene.style.Drawable> s) {
+    public static Icon of(Signal<Drawable> s) {
         Icon icon = new Icon();
-        Effect e = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        Effect e = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             icon.image.setDrawable(s.get());
         });
         icon.binding = e;

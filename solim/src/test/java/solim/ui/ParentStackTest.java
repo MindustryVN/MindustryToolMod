@@ -60,7 +60,7 @@ class ParentStackTest {
     void columnDeclarative() {
         Table root = new Table();
         ParentStack.push(root);
-        var col = Ui.column(() -> {
+        var col = Ui.column().children(() -> {
             Element e = new Element();
             ParentStack.add(e);
         });
@@ -72,10 +72,10 @@ class ParentStackTest {
     void nestedColumnRow() {
         Table root = new Table();
         ParentStack.push(root);
-        var col = Ui.column(() -> {
+        var col = Ui.column().children(() -> {
             Element t = new Element();
             ParentStack.add(t);
-            Ui.row(() -> {
+            Ui.row().children(() -> {
                 Element b1 = new Element();
                 ParentStack.add(b1);
                 Element b2 = new Element();

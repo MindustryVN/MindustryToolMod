@@ -462,6 +462,27 @@ private @Nullable String cachedToken;
 
 ---
 
+## Java Imports — Mandatory
+
+**Never use fully qualified class names directly in Java source code when an import can be used.** Always prefer importing the class and using its simple name. Fully qualified names are only allowed when required to resolve an unavoidable naming conflict between classes with the same simple name.
+
+### Rules
+
+- Prefer `import` statements over fully qualified class names.
+- Do not write types like:
+
+  ```java
+  arc.scene.ui.ImageButton.ImageButtonStyle
+  ```
+
+---
+
+## Legacy Code — Mandatory
+
+**Ignore the `old/` folder entirely.** Do not modify or refactor code inside it unless explicitly requested. Treat `old/` as legacy code outside the scope of normal tasks.
+
+---
+
 ## Before Completing Any Task
 
 Before finishing a task, the AI agent must verify:
@@ -479,6 +500,7 @@ Before finishing a task, the AI agent must verify:
 * [ ] All HTTP calls go through `mindustrytool.services.Request` (via `MindustryTool`/`Github` or an owned `Request` instance); no direct HTTP connection construction outside `Request.java`.
 * [ ] Java 8 runtime compatibility verified: no Java 9+ standard library APIs or methods (e.g., `List.of`, `Set.of`, `Map.of`, `Stream.toList`, `String.isBlank`, `Optional.isEmpty`) are used.
 * [ ] Nullability verified: all variables, fields, parameters, and method return types that can be null are annotated with `@Nullable` (from `arc.util.Nullable`).
+* [ ] Java imports verified: imports are used for referenced classes instead of fully qualified class names.
 
 **A UI or player-facing feature is not considered complete until all of its display text has been properly added to the translation bundle with sufficient context for translators.**
 

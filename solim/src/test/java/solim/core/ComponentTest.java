@@ -5,6 +5,9 @@ import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -111,16 +114,16 @@ class ComponentTest {
     @Test
     void noReactHooksApi() throws Exception {
         // Ensure no useState, useEffect etc in core package
-        java.nio.file.Path coreDir = java.nio.file.Path.of("solim/src/solim/core");
-        if (!java.nio.file.Files.exists(coreDir)) {
-            coreDir = java.nio.file.Path.of("src/solim/core");
+        Path coreDir = Path.of("solim/src/solim/core");
+        if (!Files.exists(coreDir)) {
+            coreDir = Path.of("src/solim/core");
         }
         // search for forbidden strings
-        if (java.nio.file.Files.exists(coreDir)) {
-            try (var stream = java.nio.file.Files.walk(coreDir)) {
-                for (var p : (Iterable<java.nio.file.Path>) stream::iterator) {
+        if (Files.exists(coreDir)) {
+            try (var stream = Files.walk(coreDir)) {
+                for (var p : (Iterable<Path>) stream::iterator) {
                     if (p.toString().endsWith(".java")) {
-                        String content = new String(java.nio.file.Files.readAllBytes(p), java.nio.charset.StandardCharsets.UTF_8);
+                        String content = new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
                         assertFalse(content.contains("useState"), "Should not contain React hooks");
                         assertFalse(content.contains("useEffect"), "Should not contain React hooks");
                         assertFalse(content.contains("useMemo"), "Should not contain React hooks");

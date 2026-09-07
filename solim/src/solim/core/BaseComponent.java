@@ -2,12 +2,17 @@ package solim.core;
 
 import arc.Events;
 import arc.func.Cons;
+import arc.func.Func;
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
+import arc.util.Log;
+import solim.signal.Signal;
 import solim.ui.ParentStack;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 
 /**
  * Base class with lazy single-build semantics, ambient lifecycle resource management,
@@ -84,8 +89,8 @@ public abstract class BaseComponent implements Component {
      * Creates a reactive signal initialized from the supplier that recalculates whenever
      * the specified Arc event fires. Automatically unregisters when this component is disposed.
      */
-    public <E, T> solim.signal.Signal<T> createSignal(Class<E> eventType, java.util.function.Supplier<T> supplier) {
-        solim.signal.Signal<T> signal = solim.signal.Signal.of(supplier.get());
+    public <E, T> Signal<T> createSignal(Class<E> eventType, Supplier<T> supplier) {
+        Signal<T> signal = Signal.of(supplier.get());
         listen(eventType, e -> signal.set(supplier.get()));
         return signal;
     }
@@ -94,8 +99,8 @@ public abstract class BaseComponent implements Component {
      * Creates a reactive signal that updates with mapped event data whenever the specified Arc event fires.
      * Automatically unregisters when this component is disposed.
      */
-    public <E, T> solim.signal.Signal<T> createSignal(Class<E> eventType, arc.func.Func<E, T> mapper, T initial) {
-        solim.signal.Signal<T> signal = solim.signal.Signal.of(initial);
+    public <E, T> Signal<T> createSignal(Class<E> eventType, Func<E, T> mapper, T initial) {
+        Signal<T> signal = Signal.of(initial);
         listen(eventType, e -> signal.set(mapper.get(e)));
         return signal;
     }
@@ -104,8 +109,8 @@ public abstract class BaseComponent implements Component {
      * Creates a reactive signal initialized from the supplier that recalculates whenever
      * the callback registrar invokes the given callback (e.g. {@code element::resized}).
      */
-    public <T> solim.signal.Signal<T> createSignal(java.util.function.Consumer<Runnable> callbackRegistrar, java.util.function.Supplier<T> supplier) {
-        solim.signal.Signal<T> signal = solim.signal.Signal.of(supplier.get());
+    public <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
+        Signal<T> signal = Signal.of(supplier.get());
         if (callbackRegistrar != null) {
             callbackRegistrar.accept(() -> signal.set(supplier.get()));
         }
@@ -133,7 +138,7 @@ public abstract class BaseComponent implements Component {
             try {
                 d.dispose();
             } catch (Throwable t) {
-                arc.util.Log.err("Error disposing resource in " + getClass().getSimpleName(), t);
+                Log.err("Error disposing resource in " + getClass().getSimpleName(), t);
             }
         }
         disposables.clear();

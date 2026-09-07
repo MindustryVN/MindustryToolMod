@@ -4,6 +4,10 @@ import arc.graphics.Color;
 import org.junit.jupiter.api.Test;
 import solim.signal.Effect;
 import solim.signal.Signal;
+
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
 
 class StyleTest {
@@ -85,15 +89,15 @@ class StyleTest {
 
     @Test
     void noCssEngine() throws Exception {
-        java.nio.file.Path styleDir = java.nio.file.Path.of("solim/src/solim/style");
-        if (!java.nio.file.Files.exists(styleDir)) {
-            styleDir = java.nio.file.Path.of("src/solim/style");
+        Path styleDir = Path.of("solim/src/solim/style");
+        if (!Files.exists(styleDir)) {
+            styleDir = Path.of("src/solim/style");
         }
-        if (java.nio.file.Files.exists(styleDir)) {
-            try (var stream = java.nio.file.Files.walk(styleDir)) {
-                for (var p : (Iterable<java.nio.file.Path>) stream::iterator) {
+        if (Files.exists(styleDir)) {
+            try (var stream = Files.walk(styleDir)) {
+                for (var p : (Iterable<Path>) stream::iterator) {
                     if (p.toString().endsWith(".java")) {
-                        String content = new String(java.nio.file.Files.readAllBytes(p), java.nio.charset.StandardCharsets.UTF_8);
+                        String content = new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
                         assertFalse(content.contains("stylesheet"), "No CSS stylesheet");
                         assertFalse(content.contains("selector"), "No CSS selector");
                         assertFalse(content.contains("flex"), "No CSS flex");

@@ -49,56 +49,59 @@ public final class SettingsPanel extends BaseComponent {
             Log.info("Dirty state: @", dirty.get());
         });
 
-        return column(() -> {
-
-            text(t("solim.settings.title", "Settings"));
-
-            divider();
-
-            row(() -> {
-
-                text(t("solim.settings.dark-mode", "Dark Mode"));
-
-                button(
-                    darkMode.map(value ->
-                        value ? t("solim.settings.dark-mode.on", "On") : t("solim.settings.dark-mode.off", "Off")
-                    ),
-                    () -> {
-                        darkMode.set(!darkMode.get());
-                        dirty.set(true);
-                    }
-                )
-                    .style(
-                        darkMode.map(value ->
-                            value
-                                ? Styles.PRIMARY
-                                : Styles.GHOST
-                        )
-                    );
-
-            });
-
-            spacer();
-
-            row(() -> {
-
-                button(t("solim.settings.discard", "Discard"), () -> {
-                    dirty.set(false);
-                });
-
-                button(saveText, () -> {
-                    dirty.set(false);
-                })
-                    .enabled(dirty)
-                    .style(Styles.PRIMARY);
-
-            })
-                .justify(Justify.END)
-                .gap(8);
-
-        })
+        return column()
             .padding(24)
             .gap(16)
+            .children(() -> {
+
+                text(t("solim.settings.title", "Settings"));
+
+                divider();
+
+                row()
+                    .children(() -> {
+
+                        text(t("solim.settings.dark-mode", "Dark Mode"));
+
+                        button(
+                            darkMode.map(value ->
+                                value ? t("solim.settings.dark-mode.on", "On") : t("solim.settings.dark-mode.off", "Off")
+                            ),
+                            () -> {
+                                darkMode.set(!darkMode.get());
+                                dirty.set(true);
+                            }
+                        )
+                            .style(
+                                darkMode.map(value ->
+                                    value
+                                        ? Styles.PRIMARY
+                                        : Styles.GHOST
+                                )
+                            );
+
+                    });
+
+                spacer();
+
+                row()
+                    .justify(Justify.END)
+                    .gap(8)
+                    .children(() -> {
+
+                        button(t("solim.settings.discard", "Discard"), () -> {
+                            dirty.set(false);
+                        });
+
+                        button(saveText, () -> {
+                            dirty.set(false);
+                        })
+                            .enabled(dirty)
+                            .style(Styles.PRIMARY);
+
+                    });
+
+            })
             .element();
     }
 

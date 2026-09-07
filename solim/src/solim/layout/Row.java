@@ -1,14 +1,26 @@
 package solim.layout;
 
 import arc.scene.Element;
+import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Table;
 import arc.scene.ui.layout.Cell;
+import arc.util.Nullable;
 import solim.core.Component;
+import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 /**
  * Row layout - horizontal Table wrapper.
  */
 public final class Row implements Component {
+    public static final ParentStack.Attacher ATTACHER = (table, child) -> {
+        Cell<?> cell = table.add(child);
+        if (child instanceof TextField || Ui.isExpanding(child)) {
+            cell.growX();
+        }
+        return cell;
+    };
+
     private final Table table;
 
     public Row() {
@@ -74,7 +86,20 @@ public final class Row implements Component {
         return this;
     }
 
-    public Cell<?> add(arc.scene.Element e) {
+    public Row children(@Nullable Runnable r) {
+        ParentStack.push(table, ATTACHER);
+        try {
+            if (r != null) {
+                r.run();
+            }
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(table);
+        return this;
+    }
+
+    public Cell<?> add(Element e) {
         return table.add(e);
     }
 }

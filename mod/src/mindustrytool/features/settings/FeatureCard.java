@@ -30,62 +30,65 @@ public class FeatureCard extends BaseComponent {
     protected Element build() {
         var metadata = feature.getMetadata();
 
-        return card(Styles.black8, () -> {
-            row(() -> {
-                image(metadata.getIcon())
-                        .scaling(Scaling.fit)
-                        .size(24f);
-
-                text(feature.getName())
-                        .style(Styles.defaultLabel)
-                        .color(Color.white)
-                        .ellipsis(true)
-                        .left();
-
-                spacer();
-
-                if (feature.getMainDialog() != null) {
-                    iconButton(Icon.linkSmall, Styles.clearNonei,
-                            () -> Core.app.post(() -> feature.getMainDialog().show()))
-                            .size(32f)
-                            .tooltip(Core.bundle.get("feature.button.open-dialog"));
-                }
-
-                if (feature.getSettingDialog() != null) {
-                    iconButton(Icon.settings, Styles.clearNonei,
-                            () -> Core.app.post(() -> feature.getSettingDialog().show()))
-                            .size(32f)
-                            .tooltip(Core.bundle.get("feature.button.settings"));
-                }
-
-                iconButton(Icon.infoCircle, Styles.clearNonei, () -> new FeatureHelpDialog(feature).show())
-                        .size(32f)
-                        .tooltip(Core.bundle.get("feature.button.help"));
-            }).gap(8f);
-
-            text(feature.getDescription())
-                    .color(Color.lightGray)
-                    .fontScale(0.9f)
-                    .wrap(true)
-                    .ellipsis(true)
-                    .left();
-
-            spacer();
-
-            text(feature.enabled().map(val -> Boolean.TRUE.equals(val)
-                    ? Core.bundle.get("feature.status.enabled")
-                    : Core.bundle.get("feature.status.disabled"))//
-            )
-                    .style(Styles.defaultLabel)
-                    .color(feature.enabled().map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
-                    .left();
-        })
+        return card(Styles.black8)
                 .name("FeatureCard-" + metadata.getId())
                 .prefHeight(180f)
                 .padding(12f)
                 .width(cardWidth.map(w -> Math.max(0f, w - 10f)))
                 .color(feature.enabled().map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet))
                 .onClick(() -> feature.setEnabled(!feature.isEnabled()))
+                .children(() -> {
+                    row()
+                        .gap(8f)
+                        .children(() -> {
+                            image(metadata.getIcon())
+                                    .scaling(Scaling.fit)
+                                    .size(24f);
+
+                            text(feature.getName())
+                                    .style(Styles.defaultLabel)
+                                    .color(Color.white)
+                                    .ellipsis(true)
+                                    .left();
+
+                            spacer();
+
+                            if (feature.getMainDialog() != null) {
+                                iconButton(Icon.linkSmall, Styles.clearNonei,
+                                        () -> Core.app.post(() -> feature.getMainDialog().show()))
+                                        .size(32f)
+                                        .tooltip(Core.bundle.get("feature.button.open-dialog"));
+                            }
+
+                            if (feature.getSettingDialog() != null) {
+                                iconButton(Icon.settings, Styles.clearNonei,
+                                        () -> Core.app.post(() -> feature.getSettingDialog().show()))
+                                        .size(32f)
+                                        .tooltip(Core.bundle.get("feature.button.settings"));
+                            }
+
+                            iconButton(Icon.infoCircle, Styles.clearNonei, () -> new FeatureHelpDialog(feature).show())
+                                    .size(32f)
+                                    .tooltip(Core.bundle.get("feature.button.help"));
+                        });
+
+                    text(feature.getDescription())
+                            .color(Color.lightGray)
+                            .fontScale(0.9f)
+                            .wrap(true)
+                            .ellipsis(true)
+                            .left();
+
+                    spacer();
+
+                    text(feature.enabled().map(val -> Boolean.TRUE.equals(val)
+                            ? Core.bundle.get("feature.status.enabled")
+                            : Core.bundle.get("feature.status.disabled"))
+                    )
+                            .style(Styles.defaultLabel)
+                            .color(feature.enabled().map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
+                            .left();
+                })
                 .element();
     }
 }

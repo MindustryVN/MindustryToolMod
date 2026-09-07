@@ -1,10 +1,13 @@
 package solim.overlay;
 
 import arc.Core;
+import arc.Events;
+import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import solim.core.Component;
 import solim.feedback.Alert;
 import solim.feedback.Avatar;
 import solim.feedback.Badge;
@@ -12,7 +15,9 @@ import solim.feedback.ProgressBar;
 import solim.feedback.Spinner;
 import solim.signal.Computed;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
+
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class OverlayFeedbackTest {
@@ -23,10 +28,9 @@ class OverlayFeedbackTest {
     }
 
     @Test
-    void dialogShowHide() {
-        SolimDialog d = SolimDialog.of("Confirm", () -> {
-            ParentStack.add(new Table());
-        });
+    void dialogShowHideDispose() {
+        SolimDialog d = new SolimDialog("Test");
+        assertFalse(d.isShown());
         d.show();
         assertTrue(d.isShown());
         d.hide();
@@ -36,10 +40,10 @@ class OverlayFeedbackTest {
 
     @Test
     void dialogContentComponentAutomaticallyDisposed() {
-        java.util.concurrent.atomic.AtomicBoolean disposed = new java.util.concurrent.atomic.AtomicBoolean(false);
-        solim.core.Component testComp = new solim.core.Component() {
+        AtomicBoolean disposed = new AtomicBoolean(false);
+        Component testComp = new Component() {
             @Override
-            public arc.scene.Element element() {
+            public Element element() {
                 return new Table();
             }
 
@@ -91,13 +95,13 @@ class OverlayFeedbackTest {
         assertEquals(50, eventSignal.get());
 
         counter[0] = 30;
-        arc.Events.fire(new TestDialogEvent(1));
+        Events.fire(new TestDialogEvent(1));
         assertEquals(60, eventSignal.get());
 
         // Test event-mapping signal creation
         Signal<Integer> mappedSignal = d.createSignal(TestDialogEvent.class, e -> e.code * 100, 0);
         assertEquals(0, mappedSignal.get());
-        arc.Events.fire(new TestDialogEvent(5));
+        Events.fire(new TestDialogEvent(5));
         assertEquals(500, mappedSignal.get());
 
         // Test disposal cleans up listeners
@@ -105,7 +109,7 @@ class OverlayFeedbackTest {
         assertTrue(d.isDisposed());
 
         counter[0] = 999;
-        arc.Events.fire(new TestDialogEvent(99));
+        Events.fire(new TestDialogEvent(99));
         // After disposal, event listener was unregistered so eventSignal should not recalculate
         assertEquals(60, eventSignal.get());
         assertEquals(500, mappedSignal.get());

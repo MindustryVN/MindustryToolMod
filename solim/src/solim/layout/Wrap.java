@@ -1,5 +1,6 @@
 package solim.layout;
 
+import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 
 /**
@@ -21,7 +22,7 @@ public final class Wrap {
         return this;
     }
 
-    public Wrap add(arc.scene.Element child) {
+    public Wrap add(Element child) {
         table.add(child).pad(gap / 2f);
         return this;
     }

@@ -9,6 +9,8 @@ import arc.scene.style.Drawable;
 import arc.scene.ui.Dialog;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import arc.util.Log;
+import arc.util.Nullable;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.signal.Signal;
@@ -50,7 +52,7 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
         return d;
     }
 
-    public SolimDialog content(Component component) {
+    public SolimDialog content(@Nullable Component component) {
         if (component != null) {
             cont.add(component.element()).grow().expand();
             registerDisposable(component::dispose);
@@ -58,7 +60,7 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
         return this;
     }
 
-    public SolimDialog content(Runnable contentBuilder) {
+    public SolimDialog content(@Nullable Runnable contentBuilder) {
         if (contentBuilder != null) {
             ParentStack.push(cont);
             try {
@@ -68,6 +70,10 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
             }
         }
         return this;
+    }
+
+    public SolimDialog children(@Nullable Runnable contentBuilder) {
+        return content(contentBuilder);
     }
 
     public SolimDialog actionButton(String text, Runnable action) {
@@ -209,7 +215,7 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
             try {
                 d.dispose();
             } catch (Throwable t) {
-                arc.util.Log.err("Error disposing resource in SolimDialog", t);
+                Log.err("Error disposing resource in SolimDialog", t);
             }
         }
         disposables.clear();

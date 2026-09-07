@@ -1,12 +1,18 @@
 package solim.ui;
 
+import arc.func.Cons;
+import arc.func.Func;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
+import arc.scene.ui.Button.ButtonStyle;
 import arc.scene.ui.Image;
+import arc.scene.ui.ImageButton.ImageButtonStyle;
 import arc.scene.ui.ScrollPane;
-import arc.scene.ui.TextField;
-import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import arc.util.Nullable;
+import solim.core.Component;
+import solim.core.Disposable;
+import solim.core.EventsUtil;
 import solim.display.SolimImage;
 import solim.display.Text;
 import solim.input.Button;
@@ -15,6 +21,8 @@ import solim.input.SolimTextField;
 import solim.layout.Card;
 import solim.layout.Column;
 import solim.layout.Divider;
+import solim.layout.Grid;
+import solim.layout.ReactiveGrid;
 import solim.layout.Row;
 import solim.layout.Scroll;
 import solim.layout.Spacer;
@@ -23,138 +31,87 @@ import solim.signal.Computed;
 import solim.signal.Readable;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+import java.util.function.Function;
+import java.util.function.Supplier;
+
 /**
  * Declarative UI facades for Solim.
- * Each method pushes a layout, runs the lambda, pops, and returns the layout
- * element.
  */
 public final class Ui {
     private Ui() {
     }
 
-    public static Column column(Runnable r) {
-        Column col = new Column();
-        ParentStack.push(col.table(), (table, child) -> {
-            Cell<?> cell = table.add(child);
-            cell.growX();
-            if (isExpanding(child)) {
-                cell.growY();
-            }
-            cell.row();
-            return cell;
-        });
-        try {
-            r.run();
-        } finally {
-            ParentStack.pop();
-        }
-        ParentStack.attachToParent(col.table());
-        return col;
+    public static Column column() {
+        return new Column();
     }
 
-    public static Card card(Runnable r) {
-        return card((arc.scene.ui.Button.ButtonStyle) null, r);
+    public static Column column(@Nullable Runnable r) {
+        return column().children(r);
     }
 
-    public static Card card(Drawable background, Runnable r) {
-        Card c = new Card(background);
-        ParentStack.push(c.container(), (table, child) -> {
-            Cell<?> cell = table.add(child);
-            cell.growX();
-            if (isExpanding(child)) {
-                cell.growY();
-            }
-            cell.row();
-            return cell;
-        });
-        try {
-            r.run();
-        } finally {
-            ParentStack.pop();
-        }
-        ParentStack.attachToParent(c.cardButton());
-        return c;
+    public static Card card() {
+        return new Card();
     }
 
-    public static Card card(arc.scene.ui.Button.ButtonStyle style, Runnable r) {
-        Card c = new Card(style);
-        ParentStack.push(c.container(), (table, child) -> {
-            Cell<?> cell = table.add(child);
-            cell.growX();
-            if (isExpanding(child)) {
-                cell.growY();
-            }
-            cell.row();
-            return cell;
-        });
-        try {
-            r.run();
-        } finally {
-            ParentStack.pop();
-        }
-        ParentStack.attachToParent(c.cardButton());
-        return c;
+    public static Card card(@Nullable Runnable r) {
+        return card().children(r);
     }
 
-    public static Row row(Runnable r) {
-        Row row = new Row();
-        ParentStack.push(row.table(), (table, child) -> {
-            Cell<?> cell = table.add(child);
-            if (child instanceof TextField || isExpanding(child)) {
-                cell.growX();
-            }
-            return cell;
-        });
-        try {
-            r.run();
-        } finally {
-            ParentStack.pop();
-        }
-        ParentStack.attachToParent(row.table());
-        return row;
+    public static Card card(@Nullable Drawable background) {
+        return new Card(background);
     }
 
-    public static Table stack(Runnable r) {
-        return row(r).table();
+    public static Card card(@Nullable Drawable background, @Nullable Runnable r) {
+        return card(background).children(r);
     }
 
-    public static Table grid(int columns, Runnable r) {
-        Table t = new Table();
-        int[] count = new int[]{0};
-        ParentStack.push(t, (table, child) -> {
-            Cell<?> cell = table.add(child);
-            if (++count[0] % Math.max(1, columns) == 0) {
-                table.row();
-            }
-            return cell;
-        });
-        try {
-            r.run();
-        } finally {
-            ParentStack.pop();
-        }
-        ParentStack.attachToParent(t);
-        return t;
+    public static Card card(@Nullable ButtonStyle style) {
+        return new Card(style);
     }
 
-    public static Table wrap(Runnable r) {
-        return row(r).table();
+    public static Card card(@Nullable ButtonStyle style, @Nullable Runnable r) {
+        return card(style).children(r);
     }
 
-    public static Scroll scroll(Runnable r) {
-        Scroll s = new Scroll();
-        ParentStack.push(s.content(), (table, child) -> {
-            Cell<?> cell = table.add(child).growX();
-            cell.row();
-            return cell;
-        });
-        try {
-            r.run();
-        } finally {
-            ParentStack.pop();
-        }
-        ParentStack.attachToParent(s.element());
-        return s;
+    public static Row row() {
+        return new Row();
+    }
+
+    public static Row row(@Nullable Runnable r) {
+        return row().children(r);
+    }
+
+    public static Row stack() {
+        return row();
+    }
+
+    public static Row stack(@Nullable Runnable r) {
+        return row().children(r);
+    }
+
+    public static Grid grid(int columns) {
+        return new Grid(columns);
+    }
+
+    public static Grid grid(int columns, @Nullable Runnable r) {
+        return grid(columns).children(r);
+    }
+
+    public static Row wrap() {
+        return row();
+    }
+
+    public static Row wrap(@Nullable Runnable r) {
+        return row().children(r);
+    }
+
+    public static Scroll scroll() {
+        return new Scroll();
+    }
+
+    public static Scroll scroll(@Nullable Runnable r) {
+        return scroll().children(r);
     }
 
     public static boolean isExpanding(Element child) {
@@ -171,9 +128,12 @@ public final class Ui {
         return false;
     }
 
+    public static Column container() {
+        return column();
+    }
 
-    public static Table container(Runnable r) {
-        return column(r).table();
+    public static Column container(@Nullable Runnable r) {
+        return column().children(r);
     }
 
     public static Element divider() {
@@ -231,7 +191,7 @@ public final class Ui {
         return b;
     }
 
-    public static IconButton iconButton(Drawable icon, arc.scene.ui.ImageButton.ImageButtonStyle style, Runnable onClick) {
+    public static IconButton iconButton(Drawable icon, ImageButtonStyle style, Runnable onClick) {
         IconButton b = IconButton.of(icon, style, onClick);
         ParentStack.attachToParent(b.imageButton());
         return b;
@@ -267,52 +227,56 @@ public final class Ui {
         return tf;
     }
 
-    public static SolimDialog dialog(String title, Runnable content) {
-        return SolimDialog.of(title, content);
+    public static SolimDialog dialog(String title) {
+        return new SolimDialog(title);
     }
 
-    public static <T> Dynamic<T> dynamic(solim.signal.Readable<T> source,
-            java.util.function.Function<T, solim.core.Component> factory) {
+    public static SolimDialog dialog(String title, @Nullable Runnable content) {
+        return dialog(title).children(content);
+    }
+
+    public static <T> Dynamic<T> dynamic(Readable<T> source,
+            Function<T, Component> factory) {
         Dynamic<T> d = Dynamic.of(source, factory);
         ParentStack.attachToParent(d.element());
         return d;
     }
 
     public static <T, K> ForEach<T, K> forEach(
-            solim.signal.Readable<? extends Iterable<T>> collection,
-            java.util.function.Function<T, K> keyExtractor,
-            java.util.function.Function<T, solim.core.Component> itemFactory) {
+            Readable<? extends Iterable<T>> collection,
+            Function<T, K> keyExtractor,
+            Function<T, Component> itemFactory) {
         ForEach<T, K> fe = ForEach.of(collection, keyExtractor, itemFactory);
         ParentStack.attachToParent(fe.element());
         return fe;
     }
 
-    public static <T, K> solim.layout.ReactiveGrid<T, K> grid(
-            solim.signal.Readable<Integer> columnCount,
-            solim.signal.Readable<? extends Iterable<T>> items,
-            java.util.function.Function<T, K> keyExtractor,
-            java.util.function.Function<T, solim.core.Component> itemFactory) {
-        solim.layout.ReactiveGrid<T, K> grid = solim.layout.ReactiveGrid.of(columnCount, items, keyExtractor,
+    public static <T, K> ReactiveGrid<T, K> grid(
+            Readable<Integer> columnCount,
+            Readable<? extends Iterable<T>> items,
+            Function<T, K> keyExtractor,
+            Function<T, Component> itemFactory) {
+        ReactiveGrid<T, K> grid = ReactiveGrid.of(columnCount, items, keyExtractor,
                 itemFactory);
         ParentStack.attachToParent(grid.element());
         return grid;
     }
 
-    public static <T> solim.core.Disposable listen(Class<T> type, arc.func.Cons<T> listener) {
-        return solim.core.EventsUtil.listen(type, listener);
+    public static <T> Disposable listen(Class<T> type, Cons<T> listener) {
+        return EventsUtil.listen(type, listener);
     }
 
-    public static <E, T> Signal<T> createSignal(Class<E> eventType, java.util.function.Supplier<T> supplier) {
-        return solim.core.EventsUtil.createSignal(eventType, supplier);
+    public static <E, T> Signal<T> createSignal(Class<E> eventType, Supplier<T> supplier) {
+        return EventsUtil.createSignal(eventType, supplier);
     }
 
-    public static <E, T> Signal<T> createSignal(Class<E> eventType, arc.func.Func<E, T> mapper, T initial) {
-        return solim.core.EventsUtil.createSignal(eventType, mapper, initial);
+    public static <E, T> Signal<T> createSignal(Class<E> eventType, Func<E, T> mapper, T initial) {
+        return EventsUtil.createSignal(eventType, mapper, initial);
     }
 
-    public static <T> Signal<T> createSignal(java.util.function.Consumer<Runnable> callbackRegistrar,
-            java.util.function.Supplier<T> supplier) {
-        return solim.core.EventsUtil.createSignal(callbackRegistrar, supplier);
+    public static <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar,
+            Supplier<T> supplier) {
+        return EventsUtil.createSignal(callbackRegistrar, supplier);
     }
 
     public static Computed<Float> dvw(float percentage) {

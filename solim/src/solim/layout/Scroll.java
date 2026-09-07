@@ -3,13 +3,22 @@ package solim.layout;
 import arc.Core;
 import arc.scene.Element;
 import arc.scene.ui.ScrollPane;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import arc.util.Nullable;
 import solim.core.Component;
+import solim.ui.ParentStack;
 
 /**
  * Scroll container wrapping a Table in a ScrollPane.
  */
 public final class Scroll implements Component {
+    public static final ParentStack.Attacher ATTACHER = (table, child) -> {
+        Cell<?> cell = table.add(child).growX();
+        cell.row();
+        return cell;
+    };
+
     private final Table outer = new Table();
     private final Table content = new Table();
     private final ScrollPane pane;
@@ -50,6 +59,19 @@ public final class Scroll implements Component {
 
     public Scroll growY() {
         outer.setFillParent(true);
+        return this;
+    }
+
+    public Scroll children(@Nullable Runnable r) {
+        ParentStack.push(content, ATTACHER);
+        try {
+            if (r != null) {
+                r.run();
+            }
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(outer);
         return this;
     }
 

@@ -1,5 +1,7 @@
 package solim.layout;
 
+import arc.scene.Element;
+import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Table;
 
 /**
@@ -19,12 +21,12 @@ public final class Container {
         return this;
     }
 
-    public Container background(arc.scene.style.Drawable d) {
+    public Container background(Drawable d) {
         table.setBackground(d);
         return this;
     }
 
-    public Container add(arc.scene.Element child) {
+    public Container add(Element child) {
         table.add(child);
         return this;
     }

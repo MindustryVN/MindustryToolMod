@@ -10,6 +10,7 @@ import solim.signal.Effect;
 import solim.signal.Signal;
 
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Consumer;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -19,13 +20,18 @@ class BindingTest {
         String text = "";
         boolean enabled = true;
         boolean visible = true;
+        Color color = Color.white;
+        float width = 0f;
+
         void setText(String t) { this.text = t; }
         void setEnabled(boolean e) { this.enabled = e; }
         void setVisible(boolean v) { this.visible = v; }
+        void setColor(Color c) { this.color = c; }
+        void setWidth(float w) { this.width = w; }
     }
 
     @Test
-    void staticTextImmediateApply() {
+    void staticTextNoBindingNeeded() {
         TestElement t = new TestElement();
         t.setText("Hello");
         assertEquals("Hello", t.text);
@@ -35,7 +41,7 @@ class BindingTest {
     void reactiveTextImmediateApply() {
         Signal<String> s = Signal.of("Alice");
         TestElement target = new TestElement();
-        Effect b = Binding.of((java.util.function.Consumer<String>) t -> target.setText(t), s);
+        Effect b = Binding.of((Consumer<String>) t -> target.setText(t), s);
         assertEquals("Alice", target.text, "Immediate apply on create");
         s.set("Bob");
         assertEquals("Bob", target.text, "Update on signal change");
@@ -49,7 +55,7 @@ class BindingTest {
         Signal<Integer> count = Signal.of(1);
         Computed<String> text = count.map(v -> "Count: " + v);
         TestElement target = new TestElement();
-        Effect b = Binding.of((java.util.function.Consumer<String>) t -> target.setText(t), text);
+        Effect b = Binding.of((Consumer<String>) t -> target.setText(t), text);
         assertEquals("Count: 1", target.text);
         count.set(2);
         assertEquals("Count: 2", target.text);
@@ -71,14 +77,14 @@ class BindingTest {
     void visibleAndEnabledBinding() {
         Signal<Boolean> isLoggedIn = Signal.of(false);
         TestElement target = new TestElement();
-        Effect visible = Binding.of((java.util.function.Consumer<Boolean>) t -> target.setVisible(t), isLoggedIn);
+        Effect visible = Binding.of((Consumer<Boolean>) t -> target.setVisible(t), isLoggedIn);
         assertFalse(target.visible);
         isLoggedIn.set(true);
         assertTrue(target.visible);
         visible.dispose();
 
         Signal<Boolean> canSave = Signal.of(true);
-        Effect enabled = Binding.of((java.util.function.Consumer<Boolean>) t -> target.setEnabled(t), canSave);
+        Effect enabled = Binding.of((Consumer<Boolean>) t -> target.setEnabled(t), canSave);
         assertTrue(target.enabled);
         canSave.set(false);
         assertFalse(target.enabled);

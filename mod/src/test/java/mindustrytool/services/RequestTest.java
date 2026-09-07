@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpHandler;
@@ -132,7 +133,7 @@ class RequestTest {
                 .baseUrl("http://127.0.0.1:" + serverPort)
                 .build();
 
-        Request.Response<java.util.stream.Stream<String>> res = client.get("/test-lines")
+        Request.Response<Stream<String>> res = client.get("/test-lines")
                 .sendAsync(Request.BodyHandlers.ofLines())
                 .get();
         assertEquals(200, res.statusCode());

@@ -6,6 +6,8 @@ import solim.core.Disposable;
 import solim.signal.Computed;
 import solim.signal.Effect;
 
+import java.util.function.Consumer;
+
 /**
  * Badge - lightweight label for counts/status.
  */
@@ -20,7 +22,7 @@ public final class Badge implements Disposable {
 
     public Badge(Computed<String> text) {
         table.add(label);
-        this.binding = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.binding = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             label.setText(text.get());
         });
     }

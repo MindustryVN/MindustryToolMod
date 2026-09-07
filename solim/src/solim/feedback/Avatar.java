@@ -1,5 +1,6 @@
 package solim.feedback;
 
+import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
 import arc.scene.ui.layout.Table;
 
@@ -14,7 +15,7 @@ public final class Avatar {
         table.add(image).size(48f);
     }
 
-    public Avatar(arc.scene.style.Drawable d) {
+    public Avatar(Drawable d) {
         image.setDrawable(d);
         table.add(image).size(48f);
     }

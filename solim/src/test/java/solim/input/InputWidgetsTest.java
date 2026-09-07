@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.signal.Signal;
+import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class InputWidgetsTest {
@@ -74,7 +75,7 @@ class InputWidgetsTest {
     @Test
     void selectBinding() {
         Signal<String> sel = Signal.of("A");
-        SolimSelect<String> s = new SolimSelect<>(sel, java.util.Arrays.asList("A", "B", "C"));
+        SolimSelect<String> s = new SolimSelect<>(sel, Arrays.asList("A", "B", "C"));
         assertEquals("A", s.selectBox().getText().toString());
         sel.set("B");
         assertEquals("B", s.selectBox().getText().toString());

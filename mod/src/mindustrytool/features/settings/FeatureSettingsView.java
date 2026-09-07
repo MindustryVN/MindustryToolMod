@@ -24,29 +24,36 @@ public final class FeatureSettingsView extends BaseComponent {
 
     @Override
     protected Element build() {
-        return column(() -> {
-            toolbar();
-            scroll(() -> {
-                grid(
-                        columnCount,
-                        filteredFeatures,
-                        feature -> feature.getMetadata().getId(),
-                        feature -> new FeatureCard(feature, cardWidth))
-                        .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
-                                .color(Color.gray)
-                                .padding(40f));
-            }).grow();
-        }).grow().element();
+        return column()
+            .grow()
+            .children(() -> {
+                toolbar();
+                scroll()
+                    .grow()
+                    .children(() -> {
+                        grid(
+                                columnCount,
+                                filteredFeatures,
+                                feature -> feature.getMetadata().getId(),
+                                feature -> new FeatureCard(feature, cardWidth))
+                                .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
+                                        .color(Color.gray)
+                                        .padding(40f));
+                    });
+            })
+            .element();
     }
 
     private void toolbar() {
-        row(() -> {
-            icon(Icon.zoom);
-            SolimTextField searchField = textField(filter);
-            searchField.placeholder(Core.bundle.get("feature.search.placeholder"));
-            button(Core.bundle.get("feature.button.re-enable"), Icon.refresh, FeatureManager::reenable)
-                    .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
-        }).padding(10f);
+        row()
+            .padding(10f)
+            .children(() -> {
+                icon(Icon.zoom);
+                SolimTextField searchField = textField(filter);
+                searchField.placeholder(Core.bundle.get("feature.search.placeholder"));
+                button(Core.bundle.get("feature.button.re-enable"), Icon.refresh, FeatureManager::reenable)
+                        .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"));
+            });
     }
 
     static boolean matchesFilter(Feature feature, String query) {

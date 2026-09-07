@@ -1,6 +1,7 @@
 package solim.display;
 
 import arc.Core;
+import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -64,7 +65,7 @@ class DisplayTest {
 
     @Test
     void reactiveIcon() {
-        Signal<arc.scene.style.Drawable> s = Signal.of(null);
+        Signal<Drawable> s = Signal.of(null);
         Icon icon = Icon.of(s);
         assertNotNull(icon);
         icon.dispose();

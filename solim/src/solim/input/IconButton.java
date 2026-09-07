@@ -1,9 +1,12 @@
 package solim.input;
 
+import arc.Core;
+import arc.graphics.g2d.TextureRegion;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
 import arc.scene.style.Drawable;
+import arc.scene.style.TextureRegionDrawable;
 import arc.scene.ui.ImageButton;
 import arc.scene.ui.Label;
 import arc.scene.ui.Tooltip;
@@ -27,16 +30,16 @@ public final class IconButton implements Component, Disposable {
         private float customPrefHeight = -1f;
 
         public SizedImageButton() {
-            this(null, arc.Core.scene != null ? null : new ImageButtonStyle());
+            this(null, Core.scene != null ? null : new ImageButtonStyle());
         }
 
         public SizedImageButton(Drawable icon) {
-            this(icon, arc.Core.scene != null ? null : new ImageButtonStyle());
+            this(icon, Core.scene != null ? null : new ImageButtonStyle());
         }
 
         public SizedImageButton(Drawable icon, ImageButtonStyle style) {
-            super(icon != null ? icon : new arc.scene.style.TextureRegionDrawable(new arc.graphics.g2d.TextureRegion()),
-                    (style != null || arc.Core.scene == null) ? (style != null ? style : new ImageButtonStyle()) : null);
+            super(icon != null ? icon : new TextureRegionDrawable(new TextureRegion()),
+                    (style != null || Core.scene == null) ? (style != null ? style : new ImageButtonStyle()) : null);
         }
 
         public void setCustomSize(float width, float height) {

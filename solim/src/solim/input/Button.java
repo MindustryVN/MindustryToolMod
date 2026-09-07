@@ -10,6 +10,7 @@ import solim.style.Style;
 import solim.style.StyleBinding;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Button widget with static and reactive text/style/enabled.
@@ -33,7 +34,7 @@ public final class Button implements Disposable {
         Button b = new Button();
         b.onClick = onClick;
         if (onClick != null) b.textButton.changed(b.onClick);
-        Effect e = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        Effect e = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             b.textButton.setText(text.get());
         });
         b.bindings.add(e);
@@ -44,7 +45,7 @@ public final class Button implements Disposable {
         Button b = new Button();
         b.onClick = onClick;
         if (onClick != null) b.textButton.changed(b.onClick);
-        Effect e = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        Effect e = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             b.textButton.setText(text.get());
         });
         b.bindings.add(e);
@@ -62,7 +63,7 @@ public final class Button implements Disposable {
     }
 
     public Button enabled(Signal<Boolean> signal) {
-        Effect e = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        Effect e = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             textButton.setDisabled(!signal.get());
         });
         bindings.add(e);
@@ -70,7 +71,7 @@ public final class Button implements Disposable {
     }
 
     public Button visible(Signal<Boolean> signal) {
-        Effect e = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        Effect e = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             textButton.visible = signal.get();
         });
         bindings.add(e);

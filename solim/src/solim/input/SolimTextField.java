@@ -7,6 +7,8 @@ import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * TextField widget with two-way binding to a Signal&lt;String&gt;.
  * Equality guard prevents feedback loop.
@@ -34,7 +36,7 @@ public final class SolimTextField implements Disposable {
             }
         });
         // effect: signal -> field
-        this.effect = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             if (!field.getText().equals(signal.get())) {
                 updating = true;
                 try {

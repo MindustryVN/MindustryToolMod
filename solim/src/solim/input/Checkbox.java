@@ -5,6 +5,8 @@ import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * Checkbox widget bound to Signal&lt;Boolean&gt;.
  */
@@ -22,7 +24,7 @@ public final class Checkbox implements Disposable {
             if (updating) return;
             signal.set(checkBox.isChecked());
         });
-        this.effect = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             if (checkBox.isChecked() != signal.get()) {
                 updating = true;
                 try {

@@ -4,6 +4,8 @@ import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * Static and reactive style application for widgets.
  * No CSS, full re-apply on change.
@@ -22,7 +24,7 @@ public final class StyleBinding {
      * Reactive style binding via Signal.
      */
     public static <T> Effect bind(Signal<Style> style, T target, StyleApplier<T> applier) {
-        return Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        return Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             Style current = style.get();
             applier.apply(target, current);
         });
@@ -32,7 +34,7 @@ public final class StyleBinding {
      * Reactive style binding via Computed.
      */
     public static <T> Effect bind(Computed<Style> style, T target, StyleApplier<T> applier) {
-        return Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        return Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             Style current = style.get();
             applier.apply(target, current);
         });

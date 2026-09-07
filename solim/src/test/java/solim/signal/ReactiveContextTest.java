@@ -2,6 +2,7 @@ package solim.signal;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,7 +53,7 @@ class ReactiveContextTest {
         };
         String content = null;
         for (Path p : candidates) {
-            if (Files.exists(p)) { content = new String(Files.readAllBytes(p), java.nio.charset.StandardCharsets.UTF_8); break; }
+            if (Files.exists(p)) { content = new String(Files.readAllBytes(p), StandardCharsets.UTF_8); break; }
         }
         // fallback search from root
         if (content == null) {
@@ -61,7 +62,7 @@ class ReactiveContextTest {
             Path cur = root;
             for (int i = 0; i < 5; i++) {
                 Path candidate = cur.resolve("solim/src/solim/signal/ReactiveContext.java");
-                if (Files.exists(candidate)) { content = new String(Files.readAllBytes(candidate), java.nio.charset.StandardCharsets.UTF_8); break; }
+                if (Files.exists(candidate)) { content = new String(Files.readAllBytes(candidate), StandardCharsets.UTF_8); break; }
                 cur = cur.getParent();
                 if (cur == null) break;
             }

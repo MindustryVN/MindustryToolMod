@@ -3,12 +3,25 @@ package solim.layout;
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import arc.scene.ui.layout.Cell;
+import arc.util.Nullable;
 import solim.core.Component;
+import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 /**
  * Column layout - vertical Table wrapper.
  */
 public final class Column implements Component {
+    public static final ParentStack.Attacher ATTACHER = (table, child) -> {
+        Cell<?> cell = table.add(child);
+        cell.growX();
+        if (Ui.isExpanding(child)) {
+            cell.growY();
+        }
+        cell.row();
+        return cell;
+    };
+
     private final Table table;
 
     public Column() {
@@ -60,7 +73,20 @@ public final class Column implements Component {
         return this;
     }
 
-    public Cell<?> add(arc.scene.Element e) {
+    public Column children(@Nullable Runnable r) {
+        ParentStack.push(table, ATTACHER);
+        try {
+            if (r != null) {
+                r.run();
+            }
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(table);
+        return this;
+    }
+
+    public Cell<?> add(Element e) {
         return table.add(e);
     }
 }

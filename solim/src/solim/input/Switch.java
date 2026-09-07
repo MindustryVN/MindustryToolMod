@@ -5,6 +5,8 @@ import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * Switch widget bound to Signal&lt;Boolean&gt;.
  * Uses TextButton as a visual toggle; state held in signal.
@@ -22,7 +24,7 @@ public final class Switch implements Disposable {
             if (updating) return;
             signal.set(!signal.get());
         });
-        this.effect = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             updateVisual();
         });
     }

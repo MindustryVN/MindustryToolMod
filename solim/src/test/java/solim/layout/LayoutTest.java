@@ -2,7 +2,10 @@ package solim.layout;
 
 import arc.Core;
 import arc.graphics.Color;
+import arc.mock.MockApplication;
+import arc.mock.MockGraphics;
 import arc.scene.Element;
+import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
 import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.BeforeAll;
@@ -10,6 +13,7 @@ import org.junit.jupiter.api.Test;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
+import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
 
 class LayoutTest {
@@ -17,10 +21,10 @@ class LayoutTest {
     @BeforeAll
     static void checkArcContext() {
         if (Core.app == null) {
-            Core.app = new arc.mock.MockApplication();
+            Core.app = new MockApplication();
         }
         if (Core.graphics == null) {
-            Core.graphics = new arc.mock.MockGraphics();
+            Core.graphics = new MockGraphics();
         }
     }
 
@@ -113,9 +117,9 @@ class LayoutTest {
     @Test
     void justifyAndAlignEnums() {
         assertEquals(6, Justify.values().length);
-        assertTrue(java.util.Arrays.asList(Justify.values()).contains(Justify.BETWEEN));
+        assertTrue(Arrays.asList(Justify.values()).contains(Justify.BETWEEN));
         assertEquals(4, Align.values().length);
-        assertTrue(java.util.Arrays.asList(Align.values()).contains(Align.STRETCH));
+        assertTrue(Arrays.asList(Align.values()).contains(Align.STRETCH));
     }
 
     @Test
@@ -144,22 +148,26 @@ class LayoutTest {
 
     @Test
     void declarativeColumnAndRowCellLayout() {
-        Column col = Ui.column(() -> {
-            Ui.row(() -> {
-                Element e1 = new Element() {
-                    @Override public float getPrefWidth() { return 100f; }
-                    @Override public float getPrefHeight() { return 40f; }
-                };
-                ParentStack.add(e1);
+        Column col = Ui.column()
+            .children(() -> {
+                Ui.row()
+                    .children(() -> {
+                        Element e1 = new Element() {
+                            @Override public float getPrefWidth() { return 100f; }
+                            @Override public float getPrefHeight() { return 40f; }
+                        };
+                        ParentStack.add(e1);
+                    });
+                Ui.scroll()
+                    .grow()
+                    .children(() -> {
+                        Element e2 = new Element() {
+                            @Override public float getPrefWidth() { return 200f; }
+                            @Override public float getPrefHeight() { return 200f; }
+                        };
+                        ParentStack.add(e2);
+                    });
             });
-            Ui.scroll(() -> {
-                Element e2 = new Element() {
-                    @Override public float getPrefWidth() { return 200f; }
-                    @Override public float getPrefHeight() { return 200f; }
-                };
-                ParentStack.add(e2);
-            }).grow();
-        });
 
         Table t = col.table();
         assertEquals(2, t.getCells().size, "Column must have 2 cells for its 2 children");
@@ -180,14 +188,15 @@ class LayoutTest {
         Signal<Float> widthSignal = Signal.of(250f);
         Signal<Color> colorSignal = Signal.of(Color.scarlet);
 
-        Card c = Ui.card(() -> {
-            ParentStack.add(new Element());
-            ParentStack.add(new Element());
-        })
+        Card c = Ui.card()
                 .prefHeight(180f)
                 .width(widthSignal)
                 .color(colorSignal)
-                .padding(12f);
+                .padding(12f)
+                .children(() -> {
+                    ParentStack.add(new Element());
+                    ParentStack.add(new Element());
+                });
 
         assertEquals(2, c.container().getChildren().size, "Card container must have 2 children");
         assertEquals(180f, c.cardButton().getPrefHeight(), 0.01f);
@@ -206,22 +215,22 @@ class LayoutTest {
     @Test
     void cardClickAndChildEventIsolation() {
         boolean[] cardClicked = {false};
-        Card c = Ui.card(() -> {})
+        Card c = Ui.card()
                 .onClick(() -> cardClicked[0] = true);
 
         InputEvent stoppedEvent = new InputEvent();
         stoppedEvent.stop();
         c.cardButton().getListeners().forEach(listener -> {
-            if (listener instanceof arc.scene.event.ClickListener) {
-                ((arc.scene.event.ClickListener) listener).clicked(stoppedEvent, 0f, 0f);
+            if (listener instanceof ClickListener) {
+                ((ClickListener) listener).clicked(stoppedEvent, 0f, 0f);
             }
         });
         assertFalse(cardClicked[0], "Card onClick should not execute when event is stopped");
 
         InputEvent normalEvent = new InputEvent();
         c.cardButton().getListeners().forEach(listener -> {
-            if (listener instanceof arc.scene.event.ClickListener) {
-                ((arc.scene.event.ClickListener) listener).clicked(normalEvent, 0f, 0f);
+            if (listener instanceof ClickListener) {
+                ((ClickListener) listener).clicked(normalEvent, 0f, 0f);
             }
         });
         assertTrue(cardClicked[0], "Card onClick should execute for normal events");

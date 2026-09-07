@@ -1,17 +1,23 @@
 package solim.layout;
 
+import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import arc.util.Log;
+import arc.util.Nullable;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Readable;
+import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -22,12 +28,22 @@ import java.util.List;
  */
 public final class Card implements Component, Disposable {
 
+    public static final ParentStack.Attacher ATTACHER = (table, child) -> {
+        Cell<?> cell = table.add(child);
+        cell.growX();
+        if (Ui.isExpanding(child)) {
+            cell.growY();
+        }
+        cell.row();
+        return cell;
+    };
+
     public static class CardButton extends Button {
         private float customPrefWidth = -1f;
         private float customPrefHeight = -1f;
 
         public CardButton() {
-            this(arc.Core.scene != null ? null : new ButtonStyle());
+            this(Core.scene != null ? null : new ButtonStyle());
         }
 
         public CardButton(Drawable up) {
@@ -38,7 +54,7 @@ public final class Card implements Component, Disposable {
         }
 
         public CardButton(ButtonStyle style) {
-            super((style != null || arc.Core.scene == null) ? (style != null ? style : new ButtonStyle()) : null);
+            super((style != null || Core.scene == null) ? (style != null ? style : new ButtonStyle()) : null);
         }
 
         public void setCustomPrefWidth(float width) {
@@ -183,6 +199,19 @@ public final class Card implements Component, Disposable {
         return this;
     }
 
+    public Card children(@Nullable Runnable r) {
+        ParentStack.push(container, ATTACHER);
+        try {
+            if (r != null) {
+                r.run();
+            }
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(cardButton);
+        return this;
+    }
+
     public Card padding(float padding) {
         container.margin(padding);
         return this;
@@ -213,7 +242,7 @@ public final class Card implements Component, Disposable {
                         try {
                             Card.this.onClick.run();
                         } catch (Exception e) {
-                            arc.util.Log.err("Error executing card onClick", e);
+                            Log.err("Error executing card onClick", e);
                         }
                     }
                 }

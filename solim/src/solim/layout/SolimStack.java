@@ -1,5 +1,6 @@
 package solim.layout;
 
+import arc.scene.Element;
 import arc.scene.ui.layout.Stack;
 
 /**
@@ -12,7 +13,7 @@ public final class SolimStack {
         return stack;
     }
 
-    public SolimStack add(arc.scene.Element child) {
+    public SolimStack add(Element child) {
         stack.add(child);
         return this;
     }

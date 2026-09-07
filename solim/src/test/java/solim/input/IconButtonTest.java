@@ -1,7 +1,9 @@
 package solim.input;
 
 import arc.Core;
+import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.signal.Signal;
@@ -12,7 +14,7 @@ class IconButtonTest {
 
     @BeforeAll
     static void checkArcContext() {
-        org.junit.jupiter.api.Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
+        Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
     }
 
     @Test
@@ -27,8 +29,8 @@ class IconButtonTest {
 
         InputEvent event = new InputEvent();
         btn.imageButton().getListeners().forEach(listener -> {
-            if (listener instanceof arc.scene.event.ClickListener) {
-                ((arc.scene.event.ClickListener) listener).clicked(event, 0f, 0f);
+            if (listener instanceof ClickListener) {
+                ((ClickListener) listener).clicked(event, 0f, 0f);
             }
         });
 

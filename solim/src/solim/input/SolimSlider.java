@@ -5,6 +5,8 @@ import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
+import java.util.function.Consumer;
+
 /**
  * Slider widget bound to Signal&lt;Float&gt;.
  */
@@ -25,7 +27,7 @@ public final class SolimSlider implements Disposable {
                 signal.set(slider.getValue());
             }
         });
-        this.effect = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             if (Math.abs(slider.getValue() - signal.get()) > 0.0001f) {
                 updating = true;
                 try {

@@ -5,6 +5,7 @@ import solim.core.Disposable;
 import solim.signal.Effect;
 import solim.signal.Signal;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Select widget bound to Signal&lt;T&gt;.
@@ -31,7 +32,7 @@ public final class SolimSelect<T> implements Disposable {
             selectedIndex = (selectedIndex + 1) % options.size();
             signal.set(options.get(selectedIndex));
         });
-        this.effect = Effect.of((java.util.function.Consumer<Effect.Cleanup>) cleanup -> {
+        this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
             T cur = signal.get();
             int idx = options.indexOf(cur);
             if (idx >= 0) selectedIndex = idx;
