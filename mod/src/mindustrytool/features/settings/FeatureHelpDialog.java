@@ -1,14 +1,14 @@
 package mindustrytool.features.settings;
 
 import arc.Core;
-import arc.graphics.Color;
-import mindustry.ui.dialogs.BaseDialog;
 import mindustrytool.features.Feature;
+import solim.overlay.SolimDialog;
 
 /**
  * Dedicated dialog displaying help and usage documentation for a specific {@link Feature}.
+ * Built using SolimDialog with automatic lifecycle management and declarative Solim components.
  */
-public class FeatureHelpDialog extends BaseDialog {
+public class FeatureHelpDialog extends SolimDialog {
 
     public FeatureHelpDialog(Feature feature) {
         super(Core.bundle.format("feature.help.title", feature.getName()));
@@ -16,19 +16,6 @@ public class FeatureHelpDialog extends BaseDialog {
         addCloseButton();
         closeOnBack();
 
-        String help = feature.getHelp();
-        boolean hasHelp = help != null && !help.trim().isEmpty();
-        String text = hasHelp ? help : Core.bundle.get("feature.help.no-description");
-
-        cont.pane(pane -> {
-            pane.margin(16f);
-            var label = pane.add(text)
-                    .wrap()
-                    .width(480f)
-                    .left();
-            if (!hasHelp) {
-                label.color(Color.lightGray);
-            }
-        }).scrollX(false).scrollY(true).grow();
+        content(new FeatureHelpView(feature));
     }
 }
