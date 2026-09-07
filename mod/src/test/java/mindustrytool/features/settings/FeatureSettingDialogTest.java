@@ -11,7 +11,6 @@ import solim.signal.Signal;
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
-import java.util.Optional;
 import java.util.regex.Pattern;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -23,8 +22,14 @@ class FeatureSettingDialogTest {
     @BeforeEach
     void setUp() {
         testFeature = new Feature() {
-            private final FeatureMetadata metadata = new FeatureMetadata("test-feature", null, 0, true, false,
-                    Optional.empty());
+            private final FeatureMetadata metadata = FeatureMetadata.builder()
+                    .id("test-feature")
+                    .icon(null)
+                    .order(0)
+                    .enabledByDefault(true)
+                    .quickAccess(false)
+                    .keybind(null)
+                    .build();
 
             @Override
             public FeatureMetadata getMetadata() {
@@ -89,8 +94,14 @@ class FeatureSettingDialogTest {
         assertTrue(FeatureManager.features().get().contains(testFeature));
 
         Feature dynamicFeature = new Feature() {
-            private final FeatureMetadata metadata = new FeatureMetadata("dynamic-feature", null, 1, true, false,
-                    Optional.empty());
+            private final FeatureMetadata metadata = FeatureMetadata.builder()
+                    .id("dynamic-feature")
+                    .icon(null)
+                    .order(1)
+                    .enabledByDefault(true)
+                    .quickAccess(false)
+                    .keybind(null)
+                    .build();
 
             @Override
             public FeatureMetadata getMetadata() {
@@ -174,7 +185,8 @@ class FeatureSettingDialogTest {
                     assertFalse(content.contains("public static void build("),
                             "FeatureCard must not have static build()");
                     assertFalse(content.contains("getPrefWidth()"), "FeatureCard must not override getPrefWidth()");
-                    assertFalse(content.contains("Binding.bind"), "FeatureCard must not use separate Binding utility class");
+                    assertFalse(content.contains("Binding.bind"),
+                            "FeatureCard must not use separate Binding utility class");
                     assertTrue(content.contains("card("), "FeatureCard must use solim card facade");
                 }
             }

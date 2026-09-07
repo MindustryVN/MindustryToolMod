@@ -9,24 +9,22 @@ public interface Feature {
     FeatureMetadata getMetadata();
 
     default void enable() {
-        if (isEnabled())
+        if (isEnabled()) {
             return;
-
-        if (Core.settings != null) {
-            Core.settings.put(getSettingKey(), true);
         }
+
+        Core.settings.put(getSettingKey(), true);
         getMetadata().enabled().set(true);
         onEnable();
         Events.fire(new FeatureStateChanged(this, true));
     }
 
     default void disable() {
-        if (!isEnabled())
+        if (!isEnabled()) {
             return;
-
-        if (Core.settings != null) {
-            Core.settings.put(getSettingKey(), false);
         }
+
+        Core.settings.put(getSettingKey(), false);
         getMetadata().enabled().set(false);
         onDisable();
         Events.fire(new FeatureStateChanged(this, false));

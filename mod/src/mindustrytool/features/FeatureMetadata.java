@@ -19,17 +19,15 @@ public class FeatureMetadata {
     private final Optional<KeyBind> keybind;
     private final Signal<Boolean> enabled;
 
-    public FeatureMetadata(String id, Drawable icon, int order, boolean enabledByDefault, boolean quickAccess, Optional<KeyBind> keybind) {
+    private FeatureMetadata(String id, Drawable icon, int order, boolean enabledByDefault, boolean quickAccess,
+            KeyBind keybind) {
         this.id = id;
         this.icon = icon;
         this.order = order;
         this.enabledByDefault = enabledByDefault;
         this.quickAccess = quickAccess;
-        this.keybind = keybind != null ? keybind : Optional.empty();
-        boolean initial = (Core.settings != null)
-                ? Core.settings.getBool("mindustrytool.feature." + id + ".enabled", enabledByDefault)
-                : enabledByDefault;
-        this.enabled = Signal.of(initial);
+        this.keybind = Optional.ofNullable(keybind);
+        this.enabled = Signal.of(Core.settings.getBool("mindustrytool.feature." + id + ".enabled", enabledByDefault));
     }
 
     public Signal<Boolean> enabled() {
@@ -73,13 +71,18 @@ public class FeatureMetadata {
             return this;
         }
 
+        public Builder keybind(KeyBind keybind) {
+            this.keybind = keybind;
+            return this;
+        }
+
         public FeatureMetadata build() {
             if (id == null)
                 throw new IllegalStateException("ID is required");
             if (icon == null)
                 throw new IllegalStateException("Icon is required");
 
-            return new FeatureMetadata(id, icon, order, enabledByDefault, quickAccess, Optional.ofNullable(keybind));
+            return new FeatureMetadata(id, icon, order, enabledByDefault, quickAccess, keybind);
         }
     }
 }
