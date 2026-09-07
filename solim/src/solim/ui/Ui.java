@@ -212,4 +212,21 @@ public final class Ui {
             java.util.function.Supplier<T> supplier) {
         return solim.core.EventsUtil.createSignal(callbackRegistrar, supplier);
     }
+
+    public static Computed<Float> dvw(float percentage) {
+        return Units.dvw(percentage);
+    }
+
+    public static Computed<Float> dvh(float percentage) {
+        return Units.dvh(percentage);
+    }
+
+    public static Computed<Float> dvw(Readable<Float> percentage) {
+        return Units.dvw(percentage);
+    }
+
+    public static Computed<Float> dvh(Readable<Float> percentage) {
+        return Units.dvh(percentage);
+    }
 }
+

@@ -3,7 +3,6 @@ package mindustrytool.features.settings;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import arc.scene.ui.layout.Scl;
 import arc.struct.Seq;
 import mindustry.gen.Icon;
 import mindustrytool.features.Feature;
@@ -17,15 +16,12 @@ import static solim.ui.Ui.*;
 
 public final class FeatureSettingsView extends BaseComponent {
     private final Signal<String> filter = Signal.of("");
-    private final Signal<Float> contentWidth = Signal.of(calcContentWidth());
+    private final Computed<Float> contentWidth = dvw(90f).map(w -> w - 40f);
     private final Computed<Integer> columnCount = new Computed<>(() -> Math.max(1, (int) (contentWidth.get() / 340f)));
     private final Computed<Float> cardWidth = new Computed<>(() -> contentWidth.get() / columnCount.get());
     private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(
             () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
 
-    public float calcContentWidth() {
-        return Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
-    }
 
     @Override
     protected Element build() {
