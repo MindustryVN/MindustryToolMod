@@ -2,6 +2,7 @@ package mindustrytool.features.settings;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 import arc.Core;
 import arc.scene.Element;
@@ -30,21 +31,21 @@ public final class FeatureSettingDialog extends SolimDialog {
                     Core.graphics.getHeight(),
                     new ArrayList<>());
 
-            discoverSolimElements(root, Core.scene.root);
+            discoverSolimElements(root, Core.scene.root, element -> isSolimElement(element) && element instanceof FeatureSettingDialog);
 
             Core.app.setClipboardText(JsonUtils.toJsonPretty(root));
         });
     }
 
-    private void discoverSolimElements(UiNode parent, Element element) {
-        if (isSolimElement(element)) {
+    private void discoverSolimElements(UiNode parent, Element element, Predicate<Element> pred) {
+        if (pred.test(element)) {
             parent.children.add(buildUiTree(element));
             return;
         }
 
         if (element instanceof Group group) {
             for (Element child : group.getChildren()) {
-                discoverSolimElements(parent, child);
+                discoverSolimElements(parent, child, pred);
             }
         }
     }
