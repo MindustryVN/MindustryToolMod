@@ -2,32 +2,8 @@
 // Shared configuration for :mod and :solim is defined via subprojects
 // Main mod artifact is built via :mod, UI library via :solim
 
-plugins {
-	id 'com.diffplug.spotless' version '6.25.0'
-}
-
-spotless {
-	groovyGradle {
-		target '**/*.gradle'
-		trimTrailingWhitespace()
-		endWithNewline()
-		indentWithTabs()
-	}
-}
-
 subprojects{
 	apply plugin: "java"
-	apply plugin: "com.diffplug.spotless"
-
-	spotless {
-		java {
-			target 'src/**/*.java'
-			removeUnusedImports()
-			indentWithTabs()
-			trimTrailingWhitespace()
-			endWithNewline()
-		}
-	}
 
 	version '1.0'
 
