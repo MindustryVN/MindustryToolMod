@@ -175,6 +175,7 @@ class FeatureSettingDialogTest {
         String dialogContent = new String(Files.readAllBytes(dialogFile.toPath()), StandardCharsets.UTF_8);
         assertFalse(ownPattern.matcher(dialogContent).find(), "FeatureSettingDialog must not call own()");
         assertFalse(ownChildPattern.matcher(dialogContent).find(), "FeatureSettingDialog must not call ownChild()");
+        assertFalse(dialogContent.contains("void onDispose()"), "FeatureSettingDialog must not override onDispose()");
 
         // Verify other files
         String[] paths = {

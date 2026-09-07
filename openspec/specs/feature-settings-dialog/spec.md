@@ -37,7 +37,7 @@ The dialog SHALL present each feature as an interactive `FeatureCard` component 
 - **THEN** it is instantiated via constructor without passing a parent `Table`, and its lifecycle and dimensions are managed reactively by its parent container
 
 ### Requirement: Responsive Grid and Lifecycle Disposal
-The feature settings dialog SHALL adapt its grid layout dynamically to screen size and preserve its view instance across show and hide events, disposing of reactive resources only upon permanent dialog disposal.
+The feature settings dialog SHALL adapt its grid layout dynamically to screen size and preserve its view instance across show and hide events, delegating lifecycle disposal of view components, reactive property bindings, and event listeners to the underlying `SolimDialog` without implementing manual disposal in `FeatureSettingDialog`.
 
 #### Scenario: Viewport size changed
 - **WHEN** the window is resized while the dialog is visible
@@ -49,5 +49,5 @@ The feature settings dialog SHALL adapt its grid layout dynamically to screen si
 
 #### Scenario: Permanent dialog disposal
 - **WHEN** the dialog is permanently disposed
-- **THEN** all associated view components, reactive property bindings, and event listeners are cleanly disposed
+- **THEN** all associated view components, reactive property bindings, and event listeners are cleanly disposed by `SolimDialog` without `FeatureSettingDialog` overriding `onDispose()`
 

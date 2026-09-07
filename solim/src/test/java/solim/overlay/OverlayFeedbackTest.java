@@ -34,6 +34,30 @@ class OverlayFeedbackTest {
         d.dispose();
     }
 
+    @Test
+    void dialogContentComponentAutomaticallyDisposed() {
+        java.util.concurrent.atomic.AtomicBoolean disposed = new java.util.concurrent.atomic.AtomicBoolean(false);
+        solim.core.Component testComp = new solim.core.Component() {
+            @Override
+            public arc.scene.Element element() {
+                return new Table();
+            }
+
+            @Override
+            public void dispose() {
+                disposed.set(true);
+            }
+        };
+
+        SolimDialog d = new SolimDialog("Lifecycle Test");
+        d.content(testComp);
+        assertFalse(disposed.get());
+
+        d.dispose();
+        assertTrue(d.isDisposed());
+        assertTrue(disposed.get(), "Attached content component must be disposed when dialog is disposed");
+    }
+
     public static class TestDialogEvent {
         public final int code;
         public TestDialogEvent(int code) { this.code = code; }

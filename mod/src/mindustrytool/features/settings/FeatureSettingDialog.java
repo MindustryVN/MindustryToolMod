@@ -43,9 +43,4 @@ public final class FeatureSettingDialog extends SolimDialog {
     public FeatureSettingsView view() {
         return view;
     }
-
-    @Override
-    protected void onDispose() {
-        view.dispose();
-    }
 }

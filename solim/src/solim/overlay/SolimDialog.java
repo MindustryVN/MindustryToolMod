@@ -10,7 +10,6 @@ import arc.scene.ui.Dialog;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Scl;
 import arc.scene.ui.layout.Table;
-import arc.util.Log;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.signal.Signal;
@@ -37,8 +36,6 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
         var width = Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
         setWidth(width);
         cont.setWidth(width);
-
-        Log.info("SolimDialog width: @", width);
     }
 
     public static SolimDialog of(String title, Runnable content) {
@@ -50,6 +47,7 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
     public SolimDialog content(Component component) {
         if (component != null) {
             cont.add(component.element()).grow().expand();
+            registerDisposable(component::dispose);
         }
         return this;
     }
