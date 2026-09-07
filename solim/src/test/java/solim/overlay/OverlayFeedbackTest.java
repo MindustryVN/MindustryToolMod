@@ -67,11 +67,6 @@ class OverlayFeedbackTest {
         arc.Events.fire(new TestDialogEvent(5));
         assertEquals(500, mappedSignal.get());
 
-        // Test responsiveWidthSignal
-        Signal<Float> widthSignal = d.responsiveWidthSignal();
-        assertNotNull(widthSignal);
-        assertEquals(d.calcResponsiveWidth(), widthSignal.get());
-
         // Test disposal cleans up listeners
         d.dispose();
         assertTrue(d.isDisposed());

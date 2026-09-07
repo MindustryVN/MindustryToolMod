@@ -19,11 +19,8 @@ public final class FeatureSettingsView extends BaseComponent {
     private final Signal<Float> contentWidth = Signal.of(calcContentWidth());
     private final Computed<Integer> columnCount = new Computed<>(() -> Math.max(1, (int) (contentWidth.get() / 340f)));
     private final Computed<Float> cardWidth = new Computed<>(() -> contentWidth.get() / columnCount.get());
-    private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(() -> {
-        String q = filter.get().trim().toLowerCase();
-        return q.isEmpty() ? FeatureManager.getFeatures()
-                : FeatureManager.getFeatures().select(f -> matchesFilter(f, q));
-    });
+    private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(
+            () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
 
     public float calcContentWidth() {
         return Core.graphics == null ? 800f : Core.graphics.getWidth() / Scl.scl() * 0.9f - 40f;
@@ -67,8 +64,10 @@ public final class FeatureSettingsView extends BaseComponent {
     }
 
     static boolean matchesFilter(Feature feature, String query) {
-        if (query == null || query.trim().isEmpty())
+        if (query == null || query.trim().isEmpty()) {
             return true;
+        }
+
         String q = query.trim().toLowerCase();
         return (feature.getName() != null && feature.getName().toLowerCase().contains(q))
                 || (feature.getDescription() != null && feature.getDescription().toLowerCase().contains(q))
