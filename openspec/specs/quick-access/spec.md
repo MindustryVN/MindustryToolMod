@@ -41,6 +41,10 @@ The system SHALL provide a settings dialog to customize HUD opacity, scale, grid
 - **WHEN** the user modifies opacity, scale, columns, or feature visibility in the Quick Access settings dialog
 - **THEN** the HUD updates its styling and layout reactively and saves settings immediately.
 
+#### Scenario: Declarative Settings Dialog Structure
+- **WHEN** `QuickAccessSettingsDialog` is constructed
+- **THEN** it configures slider and checkbox inputs without manual `.subscribe()` calls or temporary single-use local variables, utilizing declarative chained row layouts (`row().gap(...).children(...)`).
+
 ### Requirement: Internationalization (i18n) Support
 The system SHALL load all user-visible display text for Quick Access from translation bundle properties.
 

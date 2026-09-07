@@ -9,7 +9,6 @@ import solim.signal.Signal;
 public class ConfigValue<T> {
     private final String key;
     private final @Nullable T defaultValue;
-    private final Supplier<T> getter;
     private final Consumer<T> setter;
     private final Signal<T> signal;
     private boolean updating = false;
@@ -21,14 +20,14 @@ public class ConfigValue<T> {
             Consumer<T> setter) {
         this.key = key;
         this.defaultValue = defaultValue;
-        this.getter = getter;
         this.setter = setter;
 
         T initial = getter.get();
         this.signal = Signal.of(initial != null ? initial : defaultValue);
 
         this.signal.subscribe(value -> {
-            if (updating) return;
+            if (updating)
+                return;
             updating = true;
             try {
                 this.setter.accept(value);
@@ -51,7 +50,8 @@ public class ConfigValue<T> {
     }
 
     public void set(@Nullable T value) {
-        if (updating) return;
+        if (updating)
+            return;
         updating = true;
         try {
             setter.accept(value);
