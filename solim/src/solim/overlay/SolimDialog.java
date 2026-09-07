@@ -31,7 +31,18 @@ public class SolimDialog extends Dialog implements Disposable, arc.util.Disposab
 
     public SolimDialog(String title) {
         super(title != null ? title : "");
+        setFillParent(true);
     }
+
+    public SolimDialog fillParent(boolean fillParent) {
+        setFillParent(fillParent);
+        return this;
+    }
+
+    public boolean isFillParent() {
+        return fillParent;
+    }
+
 
     public static SolimDialog of(String title, Runnable content) {
         SolimDialog d = new SolimDialog(title);

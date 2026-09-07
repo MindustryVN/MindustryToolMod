@@ -58,6 +58,15 @@ class OverlayFeedbackTest {
         assertTrue(disposed.get(), "Attached content component must be disposed when dialog is disposed");
     }
 
+    @Test
+    void dialogDefaultsToFullScreen() {
+        SolimDialog d = new SolimDialog("Full Screen Test");
+        assertTrue(d.isFillParent(), "SolimDialog must default to full screen (fillParent == true)");
+        d.fillParent(false);
+        assertFalse(d.isFillParent(), "fillParent(false) must allow disabling full screen");
+        d.dispose();
+    }
+
     public static class TestDialogEvent {
         public final int code;
         public TestDialogEvent(int code) { this.code = code; }
