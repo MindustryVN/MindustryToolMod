@@ -1,10 +1,13 @@
 package solim.layout;
 
 import arc.Core;
+import arc.graphics.Color;
 import arc.scene.Element;
+import arc.scene.event.InputEvent;
 import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import solim.signal.Signal;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
 import static org.junit.jupiter.api.Assertions.*;
@@ -170,6 +173,60 @@ class LayoutTest {
         assertTrue(toolbar.getHeight() > 0f, "Toolbar must have non-zero height");
         assertTrue(scroll.getWidth() > 0f, "Scroll must have non-zero width");
         assertTrue(scroll.getHeight() > 0f, "Scroll must have non-zero height");
+    }
+
+    @Test
+    void cardDeclarativeAndChainedBindings() {
+        Signal<Float> widthSignal = Signal.of(250f);
+        Signal<Color> colorSignal = Signal.of(Color.scarlet);
+
+        Card c = Ui.card(() -> {
+            ParentStack.add(new Element());
+            ParentStack.add(new Element());
+        })
+                .prefHeight(180f)
+                .width(widthSignal)
+                .color(colorSignal)
+                .padding(12f);
+
+        assertEquals(2, c.container().getChildren().size, "Card container must have 2 children");
+        assertEquals(180f, c.cardButton().getPrefHeight(), 0.01f);
+        assertEquals(250f, c.cardButton().getWidth(), 0.01f);
+        assertEquals(Color.scarlet, c.cardButton().color);
+
+        widthSignal.set(300f);
+        assertEquals(300f, c.cardButton().getWidth(), 0.01f);
+
+        colorSignal.set(Color.green);
+        assertEquals(Color.green, c.cardButton().color);
+
+        c.dispose();
+    }
+
+    @Test
+    void cardClickAndChildEventIsolation() {
+        boolean[] cardClicked = {false};
+        Card c = Ui.card(() -> {})
+                .onClick(() -> cardClicked[0] = true);
+
+        InputEvent stoppedEvent = new InputEvent();
+        stoppedEvent.stop();
+        c.cardButton().getListeners().forEach(listener -> {
+            if (listener instanceof arc.scene.event.ClickListener) {
+                ((arc.scene.event.ClickListener) listener).clicked(stoppedEvent, 0f, 0f);
+            }
+        });
+        assertFalse(cardClicked[0], "Card onClick should not execute when event is stopped");
+
+        InputEvent normalEvent = new InputEvent();
+        c.cardButton().getListeners().forEach(listener -> {
+            if (listener instanceof arc.scene.event.ClickListener) {
+                ((arc.scene.event.ClickListener) listener).clicked(normalEvent, 0f, 0f);
+            }
+        });
+        assertTrue(cardClicked[0], "Card onClick should execute for normal events");
+
+        c.dispose();
     }
 }
 

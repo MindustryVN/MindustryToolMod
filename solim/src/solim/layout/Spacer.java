@@ -10,6 +10,7 @@ public final class Spacer {
     private final Table table = new Table();
 
     public Spacer() {
+        table.name = "spacer";
         table.add().growX().growY();
     }
 

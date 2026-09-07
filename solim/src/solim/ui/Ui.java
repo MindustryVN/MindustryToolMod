@@ -7,9 +7,12 @@ import arc.scene.ui.ScrollPane;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import solim.display.SolimImage;
 import solim.display.Text;
 import solim.input.Button;
+import solim.input.IconButton;
 import solim.input.SolimTextField;
+import solim.layout.Card;
 import solim.layout.Column;
 import solim.layout.Divider;
 import solim.layout.Row;
@@ -47,6 +50,50 @@ public final class Ui {
         }
         ParentStack.attachToParent(col.table());
         return col;
+    }
+
+    public static Card card(Runnable r) {
+        return card((arc.scene.ui.Button.ButtonStyle) null, r);
+    }
+
+    public static Card card(Drawable background, Runnable r) {
+        Card c = new Card(background);
+        ParentStack.push(c.container(), (table, child) -> {
+            Cell<?> cell = table.add(child);
+            cell.growX();
+            if (isExpanding(child)) {
+                cell.growY();
+            }
+            cell.row();
+            return cell;
+        });
+        try {
+            r.run();
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(c.cardButton());
+        return c;
+    }
+
+    public static Card card(arc.scene.ui.Button.ButtonStyle style, Runnable r) {
+        Card c = new Card(style);
+        ParentStack.push(c.container(), (table, child) -> {
+            Cell<?> cell = table.add(child);
+            cell.growX();
+            if (isExpanding(child)) {
+                cell.growY();
+            }
+            cell.row();
+            return cell;
+        });
+        try {
+            r.run();
+        } finally {
+            ParentStack.pop();
+        }
+        ParentStack.attachToParent(c.cardButton());
+        return c;
     }
 
     public static Row row(Runnable r) {
@@ -112,6 +159,7 @@ public final class Ui {
 
     public static boolean isExpanding(Element child) {
         if (child == null) return false;
+        if ("spacer".equals(child.name)) return true;
         if (child.fillParent) return true;
         if (child instanceof ScrollPane) return true;
         if (child instanceof Table) {
@@ -140,13 +188,13 @@ public final class Ui {
         return s.element();
     }
 
-    public static Image image(Drawable drawable) {
-        Image img = new Image(drawable);
+    public static SolimImage.SizedImage image(Drawable drawable) {
+        SolimImage.SizedImage img = new SolimImage.SizedImage(drawable);
         ParentStack.attachToParent(img);
         return img;
     }
 
-    public static Image icon(Drawable drawable) {
+    public static SolimImage.SizedImage icon(Drawable drawable) {
         return image(drawable);
     }
 
@@ -174,6 +222,18 @@ public final class Ui {
     public static Button button(Computed<String> text, Runnable onClick) {
         Button b = Button.of(text, onClick);
         ParentStack.attachToParent(b.textButton());
+        return b;
+    }
+
+    public static IconButton iconButton(Drawable icon, Runnable onClick) {
+        IconButton b = IconButton.of(icon, onClick);
+        ParentStack.attachToParent(b.imageButton());
+        return b;
+    }
+
+    public static IconButton iconButton(Drawable icon, arc.scene.ui.ImageButton.ImageButtonStyle style, Runnable onClick) {
+        IconButton b = IconButton.of(icon, style, onClick);
+        ParentStack.attachToParent(b.imageButton());
         return b;
     }
 

@@ -1057,6 +1057,8 @@ Application developers should not manually track these resources.
 
 ## Do Not Add Unnecessary Null Checks
 
+**Any static value from `Core.*` and `Vars.*` is always non-null at runtime — you do not have to check for null.**
+
 Mindustry and Arc runtime APIs that are guaranteed to exist during normal mod execution should be used directly.
 
 Do not write:
@@ -1067,10 +1069,20 @@ if (Core.app != null) {
 }
 ```
 
+```java
+if (Core.bundle != null) {
+    return Core.bundle.get("key");
+}
+```
+
 Use:
 
 ```java
 Core.app.post(...);
+```
+
+```java
+return Core.bundle.get("key");
 ```
 
 Do not wrap normal runtime APIs with defensive null checks.
@@ -1082,11 +1094,17 @@ Core.app
 Core.graphics
 Core.scene
 Core.bundle
+Core.atlas
+Core.settings
+Core.camera
 Vars.ui
 Vars.player
+Vars.state
+Vars.world
+Vars.control
 ```
 
-when they are guaranteed by the current execution context.
+Any static value from `Core.*` and `Vars.*` is always non-null during mod runtime execution.
 
 ---
 
@@ -1293,4 +1311,13 @@ How to mount children manually
 ```
 
 Solim is responsible for those mechanics.
+
+---
+
+# Testing Rules
+
+## UI Testing — Solim vs Mod
+
+* **Always: you do NOT have to write UI tests for the mod (`mod/` module).** The mod runs inside Mindustry's engine where scene, atlas, graphics, skins, fonts, and game state are initialized at runtime. Headless unit tests for mod UI components are prone to mock/skin failures and are explicitly NOT required.
+* **Only Solim needs UI tests.** The Solim UI framework (`solim/` module) is where UI primitives, reactive bindings, components, layouts, and signal pipelines must be tested.
 

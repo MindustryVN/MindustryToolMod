@@ -174,6 +174,8 @@ class FeatureSettingDialogTest {
                     assertFalse(content.contains("public static void build("),
                             "FeatureCard must not have static build()");
                     assertFalse(content.contains("getPrefWidth()"), "FeatureCard must not override getPrefWidth()");
+                    assertFalse(content.contains("Binding.bind"), "FeatureCard must not use separate Binding utility class");
+                    assertTrue(content.contains("card("), "FeatureCard must use solim card facade");
                 }
             }
         }
