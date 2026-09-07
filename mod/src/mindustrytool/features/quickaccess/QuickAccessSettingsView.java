@@ -23,17 +23,14 @@ public class QuickAccessSettingsView extends BaseComponent {
     protected Element build() {
         return column()
                 .grow()
+                .center()
                 .children(() -> {
                     scroll()
-                            .grow()
                             .children(() -> {
                                 column()
-                                        .growX()
                                         .gap(unit(2))
                                         .children(() -> {
                                             row()
-                                                    .center()
-                                                    .growX()
                                                     .gap(unit(2))
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.opacity"))
@@ -44,8 +41,6 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     });
 
                                             row()
-                                                    .center()
-                                                    .growX()
                                                     .gap(unit(2))
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.scale"))
@@ -56,8 +51,6 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     });
 
                                             row()
-                                                    .center()
-                                                    .growX()
                                                     .gap(unit(2))
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.columns"))
@@ -69,7 +62,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                                             divider();
 
                                             text(Core.bundle.get("feature.quick-access.settings.visible-features"))
-                                                    .center()
+                                                    .left()
                                                     .color(Color.white);
 
                                             for (Feature f : FeatureManager.getFeatures()
