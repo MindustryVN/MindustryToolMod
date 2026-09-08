@@ -18,6 +18,10 @@ public final class Switch implements Component, Disposable {
 	private Effect effect;
 	private boolean updating = false;
 
+	{
+		button.name = "solim-switch-switchBox";
+	}
+
 	public Switch(Signal<Boolean> signal) {
 		this.signal = signal;
 		updateVisual();

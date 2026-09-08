@@ -28,6 +28,7 @@ public final class SolimTextField implements Component, Disposable {
 
 	public SolimTextField(Signal<String> signal, TextField.TextFieldStyle style) {
 		this.field = style != null ? new TextField("", style) : new TextField("");
+		this.field.name = "solim-textfield-textField";
 		this.signal = signal;
 		field.setText(signal.get());
 		// listener: type -> signal

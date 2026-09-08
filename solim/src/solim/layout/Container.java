@@ -10,7 +10,9 @@ import solim.modifier.ElementModifiers;
 public final class Container implements Component {
 	private final Table table = new Table();
 
-	public Container() {}
+	public Container() {
+		this.table.name = "solim-container-table";
+	}
 
 	public Table table() {
 		return table;

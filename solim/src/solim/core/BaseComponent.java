@@ -52,6 +52,16 @@ public abstract class BaseComponent implements Component {
 				cached = build();
 				if (componentName != null) {
 					ElementModifiers.name(cached, componentName);
+				} else if (cached != null && cached.name == null) {
+					String compName = getClass().getSimpleName();
+					if (compName.isEmpty()) {
+						compName = "component";
+					}
+					String elemName = cached.getClass().getSimpleName();
+					if (elemName.isEmpty()) {
+						elemName = "element";
+					}
+					ElementModifiers.name(cached, "solim-" + compName.toLowerCase() + "-" + elemName.toLowerCase());
 				}
 			} finally {
 				ComponentContext.pop();

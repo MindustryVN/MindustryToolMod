@@ -37,11 +37,12 @@ public class SolimDialog extends BaseDialog implements Component, Disposable, ar
     private boolean isDisposed = false;
 
     public SolimDialog() {
-        super("");
+        this("");
     }
 
     public SolimDialog(String title) {
         super(title != null ? title : "");
+        this.name = "solim-dialog-dialog";
         setFillParent(true);
     }
 

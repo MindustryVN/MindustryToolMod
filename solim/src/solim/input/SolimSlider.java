@@ -15,6 +15,10 @@ public final class SolimSlider implements Component, Disposable {
 	private Effect effect;
 	private boolean updating = false;
 
+	{
+		slider.name = "solim-slider-slider";
+	}
+
 	public SolimSlider(Signal<Float> signal, float min, float max, float step) {
 		slider.setRange(min, max);
 		slider.setStepSize(step);

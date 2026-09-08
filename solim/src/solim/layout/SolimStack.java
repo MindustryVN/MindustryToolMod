@@ -8,6 +8,10 @@ import solim.modifier.ElementModifiers;
 /** Stack container: overlays children on top of each other. */
 public final class SolimStack implements Component {
 	private final Stack stack = new Stack();
+ 
+	public SolimStack() {
+		this.stack.name = "solim-stack-stack";
+	}
 
 	public Stack stack() {
 		return stack;

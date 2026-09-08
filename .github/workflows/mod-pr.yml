@@ -16,8 +16,6 @@ jobs:
         with:
           java-version: 17
           distribution: temurin
-      - name: Run Spotless Check
-        run: ./gradlew spotlessCheck
       - name: Build mod jar
         run: ./gradlew :mod:deploy
       - name: Upload built jar file

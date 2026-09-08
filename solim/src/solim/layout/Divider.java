@@ -10,6 +10,7 @@ public final class Divider implements Component {
     private final Table table = new Table();
 
     public Divider() {
+        table.name = "solim-divider-table";
         table.add().height(2f).growX().row();
     }
 

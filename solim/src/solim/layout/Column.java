@@ -25,6 +25,7 @@ public final class Column implements Component {
 
 	public Column() {
 		this.table = new Table();
+		this.table.name = "solim-column-table";
 		this.table.top().left();
 	}
 

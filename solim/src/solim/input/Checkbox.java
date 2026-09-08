@@ -17,6 +17,10 @@ public final class Checkbox implements Component, Disposable {
 	private Effect effect;
 	private boolean updating = false;
 
+	{
+		checkBox.name = "solim-checkbox-checkBox";
+	}
+
 	public Checkbox(String label, Signal<Boolean> signal) {
 		this.signal = signal;
 		if (label != null) checkBox.setText(label);

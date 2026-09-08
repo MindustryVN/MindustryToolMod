@@ -15,9 +15,12 @@ public final class Grid implements Component {
 	private float gap = 4f;
 	private int currentCell = 0;
 
-	public Grid() {}
+	public Grid() {
+		this.table.name = "solim-grid-table";
+	}
 
 	public Grid(int columns) {
+		this();
 		this.columns = Math.max(1, columns);
 	}
 

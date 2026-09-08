@@ -88,6 +88,8 @@ public final class Card implements Component, Disposable {
 
 	public Card(Drawable background) {
 		this.cardButton = new CardButton(background);
+		this.cardButton.name = "solim-card-cardButton";
+		this.container.name = "solim-card-container";
 		this.cardButton.top().left();
 		this.container.top().left();
 		this.cardButton.add(container).grow().top().left();
@@ -95,6 +97,8 @@ public final class Card implements Component, Disposable {
 
 	public Card(Button.ButtonStyle style) {
 		this.cardButton = new CardButton(style != null ? style : new Button.ButtonStyle());
+		this.cardButton.name = "solim-card-cardButton";
+		this.container.name = "solim-card-container";
 		this.cardButton.top().left();
 		this.container.top().left();
 		this.cardButton.add(container).grow().top().left();

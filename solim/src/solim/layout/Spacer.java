@@ -10,7 +10,7 @@ public final class Spacer implements Component {
 	private final Table table = new Table();
 
 	public Spacer() {
-		table.name = "spacer";
+		table.name = "solim-spacer-table";
 		table.add().growX().growY();
 	}
 

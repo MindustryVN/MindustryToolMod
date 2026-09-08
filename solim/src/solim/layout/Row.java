@@ -24,6 +24,7 @@ public final class Row implements Component {
 
 	public Row() {
 		this.table = new Table();
+		this.table.name = "solim-row-table";
 		this.table.left();
 	}
 

@@ -23,10 +23,12 @@ public final class Scroll implements Component {
 	private final ScrollPane pane;
 
 	public Scroll() {
+		outer.name = "solim-scroll-pane";
 		outer.top().left();
 		content.top().left();
 		if (Core.scene != null) {
 			this.pane = outer.pane(content).scrollX(false).scrollY(true).get();
+			this.pane.name = "solim-scroll-pane";
 			this.pane.setScrollingDisabled(true, false);
 		} else {
 			this.pane = null;

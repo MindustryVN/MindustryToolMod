@@ -99,9 +99,12 @@ public final class SolimImage implements Component, Disposable {
 	private final Image image = new Image();
 	private @Nullable Effect binding;
 
-	public SolimImage() {}
+	public SolimImage() {
+		this.image.name = "solim-image-image";
+	}
 
 	public SolimImage(Drawable d) {
+		this();
 		image.setDrawable(d);
 	}
 

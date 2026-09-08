@@ -39,7 +39,7 @@ The `ElementModifiers` static utility class SHALL provide `name(@Nullable Elemen
 - **THEN** no exception is thrown
 
 ### Requirement: Fluent name modifier on Solim components
-All Solim components SHALL expose a fluent `.name(String name)` method that updates the underlying Arc `Element.name` and returns the component instance for method chaining.
+All Solim components SHALL expose a fluent `.name(String name)` method that updates the underlying Arc `Element.name` and returns the component instance for method chaining. Invoking `.name(String name)` SHALL completely overwrite any default name assigned to the component.
 
 #### Scenario: Chaining name modifier on Row
 - **WHEN** `row().name("my-row").gap(8f)` is declared
@@ -47,4 +47,4 @@ All Solim components SHALL expose a fluent `.name(String name)` method that upda
 
 #### Scenario: Chaining name modifier on Button
 - **WHEN** `button("OK").name("confirm-button")` is declared
-- **THEN** the underlying button has `name` set to `"confirm-button"`
+- **THEN** the underlying button has `name` set to `"confirm-button"`, replacing its default name

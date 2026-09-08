@@ -87,6 +87,7 @@ public final class Button implements Component, Disposable {
 
 	public Button(SizedButton sizedButton) {
 		this.sizedButton = sizedButton;
+		this.sizedButton.name = "solim-button-sizedButton";
 		this.sizedButton.center();
 	}
 

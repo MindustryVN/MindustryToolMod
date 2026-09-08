@@ -10,7 +10,9 @@ public final class Wrap implements Component {
 	private final Table table = new Table();
 	private float gap = 4f;
 
-	public Wrap() {}
+	public Wrap() {
+		this.table.name = "solim-wrap-table";
+	}
 
 	public Table table() {
 		return table;

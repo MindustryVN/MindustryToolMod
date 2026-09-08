@@ -69,3 +69,25 @@ The framework SHALL NOT expose React-style hooks (`useState`, `useEffect`) nor a
 - **WHEN** `solim.core` package is inspected
 - **THEN** it contains no `useState`, `useEffect`, `useMemo`, or JSX-like APIs
 
+### Requirement: Default element naming for Solim components
+Every concrete Solim component SHALL automatically assign a default name to its underlying Arc `Element` upon construction, adhering to the format `solim-<component>-<internal>`. If a developer explicitly calls `.name(String name)`, the custom name SHALL completely overwrite the default name.
+
+#### Scenario: Default name assigned on construction
+- **WHEN** a Solim component such as `Button`, `Column`, `Row`, `Card`, or `Text` is instantiated without calling `.name()`
+- **THEN** its `element().name` is populated with the default name conforming to `solim-<component>-<internal>` (e.g. `solim-button-sizedButton`, `solim-column-table`, `solim-card-cardButton`)
+
+#### Scenario: Explicit name completely overwrites default name
+- **WHEN** a Solim component is instantiated and `.name("custom-name")` is invoked
+- **THEN** its `element().name` equals `"custom-name"` without preserving the default prefix
+
+### Requirement: BaseComponent default naming
+`BaseComponent` SHALL assign a default name formatted as `solim-<component>-<internal>` (derived from the lowercase class simple name and the built element's simple name/role) to its built element if no custom `name(...)` has been assigned before or after `build()`.
+
+#### Scenario: BaseComponent uses default name when unset
+- **WHEN** a subclass of `BaseComponent` is built and no custom name is set
+- **THEN** its `element().name` is formatted as `solim-<subclass>-<internal>`
+
+#### Scenario: BaseComponent preserves custom name override
+- **WHEN** a subclass of `BaseComponent` has `.name("my-card")` called
+- **THEN** its `element().name` equals `"my-card"`
+

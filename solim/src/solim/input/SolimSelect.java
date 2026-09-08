@@ -20,6 +20,10 @@ public final class SolimSelect<T> implements Component, Disposable {
 	private int selectedIndex = 0;
 	private Effect effect;
 
+	{
+		selectBox.name = "solim-select-selectBox";
+	}
+
 	public SolimSelect(Signal<T> signal, List<T> options) {
 		this.signal = signal;
 		this.options = options;

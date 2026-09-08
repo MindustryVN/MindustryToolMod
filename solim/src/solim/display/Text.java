@@ -34,6 +34,7 @@ public final class Text implements Component, Disposable {
 		this.label = (style != null || Core.scene == null)
 				? new Label(text != null ? text : "", style != null ? style : new Label.LabelStyle())
 				: new Label(text != null ? text : "");
+		this.label.name = "solim-text-label";
 	}
 
 	public static Text of(String text) {
