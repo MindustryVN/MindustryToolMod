@@ -3,18 +3,22 @@ package mindustrytool.features.chat;
 import static solim.ui.Ui.*;
 
 import arc.Core;
+import arc.Events;
+import arc.func.Cons;
 import arc.graphics.Color;
 import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import mindustry.Vars;
+import mindustry.game.EventType.ResizeEvent;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
 import solim.core.BaseComponent;
 import solim.core.Component;
+import solim.layout.Direction;
 import solim.overlay.Hud;
 import solim.signal.Readable;
 import solim.signal.Signal;
@@ -60,6 +64,13 @@ public class ChatOverlayHudView extends BaseComponent {
             }
         });
 
+        Cons<ResizeEvent> resizeListener = e -> {
+            keepInScreen();
+            Core.app.post(this::keepInScreen);
+        };
+        Events.on(ResizeEvent.class, resizeListener);
+        own(() -> Events.remove(ResizeEvent.class, resizeListener));
+
         Core.app.post(() -> {
             if (hud != null) {
                 hud.root().invalidateHierarchy();
@@ -85,7 +96,7 @@ public class ChatOverlayHudView extends BaseComponent {
                                 .style(Styles.clearNonei)
                                 .size(unit(7), unit(7))
                                 .children(() -> image(Icon.move).size(unit(5), unit(5)).color(Color.lightGray))
-                                .draggable(feature.xSignal, feature.ySignal);
+                                .draggable(hud, feature.xSignal, feature.ySignal);
 
                         // Clickable pill to expand
                         button(() -> {
@@ -136,42 +147,41 @@ public class ChatOverlayHudView extends BaseComponent {
                 .padding(unit(2))
                 .children(() -> {
                     column().grow().children(() -> {
-                        // Header
-                        row().growX().gap(unit(1)).padding(unit(1)).children(() -> {
-                            button()
-                                    .style(Styles.clearNonei)
-                                    .size(unit(7), unit(7))
-                                    .children(() -> image(Icon.move).size(unit(5), unit(5)).color(Color.lightGray))
-                                    .draggable(feature.xSignal, feature.ySignal);
+                        // Window Action Bar (draggable bar wrapping title & action buttons)
+                        row().growX()
+                                .background(Styles.black6)
+                                .padding(unit(1), unit(2), unit(1), unit(2))
+                                .gap(unit(1))
+                                .draggable(hud, feature.xSignal, feature.ySignal)
+                                .children(() -> {
+                                    text(channelTitle)
+                                            .color(Pal.accent)
+                                            .fontScale(1.1f)
+                                            .left();
 
-                            text(channelTitle)
-                                    .color(Pal.accent)
-                                    .fontScale(1.1f)
-                                    .left();
+                                    image(Tex.whiteui)
+                                            .size(unit(2), unit(2))
+                                            .color(isConnected.map(c -> c ? Pal.heal : Color.scarlet));
 
-                            image(Tex.whiteui)
-                                    .size(unit(2), unit(2))
-                                    .color(isConnected.map(c -> c ? Pal.heal : Color.scarlet));
+                                    spacer();
 
-                            spacer();
+                                    button(() -> {
+                                        var dialog = feature.getSettingDialog();
+                                        if (dialog != null) {
+                                            dialog.show();
+                                        }
+                                    })
+                                            .style(Styles.clearNonei)
+                                            .size(unit(7), unit(7))
+                                            .tooltip(Core.bundle.get("feature.chat.ui.settings", "Settings"))
+                                            .children(() -> image(Icon.settingsSmall).size(unit(5), unit(5)));
 
-                            button(() -> {
-                                var dialog = feature.getSettingDialog();
-                                if (dialog != null) {
-                                    dialog.show();
-                                }
-                            })
-                                    .style(Styles.clearNonei)
-                                    .size(unit(7), unit(7))
-                                    .tooltip(Core.bundle.get("feature.chat.ui.settings", "Settings"))
-                                    .children(() -> image(Icon.settingsSmall).size(unit(5), unit(5)));
-
-                            button(() -> feature.collapsedConfig.set(true))
-                                    .style(Styles.clearNonei)
-                                    .size(unit(7), unit(7))
-                                    .tooltip(Core.bundle.get("feature.chat.ui.collapse", "Collapse"))
-                                    .children(() -> image(Icon.downOpen).size(unit(5), unit(5)));
-                        });
+                                    button(() -> feature.collapsedConfig.set(true))
+                                            .style(Styles.clearNonei)
+                                            .size(unit(7), unit(7))
+                                            .tooltip(Core.bundle.get("feature.chat.ui.collapse", "Collapse"))
+                                            .children(() -> image(Icon.downOpen).size(unit(5), unit(5)));
+                                });
 
                         divider();
 
@@ -188,11 +198,11 @@ public class ChatOverlayHudView extends BaseComponent {
     private void buildDesktopBody() {
         row().grow().gap(unit(1)).children(() -> {
             // Channel List
-            row().width(unit(35)).growY().children(() -> {
+            row().width(unit(45)).growY().children(() -> {
                 new ChatChannelListView(store);
             });
 
-            divider();
+            divider(Direction.Y);
 
             // Message Area & Input
             column().grow().gap(unit(1)).children(() -> {
@@ -201,10 +211,10 @@ public class ChatOverlayHudView extends BaseComponent {
                 new ChatInputView(store, service);
             });
 
-            divider();
+            divider(Direction.Y);
 
             // User List
-            row().width(unit(35)).growY().children(() -> {
+            row().width(unit(45)).growY().children(() -> {
                 new ChatUserListView(store);
             });
         });

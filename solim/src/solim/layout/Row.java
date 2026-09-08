@@ -1,10 +1,13 @@
 package solim.layout;
 
 import arc.scene.Element;
+import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
+import solim.overlay.Hud;
+import solim.signal.Signal;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
 
@@ -244,6 +247,31 @@ public final class Row implements Component, LayoutModifiers<Row> {
 			ParentStack.pop();
 		}
 		ParentStack.attachToParent(table);
+		return this;
+	}
+
+	public Row background(@Nullable Drawable bg) {
+		table.background(bg);
+		return this;
+	}
+
+	public Row draggable() {
+		ElementModifiers.draggable(table);
+		return this;
+	}
+
+	public Row draggable(@Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+		ElementModifiers.draggable(table, null, xSignal, ySignal);
+		return this;
+	}
+
+	public Row draggable(@Nullable Hud hud) {
+		ElementModifiers.draggable(table, hud);
+		return this;
+	}
+
+	public Row draggable(@Nullable Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+		ElementModifiers.draggable(table, hud, xSignal, ySignal);
 		return this;
 	}
 

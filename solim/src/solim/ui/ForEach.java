@@ -8,6 +8,8 @@ import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.ConstrainedElement;
+import solim.layout.SizeConstraints;
+import solim.layout.SizedTable;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
@@ -15,8 +17,8 @@ import solim.signal.Readable;
  * Keyed reactive list component that efficiently manages child components without rebuilding
  * unchanged items.
  */
-public final class ForEach<T, K> extends BaseComponent {
-	private final Table container = new Table();
+public final class ForEach<T, K> extends BaseComponent implements ConstrainedElement {
+	private final SizedTable container = new SizedTable();
 	private final Readable<? extends Iterable<T>> collection;
 	private final Function<T, K> keyExtractor;
 	private final Function<T, Component> itemFactory;
@@ -29,6 +31,7 @@ public final class ForEach<T, K> extends BaseComponent {
 		this.collection = collection;
 		this.keyExtractor = keyExtractor;
 		this.itemFactory = itemFactory;
+		this.container.getSizeConstraints().growX = true;
 	}
 
 	public static <T, K> ForEach<T, K> of(
@@ -38,8 +41,13 @@ public final class ForEach<T, K> extends BaseComponent {
 		return new ForEach<>(collection, keyExtractor, itemFactory);
 	}
 
-	public Table container() {
+	public SizedTable container() {
 		return container;
+	}
+
+	@Override
+	public SizeConstraints getSizeConstraints() {
+		return container.getSizeConstraints();
 	}
 
 	@Override

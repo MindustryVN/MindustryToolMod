@@ -452,6 +452,11 @@ public final class ElementModifiers {
             @Nullable Signal<Float> ySignal) {
         if (handle == null)
             return;
+        handle.touchable = Touchable.enabled;
+        if (hud != null) {
+            if (xSignal != null) hud.bindXSignal(xSignal);
+            if (ySignal != null) hud.bindYSignal(ySignal);
+        }
         handle.addListener(new InputListener() {
             private float lastStageX;
             private float lastStageY;
@@ -460,7 +465,12 @@ public final class ElementModifiers {
             private boolean useStage = false;
 
             private @Nullable Hud resolveHud() {
-                return hud != null ? hud : Hud.find(handle);
+                Hud target = hud != null ? hud : Hud.find(handle);
+                if (target != null) {
+                    if (xSignal != null) target.bindXSignal(xSignal);
+                    if (ySignal != null) target.bindYSignal(ySignal);
+                }
+                return target;
             }
 
             @Override

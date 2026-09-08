@@ -7,12 +7,14 @@ import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.ConstrainedElement;
+import solim.layout.SizeConstraints;
+import solim.layout.SizedTable;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
 /** Structural reactive component for switching dynamic subtrees based on a reactive value. */
-public final class Dynamic<T> extends BaseComponent {
-	private final Table container = new Table();
+public final class Dynamic<T> extends BaseComponent implements ConstrainedElement {
+	private final SizedTable container = new SizedTable();
 	private final Readable<T> source;
 	private final Function<T, Component> factory;
 	private Component currentComponent;
@@ -20,14 +22,20 @@ public final class Dynamic<T> extends BaseComponent {
 	public Dynamic(Readable<T> source, Function<T, Component> factory) {
 		this.source = source;
 		this.factory = factory;
+		this.container.getSizeConstraints().growX = true;
 	}
 
 	public static <T> Dynamic<T> of(Readable<T> source, Function<T, Component> factory) {
 		return new Dynamic<>(source, factory);
 	}
 
-	public Table container() {
+	public SizedTable container() {
 		return container;
+	}
+
+	@Override
+	public SizeConstraints getSizeConstraints() {
+		return container.getSizeConstraints();
 	}
 
 	@Override

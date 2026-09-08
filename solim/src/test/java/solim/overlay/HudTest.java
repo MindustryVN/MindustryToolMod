@@ -13,6 +13,7 @@ import arc.scene.event.EventListener;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.event.Touchable;
+import arc.scene.ui.layout.Table;
 import mindustry.game.EventType.ResizeEvent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
@@ -352,6 +353,39 @@ class HudTest {
 		assertEquals(250f, hud.element().y, 0.01f);
 		assertEquals(0.3f, hud.container().color.a, 0.01f);
 
+		hud.dispose();
+	}
+
+	@Test
+	void resizeEventClampingWithSignals() {
+		Hud hud = new Hud();
+		hud.element().setSize(200f, 100f);
+		Signal<Float> xSig = Signal.of(800f);
+		Signal<Float> ySig = Signal.of(600f);
+		hud.position(xSig, ySig);
+		hud.keepInScreen();
+
+		mockGraphics.width = 800;
+		mockGraphics.height = 600;
+
+		Events.fire(new ResizeEvent());
+
+		assertEquals(600f, hud.element().x, 0.01f);
+		assertEquals(500f, hud.element().y, 0.01f);
+		assertEquals(600f, xSig.get(), 0.01f, "X signal should clamp on resize");
+		assertEquals(500f, ySig.get(), 0.01f, "Y signal should clamp on resize");
+
+		hud.dispose();
+	}
+
+	@Test
+	void draggableSetsTouchableEnabledOnHandle() {
+		Hud hud = new Hud();
+		Table handle = new Table();
+		assertEquals(arc.scene.event.Touchable.childrenOnly, handle.touchable);
+
+		hud.draggable(handle);
+		assertEquals(arc.scene.event.Touchable.enabled, handle.touchable, "Handle touchable should be set to enabled");
 		hud.dispose();
 	}
 }

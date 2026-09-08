@@ -42,7 +42,8 @@ public class ChatMessageListView extends BaseComponent {
                 column().growX().gap(unit(1)).children(() -> {
                     dynamic(hasMessages, available -> {
                         if (Boolean.TRUE.equals(available)) {
-                            return forEach(store.activeMessages(), ChatMessage::getId, msg -> new MessageItem(msg, store));
+                            return forEach(store.activeMessages(), ChatMessage::getId,
+                                    msg -> new MessageItem(msg, store));
                         } else {
                             return column().padding(unit(4)).children(() -> {
                                 text(Core.bundle.get("feature.chat.ui.empty-messages", "No messages yet."))

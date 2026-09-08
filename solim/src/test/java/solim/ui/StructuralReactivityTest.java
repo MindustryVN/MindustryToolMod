@@ -1,6 +1,7 @@
 package solim.ui;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static solim.ui.Ui.card;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
@@ -160,6 +161,30 @@ class StructuralReactivityTest {
 		Cell<?> cell = dyn.container().getCells().first();
 		assertEquals(0, CellAccess.expandX(cell), "Dynamic item must not grow by default");
 		assertEquals(0, CellAccess.expandY(cell), "Dynamic item must not grow by default");
+		dyn.dispose();
+	}
+
+	@Test
+	void testConstrainedChildGrowsInForEachAndDynamic() {
+		class ConstrainedComp extends BaseComponent {
+			@Override
+			protected Element build() {
+				return card().growX().element();
+			}
+		}
+
+		Signal<List<String>> items = Signal.of(Arrays.asList("A"));
+		ForEach<String, String> fe = new ForEach<>(items, id -> id, id -> new ConstrainedComp());
+		fe.element();
+		Cell<?> cell = fe.container().getCells().first();
+		assertEquals(1, CellAccess.expandX(cell), "Constrained child in ForEach must growX");
+		fe.dispose();
+
+		Signal<String> source = Signal.of("A");
+		Dynamic<String> dyn = new Dynamic<>(source, val -> new ConstrainedComp());
+		dyn.element();
+		Cell<?> dynCell = dyn.container().getCells().first();
+		assertEquals(1, CellAccess.expandX(dynCell), "Constrained child in Dynamic must growX");
 		dyn.dispose();
 	}
 }

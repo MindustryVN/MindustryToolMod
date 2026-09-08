@@ -100,8 +100,24 @@ class LayoutTest {
 
 	@Test
 	void dividerRenders() {
-		Divider d = new Divider();
-		assertNotNull(d.table());
+		Divider dx = new Divider();
+		assertNotNull(dx.table());
+		assertEquals(Direction.X, dx.direction());
+		assertTrue(dx.sizeConstraints().growX);
+		assertFalse(dx.sizeConstraints().growY);
+
+		Divider dy = new Divider(Direction.Y);
+		assertNotNull(dy.table());
+		assertEquals(Direction.Y, dy.direction());
+		assertTrue(dy.sizeConstraints().growY);
+		assertFalse(dy.sizeConstraints().growX);
+	}
+
+	@Test
+	void rowDraggableAndBackground() {
+		Row r = new Row().draggable();
+		assertNotNull(r.table());
+		assertNotNull(r.element());
 	}
 
 	@Test

@@ -22,6 +22,7 @@ import solim.input.SolimSlider;
 import solim.input.SolimTextField;
 import solim.layout.Card;
 import solim.layout.Column;
+import solim.layout.Direction;
 import solim.layout.Divider;
 import solim.layout.Grid;
 import solim.layout.ReactiveGrid;
@@ -160,9 +161,27 @@ public final class Ui {
     }
 
     public static Element divider() {
-        Divider d = new Divider();
+        return divider(Direction.X);
+    }
+
+    public static Element divider(Direction direction) {
+        Divider d = new Divider(direction);
         ParentStack.attachToParent(d.table());
         return d.table();
+    }
+
+    public static Element divider(String direction) {
+        if (direction != null && direction.equalsIgnoreCase("y")) {
+            return divider(Direction.Y);
+        }
+        return divider(Direction.X);
+    }
+
+    public static Element divider(char direction) {
+        if (direction == 'y' || direction == 'Y') {
+            return divider(Direction.Y);
+        }
+        return divider(Direction.X);
     }
 
     public static Element spacer() {

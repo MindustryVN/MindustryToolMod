@@ -36,6 +36,8 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 	private final Table container;
 	private final List<Disposable> bindings = new ArrayList<>();
 	private final Cons<ResizeEvent> resizeListener;
+	private @Nullable Signal<Float> boundXSignal;
+	private @Nullable Signal<Float> boundYSignal;
 	private boolean disposed = false;
 
 	public Hud() {
@@ -53,7 +55,10 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 
 		this.root.add(container).pad(0).margin(0);
 
-		this.resizeListener = e -> keepInScreen();
+		this.resizeListener = e -> {
+			keepInScreen();
+			Core.app.post(this::keepInScreen);
+		};
 		Events.on(ResizeEvent.class, resizeListener);
 
 		ComponentContext.register(this);
@@ -125,12 +130,24 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		return this;
 	}
 
+	public void bindXSignal(@Nullable Signal<Float> xSignal) {
+		this.boundXSignal = xSignal;
+	}
+
+	public void bindYSignal(@Nullable Signal<Float> ySignal) {
+		this.boundYSignal = ySignal;
+	}
+
 	public Hud x(float x) {
 		ElementModifiers.x(root, x);
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Hud x(Readable<Float> x) {
+		if (x instanceof Signal) {
+			this.boundXSignal = (Signal<Float>) x;
+		}
 		if (x != null) {
 			Effect e = Effect.of(() -> {
 				Float v = x.get();
@@ -149,7 +166,11 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		return this;
 	}
 
+	@SuppressWarnings("unchecked")
 	public Hud y(Readable<Float> y) {
+		if (y instanceof Signal) {
+			this.boundYSignal = (Signal<Float>) y;
+		}
 		if (y != null) {
 			Effect e = Effect.of(() -> {
 				Float v = y.get();
@@ -226,6 +247,8 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 	}
 
 	public Hud draggable(Element handle, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+		if (xSignal != null) this.boundXSignal = xSignal;
+		if (ySignal != null) this.boundYSignal = ySignal;
 		ElementModifiers.draggable(handle, this, xSignal, ySignal);
 		return this;
 	}
@@ -251,6 +274,13 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		if (curY + h > sh) curY = Math.max(0, sh - h);
 
 		root.setPosition(curX, curY);
+
+		if (boundXSignal != null && (boundXSignal.get() == null || boundXSignal.get() != curX)) {
+			boundXSignal.set(curX);
+		}
+		if (boundYSignal != null && (boundYSignal.get() == null || boundYSignal.get() != curY)) {
+			boundYSignal.set(curY);
+		}
 	}
 
 	public void pack() {
