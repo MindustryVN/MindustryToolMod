@@ -55,6 +55,7 @@ public final class Dynamic<T> extends BaseComponent {
 						((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
 					}
 				}
+				container.invalidateHierarchy();
 			}
 		}));
 		return container;

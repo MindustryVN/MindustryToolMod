@@ -10,6 +10,7 @@ import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.features.background.BackgroundFeature;
+import mindustrytool.features.chat.ChatFeature;
 import mindustrytool.features.quickaccess.QuickAccessFeature;
 import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
@@ -37,7 +38,7 @@ public class Main extends Mod {
 			return;
 		}
 
-		FeatureManager.register(new BackgroundFeature(), new QuickAccessFeature());
+		FeatureManager.register(new BackgroundFeature(), new QuickAccessFeature(), new ChatFeature());
 
 		Events.on(ClientLoadEvent.class, event -> {
 			registerMindustryToolButton();

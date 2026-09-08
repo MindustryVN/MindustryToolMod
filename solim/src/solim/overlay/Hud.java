@@ -42,6 +42,7 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		this.root = new SizedTable();
 		this.root.name = "solim-hud-root";
 		this.root.touchable = Touchable.childrenOnly;
+        this.root.toFront();
 
 		this.root.userObject = this;
 
@@ -233,6 +234,10 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		float sw = Core.scene != null ? Core.scene.getWidth() : (Core.graphics != null ? Core.graphics.getWidth() : 0f);
 		float sh = Core.scene != null ? Core.scene.getHeight() : (Core.graphics != null ? Core.graphics.getHeight() : 0f);
 		if (sw <= 0f || sh <= 0f) return;
+
+		if (root.getWidth() <= 0f || root.getHeight() <= 0f) {
+			root.pack();
+		}
 
 		float w = root.getWidth();
 		float h = root.getHeight();
