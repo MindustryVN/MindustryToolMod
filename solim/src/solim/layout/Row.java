@@ -3,15 +3,15 @@ package solim.layout;
 import arc.scene.Element;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
-import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
 
-/** Row layout - horizontal Table wrapper. */
-public final class Row implements Component {
+/** Row layout — horizontal Table wrapper. */
+public final class Row implements Component, LayoutModifiers<Row> {
+
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
 		if (child instanceof TextField || Ui.isExpanding(child)) {
@@ -20,21 +20,26 @@ public final class Row implements Component {
 		return cell;
 	};
 
-	private final Table table;
+	private final SizedTable table;
 
 	public Row() {
-		this.table = new Table();
+		this.table = new SizedTable();
 		this.table.name = "solim-row-table";
 		this.table.left();
 	}
 
-	public Table table() {
+	public SizedTable table() {
 		return table;
 	}
 
 	@Override
 	public Element element() {
 		return table;
+	}
+
+	@Override
+	public SizeConstraints sizeConstraints() {
+		return table.getSizeConstraints();
 	}
 
 	public Row name(String name) {
@@ -137,26 +142,6 @@ public final class Row implements Component {
 		return this;
 	}
 
-	public Row width(float width) {
-		ElementModifiers.width(table, width);
-		return this;
-	}
-
-	public Row height(float height) {
-		ElementModifiers.height(table, height);
-		return this;
-	}
-
-	public Row size(float width, float height) {
-		ElementModifiers.size(table, width, height);
-		return this;
-	}
-
-	public Row size(float size) {
-		ElementModifiers.size(table, size);
-		return this;
-	}
-
 	public Row x(float x) {
 		ElementModifiers.x(table, x);
 		return this;
@@ -199,21 +184,6 @@ public final class Row implements Component {
 
 	public Row center() {
 		ElementModifiers.center(table);
-		return this;
-	}
-
-	public Row grow() {
-		table.userObject = "expanding";
-		return this;
-	}
-
-	public Row growX() {
-		table.userObject = "expanding";
-		return this;
-	}
-
-	public Row growY() {
-		table.userObject = "expanding";
 		return this;
 	}
 

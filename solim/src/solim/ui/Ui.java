@@ -115,6 +115,11 @@ public final class Ui {
     public static boolean isExpanding(Element child) {
         if (child == null)
             return false;
+        // Check Solim size constraints (set via .grow(), .growX(), .growY())
+        if (child instanceof solim.layout.ConstrainedElement) {
+            solim.layout.SizeConstraints c = ((solim.layout.ConstrainedElement) child).getSizeConstraints();
+            if (c.growX || c.growY) return true;
+        }
         if ("expanding".equals(child.userObject) || Boolean.TRUE.equals(child.userObject))
             return true;
         if ("solim-spacer-table".equals(child.name) || "spacer".equals(child.name))

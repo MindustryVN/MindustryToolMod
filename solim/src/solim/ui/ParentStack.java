@@ -10,8 +10,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import solim.core.Component;
+import solim.core.ComponentContext;
+import solim.core.Disposable;
 import solim.display.SolimImage;
 import solim.display.Text;
+import solim.layout.ConstrainedElement;
+import solim.layout.SizeConstraints;
 
 /**
  * Implicit parent stack for declarative UI construction with guaranteed cleanup. Supports
@@ -126,10 +130,19 @@ public final class ParentStack {
 	private static void doAttach(Table parent, Element child, Attacher attacher) {
 		if (parent != null && child != null) {
 			if (child.parent != parent && !parent.getChildren().contains(child, true)) {
+				Cell<?> cell;
 				if (attacher != null) {
-					attacher.attach(parent, child);
+					cell = attacher.attach(parent, child);
 				} else {
-					parent.add(child);
+					cell = parent.add(child);
+				}
+				// Apply size constraints stored on the child element to the parent cell.
+				if (cell != null && child instanceof ConstrainedElement) {
+					SizeConstraints constraints = ((ConstrainedElement) child).getSizeConstraints();
+					List<Disposable> effects = constraints.applyToCell(cell);
+					for (Disposable effect : effects) {
+						ComponentContext.register(effect);
+					}
 				}
 				if (child instanceof SolimImage.SizedImage) {
 					((SolimImage.SizedImage) child).applySpacing();

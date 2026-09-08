@@ -38,7 +38,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                                 .left();
 
                                                         spacer();
-                                                        slider(feature.opacityConfig.signal(), 0.05f, 1.0f, 0.05f);
+                                                        slider(feature.opacityConfig.signal(), 0.5f, 1.0f, 0.05f);
 
                                                         row()
                                                                 .width(unit(10))

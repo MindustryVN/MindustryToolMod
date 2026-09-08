@@ -6,7 +6,8 @@ import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.display.SolimImage.SizedImage;
 import solim.input.Button.SizedButton;
-import solim.layout.Card.CardButton;
+import solim.layout.ConstrainedElement;
+import solim.signal.Readable;
 
 /**
  * Utility class providing static helper methods for modifying Arc elements and tables.
@@ -22,8 +23,8 @@ public final class ElementModifiers {
 		element.setWidth(val);
 		if (element instanceof SizedButton) {
 			((SizedButton) element).setCustomPrefWidth(val);
-		} else if (element instanceof CardButton) {
-			((CardButton) element).setCustomPrefWidth(val);
+		} else if (element instanceof ConstrainedElement) {
+			((ConstrainedElement) element).getSizeConstraints().prefWidth = Readable.of(val);
 		}
 		element.invalidateHierarchy();
 	}
@@ -34,8 +35,8 @@ public final class ElementModifiers {
 		element.setHeight(val);
 		if (element instanceof SizedButton) {
 			((SizedButton) element).setCustomPrefHeight(val);
-		} else if (element instanceof CardButton) {
-			((CardButton) element).setCustomPrefHeight(val);
+		} else if (element instanceof ConstrainedElement) {
+			((ConstrainedElement) element).getSizeConstraints().prefHeight = Readable.of(val);
 		}
 		element.invalidateHierarchy();
 	}

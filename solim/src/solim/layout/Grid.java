@@ -2,20 +2,21 @@ package solim.layout;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
-import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
 
 /** Simple grid with fixed column count. */
-public final class Grid implements Component {
-	private final Table table = new Table();
+public final class Grid implements Component, LayoutModifiers<Grid> {
+
+	private final SizedTable table;
 	private int columns = 1;
 	private float gap = 4f;
 	private int currentCell = 0;
 
 	public Grid() {
+		this.table = new SizedTable();
 		this.table.name = "solim-grid-table";
 	}
 
@@ -24,13 +25,18 @@ public final class Grid implements Component {
 		this.columns = Math.max(1, columns);
 	}
 
-	public Table table() {
+	public SizedTable table() {
 		return table;
 	}
 
 	@Override
 	public Element element() {
 		return table;
+	}
+
+	@Override
+	public SizeConstraints sizeConstraints() {
+		return table.getSizeConstraints();
 	}
 
 	public Grid name(String name) {

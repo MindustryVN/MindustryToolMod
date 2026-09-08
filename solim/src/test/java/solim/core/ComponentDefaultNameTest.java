@@ -63,7 +63,7 @@ class ComponentDefaultNameTest {
 		assertEquals("solim-container-table", new Container().element().name);
 		assertEquals("solim-divider-table", new Divider().element().name);
 		assertEquals("solim-spacer-table", new Spacer().element().name);
-		assertEquals("solim-scroll-pane", new Scroll().element().name);
+		assertEquals("solim-scroll-pane-outer", new Scroll().element().name);
 		assertEquals("solim-stack-stack", new SolimStack().element().name);
 		assertEquals("solim-wrap-table", new Wrap().element().name);
 	}

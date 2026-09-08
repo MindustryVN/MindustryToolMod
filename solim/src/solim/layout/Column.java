@@ -2,18 +2,28 @@ package solim.layout;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
-import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
 
-/** Column layout - vertical Table wrapper. */
-public final class Column implements Component {
+/** Column layout — vertical Table wrapper. */
+public final class Column implements Component, LayoutModifiers<Column> {
+
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
-		cell.growX();
+
+		// Auto-growX unless the child has an explicit preferred or bounded width.
+		// If the child also explicitly set growX(), we still apply it regardless.
+		boolean hasExplicitWidth = (child instanceof ConstrainedElement)
+				&& ((ConstrainedElement) child).getSizeConstraints().hasExplicitWidth();
+		boolean childGrowsX = (child instanceof ConstrainedElement)
+				&& ((ConstrainedElement) child).getSizeConstraints().growX;
+
+		if (!hasExplicitWidth || childGrowsX) {
+			cell.growX();
+		}
 		if (Ui.isExpanding(child)) {
 			cell.growY();
 		}
@@ -21,21 +31,26 @@ public final class Column implements Component {
 		return cell;
 	};
 
-	private final Table table;
+	private final SizedTable table;
 
 	public Column() {
-		this.table = new Table();
+		this.table = new SizedTable();
 		this.table.name = "solim-column-table";
 		this.table.top().left();
 	}
 
-	public Table table() {
+	public SizedTable table() {
 		return table;
 	}
 
 	@Override
 	public Element element() {
 		return table;
+	}
+
+	@Override
+	public SizeConstraints sizeConstraints() {
+		return table.getSizeConstraints();
 	}
 
 	public Column name(String name) {
@@ -138,26 +153,6 @@ public final class Column implements Component {
 		return this;
 	}
 
-	public Column width(float width) {
-		ElementModifiers.width(table, width);
-		return this;
-	}
-
-	public Column height(float height) {
-		ElementModifiers.height(table, height);
-		return this;
-	}
-
-	public Column size(float width, float height) {
-		ElementModifiers.size(table, width, height);
-		return this;
-	}
-
-	public Column size(float size) {
-		ElementModifiers.size(table, size);
-		return this;
-	}
-
 	public Column x(float x) {
 		ElementModifiers.x(table, x);
 		return this;
@@ -217,22 +212,9 @@ public final class Column implements Component {
 			case STRETCH:
 				table.top();
 				break;
+			default:
+				break;
 		}
-		return this;
-	}
-
-	public Column grow() {
-		table.userObject = "expanding";
-		return this;
-	}
-
-	public Column growX() {
-		table.userObject = "expanding";
-		return this;
-	}
-
-	public Column growY() {
-		table.userObject = "expanding";
 		return this;
 	}
 

@@ -207,7 +207,7 @@ class LayoutTest {
 		Signal<Color> colorSignal = Signal.of(Color.scarlet);
 
 		Card c = Ui.card()
-				.prefHeight(180f)
+				.height(180f)
 				.width(widthSignal)
 				.color(colorSignal)
 				.padding(12f)
@@ -218,11 +218,11 @@ class LayoutTest {
 
 		assertEquals(2, c.container().getChildren().size, "Card container must have 2 children");
 		assertEquals(180f, c.cardButton().getPrefHeight(), 0.01f);
-		assertEquals(250f, c.cardButton().getWidth(), 0.01f);
+		assertEquals(250f, c.cardButton().getPrefWidth(), 0.01f);
 		assertEquals(Color.scarlet, c.cardButton().color);
 
 		widthSignal.set(300f);
-		assertEquals(300f, c.cardButton().getWidth(), 0.01f);
+		assertEquals(300f, c.cardButton().getPrefWidth(), 0.01f);
 
 		colorSignal.set(Color.green);
 		assertEquals(Color.green, c.cardButton().color);

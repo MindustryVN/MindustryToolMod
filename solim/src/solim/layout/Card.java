@@ -25,7 +25,7 @@ import solim.ui.Ui;
  * Clickable and stylable card container component with support for inner children, reactive
  * width/height/color bindings, and click event bubbling control.
  */
-public final class Card implements Component, Disposable {
+public final class Card implements Component, Disposable, LayoutModifiers<Card> {
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
@@ -37,9 +37,13 @@ public final class Card implements Component, Disposable {
 		return cell;
 	};
 
-	public static class CardButton extends Button {
-		private float customPrefWidth = -1f;
-		private float customPrefHeight = -1f;
+	/**
+	 * Custom Button subclass that implements {@link ConstrainedElement}, so that ATTACHERs
+	 * can read and apply size constraints from the parent cell when {@code Card} is attached.
+	 */
+	public static class CardButton extends Button implements ConstrainedElement {
+
+		private final SizeConstraints constraints = new SizeConstraints();
 
 		public CardButton() {
 			this(new ButtonStyle());
@@ -56,31 +60,58 @@ public final class Card implements Component, Disposable {
 			super(style != null ? style : new ButtonStyle());
 		}
 
-		public void setCustomPrefWidth(float width) {
-			this.customPrefWidth = width;
-			invalidateHierarchy();
-		}
-
-		public void setCustomPrefHeight(float height) {
-			this.customPrefHeight = height;
-			invalidateHierarchy();
+		@Override
+		public SizeConstraints getSizeConstraints() {
+			return constraints;
 		}
 
 		@Override
 		public float getPrefWidth() {
-			return customPrefWidth >= 0 ? customPrefWidth : super.getPrefWidth();
+			if (constraints == null) return super.getPrefWidth();
+			Float v = constraints.prefWidth != null ? constraints.prefWidth.get() : null;
+			return v != null ? Math.max(0f, v) : super.getPrefWidth();
 		}
 
 		@Override
 		public float getPrefHeight() {
-			return customPrefHeight >= 0 ? customPrefHeight : super.getPrefHeight();
+			if (constraints == null) return super.getPrefHeight();
+			Float v = constraints.prefHeight != null ? constraints.prefHeight.get() : null;
+			return v != null ? Math.max(0f, v) : super.getPrefHeight();
+		}
+
+		@Override
+		public float getMinWidth() {
+			if (constraints == null) return super.getMinWidth();
+			Float v = constraints.minWidth != null ? constraints.minWidth.get() : null;
+			return v != null ? Math.max(0f, v) : super.getMinWidth();
+		}
+
+		@Override
+		public float getMinHeight() {
+			if (constraints == null) return super.getMinHeight();
+			Float v = constraints.minHeight != null ? constraints.minHeight.get() : null;
+			return v != null ? Math.max(0f, v) : super.getMinHeight();
+		}
+
+		@Override
+		public float getMaxWidth() {
+			if (constraints == null) return super.getMaxWidth();
+			Float v = constraints.maxWidth != null ? constraints.maxWidth.get() : null;
+			return v != null ? Math.max(0f, v) : super.getMaxWidth();
+		}
+
+		@Override
+		public float getMaxHeight() {
+			if (constraints == null) return super.getMaxHeight();
+			Float v = constraints.maxHeight != null ? constraints.maxHeight.get() : null;
+			return v != null ? Math.max(0f, v) : super.getMaxHeight();
 		}
 	}
 
 	private final CardButton cardButton;
 	private final Table container = new Table();
 	private final List<Disposable> bindings = new ArrayList<>();
-	private Runnable onClick;
+	private @Nullable Runnable onClick;
 
 	public Card() {
 		this(new Button.ButtonStyle());
@@ -125,114 +156,13 @@ public final class Card implements Component, Disposable {
 		return cardButton;
 	}
 
+	@Override
+	public SizeConstraints sizeConstraints() {
+		return cardButton.getSizeConstraints();
+	}
+
 	public Card name(String name) {
 		ElementModifiers.name(cardButton, name);
-		return this;
-	}
-
-	public Card width(float width) {
-		ElementModifiers.width(cardButton, width);
-		return this;
-	}
-
-	public Card width(Readable<Float> width) {
-		if (width != null) {
-			Effect e = Effect.of(() -> {
-				Float w = width.get();
-				if (w != null) {
-					width(w);
-				}
-			});
-			bindings.add(e);
-			ComponentContext.register(e);
-		}
-		return this;
-	}
-
-	public Card height(float height) {
-		ElementModifiers.height(cardButton, height);
-		return this;
-	}
-
-	public Card height(Readable<Float> height) {
-		if (height != null) {
-			Effect e = Effect.of(() -> {
-				Float h = height.get();
-				if (h != null) {
-					height(h);
-				}
-			});
-			bindings.add(e);
-			ComponentContext.register(e);
-		}
-		return this;
-	}
-
-	public Card size(float width, float height) {
-		ElementModifiers.size(cardButton, width, height);
-		return this;
-	}
-
-	public Card size(float size) {
-		ElementModifiers.size(cardButton, size);
-		return this;
-	}
-
-	public Card prefHeight(float prefHeight) {
-		return height(prefHeight);
-	}
-
-	public Card prefWidth(float prefWidth) {
-		return width(prefWidth);
-	}
-
-	public Card x(float x) {
-		ElementModifiers.x(cardButton, x);
-		return this;
-	}
-
-	public Card y(float y) {
-		ElementModifiers.y(cardButton, y);
-		return this;
-	}
-
-	public Card position(float x, float y) {
-		ElementModifiers.position(cardButton, x, y);
-		return this;
-	}
-
-	public Card visible(boolean visible) {
-		ElementModifiers.visible(cardButton, visible);
-		return this;
-	}
-
-	public Card top() {
-		ElementModifiers.top(container);
-		return this;
-	}
-
-	public Card bottom() {
-		ElementModifiers.bottom(container);
-		return this;
-	}
-
-	public Card left() {
-		ElementModifiers.left(container);
-		return this;
-	}
-
-	public Card right() {
-		ElementModifiers.right(container);
-		return this;
-	}
-
-	public Card center() {
-		ElementModifiers.center(container);
-		return this;
-	}
-
-	public Card gap(float g) {
-		ElementModifiers.gap(container, g);
 		return this;
 	}
 
@@ -360,17 +290,67 @@ public final class Card implements Component, Disposable {
 		return this;
 	}
 
+	public Card top() {
+		ElementModifiers.top(container);
+		return this;
+	}
+
+	public Card bottom() {
+		ElementModifiers.bottom(container);
+		return this;
+	}
+
+	public Card left() {
+		ElementModifiers.left(container);
+		return this;
+	}
+
+	public Card right() {
+		ElementModifiers.right(container);
+		return this;
+	}
+
+	public Card center() {
+		ElementModifiers.center(container);
+		return this;
+	}
+
+	public Card gap(float g) {
+		ElementModifiers.gap(container, g);
+		return this;
+	}
+
 	public Card style(Button.ButtonStyle style) {
 		if (style != null) {
 			cardButton.setStyle(style);
 		}
 		return this;
 	}
-	
-    public Card background(Drawable background) {
+
+	public Card background(Drawable background) {
 		if (background != null) {
 			cardButton.setBackground(background);
 		}
+		return this;
+	}
+
+	public Card x(float x) {
+		ElementModifiers.x(cardButton, x);
+		return this;
+	}
+
+	public Card y(float y) {
+		ElementModifiers.y(cardButton, y);
+		return this;
+	}
+
+	public Card position(float x, float y) {
+		ElementModifiers.position(cardButton, x, y);
+		return this;
+	}
+
+	public Card visible(boolean visible) {
+		ElementModifiers.visible(cardButton, visible);
 		return this;
 	}
 
