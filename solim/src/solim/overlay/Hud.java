@@ -40,8 +40,31 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 	private @Nullable Signal<Float> boundYSignal;
 	private boolean disposed = false;
 
+	public static class HudRootTable extends SizedTable {
+		private final Hud hud;
+
+		public HudRootTable(Hud hud) {
+			this.hud = hud;
+		}
+
+		@Override
+		public void validate() {
+			if (needsLayout()) {
+				float pw = getPrefWidth();
+				float ph = getPrefHeight();
+				if (pw > 0f && ph > 0f && (Math.abs(getWidth() - pw) > 0.5f || Math.abs(getHeight() - ph) > 0.5f)) {
+					setSize(pw, ph);
+					if (hud != null) {
+						hud.keepInScreen();
+					}
+				}
+			}
+			super.validate();
+		}
+	}
+
 	public Hud() {
-		this.root = new SizedTable();
+		this.root = new HudRootTable(this);
 		this.root.name = "solim-hud-root";
 		this.root.touchable = Touchable.childrenOnly;
         this.root.toFront();
@@ -114,6 +137,15 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 
 	public Hud background(@Nullable Drawable bg) {
 		container.background(bg);
+		return this;
+	}
+
+	public Hud background(@Nullable Readable<Drawable> bg) {
+		if (bg != null) {
+			Effect e = Effect.of(() -> container.background(bg.get()));
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 
@@ -254,8 +286,9 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 	}
 
 	public void keepInScreen() {
-		float sw = Core.scene != null ? Core.scene.getWidth() : (Core.graphics != null ? Core.graphics.getWidth() : 0f);
-		float sh = Core.scene != null ? Core.scene.getHeight() : (Core.graphics != null ? Core.graphics.getHeight() : 0f);
+		float scl = arc.scene.ui.layout.Scl.scl();
+		float sw = Core.scene != null ? Core.scene.getWidth() : (Core.graphics != null ? Core.graphics.getWidth() / (scl > 0f ? scl : 1f) : 0f);
+		float sh = Core.scene != null ? Core.scene.getHeight() : (Core.graphics != null ? Core.graphics.getHeight() / (scl > 0f ? scl : 1f) : 0f);
 		if (sw <= 0f || sh <= 0f) return;
 
 		if (root.getWidth() <= 0f || root.getHeight() <= 0f) {

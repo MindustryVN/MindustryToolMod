@@ -12,6 +12,7 @@ import mindustrytool.features.FeatureManager;
 import mindustrytool.features.background.BackgroundFeature;
 import mindustrytool.features.chat.ChatFeature;
 import mindustrytool.features.quickaccess.QuickAccessFeature;
+import mindustrytool.features.teamresource.TeamResourceFeature;
 import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
@@ -37,8 +38,7 @@ public class Main extends Mod {
 			Vars.ui.showErrorMessage("Mod cant find itself, please contact admin on Discord to fix the problem");
 			return;
 		}
-
-		FeatureManager.register(new BackgroundFeature(), new QuickAccessFeature(), new ChatFeature());
+		FeatureManager.register(new BackgroundFeature(), new QuickAccessFeature(), new ChatFeature(), new TeamResourceFeature());
 
 		Events.on(ClientLoadEvent.class, event -> {
 			registerMindustryToolButton();

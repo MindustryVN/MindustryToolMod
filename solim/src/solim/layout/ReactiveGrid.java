@@ -85,6 +85,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 		return this;
 	}
 
+
 	public SizedTable table() {
 		return table;
 	}

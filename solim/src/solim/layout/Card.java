@@ -229,65 +229,35 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 		return this;
 	}
 
-	public Card margin(float m) {
-		ElementModifiers.margin(container, m);
+	public Card padding(@Nullable Readable<Float> p) {
+		if (p != null) {
+			Effect e = Effect.of(() -> {
+				Float v = p.get();
+				if (v != null) {
+					padding(v);
+				}
+			});
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 
-	public Card margin(float top, float left, float bottom, float right) {
-		ElementModifiers.margin(container, top, left, bottom, right);
+	public Card padding(@Nullable Readable<Float> top, @Nullable Readable<Float> left, @Nullable Readable<Float> bottom, @Nullable Readable<Float> right) {
+		Effect e = Effect.of(() -> {
+			float t = top != null && top.get() != null ? top.get() : 0f;
+			float l = left != null && left.get() != null ? left.get() : 0f;
+			float b = bottom != null && bottom.get() != null ? bottom.get() : 0f;
+			float r = right != null && right.get() != null ? right.get() : 0f;
+			padding(t, l, b, r);
+		});
+		bindings.add(e);
+		ComponentContext.register(e);
 		return this;
 	}
 
-	public Card marginTop(float top) {
-		ElementModifiers.marginTop(container, top);
-		return this;
-	}
-
-	public Card marginBottom(float bottom) {
-		ElementModifiers.marginBottom(container, bottom);
-		return this;
-	}
-
-	public Card marginLeft(float left) {
-		ElementModifiers.marginLeft(container, left);
-		return this;
-	}
-
-	public Card marginRight(float right) {
-		ElementModifiers.marginRight(container, right);
-		return this;
-	}
-
-	public Card pad(float p) {
-		ElementModifiers.pad(container, p);
-		return this;
-	}
-
-	public Card pad(float top, float left, float bottom, float right) {
-		ElementModifiers.pad(container, top, left, bottom, right);
-		return this;
-	}
-
-	public Card padTop(float top) {
-		ElementModifiers.padTop(container, top);
-		return this;
-	}
-
-	public Card padBottom(float bottom) {
-		ElementModifiers.padBottom(container, bottom);
-		return this;
-	}
-
-	public Card padLeft(float left) {
-		ElementModifiers.padLeft(container, left);
-		return this;
-	}
-
-	public Card padRight(float right) {
-		ElementModifiers.padRight(container, right);
-		return this;
-	}
+	// Note: padding() configures the inner spacing of the card container,
+	// while margin() is inherited from LayoutModifiers and configures outer spacing on the parent cell.
 
 	@Override
 	public Card top() {
@@ -354,6 +324,11 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 	}
 
 	public Card visible(boolean visible) {
+		ElementModifiers.visible(cardButton, visible);
+		return this;
+	}
+
+	public Card visible(@Nullable Readable<Boolean> visible) {
 		ElementModifiers.visible(cardButton, visible);
 		return this;
 	}

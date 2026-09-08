@@ -83,6 +83,19 @@ public final class ElementModifiers {
         element.visible = visible;
     }
 
+    public static void visible(@Nullable Element element, @Nullable Readable<Boolean> visible) {
+        if (element == null || visible == null)
+            return;
+        solim.signal.Effect e = solim.signal.Effect.of(() -> {
+            Boolean val = visible.get();
+            if (val != null) {
+                element.visible = val;
+                element.invalidateHierarchy();
+            }
+        });
+        solim.core.ComponentContext.register(e);
+    }
+
     public static void opacity(@Nullable Element element, float opacity) {
         if (element == null)
             return;

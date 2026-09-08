@@ -51,6 +51,12 @@ public final class SizeConstraints {
 	/** Whether the parent cell should grow this element on the Y axis. */
 	public boolean growY = false;
 
+	/** Outer margins (applied as cell.pad()). Null means use container default. */
+	public @Nullable Readable<Float> padTop;
+	public @Nullable Readable<Float> padLeft;
+	public @Nullable Readable<Float> padBottom;
+	public @Nullable Readable<Float> padRight;
+
 	/** Alignment of this element within its parent cell. Null means use container default. */
 	public @Nullable Integer align;
 
@@ -106,6 +112,11 @@ public final class SizeConstraints {
 		effects.addAll(bind(cell, maxWidth,   v -> applyMaxWidth(cell, v)));
 		effects.addAll(bind(cell, maxHeight,  v -> applyMaxHeight(cell, v)));
 
+		effects.addAll(bind(cell, padTop,     v -> cell.padTop(Math.max(0f, v))));
+		effects.addAll(bind(cell, padLeft,    v -> cell.padLeft(Math.max(0f, v))));
+		effects.addAll(bind(cell, padBottom,  v -> cell.padBottom(Math.max(0f, v))));
+		effects.addAll(bind(cell, padRight,   v -> cell.padRight(Math.max(0f, v))));
+
 		if (growX) cell.growX();
 		if (growY) cell.growY();
 
@@ -114,6 +125,24 @@ public final class SizeConstraints {
 		}
 
 		return effects;
+	}
+
+	/**
+	 * Immediately applies margin constraints to the element's parent cell if the element is
+	 * already attached to a parent Table.
+	 */
+	public void applyMarginToParentCell(@Nullable Element element) {
+		if (element != null && element.parent instanceof Table) {
+			Table parentTable = (Table) element.parent;
+			Cell<?> cell = parentTable.getCell(element);
+			if (cell != null) {
+				if (padTop != null && padTop.get() != null) cell.padTop(Math.max(0f, padTop.get()));
+				if (padLeft != null && padLeft.get() != null) cell.padLeft(Math.max(0f, padLeft.get()));
+				if (padBottom != null && padBottom.get() != null) cell.padBottom(Math.max(0f, padBottom.get()));
+				if (padRight != null && padRight.get() != null) cell.padRight(Math.max(0f, padRight.get()));
+				parentTable.invalidate();
+			}
+		}
 	}
 
 	/**
@@ -156,6 +185,9 @@ public final class SizeConstraints {
 			Float v = source.get();
 			if (v != null) {
 				applier.apply(v);
+				if (cell.get() != null) {
+					cell.get().invalidate();
+				}
 				// Invalidate the parent table so layout is recalculated with the new constraint.
 				if (cell.getTable() != null) {
 					cell.getTable().invalidateHierarchy();

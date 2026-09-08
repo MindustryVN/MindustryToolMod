@@ -7,6 +7,7 @@ import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 import solim.overlay.Hud;
+import solim.signal.Readable;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
@@ -160,6 +161,11 @@ public final class Row implements Component, LayoutModifiers<Row> {
 	}
 
 	public Row visible(boolean visible) {
+		ElementModifiers.visible(table, visible);
+		return this;
+	}
+
+	public Row visible(@Nullable Readable<Boolean> visible) {
 		ElementModifiers.visible(table, visible);
 		return this;
 	}
