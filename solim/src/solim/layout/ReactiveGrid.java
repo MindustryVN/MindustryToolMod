@@ -28,7 +28,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 	private Runnable emptyRunnable;
 	private Supplier<Component> emptyViewSupplier;
 	private Component currentEmptyComponent;
-	private float gap = 10f;
+	private float gap = 0f;
 
 	public ReactiveGrid(
 			Readable<Integer> columnCount,
@@ -138,7 +138,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 				} finally {
 					ParentStack.pop();
 				}
-				table.add(emptyTable).center().pad(40f);
+				table.add(emptyTable).center();
 			} else if (emptyViewSupplier != null) {
 				if (currentEmptyComponent == null) {
 					currentEmptyComponent = ParentStack.isolate(() -> {
@@ -149,7 +149,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 						return c;
 					});
 				}
-				table.add(currentEmptyComponent.element()).pad(40f).center();
+				table.add(currentEmptyComponent.element()).center();
 			}
 			return;
 		}

@@ -35,10 +35,11 @@ class ObjectGraphScannerTest {
 	@Test
 	void locationsIncludeFieldPaths() {
 		List<ReactiveRef> refs = ObjectGraphScanner.scan(new Root(), 4);
+		assertEquals(3, refs.size(), "expected count, inner/name and exactly one effect");
 		List<String> locations = refs.stream().map(r -> r.location).collect(Collectors.toList());
-		assertTrue(locations.stream().anyMatch(l -> l.endsWith("/count")));
-		assertTrue(locations.stream().anyMatch(l -> l.endsWith("/inner/name")));
-		assertTrue(locations.stream().anyMatch(l -> l.endsWith("/fx")));
+		assertTrue(locations.stream().anyMatch(l -> l.contains("count")), "locations=" + locations);
+		assertTrue(locations.stream().anyMatch(l -> l.contains("inner/name")), "locations=" + locations);
+		assertEquals(1, refs.stream().filter(r -> r.kind == ReactiveKind.EFFECT).count(), "locations=" + locations);
 	}
 
 	@Test

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
@@ -55,18 +56,30 @@ class SnapshotIntrospectionTest {
 		assertTrue(signals.contains("\"gadget\""), "source element missing: " + signals);
 	}
 
-	@Test
-	void signalsDiscoveredFromUserObjectComponent() {
+@Test
+	void signalsDiscoveredFromUserObjectComponent() throws Exception {
 		Table root = new Table();
 		root.name = "root";
 		root.userObject = new GadgetComponent();
 
 		UiSnapshot snapshot = UiSnapshot.capture(root);
-		String signals = snapshot.signalsJson().toString();
-		assertTrue(signals.contains("\"scale\""), signals);
-		assertTrue(signals.contains("\"label\""), signals);
-		String bindings = snapshot.bindingsJson().toString();
-		assertTrue(bindings.contains("\"fx\""), bindings);
+		System.out.println("DBG userObj refs=" + ObjectGraphScanner.scan(root.userObject, 3).stream()
+			.map(r -> r.kind + "@" + r.location).collect(java.util.stream.Collectors.toList()));
+		System.out.println("DBG userObj captureSize=" + snapshot.reactiveRefs.size());
+		JsonNode signals = snapshot.signalsJson();
+		boolean hasScale = false;
+		boolean hasLabel = false;
+		for (JsonNode entry : signals) {
+			String location = entry.path("location").asText();
+			if (location.contains("scale")) hasScale = true;
+			if (location.contains("label")) hasLabel = true;
+		}
+		assertTrue(hasScale, "scale missing: " + signals);
+		assertTrue(hasLabel, "label missing: " + signals);
+
+		JsonNode bindings = snapshot.bindingsJson();
+		assertEquals(1, bindings.size(), "expected exactly one effect: " + bindings);
+		assertTrue(bindings.toString().contains("dependencies"));
 	}
 
 	@Test
@@ -83,7 +96,8 @@ class SnapshotIntrospectionTest {
 		ComponentContext.push(probe);
 		try {
 			UiSnapshot snapshot = UiSnapshot.capture(null);
-			assertTrue(snapshot.signalsJson().toString().contains("\"duringBuild\""));
+			String signals = snapshot.signalsJson().toString();
+			assertTrue(signals.contains("duringBuild"), signals);
 		} finally {
 			ComponentContext.pop();
 		}

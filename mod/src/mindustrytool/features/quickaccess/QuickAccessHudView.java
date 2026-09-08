@@ -54,8 +54,8 @@ public class QuickAccessHudView extends BaseComponent {
 	@Override
 	protected Element build() {
 		Readable<Float> scale = parentFeature.scaleConfig.signal();
-		Readable<Float> buttonSize = scale.map(s -> 48f * s);
-		Readable<Float> margin = scale.map(s -> 8f * s);
+		Readable<Float> buttonSize = scale.map(s -> unit(10) * s);
+		Readable<Float> margin = scale.map(s -> unit(2) * s);
 
 		Readable<List<HudItem>> items = parentFeature.hiddenFeaturesConfig.signal().map(this::computeVisibleItems);
 
@@ -63,13 +63,13 @@ public class QuickAccessHudView extends BaseComponent {
 			button()
 					.style(Styles.clearNonei)
 					.size(buttonSize)
-					.margin(margin)
 					.children(() -> image(Icon.move).scaling(Scaling.fit))
 					.draggable(parentFeature.xSignal, parentFeature.ySignal);
 
 			image(Tex.whiteui)
 					.color(Pal.accent)
 					.width(2f)
+                    .marginRight(2)
 					.growY();
 
 			grid(parentFeature.colsConfig.signal(), items, HudItem::id, item -> createItemButton(item, buttonSize, margin))
@@ -103,10 +103,10 @@ public class QuickAccessHudView extends BaseComponent {
 		if (item.feature != null) {
 			Feature f = item.feature;
 			FeatureMetadata meta = f.getMetadata();
+
 			return button()
 					.style(Styles.clearNonei)
 					.size(buttonSize)
-					.margin(margin)
 					.tooltip(f.getName())
 					.onClick(() -> f.setEnabled(!f.isEnabled()))
 					.onLongClick(300L, () -> {
@@ -122,7 +122,6 @@ public class QuickAccessHudView extends BaseComponent {
 			return button()
 					.style(Styles.clearNonei)
 					.size(buttonSize)
-					.margin(margin)
 					.onClick(() -> new FeatureSettingDialog().show())
 					.children(() -> image(Icon.settings).scaling(Scaling.fit));
 		}

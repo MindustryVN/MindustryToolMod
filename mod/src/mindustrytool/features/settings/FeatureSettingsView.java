@@ -19,52 +19,34 @@ public final class FeatureSettingsView extends BaseComponent {
     private final Computed<Float> contentWidth = dvw(90f).map(w -> w - unit(10));
     private final Computed<Integer> columnCount = new Computed<>(() -> Math.max(1, (int) (contentWidth.get() / 340f)));
     private final Computed<Float> cardWidth = new Computed<>(() -> contentWidth.get() / columnCount.get());
-    private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(() -> FeatureManager.getFeatures()
-            .select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
+    private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(
+            () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
 
     @Override
     protected Element build() {
-        return column()
-                .grow()
-                .children(() -> {
-                    toolbar();
-                    scroll()
-                            .grow()
-                            .children(() -> {
-                                grid(
-                                        columnCount,
-                                        filteredFeatures,
-                                        feature -> feature.getMetadata().getId(),
-                                        feature -> new FeatureCard(feature, cardWidth))
-                                        .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
-                                                .color(Color.gray)
-                                                .padding(unit(4)));
-                            });
-                })
-                .element();
+        return column().grow().children(() -> {
+            toolbar();
+            scroll().grow().children(() -> {
+                grid(columnCount, filteredFeatures, feature -> feature.getMetadata().getId(),
+                        feature -> new FeatureCard(feature, cardWidth))
+                                .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
+                                        .color(Color.gray).padding(unit(4)))
+                                .gap(unit(2));
+            });
+        }).element();
     }
 
     private void toolbar() {
-        row()
-                .growX()
-                .gap(unit(2))
-                .children(() -> {
-                    icon(Icon.zoom);
-                    textField(filter)
-                            .growX()
-                            .placeholder(Core.bundle.get("feature.search.placeholder"));
+        row().growX().gap(unit(2)).children(() -> {
+            icon(Icon.zoom);
+            textField(filter).growX().placeholder(Core.bundle.get("feature.search.placeholder"));
 
-                    button(FeatureManager::reenable)
-                            .style(Styles.defaultb)
-                            .width(unit(50))
-                            .height(unit(10))
-                            .tooltip(Core.bundle.get("feature.button.re-enable.tooltip"))
-                            .gap(unit(2))
-                            .children(() -> {
-                                image(Icon.refresh);
-                                text(Core.bundle.get("feature.button.re-enable"));
-                            });
-                });
+            button(FeatureManager::reenable).style(Styles.defaultb).width(unit(50)).height(unit(10))
+                    .tooltip(Core.bundle.get("feature.button.re-enable.tooltip")).gap(unit(2)).children(() -> {
+                        image(Icon.refresh);
+                        text(Core.bundle.get("feature.button.re-enable"));
+                    });
+        });
     }
 
     static boolean matchesFilter(Feature feature, String query) {
