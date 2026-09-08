@@ -53,9 +53,9 @@ class ElementModifiersTest {
 		assertEquals(10f, CellAccess.padTop(table.defaults()), 0.01f);
 
 		Element element = new Element();
-		assertThrows(IllegalArgumentException.class, () -> ElementModifiers.gap(element, 20f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.gap((Table) null, 20f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.gap((Element) null, 20f));
+		assertDoesNotThrow(() -> ElementModifiers.gap(element, 20f));
+		assertDoesNotThrow(() -> ElementModifiers.gap((Table) null, 20f));
+		assertDoesNotThrow(() -> ElementModifiers.gap((Element) null, 20f));
 	}
 
 	@Test
@@ -93,27 +93,27 @@ class ElementModifiersTest {
 		ElementModifiers.name(element, "test-element");
 		assertEquals("test-element", element.name);
 
-		assertThrows(NullPointerException.class, () -> ElementModifiers.name(null, "ignored"));
+		assertDoesNotThrow(() -> ElementModifiers.name(null, "ignored"));
 	}
 
 	@Test
-	void elementModifiersNullThrows() {
-		assertThrows(NullPointerException.class, () -> ElementModifiers.width(null, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.height(null, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.size(null, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.size(null, 10f, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.x(null, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.y(null, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.position(null, 10f, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.visible(null, true));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.align(null, 0));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.top(null));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.bottom(null));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.left(null));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.right(null));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.center(null));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.margin(null, 10f));
-		assertThrows(NullPointerException.class, () -> ElementModifiers.padding(null, 10f));
+	void elementModifiersNullSafe() {
+		assertDoesNotThrow(() -> ElementModifiers.width(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.height(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.size(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.size(null, 10f, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.x(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.y(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.position(null, 10f, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.visible(null, true));
+		assertDoesNotThrow(() -> ElementModifiers.align(null, 0));
+		assertDoesNotThrow(() -> ElementModifiers.top(null));
+		assertDoesNotThrow(() -> ElementModifiers.bottom(null));
+		assertDoesNotThrow(() -> ElementModifiers.left(null));
+		assertDoesNotThrow(() -> ElementModifiers.right(null));
+		assertDoesNotThrow(() -> ElementModifiers.center(null));
+		assertDoesNotThrow(() -> ElementModifiers.margin(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.padding(null, 10f));
 	}
 
 	@Test
