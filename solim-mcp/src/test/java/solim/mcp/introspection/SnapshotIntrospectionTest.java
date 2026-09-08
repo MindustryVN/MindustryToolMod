@@ -1,0 +1,104 @@
+package solim.mcp.introspection;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import arc.scene.Element;
+import arc.scene.ui.layout.Table;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import org.junit.jupiter.api.Test;
+import solim.core.BaseComponent;
+import solim.core.ComponentContext;
+import solim.signal.Computed;
+import solim.signal.Effect;
+import solim.signal.Signal;
+
+class SnapshotIntrospectionTest {
+
+	/** Arc element subclass holding reactive sources, mirroring {@code ConstrainedElement} usage. */
+	static class GadgetElement extends Table {
+		final Signal<Float> progress = Signal.of(0.5f);
+		final Computed<String> percent = progress.map(v -> Math.round(v * 100) + "%");
+	}
+
+	static class GadgetComponent {
+		final Signal<Integer> scale = Signal.of(3);
+		final Computed<String> label = scale.map(v -> "x" + v);
+		final Effect fx = Effect.of(() -> scale.get());
+	}
+
+	@Test
+	void treeCapturesNameTypeAndChildren() {
+		Table root = new Table();
+		root.name = "root";
+		GadgetElement gadget = new GadgetElement();
+		gadget.name = "gadget";
+		root.add(gadget);
+
+		UiSnapshot snapshot = UiSnapshot.capture(root);
+		assertTrue(snapshot.tree.toString().contains("\"root\""));
+		assertTrue(snapshot.tree.toString().contains("\"gadget\""));
+		assertTrue(snapshot.tree.toString().contains("GadgetElement"));
+	}
+
+	@Test
+	void signalsDiscoveredFromElementFields() {
+		Table root = new Table();
+		root.name = "root";
+		GadgetElement gadget = new GadgetElement();
+		gadget.name = "gadget";
+		root.add(gadget);
+
+		UiSnapshot snapshot = UiSnapshot.capture(root);
+		String signals = snapshot.signalsJson().toString();
+		assertTrue(signals.contains("\"progress\""), "element field signal missing: " + signals);
+		assertTrue(signals.contains("\"percent\""), "computed missing: " + signals);
+		assertTrue(signals.contains("\"gadget\""), "source element missing: " + signals);
+	}
+
+	@Test
+	void signalsDiscoveredFromUserObjectComponent() {
+		Table root = new Table();
+		root.name = "root";
+		root.userObject = new GadgetComponent();
+
+		UiSnapshot snapshot = UiSnapshot.capture(root);
+		String signals = snapshot.signalsJson().toString();
+		assertTrue(signals.contains("\"scale\""), signals);
+		assertTrue(signals.contains("\"label\""), signals);
+		String bindings = snapshot.bindingsJson().toString();
+		assertTrue(bindings.contains("\"fx\""), bindings);
+	}
+
+	@Test
+	void scansAmbientComponentContext() {
+		class Probe extends BaseComponent {
+			final Signal<Integer> duringBuild = Signal.of(11);
+
+			@Override
+			protected Element build() {
+				return new Table();
+			}
+		}
+		Probe probe = new Probe();
+		ComponentContext.push(probe);
+		try {
+			UiSnapshot snapshot = UiSnapshot.capture(null);
+			assertTrue(snapshot.signalsJson().toString().contains("\"duringBuild\""));
+		} finally {
+			ComponentContext.pop();
+		}
+	}
+
+	@Test
+	void layoutMetricsAvailableForElements() {
+		Table table = new Table();
+		table.name = "panel";
+		table.setPosition(10f, 20f);
+
+		ObjectNode layout = LayoutInspector.node(table);
+		assertNotNull(layout);
+		assertEquals(10f, (float) layout.path("x").asDouble());
+		assertEquals(20f, (float) layout.path("y").asDouble());
+		assertTrue(layout.path("visible").asBoolean());
+	}
+}

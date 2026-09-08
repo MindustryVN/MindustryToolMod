@@ -26,13 +26,18 @@ public final class McpConfig {
 	public final String token;
 	public final long pollMs;
 
-	private McpConfig(boolean enabled, String host, int port, int httpPort, String token, long pollMs) {
+	/**
+	 * Test/embedding constructor. A {@code port} or {@code httpPort} of {@code 0} binds an ephemeral
+	 * port; {@code pollMs} must be positive. Value validation is performed by {@link
+	 * #fromProperties()}.
+	 */
+	public McpConfig(boolean enabled, String host, int port, int httpPort, String token, long pollMs) {
 		this.enabled = enabled;
 		this.host = host;
 		this.port = port;
 		this.httpPort = httpPort;
 		this.token = token;
-		this.pollMs = pollMs;
+		this.pollMs = pollMs > 0 ? pollMs : 500L;
 	}
 
 	public static McpConfig fromProperties() {

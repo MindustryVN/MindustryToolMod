@@ -70,6 +70,30 @@ public final class ElementModifiers {
 		element.visible = visible;
 	}
 
+	public static void opacity(@Nullable Element element, float opacity) {
+		if (element == null) return;
+		element.color.a = Math.max(0f, Math.min(1f, opacity));
+	}
+
+	public static void opacity(@Nullable Element element, @Nullable Readable<Float> opacity) {
+		if (element == null || opacity == null) return;
+		solim.signal.Effect e = solim.signal.Effect.of(() -> {
+			Float val = opacity.get();
+			if (val != null) {
+				opacity(element, val);
+			}
+		});
+		solim.core.ComponentContext.register(e);
+	}
+
+	public static void alpha(@Nullable Element element, float alpha) {
+		opacity(element, alpha);
+	}
+
+	public static void alpha(@Nullable Element element, @Nullable Readable<Float> alpha) {
+		opacity(element, alpha);
+	}
+
 	public static void name(@Nullable Element element, @Nullable String name) {
 		if (element == null) return;
 		element.name = name;

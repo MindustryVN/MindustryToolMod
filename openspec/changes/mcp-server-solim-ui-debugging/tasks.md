@@ -21,12 +21,12 @@
 ## 4. MCP Tools and JSON-RPC
 
 - [x] 4.1 Define MCP tool schemas for `get_component_tree`, `get_signal_values`, `get_bindings`, `get_layout`
-- [ ] 4.2 Implement JSON-RPC 2.0 dispatch binding tools to their request handlers with error responses
+- [x] 4.2 Implement JSON-RPC 2.0 dispatch binding tools to their request handlers with error responses
 
 ## 5. WebSocket Transport
 
-- [ ] 5.1 Implement the WebSocket server with token-auth handshake rejection and JSON-RPC handling
-- [ ] 5.2 Implement subscription change notifications via signal-value and tree-shape sampling diffs
+- [x] 5.1 Implement the WebSocket server with token-auth handshake rejection and JSON-RPC handling
+- [x] 5.2 Implement subscription change notifications via signal-value and tree-shape sampling diffs
 
 ## 6. Tests and Documentation
 

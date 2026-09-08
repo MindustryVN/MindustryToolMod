@@ -144,6 +144,30 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		return growX().growY();
 	}
 
+	// ---------- opacity / alpha ----------
+
+	default SELF opacity(float v) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.opacity(((solim.core.Component) this).element(), v);
+		}
+		return self();
+	}
+
+	default SELF opacity(Readable<Float> v) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.opacity(((solim.core.Component) this).element(), v);
+		}
+		return self();
+	}
+
+	default SELF alpha(float v) {
+		return opacity(v);
+	}
+
+	default SELF alpha(Readable<Float> v) {
+		return opacity(v);
+	}
+
 	// ---------- alignment ----------
 
 	/**

@@ -163,8 +163,11 @@ build.bat
 get-pip.py
 /venv/
 /archive
+build/
 
 mindustry/
 archive/
 bin/
 arc/
+.bin
+
