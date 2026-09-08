@@ -43,9 +43,12 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		this.root.name = "solim-hud-root";
 		this.root.touchable = Touchable.childrenOnly;
 
+		this.root.userObject = this;
+
 		this.container = new Table();
 		this.container.name = "solim-hud-container";
 		this.container.touchable = Touchable.enabled;
+		this.container.userObject = this;
 
 		this.root.add(container).pad(0).margin(0);
 
@@ -86,6 +89,21 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 	public Hud containerTouchable(Touchable touchable) {
 		container.touchable = touchable;
 		return this;
+	}
+
+	public static @Nullable Hud find(@Nullable Element element) {
+		Element cur = element;
+		while (cur != null) {
+			if (cur.userObject instanceof Hud) {
+				return (Hud) cur.userObject;
+			}
+			cur = cur.parent;
+		}
+		Table t = ParentStack.find(table -> table != null && table.userObject instanceof Hud);
+		if (t != null && t.userObject instanceof Hud) {
+			return (Hud) t.userObject;
+		}
+		return null;
 	}
 
 	public Hud background(@Nullable Drawable bg) {

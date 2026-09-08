@@ -413,12 +413,20 @@ public final class Button implements Component, Disposable {
 		return this;
 	}
 
-	public Button draggable(Hud hud) {
+	public Button draggable() {
+		return draggable((Hud) null);
+	}
+
+	public Button draggable(@Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+		return draggable((Hud) null, xSignal, ySignal);
+	}
+
+	public Button draggable(@Nullable Hud hud) {
 		ElementModifiers.draggable(sizedButton, hud);
 		return this;
 	}
 
-	public Button draggable(Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+	public Button draggable(@Nullable Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
 		ElementModifiers.draggable(sizedButton, hud, xSignal, ySignal);
 		return this;
 	}

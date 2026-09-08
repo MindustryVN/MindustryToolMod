@@ -273,6 +273,16 @@ public final class Ui {
         return h;
     }
 
+    public static Hud hud(@Nullable Cons<Hud> content) {
+        Hud h = hud();
+        h.children(() -> {
+            if (content != null) {
+                content.get(h);
+            }
+        });
+        return h;
+    }
+
     public static <T> Dynamic<T> dynamic(Readable<T> source, Function<T, Component> factory) {
         Dynamic<T> d = Dynamic.of(source, factory);
         ParentStack.attachToParent(d.element());

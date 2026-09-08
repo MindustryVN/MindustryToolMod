@@ -1,6 +1,7 @@
 package mindustrytool.features.quickaccess;
 
 import arc.Core;
+import arc.Events;
 import arc.scene.Element;
 import arc.scene.ui.Dialog;
 import arc.util.Nullable;
@@ -8,6 +9,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import mindustry.Vars;
+import mindustry.game.EventType.ResizeEvent;
 import mindustry.gen.Icon;
 import mindustrytool.config.ConfigGroup;
 import mindustrytool.config.ConfigValue;
@@ -26,6 +28,11 @@ public class QuickAccessFeature extends Feature {
     public final ConfigGroup portraitGroup;
     public final ConfigGroup landscapeGroup;
 
+    public final ConfigValue<Float> portraitXConfig;
+    public final ConfigValue<Float> portraitYConfig;
+    public final ConfigValue<Float> landscapeXConfig;
+    public final ConfigValue<Float> landscapeYConfig;
+
     public final Signal<Float> xSignal;
     public final Signal<Float> ySignal;
 
@@ -33,12 +40,12 @@ public class QuickAccessFeature extends Feature {
     private @Nullable QuickAccessSettingsDialog settingsDialog;
 
     public QuickAccessFeature() {
-        super(FeatureMetadata.builder()//
-                .id("quick-access")//
-                .icon(Icon.menu)//
-                .order(10)//
-                .enabledByDefault(true)//
-                .quickAccess(false)//
+        super(FeatureMetadata.builder()
+                .id("quick-access")
+                .icon(Icon.menu)
+                .order(10)
+                .enabledByDefault(true)
+                .quickAccess(false)
                 .build());
 
         config = ConfigGroup.of(getMetadata());
@@ -51,62 +58,65 @@ public class QuickAccessFeature extends Feature {
         portraitGroup = config.group("portrait");
         landscapeGroup = config.group("landscape");
 
+        float defX = Core.graphics.getWidth() / 2f;
+        float defY = Core.graphics.getHeight() / 2f;
+
+        portraitXConfig = portraitGroup.floatValue("x", Core.settings.getFloat("mindustrytool.quickaccess.x.portrait", defX));
+        portraitYConfig = portraitGroup.floatValue("y", Core.settings.getFloat("mindustrytool.quickaccess.y.portrait", defY));
+        landscapeXConfig = landscapeGroup.floatValue("x", Core.settings.getFloat("mindustrytool.quickaccess.x.landscape", defX));
+        landscapeYConfig = landscapeGroup.floatValue("y", Core.settings.getFloat("mindustrytool.quickaccess.y.landscape", defY));
+
         xSignal = Signal.of(x());
         ySignal = Signal.of(y());
 
-        xSignal.subscribe(val -> currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(val));
-        ySignal.subscribe(val -> currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(val));
+        xSignal.subscribe(val -> {
+            if (val != null) {
+                currentXConfig().set(val);
+            }
+        });
+        ySignal.subscribe(val -> {
+            if (val != null) {
+                currentYConfig().set(val);
+            }
+        });
+
+        Events.on(ResizeEvent.class, e -> updateOrientationPosition());
     }
 
-    private ConfigGroup currentOrientationGroup() {
-        return Core.graphics.isPortrait() ? portraitGroup : landscapeGroup;
+    public ConfigValue<Float> currentXConfig() {
+        return Core.graphics.isPortrait() ? portraitXConfig : landscapeXConfig;
+    }
+
+    public ConfigValue<Float> currentYConfig() {
+        return Core.graphics.isPortrait() ? portraitYConfig : landscapeYConfig;
     }
 
     public float x() {
-        Float val = currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).get();
+        Float val = currentXConfig().get();
         return val != null ? val : Core.graphics.getWidth() / 2f;
     }
 
     public void x(float value) {
-        currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(value);
+        currentXConfig().set(value);
         xSignal.set(value);
     }
 
     public float y() {
-        Float val = currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).get();
+        Float val = currentYConfig().get();
         return val != null ? val : Core.graphics.getHeight() / 2f;
     }
 
     public void y(float value) {
-        currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(value);
+        currentYConfig().set(value);
         ySignal.set(value);
     }
 
-    public float opacity() {
-        Float val = opacityConfig.get();
-        return val != null ? val : 1f;
-    }
-
-    public void opacity(float value) {
-        opacityConfig.set(value);
-    }
-
-    public float scale() {
-        Float val = scaleConfig.get();
-        return val != null ? val : 1f;
-    }
-
-    public void scale(float value) {
-        scaleConfig.set(value);
-    }
-
-    public int cols() {
-        Integer val = colsConfig.get();
-        return val != null ? val : 6;
-    }
-
-    public void cols(int value) {
-        colsConfig.set(value);
+    public void updateOrientationPosition() {
+        xSignal.set(x());
+        ySignal.set(y());
+        if (hudView != null) {
+            hudView.keepInScreen();
+        }
     }
 
     public boolean isFeatureVisible(String id) {
@@ -126,8 +136,14 @@ public class QuickAccessFeature extends Feature {
     }
 
     public void resetPosition() {
-        x(Core.graphics.getWidth() / 2f);
-        y(Core.graphics.getHeight() / 2f);
+        float cx = Core.graphics.getWidth() / 2f;
+        float cy = Core.graphics.getHeight() / 2f;
+        portraitXConfig.set(cx);
+        portraitYConfig.set(cy);
+        landscapeXConfig.set(cx);
+        landscapeYConfig.set(cy);
+        xSignal.set(cx);
+        ySignal.set(cy);
     }
 
     @Override
@@ -158,12 +174,6 @@ public class QuickAccessFeature extends Feature {
             hudView.element().remove();
             hudView.dispose();
             hudView = null;
-        }
-    }
-
-    public void rebuildHud() {
-        if (hudView != null) {
-            hudView.rebuild();
         }
     }
 

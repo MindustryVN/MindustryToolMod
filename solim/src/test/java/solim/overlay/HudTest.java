@@ -8,6 +8,7 @@ import arc.input.KeyCode;
 import arc.mock.MockApplication;
 import arc.mock.MockGraphics;
 import arc.scene.Element;
+import arc.scene.event.ClickListener;
 import arc.scene.event.EventListener;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
@@ -146,6 +147,186 @@ class HudTest {
 		assertEquals(668f, hud.element().y, 0.01f, "HUD Y should clamp to 668");
 		assertEquals(824f, xSig.get(), 0.01f, "X signal should clamp to 824");
 		assertEquals(668f, ySig.get(), 0.01f, "Y signal should clamp to 668");
+
+		hud.dispose();
+	}
+
+	@Test
+	void draggableStageCoordinates() {
+		Hud hud = new Hud();
+		hud.element().setSize(200f, 100f);
+		hud.position(100f, 100f);
+
+		Signal<Float> xSig = Signal.of(100f);
+		Signal<Float> ySig = Signal.of(100f);
+
+		Element handle = new Element();
+		hud.draggable(handle, xSig, ySig);
+
+		InputListener dragListener = (InputListener) handle.getListeners().first();
+
+		InputEvent event = new InputEvent();
+		event.stageX = 200f;
+		event.stageY = 300f;
+		dragListener.touchDown(event, 10f, 10f, 0, KeyCode.mouseLeft);
+
+		event.stageX = 230f;
+		event.stageY = 340f;
+		dragListener.touchDragged(event, 40f, 50f, 0);
+
+		assertEquals(130f, hud.element().x, 0.01f, "HUD X should move by delta stageX (+30)");
+		assertEquals(140f, hud.element().y, 0.01f, "HUD Y should move by delta stageY (+40)");
+		assertEquals(130f, xSig.get(), 0.01f);
+		assertEquals(140f, ySig.get(), 0.01f);
+
+		hud.dispose();
+	}
+
+	@Test
+	void draggableContextHud() {
+		Signal<Float> xSig = Signal.of(50f);
+		Signal<Float> ySig = Signal.of(60f);
+
+		Hud hud = Ui.hud(() -> {
+			Ui.button()
+					.draggable(xSig, ySig);
+		});
+
+		hud.element().setSize(100f, 50f);
+		hud.position(50f, 60f);
+
+		Element buttonEl = hud.container().getChildren().first();
+		InputListener dragListener = null;
+		for (EventListener l : buttonEl.getListeners()) {
+			if (l instanceof InputListener && !(l instanceof ClickListener)) {
+				dragListener = (InputListener) l;
+				break;
+			}
+		}
+		assertNotNull(dragListener, "Button inside hud() should automatically resolve context Hud and register listener");
+
+		InputEvent event = new InputEvent();
+		event.stageX = 100f;
+		event.stageY = 100f;
+		dragListener.touchDown(event, 5f, 5f, 0, KeyCode.mouseLeft);
+
+		event.stageX = 150f;
+		event.stageY = 180f;
+		dragListener.touchDragged(event, 55f, 85f, 0);
+
+		assertEquals(100f, hud.element().x, 0.01f);
+		assertEquals(140f, hud.element().y, 0.01f);
+		assertEquals(100f, xSig.get(), 0.01f);
+		assertEquals(140f, ySig.get(), 0.01f);
+
+		hud.dispose();
+	}
+
+	@Test
+	void multipleIndependentHuds() {
+		Signal<Float> x1 = Signal.of(10f);
+		Signal<Float> y1 = Signal.of(20f);
+		Signal<Float> x2 = Signal.of(100f);
+		Signal<Float> y2 = Signal.of(200f);
+
+		Hud hud1 = Ui.hud(() -> {
+			Ui.button().draggable(x1, y1);
+		});
+		hud1.element().setSize(50f, 50f);
+		hud1.position(10f, 20f);
+
+		Hud hud2 = Ui.hud(() -> {
+			Ui.button().draggable(x2, y2);
+		});
+		hud2.element().setSize(50f, 50f);
+		hud2.position(100f, 200f);
+
+		Element btn1 = hud1.container().getChildren().first();
+		Element btn2 = hud2.container().getChildren().first();
+
+		InputListener drag1 = null;
+		for (EventListener l : btn1.getListeners()) {
+			if (l instanceof InputListener && !(l instanceof ClickListener)) {
+				drag1 = (InputListener) l;
+				break;
+			}
+		}
+		InputListener drag2 = null;
+		for (EventListener l : btn2.getListeners()) {
+			if (l instanceof InputListener && !(l instanceof ClickListener)) {
+				drag2 = (InputListener) l;
+				break;
+			}
+		}
+
+		assertNotNull(drag1, "HUD 1 button should have drag listener");
+		assertNotNull(drag2, "HUD 2 button should have drag listener");
+
+		// Drag hud1 by +15, +25
+		InputEvent ev1 = new InputEvent();
+		ev1.stageX = 100f;
+		ev1.stageY = 100f;
+		drag1.touchDown(ev1, 5f, 5f, 0, KeyCode.mouseLeft);
+		ev1.stageX = 115f;
+		ev1.stageY = 125f;
+		drag1.touchDragged(ev1, 20f, 30f, 0);
+
+		// Verify hud1 moved and hud2 remained untouched
+		assertEquals(25f, hud1.element().x, 0.01f);
+		assertEquals(45f, hud1.element().y, 0.01f);
+		assertEquals(100f, hud2.element().x, 0.01f);
+		assertEquals(200f, hud2.element().y, 0.01f);
+
+		// Drag hud2 by +30, +40
+		InputEvent ev2 = new InputEvent();
+		ev2.stageX = 200f;
+		ev2.stageY = 200f;
+		drag2.touchDown(ev2, 5f, 5f, 0, KeyCode.mouseLeft);
+		ev2.stageX = 230f;
+		ev2.stageY = 240f;
+		drag2.touchDragged(ev2, 35f, 45f, 0);
+
+		// Both reflect their independent movements
+		assertEquals(25f, hud1.element().x, 0.01f);
+		assertEquals(45f, hud1.element().y, 0.01f);
+		assertEquals(130f, hud2.element().x, 0.01f);
+		assertEquals(240f, hud2.element().y, 0.01f);
+
+		hud1.dispose();
+		hud2.dispose();
+	}
+
+	@Test
+	void hudWithConsumerBuilder() {
+		Signal<Float> x = Signal.of(30f);
+		Signal<Float> y = Signal.of(40f);
+
+		Hud hud = Ui.hud(h -> {
+			Ui.button().draggable(h, x, y);
+		});
+		hud.element().setSize(50f, 50f);
+		hud.position(30f, 40f);
+
+		Element btn = hud.container().getChildren().first();
+		InputListener drag = null;
+		for (EventListener l : btn.getListeners()) {
+			if (l instanceof InputListener && !(l instanceof ClickListener)) {
+				drag = (InputListener) l;
+				break;
+			}
+		}
+		assertNotNull(drag);
+
+		InputEvent ev = new InputEvent();
+		ev.stageX = 50f;
+		ev.stageY = 50f;
+		drag.touchDown(ev, 5f, 5f, 0, KeyCode.mouseLeft);
+		ev.stageX = 70f;
+		ev.stageY = 80f;
+		drag.touchDragged(ev, 25f, 35f, 0);
+
+		assertEquals(50f, hud.element().x, 0.01f);
+		assertEquals(70f, hud.element().y, 0.01f);
 
 		hud.dispose();
 	}

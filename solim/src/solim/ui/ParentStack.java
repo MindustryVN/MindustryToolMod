@@ -3,6 +3,7 @@ package solim.ui;
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import arc.util.Nullable;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -70,6 +71,16 @@ public final class ParentStack {
 
 	public static Table current() {
 		return stack.isEmpty() ? null : stack.peek().table;
+	}
+
+	public static @Nullable Table find(java.util.function.Predicate<Table> predicate) {
+		if (predicate == null) return null;
+		for (Entry entry : stack) {
+			if (predicate.test(entry.table)) {
+				return entry.table;
+			}
+		}
+		return null;
 	}
 
 	public static void clear() {

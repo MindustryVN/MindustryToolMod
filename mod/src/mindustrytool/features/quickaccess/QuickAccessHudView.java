@@ -65,7 +65,7 @@ public class QuickAccessHudView extends BaseComponent {
 					.size(buttonSize)
 					.margin(margin)
 					.children(() -> image(Icon.move).scaling(Scaling.fit))
-					.draggable(hud, parentFeature.xSignal, parentFeature.ySignal);
+					.draggable(parentFeature.xSignal, parentFeature.ySignal);
 
 			image(Tex.whiteui)
 					.color(Pal.accent)
@@ -128,11 +128,8 @@ public class QuickAccessHudView extends BaseComponent {
 		}
 	}
 
-	public void rebuild() {
-		if (hud != null) {
-			hud.pack();
-			hud.keepInScreen();
-		}
+	public @Nullable Hud getHud() {
+		return hud;
 	}
 
 	public void keepInScreen() {
