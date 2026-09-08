@@ -234,16 +234,6 @@ public final class Text implements Component, Disposable {
 		return this;
 	}
 
-	public Text width(float width) {
-		ElementModifiers.width(label, width);
-		return this;
-	}
-
-	public Text height(float height) {
-		ElementModifiers.height(label, height);
-		return this;
-	}
-
 	public Text size(float width, float height) {
 		ElementModifiers.size(label, width, height);
 		return this;
