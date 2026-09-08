@@ -48,6 +48,24 @@ public final class UiSnapshot {
 		return new UiSnapshot(result.tree, result.refs);
 	}
 
+	/**
+	 * Captures the component tree only, scoped to a matching element subtree when {@code target} is
+	 * non-empty. Matching is by element name, simple class name, or fully qualified class name.
+	 */
+	public static ObjectNode tree(@Nullable Element root, @Nullable String target) {
+		return runOnUiThread(() -> {
+			if (target == null || target.isEmpty()) {
+				Element rootEl = root != null ? root : (Core.scene != null ? Core.scene.root : null);
+				return ComponentTreeInspector.tree(rootEl, 32);
+			}
+			Element scoped = find(root, target);
+			if (scoped == null) {
+				throw new IllegalArgumentException("No element matches '" + target + "'");
+			}
+			return ComponentTreeInspector.tree(scoped, 32);
+		});
+	}
+
 	/** All discovered signals/computeds with their live values. */
 	public ArrayNode signalsJson() {
 		ArrayNode out = JsonNodeFactory.instance.arrayNode();
@@ -79,8 +97,13 @@ public final class UiSnapshot {
 	}
 
 	/** Depth-first lookup of an element by name, simple class name, or fully qualified class name. */
-	public @Nullable Element findElement(Element root, String target) {
+	public static @Nullable Element find(@Nullable Element root, String target) {
 		return findElement(root, target, 0, new IdentityHashMap<>());
+	}
+
+	/** Thread-safe variant of {@link #find} that runs on the UI thread when a game is present. */
+	public static @Nullable Element lookup(@Nullable Element root, String target) {
+		return runOnUiThread(() -> find(root, target));
 	}
 
 	private static @Nullable Element findElement(@Nullable Element element, String target, int depth,
@@ -173,13 +196,13 @@ public final class UiSnapshot {
 		}
 	}
 
-	private static UiResult runOnUiThread(final Callable<UiResult> action) {
+	private static <T> T runOnUiThread(final Callable<T> action) {
 		try {
 			if (Core.app == null) {
 				return action.call();
 			}
 			final CountDownLatch latch = new CountDownLatch(1);
-			final AtomicReference<UiResult> result = new AtomicReference<>();
+			final AtomicReference<T> result = new AtomicReference<>();
 			final AtomicReference<Throwable> error = new AtomicReference<>();
 			Core.app.post(() -> {
 				try {

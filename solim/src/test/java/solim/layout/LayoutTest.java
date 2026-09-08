@@ -399,6 +399,34 @@ class LayoutTest {
 	}
 
 	@Test
+	void checkboxGrowVariants() {
+		org.junit.jupiter.api.Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
+		Table parent = new Table();
+		solim.input.Checkbox.SizedCheckBox cb = new solim.input.Checkbox.SizedCheckBox("Test");
+		parent.add(cb);
+		Cell<?> cell = parent.getCell(cb);
+		assertEquals(0, CellAccess.expandX(cell));
+		assertEquals(0, CellAccess.expandY(cell));
+
+		cb.growX();
+		assertTrue(CellAccess.expandX(cell) > 0, "cb.growX() must expand horizontally");
+		assertEquals(1f, CellAccess.fillX(cell), 0.001f, "cb.growX() must fill horizontally");
+		assertEquals(0, CellAccess.expandY(cell));
+
+		cb.growY();
+		assertTrue(CellAccess.expandY(cell) > 0, "cb.growY() must expand vertically");
+		assertEquals(1f, CellAccess.fillY(cell), 0.001f, "cb.growY() must fill vertically");
+
+		Table parent2 = new Table();
+		solim.input.Checkbox checkbox = new solim.input.Checkbox("Test", solim.signal.Signal.of(false));
+		parent2.add(checkbox.element());
+		Cell<?> cell2 = parent2.getCell(checkbox.element());
+		checkbox.grow();
+		assertTrue(CellAccess.expandX(cell2) > 0, "checkbox.grow() must expand horizontally");
+		assertTrue(CellAccess.expandY(cell2) > 0, "checkbox.grow() must expand vertically");
+	}
+
+	@Test
 	void columnInsideScrollCentering() {
 		Table root = new Table();
 		root.setSize(1000, 800);

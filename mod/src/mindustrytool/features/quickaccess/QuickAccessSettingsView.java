@@ -21,93 +21,60 @@ public class QuickAccessSettingsView extends BaseComponent {
 
     @Override
     protected Element build() {
-        return column()
-                .grow()
-                .center()
-                .children(() -> {
-                    scroll()
-                            .center()
-                            .children(() -> {
-                                column()
-                                        .growX()
-                                        .gap(unit(2))
-                                        .children(() -> {
-                                            row()
-                                                    .growX()
-                                                    .gap(unit(2))
-                                                    .children(() -> {
-                                                        text(Core.bundle.get("feature.quick-access.settings.opacity"))
-                                                                .left();
+        return column().grow().center().children(() -> {
+            scroll().center().children(() -> {
+                column().growX().gap(unit(2)).children(() -> {
+                    row().growX().gap(unit(2)).children(() -> {
+                        text(Core.bundle.get("feature.quick-access.settings.opacity")).left();
 
-                                                        spacer();
-                                                        slider(feature.opacityConfig.signal(), 0.5f, 1.0f, 0.05f);
+                        spacer();
+                        slider(feature.opacityConfig.signal(), 0.5f, 1.0f, 0.05f);
 
-                                                        row()
-                                                                .width(unit(10))
-                                                                .children(() -> {
-                                                                    text(feature.opacityConfig.signal()
-                                                                            .map(v -> String.format("%.0f%%",
-                                                                                    v * 100)));
-                                                                });
-                                                    });
+                        row().width(unit(10)).children(() -> {
+                            text(feature.opacityConfig.signal().map(v -> String.format("%.0f%%", v * 100)));
+                        });
+                    });
 
-                                            row()
-                                                    .growX()
-                                                    .gap(unit(2))
-                                                    .children(() -> {
-                                                        text(Core.bundle.get("feature.quick-access.settings.scale"))
-                                                                .left();
-                                                        spacer();
-                                                        slider(feature.scaleConfig.signal(), 0.5f, 1.5f, 0.1f);
+                    row().growX().gap(unit(2)).children(() -> {
+                        text(Core.bundle.get("feature.quick-access.settings.scale")).left();
+                        spacer();
+                        slider(feature.scaleConfig.signal(), 0.5f, 1.5f, 0.1f);
 
-                                                        row()
-                                                                .width(unit(10))
-                                                                .children(() -> {
-                                                                    text(feature.scaleConfig.signal()
-                                                                            .map(v -> String.format("%.0f%%",
-                                                                                    v * 100)));
-                                                                });
-                                                    });
+                        row().width(unit(10)).children(() -> {
+                            text(feature.scaleConfig.signal().map(v -> String.format("%.0f%%", v * 100)));
+                        });
+                    });
 
-                                            row()
-                                                    .growX()
-                                                    .gap(unit(2))
-                                                    .children(() -> {
-                                                        text(Core.bundle.get("feature.quick-access.settings.columns"))
-                                                                .left();
-                                                        spacer();
-                                                        slider(feature.colsConfig.signal(), 1, 9, 1);
+                    row().growX().gap(unit(2)).children(() -> {
+                        text(Core.bundle.get("feature.quick-access.settings.columns")).left();
+                        spacer();
+                        slider(feature.colsConfig.signal(), 1, 9, 1);
 
-                                                        row()
-                                                                .width(unit(10))
-                                                                .children(() -> {
-                                                                    text(feature.colsConfig.signal()
-                                                                            .map(String::valueOf));
-                                                                });
-                                                    });
+                        row().width(unit(10)).children(() -> {
+                            text(feature.colsConfig.signal().map(String::valueOf));
+                        });
+                    });
 
-                                            divider();
+                    divider();
 
-                                            text(Core.bundle.get("feature.quick-access.settings.visible-features"))
-                                                    .left()
-                                                    .growX()
-                                                    .color(Color.white);
+                    text(Core.bundle.get("feature.quick-access.settings.visible-features")).left().growX()
+                            .color(Color.white);
 
-                                            for (Feature f : FeatureManager.getFeatures()
-                                                    .select(f -> f != feature && f.getMetadata().isQuickAccess())) {
+                    for (Feature f : FeatureManager.getFeatures()
+                            .select(f -> f != feature && f.getMetadata().isQuickAccess())) {
 
-                                                FeatureMetadata meta = f.getMetadata();
+                        FeatureMetadata meta = f.getMetadata();
 
-                                                checkbox(f.getName(), feature.isFeatureVisible(meta.getId()),
-                                                        visible -> feature.setFeatureVisible(meta.getId(), visible));
-                                            }
+                        checkbox(f.getName(), feature.isFeatureVisible(meta.getId()),
+                                visible -> feature.setFeatureVisible(meta.getId(), visible)).growX();
+                    }
 
-                                            button(Core.bundle.get("feature.quick-access.settings.reset-position"),
-                                                    feature::resetPosition)
-                                                    .style(Styles.defaultb);
-                                        });
-                            });
-                })
-                .element();
+                    divider();
+
+                    button(Core.bundle.get("feature.quick-access.settings.reset-position"), feature::resetPosition)
+                            .style(Styles.defaultb).growX();
+                });
+            });
+        }).element();
     }
 }

@@ -13,14 +13,14 @@
 
 ## 3. Introspection Capabilities
 
-- [ ] 3.1 Implement `SignalIntrospector`: current values plus listener/observer/dependency counts mapped to stable DTOs
-- [ ] 3.2 Implement `ComponentTreeInspector`: snapshot the Arc Element tree (name, class, children)
-- [ ] 3.3 Implement `BindingInspector`: bindings/effects owned by scanned components with subscribed state
-- [ ] 3.4 Implement `LayoutInspector`: x/y/width/height and expansion flags for elements
+- [x] 3.1 Implement `SignalIntrospector`: current values plus listener/observer/dependency counts mapped to stable DTOs
+- [x] 3.2 Implement `ComponentTreeInspector`: snapshot the Arc Element tree (name, class, children)
+- [x] 3.3 Implement `BindingInspector`: bindings/effects owned by scanned components with subscribed state
+- [x] 3.4 Implement `LayoutInspector`: x/y/width/height and expansion flags for elements
 
 ## 4. MCP Tools and JSON-RPC
 
-- [ ] 4.1 Define MCP tool schemas for `get_component_tree`, `get_signal_values`, `get_bindings`, `get_layout`
+- [x] 4.1 Define MCP tool schemas for `get_component_tree`, `get_signal_values`, `get_bindings`, `get_layout`
 - [ ] 4.2 Implement JSON-RPC 2.0 dispatch binding tools to their request handlers with error responses
 
 ## 5. WebSocket Transport
