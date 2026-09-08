@@ -41,6 +41,7 @@ public class FeatureCard extends BaseComponent {
                 .children(() -> {
                     column()
                             .grow()
+                            .gap(unit(2))
                             .children(() -> {
                                 row()
                                         .children(() -> {

@@ -11,6 +11,7 @@ public final class Spacer implements Component {
 
 	public Spacer() {
 		table.name = "solim-spacer-table";
+		table.userObject = "expanding";
 		table.add().growX().growY();
 	}
 

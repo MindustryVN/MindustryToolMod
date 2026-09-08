@@ -26,11 +26,15 @@ Layouts SHALL support `growX()`, `growY()`, `grow()` on cells and convenience on
 - **THEN** same Arc `growX` behavior occurs
 
 ### Requirement: Spacer consumes remaining space
-`spacer()` SHALL create an element that grows to consume remaining space in `Row`/`Column`, typically via `add(new Spacer()).grow()`.
+`spacer()` SHALL create an element that grows to consume remaining space in `Row`/`Column`, typically via `add(new Spacer()).grow()`. The spacer element SHALL be recognized by `Ui.isExpanding(child)` and cause `Row.ATTACHER` to apply `cell.growX()` and `Column.ATTACHER` to apply `cell.growY()`.
 
-#### Scenario: Spacer between buttons
+#### Scenario: Spacer between buttons in Row
 - **WHEN** `row(() -> { button("Back"); spacer(); button("Save"); })` is rendered
-- **THEN** spacer expands and "Back" is left-aligned while "Save" is right-aligned
+- **THEN** spacer expands horizontally with `growX > 0` and "Back" is left-aligned while "Save" is right-aligned
+
+#### Scenario: Spacer in Column
+- **WHEN** `column(() -> { text("Top"); spacer(); text("Bottom"); })` is rendered
+- **THEN** spacer expands vertically with `growY > 0`, pushing "Bottom" to the end of the column
 
 ### Requirement: Grid with columns and gap
 `grid(int columns)` and `grid(columns).gap(g)` SHALL provide a grid layout container supporting `.children(Runnable)` after column count and gap configuration.

@@ -19,4 +19,12 @@ public final class CellAccess {
 	public static float padRight(Cell<?> cell) {
 		return cell.padRight;
 	}
+
+	public static int expandX(Cell<?> cell) {
+		return cell.expandX;
+	}
+
+	public static int expandY(Cell<?> cell) {
+		return cell.expandY;
+	}
 }
