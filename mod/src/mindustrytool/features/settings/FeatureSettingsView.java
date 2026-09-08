@@ -18,7 +18,6 @@ public final class FeatureSettingsView extends BaseComponent {
     private final Signal<String> filter = Signal.of("");
     private final Computed<Float> contentWidth = dvw(90f).map(w -> w - unit(10));
     private final Computed<Integer> columnCount = new Computed<>(() -> Math.max(1, (int) (contentWidth.get() / 340f)));
-    private final Computed<Float> cardWidth = new Computed<>(() -> contentWidth.get() / columnCount.get());
     private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(
             () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
 
@@ -30,7 +29,7 @@ public final class FeatureSettingsView extends BaseComponent {
                 grid(columnCount, //
                         filteredFeatures, //
                         feature -> feature.getMetadata().getId(), //
-                        feature -> new FeatureCard(feature, cardWidth)//
+                        feature -> new FeatureCard(feature)//
                 )//
                         .empty(() -> empty())//
                         .gap(unit(2));
