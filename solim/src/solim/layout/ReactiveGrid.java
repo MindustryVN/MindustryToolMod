@@ -2,6 +2,7 @@ package solim.layout;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
+import arc.util.Nullable;
 import java.util.*;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -62,6 +63,20 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 	public ReactiveGrid<T, K> gap(float gap) {
 		this.gap = gap;
 		ElementModifiers.gap(table, gap);
+		return this;
+	}
+
+	public ReactiveGrid<T, K> gap(@Nullable Readable<Float> gapSignal) {
+		if (gapSignal != null) {
+			Effect e = Effect.of(() -> {
+				Float g = gapSignal.get();
+				if (g != null) {
+					gap(g);
+				}
+			});
+			registerDisposable(e);
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 

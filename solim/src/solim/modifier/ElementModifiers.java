@@ -419,6 +419,14 @@ public final class ElementModifiers {
         if (table == null)
             return;
         table.defaults().pad(gap / 2f);
+        if (table.getCells() != null) {
+            for (Cell<?> cell : table.getCells()) {
+                if (cell != null) {
+                    cell.pad(gap / 2f);
+                }
+            }
+        }
+        table.invalidateHierarchy();
     }
 
     public static void gap(@Nullable Element element, float gap) {

@@ -46,9 +46,13 @@ public final class ObjectGraphScanner {
 		return scan(root, null, null, maxDepth);
 	}
 
-	/** Scans the given root and does <b>not</b> descend into other {@link Element} objects. */
+	/**
+	 * Scans an element and its immediate reactive fields without descending into other {@link
+	 * Element} objects. The small depth budget allows the user-object graph ({@code
+	 * Element.userObject}) to be walked a few levels deep.
+	 */
 	public static List<ReactiveRef> scanElement(@Nullable Element element) {
-		ObjectGraphScanner s = new ObjectGraphScanner(1);
+		ObjectGraphScanner s = new ObjectGraphScanner(4);
 		if (element == null) return s.found;
 		s.visit(element, 0, elementName(element), elementName(element));
 		return s.found;

@@ -63,9 +63,6 @@ class SnapshotIntrospectionTest {
 		root.userObject = new GadgetComponent();
 
 		UiSnapshot snapshot = UiSnapshot.capture(root);
-		System.out.println("DBG userObj refs=" + ObjectGraphScanner.scan(root.userObject, 3).stream()
-			.map(r -> r.kind + "@" + r.location).collect(java.util.stream.Collectors.toList()));
-		System.out.println("DBG userObj captureSize=" + snapshot.reactiveRefs.size());
 		JsonNode signals = snapshot.signalsJson();
 		boolean hasScale = false;
 		boolean hasLabel = false;

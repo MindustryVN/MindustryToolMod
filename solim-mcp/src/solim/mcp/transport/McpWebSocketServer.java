@@ -31,6 +31,7 @@ public final class McpWebSocketServer extends WebSocketServer {
 		this.config = config;
 		this.handler = handler;
 		setReuseAddr(true);
+		setDaemon(true);
 	}
 
 	@Override

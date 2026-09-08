@@ -103,9 +103,9 @@ public final class ReflectAccess {
 		return field;
 	}
 
-	/** Safely reads a field value, returning {@code null} on any reflective failure. */
+	/** Safely reads a field value, returning {@code null} on any reflective failure. Static fields accept a {@code null} target. */
 	public static Object read(Field field, Object target) {
-		if (field == null || target == null || accessible(field) == null) return null;
+		if (field == null || accessible(field) == null || (target == null && !isStatic(field))) return null;
 		try {
 			return field.get(target);
 		} catch (IllegalAccessException e) {

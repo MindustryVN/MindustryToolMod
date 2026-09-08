@@ -3,6 +3,7 @@ package solim.layout;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
+import arc.struct.Seq;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.core.ComponentContext;
@@ -11,7 +12,7 @@ import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.ui.ParentStack;
 
-/** Simple grid with fixed column count. */
+/** Simple grid with fixed or reactive column count and customizable gap. */
 public final class Grid implements Component, LayoutModifiers<Grid> {
 
 	private final SizedTable table;
@@ -22,6 +23,7 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 	public Grid() {
 		this.table = new SizedTable();
 		this.table.name = "solim-grid-table";
+		ElementModifiers.gap(table, gap);
 	}
 
 	public Grid(int columns) {
@@ -50,6 +52,7 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 
 	public Grid columns(int c) {
 		this.columns = Math.max(1, c);
+		reflow();
 		return this;
 	}
 
@@ -59,6 +62,7 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 				Integer cols = c.get();
 				if (cols != null) {
 					this.columns = Math.max(1, cols);
+					reflow();
 				}
 			});
 			ComponentContext.register(e);
@@ -72,6 +76,19 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 		return this;
 	}
 
+	public Grid gap(@Nullable Readable<Float> gapSignal) {
+		if (gapSignal != null) {
+			Effect e = Effect.of(() -> {
+				Float g = gapSignal.get();
+				if (g != null) {
+					gap(g);
+				}
+			});
+			ComponentContext.register(e);
+		}
+		return this;
+	}
+
 	public Grid background(@Nullable Drawable bg) {
 		table.background(bg);
 		return this;
@@ -79,8 +96,9 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 
 	public Grid children(@Nullable Runnable r) {
 		int[] count = new int[] {0};
+		ElementModifiers.gap(table, gap);
 		ParentStack.push(table, (tbl, child) -> {
-			Cell<?> cell = tbl.add(child);
+			Cell<?> cell = tbl.add(child).pad(gap / 2f);
 			if (++count[0] % Math.max(1, columns) == 0) {
 				tbl.row();
 			}
@@ -95,6 +113,21 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 		}
 		ParentStack.attachToParent(table);
 		return this;
+	}
+
+	private void reflow() {
+		if (table.getChildren().size == 0) return;
+		Seq<Element> children = new Seq<>(table.getChildren());
+		table.clear();
+		ElementModifiers.gap(table, gap);
+		int col = 0;
+		for (Element child : children) {
+			table.add(child).pad(gap / 2f);
+			if (++col % Math.max(1, columns) == 0) {
+				table.row();
+			}
+		}
+		table.invalidateHierarchy();
 	}
 
 	/** Add a child element to the grid; wraps to next row when columns exceeded. */

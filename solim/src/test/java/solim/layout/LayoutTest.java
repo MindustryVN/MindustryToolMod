@@ -566,4 +566,87 @@ class LayoutTest {
 		assertEquals(400f, cardBtn.getWidth(), 0.01f);
 		assertEquals(300f, cardBtn.x, 0.01f, "Card with .center() inside column should be centered at x = 300");
 	}
+
+	@Test
+	void gridGapBeforeChildren() {
+		Grid g = Ui.grid(2)
+				.gap(16f)
+				.children(() -> {
+					Ui.row(() -> {});
+					Ui.row(() -> {});
+				});
+
+		assertEquals(2, g.table().getCells().size);
+		for (Cell<?> cell : g.table().getCells()) {
+			assertEquals(8f, CellAccess.padTop(cell), 0.01f, "Each cell should have gap / 2 padding");
+			assertEquals(8f, CellAccess.padBottom(cell), 0.01f);
+			assertEquals(8f, CellAccess.padLeft(cell), 0.01f);
+			assertEquals(8f, CellAccess.padRight(cell), 0.01f);
+		}
+	}
+
+	@Test
+	void gridGapAfterChildren() {
+		Grid g = Ui.grid(2)
+				.children(() -> {
+					Ui.row(() -> {});
+					Ui.row(() -> {});
+				})
+				.gap(20f);
+
+		assertEquals(2, g.table().getCells().size);
+		for (Cell<?> cell : g.table().getCells()) {
+			assertEquals(10f, CellAccess.padTop(cell), 0.01f, "Existing cells must be updated when gap is called after children");
+			assertEquals(10f, CellAccess.padBottom(cell), 0.01f);
+		}
+	}
+
+	@Test
+	void gridGapZeroArgConstructor() {
+		Grid g = Ui.grid()
+				.gap(12f)
+				.children(() -> {
+					Ui.row(() -> {});
+				});
+
+		assertEquals(1, g.table().getCells().size);
+		assertEquals(6f, CellAccess.padTop(g.table().getCells().first()), 0.01f);
+	}
+
+	@Test
+	void gridGapReactiveSignal() {
+		Signal<Float> gapSig = Signal.of(10f);
+		Grid g = Ui.grid(2)
+				.gap(gapSig)
+				.children(() -> {
+					Ui.row(() -> {});
+					Ui.row(() -> {});
+				});
+
+		assertEquals(5f, CellAccess.padTop(g.table().getCells().first()), 0.01f);
+
+		gapSig.set(30f);
+		assertEquals(15f, CellAccess.padTop(g.table().getCells().first()), 0.01f);
+	}
+
+	@Test
+	void reactiveGridGapUpdatesRenderedCells() {
+		Signal<Float> gapSig = Signal.of(0f);
+		ReactiveGrid<String, String> rg = Ui.grid(
+				Signal.of(2),
+				Signal.of(Arrays.asList("A", "B")),
+				s -> s,
+				s -> new Row()
+		).gap(gapSig);
+
+		assertEquals(2, rg.table().getCells().size);
+		for (Cell<?> cell : rg.table().getCells()) {
+			assertEquals(0f, CellAccess.padTop(cell), 0.01f, "Gap 0f must apply 0 pad to all cells");
+		}
+
+		gapSig.set(16f);
+		for (Cell<?> cell : rg.table().getCells()) {
+			assertEquals(8f, CellAccess.padTop(cell), 0.01f, "Reactive gap change must update all active cells");
+		}
+	}
 }

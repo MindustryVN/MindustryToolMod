@@ -30,6 +30,6 @@
 
 ## 6. Tests and Documentation
 
-- [ ] 6.1 Unit tests for the reflection infrastructure and introspection tools
-- [ ] 6.2 Integration test connecting a mock WebSocket client (valid + invalid token)
-- [ ] 6.3 AI assistant integration documentation in `solim-mcp/README.md`
+- [x] 6.1 Unit tests for the reflection infrastructure and introspection tools
+- [x] 6.2 Integration test connecting a mock WebSocket client (valid + invalid token)
+- [x] 6.3 AI assistant integration documentation in `solim-mcp/README.md`

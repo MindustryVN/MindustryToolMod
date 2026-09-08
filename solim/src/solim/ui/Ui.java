@@ -89,6 +89,14 @@ public final class Ui {
         return row().children(r);
     }
 
+    public static Grid grid() {
+        return new Grid();
+    }
+
+    public static Grid grid(@Nullable Runnable r) {
+        return grid().children(r);
+    }
+
     public static Grid grid(int columns) {
         return new Grid(columns);
     }
