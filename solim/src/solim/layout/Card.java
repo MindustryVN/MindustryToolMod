@@ -289,29 +289,34 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 		return this;
 	}
 
+	@Override
 	public Card top() {
 		ElementModifiers.top(container);
-		return this;
+		return LayoutModifiers.super.top();
 	}
 
+	@Override
 	public Card bottom() {
 		ElementModifiers.bottom(container);
-		return this;
+		return LayoutModifiers.super.bottom();
 	}
 
+	@Override
 	public Card left() {
 		ElementModifiers.left(container);
-		return this;
+		return LayoutModifiers.super.left();
 	}
 
+	@Override
 	public Card right() {
 		ElementModifiers.right(container);
-		return this;
+		return LayoutModifiers.super.right();
 	}
 
+	@Override
 	public Card center() {
 		ElementModifiers.center(container);
-		return this;
+		return LayoutModifiers.super.center();
 	}
 
 	public Card gap(float g) {

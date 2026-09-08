@@ -51,6 +51,9 @@ public final class SizeConstraints {
 	/** Whether the parent cell should grow this element on the Y axis. */
 	public boolean growY = false;
 
+	/** Alignment of this element within its parent cell. Null means use container default. */
+	public @Nullable Integer align;
+
 	/** Returns true if any explicit preferred or bounded width constraint is set. */
 	public boolean hasExplicitWidth() {
 		return prefWidth != null || minWidth != null || maxWidth != null;
@@ -59,6 +62,30 @@ public final class SizeConstraints {
 	/** Returns true if any explicit preferred or bounded height constraint is set. */
 	public boolean hasExplicitHeight() {
 		return prefHeight != null || minHeight != null || maxHeight != null;
+	}
+
+	public void alignCenter() {
+		this.align = arc.util.Align.center;
+	}
+
+	public void alignTop() {
+		int current = this.align != null ? this.align : 0;
+		this.align = (current | arc.util.Align.top) & ~arc.util.Align.bottom;
+	}
+
+	public void alignBottom() {
+		int current = this.align != null ? this.align : 0;
+		this.align = (current | arc.util.Align.bottom) & ~arc.util.Align.top;
+	}
+
+	public void alignLeft() {
+		int current = this.align != null ? this.align : 0;
+		this.align = (current | arc.util.Align.left) & ~arc.util.Align.right;
+	}
+
+	public void alignRight() {
+		int current = this.align != null ? this.align : 0;
+		this.align = (current | arc.util.Align.right) & ~arc.util.Align.left;
 	}
 
 	/**
@@ -82,6 +109,10 @@ public final class SizeConstraints {
 		if (growX) cell.growX();
 		if (growY) cell.growY();
 
+		if (align != null) {
+			cell.align(align);
+		}
+
 		return effects;
 	}
 
@@ -96,6 +127,21 @@ public final class SizeConstraints {
 			if (cell != null) {
 				if (growX) cell.growX();
 				if (growY) cell.growY();
+				parentTable.invalidate();
+			}
+		}
+	}
+
+	/**
+	 * Immediately applies alignment constraint to the element's parent cell if the element is
+	 * already attached to a parent Table.
+	 */
+	public void applyAlignToParentCell(@Nullable Element element) {
+		if (element != null && element.parent instanceof Table) {
+			Table parentTable = (Table) element.parent;
+			Cell<?> cell = parentTable.getCell(element);
+			if (cell != null && align != null) {
+				cell.align(align);
 				parentTable.invalidate();
 			}
 		}

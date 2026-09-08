@@ -162,29 +162,34 @@ public final class Column implements Component, LayoutModifiers<Column> {
 		return this;
 	}
 
+	@Override
 	public Column top() {
 		ElementModifiers.top(table);
-		return this;
+		return LayoutModifiers.super.top();
 	}
 
+	@Override
 	public Column bottom() {
 		ElementModifiers.bottom(table);
-		return this;
+		return LayoutModifiers.super.bottom();
 	}
 
+	@Override
 	public Column left() {
 		ElementModifiers.left(table);
-		return this;
+		return LayoutModifiers.super.left();
 	}
 
+	@Override
 	public Column right() {
 		ElementModifiers.right(table);
-		return this;
+		return LayoutModifiers.super.right();
 	}
 
+	@Override
 	public Column center() {
 		ElementModifiers.center(table);
-		return this;
+		return LayoutModifiers.super.center();
 	}
 
 	public Column align(Align a) {

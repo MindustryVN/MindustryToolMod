@@ -161,29 +161,34 @@ public final class Row implements Component, LayoutModifiers<Row> {
 		return this;
 	}
 
+	@Override
 	public Row top() {
 		ElementModifiers.top(table);
-		return this;
+		return LayoutModifiers.super.top();
 	}
 
+	@Override
 	public Row bottom() {
 		ElementModifiers.bottom(table);
-		return this;
+		return LayoutModifiers.super.bottom();
 	}
 
+	@Override
 	public Row left() {
 		ElementModifiers.left(table);
-		return this;
+		return LayoutModifiers.super.left();
 	}
 
+	@Override
 	public Row right() {
 		ElementModifiers.right(table);
-		return this;
+		return LayoutModifiers.super.right();
 	}
 
+	@Override
 	public Row center() {
 		ElementModifiers.center(table);
-		return this;
+		return LayoutModifiers.super.center();
 	}
 
 	public Row justify(Justify j) {

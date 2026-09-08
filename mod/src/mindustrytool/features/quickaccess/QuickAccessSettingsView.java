@@ -90,6 +90,7 @@ public class QuickAccessSettingsView extends BaseComponent {
 
                                             text(Core.bundle.get("feature.quick-access.settings.visible-features"))
                                                     .left()
+                                                    .growX()
                                                     .color(Color.white);
 
                                             for (Feature f : FeatureManager.getFeatures()

@@ -4,12 +4,12 @@
 
 - [x] 1.1 Register the `solim-mcp` module in `settings.gradle` with a project dependency on `:solim`, keeping `solim` sources untouched
 - [x] 1.2 Create `solim-mcp/build.gradle` with a Java-WebSocket dependency and the shared subproject config
-- [ ] 1.3 Implement `McpConfig` (host, port, token) read from system properties, disabled by default
+- [x] 1.3 Implement `McpConfig` (host, port, token) read from system properties, disabled by default
 
 ## 2. Reflection Infrastructure
 
-- [ ] 2.1 Implement `ReflectAccess`: cached, gracefully-degrading reflective field/method access
-- [ ] 2.2 Implement `ObjectGraphScanner`: cycle-safe reflective scan of an object graph for Signal/Computed/Effect/Subscription instances
+- [x] 2.1 Implement `ReflectAccess`: cached, gracefully-degrading reflective field/method access
+- [x] 2.2 Implement `ObjectGraphScanner`: cycle-safe reflective scan of an object graph for Signal/Computed/Effect/Subscription instances
 
 ## 3. Introspection Capabilities
 

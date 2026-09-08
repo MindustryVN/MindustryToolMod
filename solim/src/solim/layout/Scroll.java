@@ -29,6 +29,7 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 	private final SizedTable outer;
 	private final Table content;
 	private final ScrollPane pane;
+	private boolean centered = false;
 
 	public Scroll() {
 		this.outer = new SizedTable();
@@ -74,10 +75,37 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 		return this;
 	}
 
+	@Override
 	public Scroll center() {
+		this.centered = true;
 		outer.center();
-        content.center();
-		return this;
+		content.center();
+		for (Cell<?> cell : content.getCells()) {
+			cell.center().top();
+		}
+		return LayoutModifiers.super.center();
+	}
+
+	@Override
+	public Scroll left() {
+		this.centered = false;
+		outer.left();
+		content.left();
+		for (Cell<?> cell : content.getCells()) {
+			cell.left().top();
+		}
+		return LayoutModifiers.super.left();
+	}
+
+	@Override
+	public Scroll right() {
+		this.centered = false;
+		outer.right();
+		content.right();
+		for (Cell<?> cell : content.getCells()) {
+			cell.right().top();
+		}
+		return LayoutModifiers.super.right();
 	}
 
 	@Override
@@ -111,7 +139,20 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 	}
 
 	public Scroll children(@Nullable Runnable r) {
-		ParentStack.push(content, ATTACHER);
+		ParentStack.Attacher attacher = (table, child) -> {
+			Cell<?> cell = table.add(child);
+			if (centered) {
+				cell.center().top();
+			} else {
+				cell.top().left();
+			}
+			if (Ui.isExpanding(child)) {
+				cell.growY();
+			}
+			cell.row();
+			return cell;
+		};
+		ParentStack.push(content, attacher);
 		try {
 			if (r != null) {
 				r.run();
@@ -124,7 +165,13 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 	}
 
 	public Scroll add(Element child) {
-		content.add(child).row();
+		Cell<?> cell = content.add(child);
+		if (centered) {
+			cell.center().top();
+		} else {
+			cell.top().left();
+		}
+		cell.row();
 		return this;
 	}
 

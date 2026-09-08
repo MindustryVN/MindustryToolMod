@@ -35,4 +35,8 @@ public final class CellAccess {
 	public static float fillY(Cell<?> cell) {
 		return cell.fillY;
 	}
+
+	public static int align(Cell<?> cell) {
+		return cell.align;
+	}
 }

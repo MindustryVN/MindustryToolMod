@@ -144,6 +144,63 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		return growX().growY();
 	}
 
+	// ---------- alignment ----------
+
+	/**
+	 * Centers this component within its parent cell.
+	 */
+	default SELF center() {
+		sizeConstraints().alignCenter();
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyAlignToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	/**
+	 * Aligns this component to the top of its parent cell.
+	 */
+	default SELF top() {
+		sizeConstraints().alignTop();
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyAlignToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	/**
+	 * Aligns this component to the bottom of its parent cell.
+	 */
+	default SELF bottom() {
+		sizeConstraints().alignBottom();
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyAlignToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	/**
+	 * Aligns this component to the left of its parent cell.
+	 */
+	default SELF left() {
+		sizeConstraints().alignLeft();
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyAlignToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	/**
+	 * Aligns this component to the right of its parent cell.
+	 */
+	default SELF right() {
+		sizeConstraints().alignRight();
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyAlignToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
 	// ---------- internal ----------
 
 	@SuppressWarnings("unchecked")

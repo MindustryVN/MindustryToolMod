@@ -397,4 +397,145 @@ class LayoutTest {
 		assertTrue(CellAccess.expandX(cell) > 0, "field.growX() after attach must expand horizontally");
 		assertEquals(1f, CellAccess.fillX(cell), 0.001f, "field.growX() after attach must fill horizontally");
 	}
+
+	@Test
+	void columnInsideScrollCentering() {
+		Table root = new Table();
+		root.setSize(1000, 800);
+
+		Scroll scroll = Ui.scroll()
+				.grow()
+				.center()
+				.children(() -> {
+					Ui.column()
+							.growX()
+							.center()
+							.maxWidth(400f)
+							.children(() -> {
+								Element child = new Element();
+								child.setSize(100, 50);
+								Ui.column().add(child);
+							});
+				});
+
+		root.add(scroll.element()).grow();
+		root.validate();
+		root.layout();
+
+		Table content = scroll.content();
+		Table columnTable = (Table) content.getChildren().first();
+
+		assertEquals(1000f, content.getWidth(), 0.01f);
+		assertEquals(400f, columnTable.getWidth(), 0.01f);
+		assertEquals(300f, columnTable.x, 0.01f, "Column with .center() inside scroll with .center() should be centered at x = 300");
+	}
+
+	@Test
+	void columnCenteringWithoutScrollCenter() {
+		Table root = new Table();
+		root.setSize(1000, 800);
+
+		Scroll scroll = Ui.scroll()
+				.grow()
+				.children(() -> {
+					Ui.column()
+							.growX()
+							.center()
+							.maxWidth(400f)
+							.children(() -> {
+								Element child = new Element();
+								child.setSize(100, 50);
+								Ui.column().add(child);
+							});
+				});
+
+		root.add(scroll.element()).grow();
+		root.validate();
+		root.layout();
+
+		Table content = scroll.content();
+		Table columnTable = (Table) content.getChildren().first();
+
+		assertEquals(400f, columnTable.getWidth(), 0.01f);
+		assertEquals(300f, columnTable.x, 0.01f, "Column with .center() inside scroll without .center() should still be centered at x = 300");
+	}
+
+	@Test
+	void scrollCenterCentersChildren() {
+		Table root = new Table();
+		root.setSize(1000, 800);
+
+		Scroll scroll = Ui.scroll()
+				.grow()
+				.center()
+				.children(() -> {
+					Ui.column()
+							.growX()
+							.maxWidth(400f)
+							.children(() -> {
+								Element child = new Element();
+								child.setSize(100, 50);
+								Ui.column().add(child);
+							});
+				});
+
+		root.add(scroll.element()).grow();
+		root.validate();
+		root.layout();
+
+		Table content = scroll.content();
+		Table columnTable = (Table) content.getChildren().first();
+
+		assertEquals(400f, columnTable.getWidth(), 0.01f);
+		assertEquals(300f, columnTable.x, 0.01f, "Scroll with .center() should center child column with maxWidth at x = 300");
+	}
+
+	@Test
+	void columnInsideColumnCentering() {
+		Table root = new Table();
+		root.setSize(1000, 800);
+
+		Column parentCol = Ui.column().grow().children(() -> {
+			Ui.column()
+					.growX()
+					.center()
+					.maxWidth(400f)
+					.children(() -> {
+						Element child = new Element();
+						child.setSize(100, 50);
+						Ui.column().add(child);
+					});
+		});
+
+		root.add(parentCol.element()).grow();
+		root.validate();
+		root.layout();
+
+		Table innerTable = (Table) parentCol.table().getChildren().first();
+		assertEquals(400f, innerTable.getWidth(), 0.01f);
+		assertEquals(300f, innerTable.x, 0.01f, "Column with .center() inside another column should be centered at x = 300");
+	}
+
+	@Test
+	void cardCenteringInsideColumn() {
+		Table root = new Table();
+		root.setSize(1000, 800);
+
+		Column parentCol = Ui.column().grow().children(() -> {
+			Ui.card()
+					.growX()
+					.center()
+					.maxWidth(400f)
+					.children(() -> {
+					});
+		});
+
+		root.add(parentCol.element()).grow();
+		root.validate();
+		root.layout();
+
+		Element cardBtn = parentCol.table().getChildren().first();
+		assertEquals(400f, cardBtn.getWidth(), 0.01f);
+		assertEquals(300f, cardBtn.x, 0.01f, "Card with .center() inside column should be centered at x = 300");
+	}
 }
