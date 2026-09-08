@@ -4,6 +4,8 @@ import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.ui.Label;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Align;
 import arc.util.Nullable;
 import java.util.ArrayList;
@@ -21,6 +23,16 @@ import solim.signal.Signal;
 public final class Text implements Component, Disposable {
 	private final Label label;
 	private final List<Disposable> bindings = new ArrayList<>();
+
+	private float padTop;
+	private float padLeft;
+	private float padBottom;
+	private float padRight;
+
+	private float marginTop;
+	private float marginLeft;
+	private float marginBottom;
+	private float marginRight;
 
 	public Text() {
 		this("");
@@ -131,7 +143,90 @@ public final class Text implements Component, Disposable {
 	}
 
 	public Text padding(float pad) {
+		this.padTop = this.padLeft = this.padBottom = this.padRight = pad;
+		applySpacing();
 		return this;
+	}
+
+	public Text padding(float top, float left, float bottom, float right) {
+		this.padTop = top;
+		this.padLeft = left;
+		this.padBottom = bottom;
+		this.padRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public Text paddingTop(float top) {
+		this.padTop = top;
+		applySpacing();
+		return this;
+	}
+
+	public Text paddingBottom(float bottom) {
+		this.padBottom = bottom;
+		applySpacing();
+		return this;
+	}
+
+	public Text paddingLeft(float left) {
+		this.padLeft = left;
+		applySpacing();
+		return this;
+	}
+
+	public Text paddingRight(float right) {
+		this.padRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public Text margin(float margin) {
+		this.marginTop = this.marginLeft = this.marginBottom = this.marginRight = margin;
+		applySpacing();
+		return this;
+	}
+
+	public Text margin(float top, float left, float bottom, float right) {
+		this.marginTop = top;
+		this.marginLeft = left;
+		this.marginBottom = bottom;
+		this.marginRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public Text marginTop(float top) {
+		this.marginTop = top;
+		applySpacing();
+		return this;
+	}
+
+	public Text marginBottom(float bottom) {
+		this.marginBottom = bottom;
+		applySpacing();
+		return this;
+	}
+
+	public Text marginLeft(float left) {
+		this.marginLeft = left;
+		applySpacing();
+		return this;
+	}
+
+	public Text marginRight(float right) {
+		this.marginRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public void applySpacing() {
+		if (label.parent instanceof Table) {
+			Cell<?> cell = ((Table) label.parent).getCell(label);
+			if (cell != null) {
+				cell.pad(padTop + marginTop, padLeft + marginLeft, padBottom + marginBottom, padRight + marginRight);
+			}
+		}
 	}
 
 	public Text fontScale(float scale) {
@@ -189,11 +284,13 @@ public final class Text implements Component, Disposable {
 	}
 
 	public Label label() {
+		applySpacing();
 		return label;
 	}
 
 	@Override
 	public Element element() {
+		applySpacing();
 		return label;
 	}
 

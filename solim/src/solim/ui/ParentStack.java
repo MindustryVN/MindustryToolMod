@@ -10,6 +10,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import solim.core.Component;
+import solim.display.SolimImage;
+import solim.display.Text;
 
 /**
  * Implicit parent stack for declarative UI construction with guaranteed cleanup. Supports
@@ -103,6 +105,11 @@ public final class ParentStack {
 				if (el != null && el.parent == null) {
 					doAttach(parent, el, attacher);
 				}
+				if (comp instanceof Text) {
+					((Text) comp).applySpacing();
+				} else if (comp instanceof SolimImage) {
+					((SolimImage) comp).applySpacing();
+				}
 			}
 		}
 	}
@@ -123,6 +130,9 @@ public final class ParentStack {
 					attacher.attach(parent, child);
 				} else {
 					parent.add(child);
+				}
+				if (child instanceof SolimImage.SizedImage) {
+					((SolimImage.SizedImage) child).applySpacing();
 				}
 			}
 		}

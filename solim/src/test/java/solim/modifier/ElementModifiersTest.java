@@ -112,8 +112,54 @@ class ElementModifiersTest {
 		assertDoesNotThrow(() -> ElementModifiers.left(null));
 		assertDoesNotThrow(() -> ElementModifiers.right(null));
 		assertDoesNotThrow(() -> ElementModifiers.center(null));
-		assertDoesNotThrow(() -> ElementModifiers.margin(null, 10f));
-		assertDoesNotThrow(() -> ElementModifiers.padding(null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.margin((Table) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.padding((Table) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.margin((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.margin((Element) null, 1f, 2f, 3f, 4f));
+		assertDoesNotThrow(() -> ElementModifiers.marginTop((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.marginBottom((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.marginLeft((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.marginRight((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.padding((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.padding((Element) null, 1f, 2f, 3f, 4f));
+		assertDoesNotThrow(() -> ElementModifiers.paddingTop((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.paddingBottom((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.paddingLeft((Element) null, 10f));
+		assertDoesNotThrow(() -> ElementModifiers.paddingRight((Element) null, 10f));
+	}
+
+	@Test
+	void elementModifiersPaddingAndMarginOnElementInTable() {
+		Table table = new Table();
+		Element element = new Element();
+		table.add(element);
+
+		ElementModifiers.padding(element, 10f);
+		assertEquals(10f, CellAccess.padTop(table.getCell(element)), 0.01f);
+		assertEquals(10f, CellAccess.padLeft(table.getCell(element)), 0.01f);
+		assertEquals(10f, CellAccess.padBottom(table.getCell(element)), 0.01f);
+		assertEquals(10f, CellAccess.padRight(table.getCell(element)), 0.01f);
+
+		ElementModifiers.padding(element, 1f, 2f, 3f, 4f);
+		assertEquals(1f, CellAccess.padTop(table.getCell(element)), 0.01f);
+		assertEquals(2f, CellAccess.padLeft(table.getCell(element)), 0.01f);
+		assertEquals(3f, CellAccess.padBottom(table.getCell(element)), 0.01f);
+		assertEquals(4f, CellAccess.padRight(table.getCell(element)), 0.01f);
+
+		ElementModifiers.margin(element, 8f);
+		assertEquals(8f, CellAccess.padTop(table.getCell(element)), 0.01f);
+		assertEquals(8f, CellAccess.padLeft(table.getCell(element)), 0.01f);
+		assertEquals(8f, CellAccess.padBottom(table.getCell(element)), 0.01f);
+		assertEquals(8f, CellAccess.padRight(table.getCell(element)), 0.01f);
+
+		ElementModifiers.marginTop(element, 12f);
+		assertEquals(12f, CellAccess.padTop(table.getCell(element)), 0.01f);
+		ElementModifiers.marginLeft(element, 14f);
+		assertEquals(14f, CellAccess.padLeft(table.getCell(element)), 0.01f);
+		ElementModifiers.marginBottom(element, 16f);
+		assertEquals(16f, CellAccess.padBottom(table.getCell(element)), 0.01f);
+		ElementModifiers.marginRight(element, 18f);
+		assertEquals(18f, CellAccess.padRight(table.getCell(element)), 0.01f);
 	}
 
 	@Test

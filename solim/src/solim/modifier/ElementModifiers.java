@@ -1,8 +1,10 @@
 package solim.modifier;
 
 import arc.scene.Element;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
+import solim.display.SolimImage.SizedImage;
 import solim.input.Button.SizedButton;
 import solim.layout.Card.CardButton;
 
@@ -132,6 +134,90 @@ public final class ElementModifiers {
 		table.marginRight(right);
 	}
 
+	public static void margin(@Nullable Element element, float margin) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			margin((Table) element, margin);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).margin(margin);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.pad(margin);
+			}
+		}
+	}
+
+	public static void margin(@Nullable Element element, float top, float left, float bottom, float right) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			margin((Table) element, top, left, bottom, right);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).margin(top, left, bottom, right);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.pad(top, left, bottom, right);
+			}
+		}
+	}
+
+	public static void marginTop(@Nullable Element element, float top) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			marginTop((Table) element, top);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).marginTop(top);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padTop(top);
+			}
+		}
+	}
+
+	public static void marginBottom(@Nullable Element element, float bottom) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			marginBottom((Table) element, bottom);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).marginBottom(bottom);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padBottom(bottom);
+			}
+		}
+	}
+
+	public static void marginLeft(@Nullable Element element, float left) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			marginLeft((Table) element, left);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).marginLeft(left);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padLeft(left);
+			}
+		}
+	}
+
+	public static void marginRight(@Nullable Element element, float right) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			marginRight((Table) element, right);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).marginRight(right);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padRight(right);
+			}
+		}
+	}
+
 	public static void pad(@Nullable Table table, float pad) {
 		margin(table, pad);
 	}
@@ -178,6 +264,90 @@ public final class ElementModifiers {
 
 	public static void paddingRight(@Nullable Table table, float right) {
 		marginRight(table, right);
+	}
+
+	public static void padding(@Nullable Element element, float padding) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			padding((Table) element, padding);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).padding(padding);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.pad(padding);
+			}
+		}
+	}
+
+	public static void padding(@Nullable Element element, float top, float left, float bottom, float right) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			padding((Table) element, top, left, bottom, right);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).padding(top, left, bottom, right);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.pad(top, left, bottom, right);
+			}
+		}
+	}
+
+	public static void paddingTop(@Nullable Element element, float top) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			paddingTop((Table) element, top);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).paddingTop(top);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padTop(top);
+			}
+		}
+	}
+
+	public static void paddingBottom(@Nullable Element element, float bottom) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			paddingBottom((Table) element, bottom);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).paddingBottom(bottom);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padBottom(bottom);
+			}
+		}
+	}
+
+	public static void paddingLeft(@Nullable Element element, float left) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			paddingLeft((Table) element, left);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).paddingLeft(left);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padLeft(left);
+			}
+		}
+	}
+
+	public static void paddingRight(@Nullable Element element, float right) {
+		if (element == null) return;
+		if (element instanceof Table) {
+			paddingRight((Table) element, right);
+		} else if (element instanceof SizedImage) {
+			((SizedImage) element).paddingRight(right);
+		} else if (element.parent instanceof Table) {
+			Cell<?> cell = ((Table) element.parent).getCell(element);
+			if (cell != null) {
+				cell.padRight(right);
+			}
+		}
 	}
 
 	public static void gap(@Nullable Table table, float gap) {

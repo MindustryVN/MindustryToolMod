@@ -4,6 +4,8 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import arc.util.Scaling;
 import java.util.function.Consumer;
@@ -85,6 +87,103 @@ public final class SolimImage implements Component, Disposable {
 			return this;
 		}
 
+		private float padTop;
+		private float padLeft;
+		private float padBottom;
+		private float padRight;
+
+		private float marginTop;
+		private float marginLeft;
+		private float marginBottom;
+		private float marginRight;
+
+		public SizedImage padding(float p) {
+			this.padTop = this.padLeft = this.padBottom = this.padRight = p;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage padding(float top, float left, float bottom, float right) {
+			this.padTop = top;
+			this.padLeft = left;
+			this.padBottom = bottom;
+			this.padRight = right;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage paddingTop(float top) {
+			this.padTop = top;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage paddingBottom(float bottom) {
+			this.padBottom = bottom;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage paddingLeft(float left) {
+			this.padLeft = left;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage paddingRight(float right) {
+			this.padRight = right;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage margin(float m) {
+			this.marginTop = this.marginLeft = this.marginBottom = this.marginRight = m;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage margin(float top, float left, float bottom, float right) {
+			this.marginTop = top;
+			this.marginLeft = left;
+			this.marginBottom = bottom;
+			this.marginRight = right;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage marginTop(float top) {
+			this.marginTop = top;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage marginBottom(float bottom) {
+			this.marginBottom = bottom;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage marginLeft(float left) {
+			this.marginLeft = left;
+			applySpacing();
+			return this;
+		}
+
+		public SizedImage marginRight(float right) {
+			this.marginRight = right;
+			applySpacing();
+			return this;
+		}
+
+		public void applySpacing() {
+			if (parent instanceof Table) {
+				Cell<?> cell = ((Table) parent).getCell(this);
+				if (cell != null) {
+					cell.pad(padTop + marginTop, padLeft + marginLeft, padBottom + marginBottom, padRight + marginRight);
+				}
+			}
+		}
+
 		@Override
 		public float getPrefWidth() {
 			return customPrefWidth >= 0 ? customPrefWidth : super.getPrefWidth();
@@ -98,6 +197,16 @@ public final class SolimImage implements Component, Disposable {
 
 	private final Image image = new Image();
 	private @Nullable Effect binding;
+
+	private float padTop;
+	private float padLeft;
+	private float padBottom;
+	private float padRight;
+
+	private float marginTop;
+	private float marginLeft;
+	private float marginBottom;
+	private float marginRight;
 
 	public SolimImage() {
 		this.image.name = "solim-image-image";
@@ -181,12 +290,101 @@ public final class SolimImage implements Component, Disposable {
 		return this;
 	}
 
+	public SolimImage padding(float p) {
+		this.padTop = this.padLeft = this.padBottom = this.padRight = p;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage padding(float top, float left, float bottom, float right) {
+		this.padTop = top;
+		this.padLeft = left;
+		this.padBottom = bottom;
+		this.padRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage paddingTop(float top) {
+		this.padTop = top;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage paddingBottom(float bottom) {
+		this.padBottom = bottom;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage paddingLeft(float left) {
+		this.padLeft = left;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage paddingRight(float right) {
+		this.padRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage margin(float m) {
+		this.marginTop = this.marginLeft = this.marginBottom = this.marginRight = m;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage margin(float top, float left, float bottom, float right) {
+		this.marginTop = top;
+		this.marginLeft = left;
+		this.marginBottom = bottom;
+		this.marginRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage marginTop(float top) {
+		this.marginTop = top;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage marginBottom(float bottom) {
+		this.marginBottom = bottom;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage marginLeft(float left) {
+		this.marginLeft = left;
+		applySpacing();
+		return this;
+	}
+
+	public SolimImage marginRight(float right) {
+		this.marginRight = right;
+		applySpacing();
+		return this;
+	}
+
+	public void applySpacing() {
+		if (image.parent instanceof Table) {
+			Cell<?> cell = ((Table) image.parent).getCell(image);
+			if (cell != null) {
+				cell.pad(padTop + marginTop, padLeft + marginLeft, padBottom + marginBottom, padRight + marginRight);
+			}
+		}
+	}
+
 	public Image image() {
+		applySpacing();
 		return image;
 	}
 
 	@Override
 	public Element element() {
+		applySpacing();
 		return image;
 	}
 

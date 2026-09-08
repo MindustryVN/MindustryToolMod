@@ -4,7 +4,7 @@
 TBD - created by archiving change create-solim-core. Update Purpose after archive.
 ## Requirements
 ### Requirement: Text widget with static and reactive content
-`Text` SHALL display string content via `text(String)` and `text(Readable<String>)` (reactive). It SHALL wrap `arc.scene.ui.Label` and provide fluent chained property modifiers including `.color(Color)`, `.color(Readable<Color>)`, `.style(LabelStyle)`, `.wrap(boolean)`, `.ellipsis(boolean)`, `.fontScale(float)`, and text alignment (`.left()`, `.center()`, `.right()`). Reactive bindings SHALL be managed internally by the component lifecycle.
+`Text` SHALL display string content via `text(String)` and `text(Readable<String>)` (reactive). It SHALL wrap `arc.scene.ui.Label` and provide fluent chained property modifiers including `.color(Color)`, `.color(Readable<Color>)`, `.style(LabelStyle)`, `.wrap(boolean)`, `.ellipsis(boolean)`, `.fontScale(float)`, text alignment (`.left()`, `.center()`, `.right()`), and padding/margin modifiers (`.padding(float)`, `.padding(float, float, float, float)`, `.paddingTop(float)`, `.paddingBottom(float)`, `.paddingLeft(float)`, `.paddingRight(float)`, `.margin(float)`, `.margin(float, float, float, float)`, `.marginTop(float)`, `.marginBottom(float)`, `.marginLeft(float)`, `.marginRight(float)`). Reactive bindings SHALL be managed internally by the component lifecycle.
 
 #### Scenario: Static Text
 - **WHEN** `text("Settings")` is called
@@ -22,8 +22,12 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 - **WHEN** `text("Status").color(statusColorReadable)` is declared and the status color changes
 - **THEN** the label's color updates immediately via internal component binding without external `Binding` calls
 
+#### Scenario: Text padding and margin modifiers
+- **WHEN** `text("Title").padding(12f).margin(4f)` is declared inside a parent table
+- **THEN** the parent cell padding around the label reflects the combined padding and margin
+
 ### Requirement: Image and Icon widgets
-`Image` SHALL display `Drawable`/`TextureRegion` with `image(Drawable)` and `image(Signal<Drawable>)`. `Icon` SHALL display icon drawable with `icon(IconType)` and reactive overload. Both SHALL support size/style bindings.
+`Image` SHALL display `Drawable`/`TextureRegion` with `image(Drawable)` and `image(Signal<Drawable>)`. `Icon` SHALL display icon drawable with `icon(IconType)` and reactive overload. Both SHALL support size/style bindings, as well as fluent padding and margin modifiers on `SolimImage` and `SolimImage.SizedImage` (`.padding(float)`, `.padding(float, float, float, float)`, `.paddingTop(float)`, `.paddingBottom(float)`, `.paddingLeft(float)`, `.paddingRight(float)`, `.margin(float)`, `.margin(float, float, float, float)`, `.marginTop(float)`, `.marginBottom(float)`, `.marginLeft(float)`, `.marginRight(float)`).
 
 #### Scenario: Image display
 - **WHEN** `image(backgroundDrawable)` is called
@@ -32,6 +36,10 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 #### Scenario: Icon reactive
 - **WHEN** `icon(darkMode.map(v -> v ? Icon.moon : Icon.sun))` and `darkMode` toggles
 - **THEN** icon drawable updates via binding
+
+#### Scenario: Image padding and margin modifiers
+- **WHEN** `image(icon).padding(8f).margin(2f)` is declared inside a parent table
+- **THEN** the parent cell padding around the image reflects the combined padding and margin
 
 ### Requirement: Badge and Avatar lightweight components
 `Badge` SHALL be a lightweight label/container for counts/status, `Avatar` SHALL display user image with fallback. Both may be convenience composites over `Text`/`Image` + `Container`.

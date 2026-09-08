@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import arc.Core;
 import arc.scene.style.Drawable;
+import arc.scene.ui.layout.CellAccess;
 import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
@@ -11,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
+import static solim.ui.Ui.*;
 
 class DisplayTest {
 
@@ -92,5 +94,68 @@ class DisplayTest {
 	void imageName() {
 		SolimImage img = new SolimImage().name("my-image");
 		assertEquals("my-image", img.element().name);
+	}
+
+	@Test
+	void textPaddingAndMarginInTable() {
+		Table root = new Table();
+		ParentStack.push(root);
+
+		Text t = text("Hello").padding(8f).margin(4f);
+		assertEquals(12f, CellAccess.padTop(root.getCell(t.label())), 0.01f);
+		assertEquals(12f, CellAccess.padLeft(root.getCell(t.label())), 0.01f);
+		assertEquals(12f, CellAccess.padBottom(root.getCell(t.label())), 0.01f);
+		assertEquals(12f, CellAccess.padRight(root.getCell(t.label())), 0.01f);
+
+		t.padding(1f, 2f, 3f, 4f).margin(5f, 6f, 7f, 8f);
+		assertEquals(6f, CellAccess.padTop(root.getCell(t.label())), 0.01f);
+		assertEquals(8f, CellAccess.padLeft(root.getCell(t.label())), 0.01f);
+		assertEquals(10f, CellAccess.padBottom(root.getCell(t.label())), 0.01f);
+		assertEquals(12f, CellAccess.padRight(root.getCell(t.label())), 0.01f);
+
+		t.paddingTop(10f);
+		assertEquals(15f, CellAccess.padTop(root.getCell(t.label())), 0.01f);
+		t.marginTop(2f);
+		assertEquals(12f, CellAccess.padTop(root.getCell(t.label())), 0.01f);
+
+		ParentStack.pop();
+	}
+
+	@Test
+	void sizedImagePaddingAndMarginInTable() {
+		Table root = new Table();
+		ParentStack.push(root);
+
+		SolimImage.SizedImage img = image((Drawable) null).padding(6f).margin(2f);
+		assertEquals(8f, CellAccess.padTop(root.getCell(img)), 0.01f);
+		assertEquals(8f, CellAccess.padLeft(root.getCell(img)), 0.01f);
+		assertEquals(8f, CellAccess.padBottom(root.getCell(img)), 0.01f);
+		assertEquals(8f, CellAccess.padRight(root.getCell(img)), 0.01f);
+
+		img.padding(1f, 2f, 3f, 4f).margin(4f, 3f, 2f, 1f);
+		assertEquals(5f, CellAccess.padTop(root.getCell(img)), 0.01f);
+		assertEquals(5f, CellAccess.padLeft(root.getCell(img)), 0.01f);
+		assertEquals(5f, CellAccess.padBottom(root.getCell(img)), 0.01f);
+		assertEquals(5f, CellAccess.padRight(root.getCell(img)), 0.01f);
+
+		img.paddingBottom(10f);
+		assertEquals(12f, CellAccess.padBottom(root.getCell(img)), 0.01f);
+		img.marginBottom(5f);
+		assertEquals(15f, CellAccess.padBottom(root.getCell(img)), 0.01f);
+
+		ParentStack.pop();
+	}
+
+	@Test
+	void solimImageComponentPaddingAndMargin() {
+		Table root = new Table();
+		SolimImage comp = new SolimImage().padding(5f).margin(3f);
+		root.add(comp.element());
+		comp.applySpacing();
+
+		assertEquals(8f, CellAccess.padTop(root.getCell(comp.element())), 0.01f);
+		assertEquals(8f, CellAccess.padLeft(root.getCell(comp.element())), 0.01f);
+		assertEquals(8f, CellAccess.padBottom(root.getCell(comp.element())), 0.01f);
+		assertEquals(8f, CellAccess.padRight(root.getCell(comp.element())), 0.01f);
 	}
 }

@@ -45,7 +45,8 @@ public class FeatureCard extends BaseComponent {
                             .children(() -> {
                                 row()
                                         .children(() -> {
-                                            image(metadata.getIcon()).scaling(Scaling.fit).size(unit(6));
+                                            image(metadata.getIcon()).scaling(Scaling.fit).size(unit(6))
+                                                    .marginRight(unit(2));
 
                                             text(feature.getName())
                                                     .style(Styles.defaultLabel)
@@ -82,7 +83,6 @@ public class FeatureCard extends BaseComponent {
                                         .color(Color.lightGray)
                                         .fontScale(0.9f)
                                         .wrap(true)
-                                        .ellipsis(true)
                                         .left();
 
                                 spacer();

@@ -48,3 +48,15 @@ All Solim components SHALL expose a fluent `.name(String name)` method that upda
 #### Scenario: Chaining name modifier on Button
 - **WHEN** `button("OK").name("confirm-button")` is declared
 - **THEN** the underlying button has `name` set to `"confirm-button"`, replacing its default name
+
+### Requirement: ElementModifiers padding and margin utilities for elements
+The `ElementModifiers` static utility class SHALL provide `padding` and `margin` methods for Arc `Element` instances (`padding(@Nullable Element, float)`, `padding(@Nullable Element, float, float, float, float)`, directional `paddingTop/Bottom/Left/Right`, `margin(@Nullable Element, float)`, `margin(@Nullable Element, float, float, float, float)`, directional `marginTop/Bottom/Left/Right`). When the element is a `Table`, they SHALL apply to table margins. When the element is contained within a parent `Table`, they SHALL apply to the element's enclosing `Cell` padding.
+
+#### Scenario: Applying padding to an Element in a Table
+- **WHEN** an element is placed inside an Arc `Table` and `ElementModifiers.padding(element, 10f)` is called
+- **THEN** the parent table cell for that element has its padding updated to 10f
+
+#### Scenario: Null-safe element padding and margin
+- **WHEN** `ElementModifiers.padding(null, 10f)` or `ElementModifiers.margin(null, 10f)` is called
+- **THEN** no exception is thrown
+
