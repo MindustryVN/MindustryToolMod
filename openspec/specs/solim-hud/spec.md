@@ -1,5 +1,8 @@
-## ADDED Requirements
+# solim-hud Specification
 
+## Purpose
+TBD - created by archiving change solim-hud-components. Update Purpose after archive.
+## Requirements
 ### Requirement: Floating Hud container
 The Solim framework SHALL provide a `Hud` container (`hud()`, `hud(Runnable children)`) in `solim.overlay` representing a floating, non-modal screen overlay. The `Hud` root element SHALL default to `touchable = childrenOnly` so unconsumed touches pass through to underlying game elements.
 
@@ -32,3 +35,4 @@ The Solim framework SHALL provide a `.draggable()` modifier (or handle) that att
 #### Scenario: Clamping during drag movement
 - **WHEN** a drag movement attempts to push the `Hud` outside screen bounds
 - **THEN** the movement is clamped at the screen border
+

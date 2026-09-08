@@ -49,7 +49,7 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 - **THEN** badge text updates reactively
 
 ### Requirement: Button and IconButton with click handler and reactive props
-`Button` and `IconButton` SHALL support `button(String|Signal|Computed|Readable, Runnable onClick)` and `iconButton(Drawable, Runnable onClick)` / `iconButton(Drawable, ImageButtonStyle, Runnable onClick)` plus chained modifiers `.enabled(Readable<Boolean>)`, `.visible(Readable<Boolean>)`, `.size(float)`, `.tooltip(String)`, `.style(...)`, and `.stopClickPropagation()`. Reactive bindings SHALL be managed internally by the component.
+`Button` and `IconButton` SHALL support `button(String|Signal|Computed|Readable, Runnable onClick)` and `iconButton(Drawable, Runnable onClick)` / `iconButton(Drawable, ImageButtonStyle, Runnable onClick)` plus chained modifiers `.enabled(Readable<Boolean>)`, `.visible(Readable<Boolean>)`, `.size(float)`, `.tooltip(String)`, `.tooltip(Readable<String>)`, `.onLongClick(Runnable)`, `.onLongClick(long, Runnable)`, `.style(...)`, and `.stopClickPropagation()`. When a long click triggers, regular `onClick` SHALL be suppressed. Reactive bindings SHALL be managed internally by the component.
 
 #### Scenario: Button click handler
 - **WHEN** `button("Save", () -> save())` is clicked
@@ -59,13 +59,17 @@ TBD - created by archiving change create-solim-core. Update Purpose after archiv
 - **WHEN** `Computed<String> saveText = dirty.map(v -> v ? "● Save" : "Save")` and `button(saveText, onSave).enabled(dirty).style(Styles.PRIMARY)` then `dirty.set(true)`
 - **THEN** button text, enabled, and style update via bindings; click only enabled when dirty true
 
-#### Scenario: Button disabled via binding
-- **WHEN** `button("Toggle").enabled(Signal.of(false))` is rendered
-- **THEN** underlying `TextButton` is disabled
+#### Scenario: Button long click handler
+- **WHEN** a user holds a button configured with `.onLongClick(onLongPressAction)` for >= 300ms
+- **THEN** `onLongPressAction` is executed and regular `onClick` is suppressed upon release
 
-#### Scenario: IconButton creation and event stop propagation
-- **WHEN** `iconButton(Icon.settings, Styles.clearNonei, onSettings).size(32f).tooltip("Settings")` is placed inside a clickable parent and clicked
-- **THEN** the icon button executes `onSettings` and stops event bubbling to prevent triggering parent click handlers
+#### Scenario: Button short click does not trigger long press
+- **WHEN** a user taps and releases a button configured with both `.onClick(clickAction)` and `.onLongClick(longAction)` in < 300ms
+- **THEN** `clickAction` is executed and `longAction` is not triggered
+
+#### Scenario: Reactive tooltip on Button
+- **WHEN** `button("Action", () -> {}).tooltip(tooltipSignal)` is declared and `tooltipSignal` emits a new string
+- **THEN** the button's tooltip text updates to reflect the new string value
 
 ### Requirement: TextField and TextArea with Signal binding
 `TextField` SHALL bind to `Signal<String>` via `textField(signal)` with two-way sync: typing updates signal, signal changes update field text (without cursor jump when possible). `TextArea` SHALL be multiline variant.

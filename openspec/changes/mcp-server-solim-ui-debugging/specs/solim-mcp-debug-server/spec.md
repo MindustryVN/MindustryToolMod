@@ -18,7 +18,7 @@ The MCP debug server SHALL inspect live Solim UI state purely through Java refle
 - **THEN** the server logs a warning, marks that introspection capability as unavailable, and continues serving the remaining capabilities without crashing
 
 ### Requirement: MCP server module
-The MCP server SHALL live in a separate module `solim-mcp` under the `solim/` directory, depending on `solim` and an MCP SDK, and providing read-only UI debugging tools.
+The MCP server SHALL live in a separate module `solim-mcp`, depending on `solim` and an MCP SDK, and providing read-only UI debugging tools.
 
 #### Scenario: Server lives in dedicated module
 - **WHEN** the project is built

@@ -27,13 +27,19 @@ public final class FeatureSettingsView extends BaseComponent {
         return column().grow().children(() -> {
             toolbar();
             scroll().grow().children(() -> {
-                grid(columnCount, filteredFeatures, feature -> feature.getMetadata().getId(),
-                        feature -> new FeatureCard(feature, cardWidth))
-                                .empty(() -> text(Core.bundle.get("feature.search.empty", "No features found"))
-                                        .color(Color.gray).padding(unit(4)))
-                                .gap(unit(2));
+                grid(columnCount, //
+                        filteredFeatures, //
+                        feature -> feature.getMetadata().getId(), //
+                        feature -> new FeatureCard(feature, cardWidth)//
+                )//
+                        .empty(() -> empty())//
+                        .gap(unit(2));
             });
         }).element();
+    }
+
+    private void empty() {
+        text(Core.bundle.get("feature.search.empty", "No features found")).color(Color.gray).padding(unit(4));
     }
 
     private void toolbar() {
