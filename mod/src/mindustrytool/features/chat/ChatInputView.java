@@ -35,15 +35,21 @@ public class ChatInputView extends BaseComponent {
             dynamic(hasReply, replying -> {
                 if (Boolean.TRUE.equals(replying)) {
                     ChatMessage target = store.replyTarget().peek();
-                    String targetName = target != null && target.getCreatedBy() != null ? target.getCreatedBy() : "message";
+                    String authorId = target != null ? target.getCreatedBy() : null;
+                    var cachedUser = (authorId != null && store.userCache().peek() != null)
+                            ? store.userCache().peek().get(authorId)
+                            : null;
+                    String targetName = (cachedUser != null && cachedUser.getName() != null)
+                            ? cachedUser.getName()
+                            : (authorId != null ? authorId : "message");
                     return row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
-                        image(Icon.leftSmall).size(unit(3), unit(3)).color(Pal.accent);
+                        image(Icon.leftSmall).size(unit(4), unit(4)).color(Pal.accent);
                         text(Core.bundle.format("feature.chat.ui.replying", targetName)).color(Color.lightGray).fontScale(0.85f).left();
                         spacer();
                         button(() -> store.setReplyTarget(null))
                                 .style(Styles.clearNonei)
-                                .size(unit(4), unit(4))
-                                .children(() -> image(Icon.cancel).size(unit(3), unit(3)));
+                                .size(unit(6), unit(6))
+                                .children(() -> image(Icon.cancel).size(unit(4), unit(4)));
                     });
                 }
                 return row();

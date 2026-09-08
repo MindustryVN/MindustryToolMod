@@ -3,13 +3,17 @@ package mindustrytool.features.chat;
 import arc.Core;
 import arc.util.Log;
 import arc.util.Nullable;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Flow;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Supplier;
 import mindustrytool.models.response.ChatMessage;
+import mindustrytool.models.response.UserData;
 import mindustrytool.services.MindustryTool;
 import mindustrytool.utils.JsonUtils;
 
@@ -78,7 +82,10 @@ public class ChatService {
             return;
         }
         MindustryTool.getChatMessages(channelId, null).thenAccept(messages -> {
-            Core.app.post(() -> store.setMessages(channelId, messages));
+            Core.app.post(() -> {
+                store.setMessages(channelId, messages);
+                fetchMissingUsers(messages);
+            });
         }).exceptionally(e -> {
             Log.err("Failed to fetch chat messages for " + channelId, e);
             return null;
@@ -209,16 +216,44 @@ public class ChatService {
                         for (ChatMessage msg : list) {
                             store.appendMessage(msg, open);
                         }
+                        fetchMissingUsers(list);
                     });
                 }
             } else if (data.startsWith("{")) {
                 ChatMessage msg = JsonUtils.fromJson(ChatMessage.class, data);
                 if (msg != null && msg.getId() != null) {
-                    Core.app.post(() -> store.appendMessage(msg, windowOpenSupplier.get()));
+                    Core.app.post(() -> {
+                        store.appendMessage(msg, windowOpenSupplier.get());
+                        fetchMissingUsers(Collections.singletonList(msg));
+                    });
                 }
             }
         } catch (Exception e) {
             Log.err("Error processing chat stream event", e);
+        }
+    }
+
+    public void fetchMissingUsers(List<ChatMessage> messages) {
+        if (messages == null || messages.isEmpty()) return;
+        Map<String, UserData> cached = store.userCache().peek();
+        List<String> missing = new ArrayList<>();
+        for (ChatMessage msg : messages) {
+            String authorId = msg.getCreatedBy();
+            if (authorId != null && !authorId.isEmpty() && (cached == null || !cached.containsKey(authorId))) {
+                if (!missing.contains(authorId)) {
+                    missing.add(authorId);
+                }
+            }
+        }
+        if (!missing.isEmpty()) {
+            MindustryTool.getUserBatch(missing).thenAccept(userDataList -> {
+                if (userDataList != null) {
+                    Core.app.post(() -> store.putUsers(userDataList));
+                }
+            }).exceptionally(e -> {
+                Log.err("Failed to fetch user batch", e);
+                return null;
+            });
         }
     }
 

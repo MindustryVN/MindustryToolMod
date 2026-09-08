@@ -49,7 +49,7 @@ public abstract class BaseComponent implements Component {
 		if (cached == null) {
 			ComponentContext.push(this);
 			try {
-				cached = build();
+				cached = ParentStack.isolate(this::build);
 				if (componentName != null) {
 					ElementModifiers.name(cached, componentName);
 				} else if (cached != null && cached.name == null) {

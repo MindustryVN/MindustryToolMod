@@ -351,4 +351,8 @@ public final class Ui {
     public static float unit(float value) {
         return value * BASE_UNIT;
     }
+
+    public static Element add(Object child) {
+        return ParentStack.add(child);
+    }
 }

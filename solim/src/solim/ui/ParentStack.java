@@ -153,7 +153,7 @@ public final class ParentStack {
 		Attacher attacher = tableAttachers.get(parent);
 		if (list != null) {
 			for (Component comp : list) {
-				Element el = comp.element();
+				Element el = isolate(comp::element);
 				if (el != null && el.parent == null) {
 					doAttach(parent, el, attacher);
 				}

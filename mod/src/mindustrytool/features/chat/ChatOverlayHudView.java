@@ -49,6 +49,7 @@ public class ChatOverlayHudView extends BaseComponent {
         });
 
         hud.opacity(feature.opacityConfig.signal());
+        hud.scale(feature.scaleConfig.signal());
         hud.position(feature.xSignal, feature.ySignal);
 
         hud.root().addListener(new InputListener() {
@@ -82,8 +83,8 @@ public class ChatOverlayHudView extends BaseComponent {
                         // Drag handle
                         button()
                                 .style(Styles.clearNonei)
-                                .size(unit(8), unit(8))
-                                .children(() -> image(Icon.move).size(unit(6), unit(6)).color(Color.lightGray))
+                                .size(unit(7), unit(7))
+                                .children(() -> image(Icon.move).size(unit(5), unit(5)).color(Color.lightGray))
                                 .draggable(feature.xSignal, feature.ySignal);
 
                         // Clickable pill to expand
@@ -92,10 +93,10 @@ public class ChatOverlayHudView extends BaseComponent {
                             store.clearUnread();
                         })
                                 .style(Styles.flatt)
-                                .height(unit(8))
+                                .height(unit(7))
                                 .children(() -> {
                                     row().gap(unit(1)).children(() -> {
-                                        image(Icon.chat).size(unit(6), unit(6)).color(Color.white);
+                                        image(Icon.chat).size(unit(5), unit(5)).color(Color.white);
 
                                         image(Tex.whiteui)
                                                 .size(unit(2), unit(2))

@@ -69,14 +69,16 @@ public class ChatChannelListView extends BaseComponent {
                     () -> Objects.equals(store.activeChannelId().get(), channel.getId()));
 
             return card().growX().padding(unit(1)).children(() -> {
-                row().growX().children(() -> {
+                row().growX().left().children(() -> {
                     button(() -> store.setActiveChannelId(channel.getId()))
                             .style(Styles.cleart)
+                            .left()
+                            .growX()
                             .children(() -> {
-                                text(channel.getName())
+                                text("# " + channel.getName())
+                                        .left()
                                         .color(isSelected.map(sel -> sel ? Pal.accent : Color.white));
-                            })
-                            .growX();
+                            });
                 });
             }).element();
         }

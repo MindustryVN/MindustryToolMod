@@ -404,6 +404,36 @@ public final class Button implements Component, Disposable {
 		return this;
 	}
 
+	public Button left() {
+		sizedButton.left();
+		sizedButton.defaults().left();
+		return this;
+	}
+
+	public Button right() {
+		sizedButton.right();
+		sizedButton.defaults().right();
+		return this;
+	}
+
+	public Button center() {
+		sizedButton.center();
+		sizedButton.defaults().center();
+		return this;
+	}
+
+	public Button top() {
+		sizedButton.top();
+		sizedButton.defaults().top();
+		return this;
+	}
+
+	public Button bottom() {
+		sizedButton.bottom();
+		sizedButton.defaults().bottom();
+		return this;
+	}
+
 	public SizedButton sizedButton() {
 		return sizedButton;
 	}

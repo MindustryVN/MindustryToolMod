@@ -10,6 +10,7 @@ import java.util.Objects;
 import mindustrytool.models.response.ChannelDto;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.ChatUser;
+import mindustrytool.models.response.UserData;
 import solim.signal.Computed;
 import solim.signal.Readable;
 import solim.signal.Signal;
@@ -20,6 +21,7 @@ public class ChatStore {
     private final Signal<String> activeChannelId = Signal.of("");
     private final Signal<Map<String, List<ChatMessage>>> messages = Signal.of(new HashMap<>());
     private final Signal<Map<String, List<ChatUser>>> users = Signal.of(new HashMap<>());
+    private final Signal<Map<String, UserData>> userCache = Signal.of(new HashMap<>());
     private final Signal<Integer> unreadCount = Signal.of(0);
     private final Signal<Boolean> connected = Signal.of(false);
     private final Signal<ChatMessage> replyTarget = Signal.of(null);
@@ -165,5 +167,24 @@ public class ChatStore {
 
     public void setReplyTarget(@Nullable ChatMessage target) {
         replyTarget.set(target);
+    }
+
+    public Readable<Map<String, UserData>> userCache() {
+        return userCache;
+    }
+
+    public Readable<UserData> user(String userId) {
+        return userCache.map(map -> map != null ? map.get(userId) : null);
+    }
+
+    public void putUsers(List<UserData> users) {
+        if (users == null || users.isEmpty()) return;
+        Map<String, UserData> map = new HashMap<>(userCache.peek() != null ? userCache.peek() : Collections.emptyMap());
+        for (UserData u : users) {
+            if (u.getId() != null) {
+                map.put(u.getId(), u);
+            }
+        }
+        userCache.set(map);
     }
 }

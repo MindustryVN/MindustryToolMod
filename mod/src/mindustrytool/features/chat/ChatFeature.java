@@ -55,11 +55,6 @@ public class ChatFeature extends Feature {
         xConfig = config.floatValue("x", defX);
         yConfig = config.floatValue("y", defY);
 
-        if (xConfig.get() != null && yConfig.get() != null && xConfig.get() == 20f && yConfig.get() == 20f) {
-            xConfig.set(defX);
-            yConfig.set(defY);
-        }
-
         xSignal = xConfig.signal();
         ySignal = yConfig.signal();
 
