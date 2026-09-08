@@ -1,6 +1,7 @@
 package solim.layout;
 
 import arc.scene.Element;
+import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
 import solim.core.Component;
@@ -52,6 +53,11 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 	public Grid gap(float g) {
 		this.gap = g;
 		ElementModifiers.gap(table, g);
+		return this;
+	}
+
+	public Grid background(@Nullable Drawable bg) {
+		table.background(bg);
 		return this;
 	}
 

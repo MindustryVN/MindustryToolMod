@@ -10,6 +10,14 @@ public interface Readable<T> extends Supplier<T> {
 	@Override
 	T get();
 
+	/**
+	 * Returns the current value without dependency tracking.
+	 * Use for non-reactive reads (e.g. inside event handlers or callbacks).
+	 */
+	default T peek() {
+		return get();
+	}
+
 	default <R> Computed<R> map(Function<T, R> mapper) {
 		return new Computed<>(() -> mapper.apply(get()));
 	}

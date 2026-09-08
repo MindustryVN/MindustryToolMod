@@ -17,6 +17,7 @@ import solim.layout.ConstrainedElement;
 import solim.layout.Row;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
+import solim.overlay.Hud;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -89,7 +90,12 @@ public final class Button implements Component, Disposable {
 	private final List<Disposable> bindings = new ArrayList<>();
 	private boolean stopClickPropagation = true;
 	private @Nullable Runnable onClick;
+	private @Nullable Runnable onLongClick;
+	private long longClickDuration = 300L;
+	private boolean longPressed = false;
+	private long pressTime = -1L;
 	private boolean hasClickListener = false;
+	private boolean hasLongClickListener = false;
 
 	public Button() {
 		this(new SizedButton());
@@ -129,25 +135,72 @@ public final class Button implements Component, Disposable {
 
 	public Button onClick(@Nullable Runnable action) {
 		this.onClick = action;
-		if (action != null && !hasClickListener) {
-			hasClickListener = true;
-			sizedButton.addListener(new ClickListener() {
-				@Override
-				public void clicked(InputEvent event, float x, float y) {
-					if (stopClickPropagation && event != null) {
-						event.stop();
+		if (action != null) {
+			ensureClickListener();
+		}
+		return this;
+	}
+
+	public Button onLongClick(@Nullable Runnable action) {
+		return onLongClick(300L, action);
+	}
+
+	public Button onLongClick(long durationMs, @Nullable Runnable action) {
+		this.onLongClick = action;
+		this.longClickDuration = durationMs;
+		if (action != null) {
+			ensureClickListener();
+			ensureLongClickListener();
+		}
+		return this;
+	}
+
+	private void ensureClickListener() {
+		if (hasClickListener) return;
+		hasClickListener = true;
+		sizedButton.addListener(new ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				if (stopClickPropagation && event != null) {
+					event.stop();
+				}
+				if (longPressed) {
+					longPressed = false;
+					return;
+				}
+				if (Button.this.onClick != null) {
+					try {
+						Button.this.onClick.run();
+					} catch (Exception e) {
+						Log.err("Error executing button onClick", e);
 					}
-					if (Button.this.onClick != null) {
+				}
+			}
+		});
+	}
+
+	private void ensureLongClickListener() {
+		if (hasLongClickListener) return;
+		hasLongClickListener = true;
+		sizedButton.update(() -> {
+			if (sizedButton.isPressed()) {
+				if (pressTime == -1L) {
+					pressTime = arc.util.Time.millis();
+					longPressed = false;
+				} else if (!longPressed && arc.util.Time.timeSinceMillis(pressTime) >= longClickDuration) {
+					longPressed = true;
+					if (Button.this.onLongClick != null) {
 						try {
-							Button.this.onClick.run();
+							Button.this.onLongClick.run();
 						} catch (Exception e) {
-							Log.err("Error executing button onClick", e);
+							Log.err("Error executing button onLongClick", e);
 						}
 					}
 				}
-			});
-		}
-		return this;
+			} else {
+				pressTime = -1L;
+			}
+		});
 	}
 
 	public Button stopClickPropagation(boolean stop) {
@@ -279,6 +332,20 @@ public final class Button implements Component, Disposable {
 		return this;
 	}
 
+	public Button size(@Nullable Readable<Float> size) {
+		if (size != null) {
+			width(size);
+			height(size);
+		}
+		return this;
+	}
+
+	public Button size(@Nullable Readable<Float> width, @Nullable Readable<Float> height) {
+		if (width != null) width(width);
+		if (height != null) height(height);
+		return this;
+	}
+
 	public Button growX() {
 		sizedButton.growX();
 		return this;
@@ -295,6 +362,30 @@ public final class Button implements Component, Disposable {
 
 	public Button gap(float g) {
 		ElementModifiers.gap(sizedButton, g);
+		return this;
+	}
+
+	public Button margin(float m) {
+		sizedButton.margin(m);
+		return this;
+	}
+
+	public Button margin(@Nullable Readable<Float> margin) {
+		if (margin != null) {
+			Effect e = Effect.of(() -> {
+				Float m = margin.get();
+				if (m != null) {
+					margin(m);
+				}
+			});
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
+		return this;
+	}
+
+	public Button margin(float top, float left, float bottom, float right) {
+		sizedButton.margin(top, left, bottom, right);
 		return this;
 	}
 
@@ -319,6 +410,16 @@ public final class Button implements Component, Disposable {
 
 	public Button name(String name) {
 		ElementModifiers.name(sizedButton, name);
+		return this;
+	}
+
+	public Button draggable(Hud hud) {
+		ElementModifiers.draggable(sizedButton, hud);
+		return this;
+	}
+
+	public Button draggable(Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+		ElementModifiers.draggable(sizedButton, hud, xSignal, ySignal);
 		return this;
 	}
 

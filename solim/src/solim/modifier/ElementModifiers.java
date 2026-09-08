@@ -1,13 +1,18 @@
 package solim.modifier;
 
+import arc.input.KeyCode;
 import arc.scene.Element;
+import arc.scene.event.InputEvent;
+import arc.scene.event.InputListener;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.display.SolimImage.SizedImage;
 import solim.input.Button.SizedButton;
 import solim.layout.ConstrainedElement;
+import solim.overlay.Hud;
 import solim.signal.Readable;
+import solim.signal.Signal;
 
 /**
  * Utility class providing static helper methods for modifying Arc elements and tables.
@@ -384,5 +389,36 @@ public final class ElementModifiers {
 		if (element instanceof Table) {
 			gap((Table) element, gap);
 		}
+	}
+
+	public static void draggable(@Nullable Element handle, Hud hud) {
+		draggable(handle, hud, null, null);
+	}
+
+	public static void draggable(@Nullable Element handle, Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
+		if (handle == null || hud == null) return;
+		handle.addListener(new InputListener() {
+			private float lastX;
+			private float lastY;
+
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+				lastX = x;
+				lastY = y;
+				return true;
+			}
+
+			@Override
+			public void touchDragged(InputEvent event, float x, float y, int pointer) {
+				hud.element().moveBy(x - lastX, y - lastY);
+				hud.keepInScreen();
+				if (xSignal != null) {
+					xSignal.set(hud.element().x);
+				}
+				if (ySignal != null) {
+					ySignal.set(hud.element().y);
+				}
+			}
+		});
 	}
 }

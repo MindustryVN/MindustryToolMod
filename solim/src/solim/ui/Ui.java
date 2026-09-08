@@ -28,6 +28,7 @@ import solim.layout.ReactiveGrid;
 import solim.layout.Row;
 import solim.layout.Scroll;
 import solim.layout.Spacer;
+import solim.overlay.Hud;
 import solim.overlay.SolimDialog;
 import solim.signal.Computed;
 import solim.signal.Readable;
@@ -248,6 +249,18 @@ public final class Ui {
 
     public static SolimDialog dialog(String title, @Nullable Runnable content) {
         return dialog(title).children(content);
+    }
+
+    public static Hud hud() {
+        Hud h = new Hud();
+        ParentStack.attachToParent(h.element());
+        return h;
+    }
+
+    public static Hud hud(@Nullable Runnable content) {
+        Hud h = hud();
+        h.children(content);
+        return h;
     }
 
     public static <T> Dynamic<T> dynamic(Readable<T> source, Function<T, Component> factory) {

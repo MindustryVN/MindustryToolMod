@@ -1,7 +1,7 @@
 package mindustrytool.features.quickaccess;
 
 import arc.Core;
-import arc.Events;
+import arc.scene.Element;
 import arc.scene.ui.Dialog;
 import arc.util.Nullable;
 import java.util.Collections;
@@ -13,7 +13,6 @@ import mindustrytool.config.ConfigGroup;
 import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
-import mindustrytool.features.FeatureStateChanged;
 import solim.signal.Signal;
 
 public class QuickAccessFeature extends Feature {
@@ -55,10 +54,8 @@ public class QuickAccessFeature extends Feature {
 		xSignal = Signal.of(x());
 		ySignal = Signal.of(y());
 
-		opacityConfig.signal().subscribe(val -> rebuildHud());
-		scaleConfig.signal().subscribe(val -> rebuildHud());
-		colsConfig.signal().subscribe(val -> rebuildHud());
-		hiddenFeaturesConfig.signal().subscribe(val -> rebuildHud());
+		xSignal.subscribe(val -> currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(val));
+		ySignal.subscribe(val -> currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(val));
 	}
 
 	private ConfigGroup currentOrientationGroup() {
@@ -137,27 +134,28 @@ public class QuickAccessFeature extends Feature {
 	public void onEnable() {
 		if (Vars.ui.hudGroup != null) {
 			if (hudView != null) {
-				hudView.remove();
+				hudView.element().remove();
+				hudView.dispose();
 			}
 
 			hudView = new QuickAccessHudView(this);
-			hudView.name = "quick-access-hud";
-			hudView.visible(() -> Vars.ui.hudfrag != null && Vars.ui.hudfrag.shown && Vars.state != null && Vars.state.isGame());
+			Element el = hudView.element();
+			el.name = "quick-access-hud";
+			el.visible(() -> Vars.ui.hudfrag != null && Vars.ui.hudfrag.shown && Vars.state != null && Vars.state.isGame());
 
 			Core.app.post(() -> {
 				if (hudView != null && Vars.ui.hudGroup != null) {
-					Vars.ui.hudGroup.addChild(hudView);
+					Vars.ui.hudGroup.addChild(el);
 				}
 			});
-
-			Events.on(FeatureStateChanged.class, event -> rebuildHud());
 		}
 	}
 
 	@Override
 	public void onDisable() {
 		if (hudView != null) {
-			hudView.remove();
+			hudView.element().remove();
+			hudView.dispose();
 			hudView = null;
 		}
 	}
