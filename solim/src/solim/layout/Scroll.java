@@ -6,6 +6,7 @@ import arc.Core;
 import arc.scene.Element;
 import arc.scene.ui.ScrollPane;
 import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
@@ -16,12 +17,13 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
+		cell.growX().top().left();
 		cell.row();
 		return cell;
 	};
 
 	private final SizedTable outer;
-	private final SizedTable content;
+	private final Table content;
 	private final ScrollPane pane;
 
 	public Scroll() {
@@ -32,12 +34,12 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 		this.content.top().left();
 		this.content.name = "solim-scroll-pane-content";
 		if (Core.scene != null) {
-			this.pane = outer.pane(content).scrollX(false).scrollY(true).get();
+			this.pane = outer.pane(content).grow().scrollX(false).scrollY(true).get();
 			this.pane.name = "solim-scroll-pane";
 			this.pane.setScrollingDisabled(true, false);
 		} else {
 			this.pane = null;
-			outer.add(content);
+			outer.add(content).grow();
 		}
 	}
 
@@ -50,11 +52,11 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 		return this;
 	}
 
-	public SizedTable content() {
+	public Table content() {
 		return content;
 	}
 
-	public Scroll content(Consumer<SizedTable> consumer) {
+	public Scroll content(Consumer<Table> consumer) {
 		consumer.accept(content);
 		return this;
 	}
