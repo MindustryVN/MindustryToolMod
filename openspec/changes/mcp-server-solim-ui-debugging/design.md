@@ -10,7 +10,7 @@ The MCP (Model Context Protocol) is a standardized protocol for AI assistants to
 - Implement an MCP server within Solim that exposes UI debugging capabilities
 - Provide MCP tools for: component tree traversal, signal/computed value inspection, binding status, layout metrics
 - Use WebSocket transport for real-time updates (subscription to UI changes)
-- Integrate with Solim's existing reactive system without performance overhead when disabled
+- Integrate with Solim's existing reactive system using **reflection only - no changes to Solim source code**
 - Secure by default: disabled in production, opt-in for development
 - Follow Solim's architectural patterns (declarative, reactive, automatic ownership)
 
@@ -27,10 +27,14 @@ The MCP (Model Context Protocol) is a standardized protocol for AI assistants to
 **Rationale**: MCP supports both. WebSocket enables live updates when UI changes (signal updates, component mount/unmount). HTTP fallback for simple queries.
 **Alternatives**: Server-Sent Events (SSE) - less bidirectional; pure HTTP polling - high latency.
 
-### 2. Integration Point: Solim Core Debug Hooks
-**Decision**: Add debug hooks to `Component`, `Signal`, `Computed`, `Binding` classes that the MCP server can register to.
-**Rationale**: Minimal intrusion. Hooks are no-ops when debug server disabled. Follows observer pattern.
-**Alternatives**: Reflection-based inspection - fragile, breaks with obfuscation; separate debug build - complex.
+### 2. Integration Point: Reflection-Based Inspection (No Source Changes)
+**Decision**: The MCP server inspects Solim state purely through Java reflection. **No changes are made to Solim source code.**
+**Rationale**: Keeps Solim core completely untouched. The MCP server is a fully external, additive module that reads existing state (component tree via `Element`/`Component`, signal values via `get()`, binding/observer counts via package-private access made reachable through reflection). The debug capability is entirely isolated in the new `solim-mcp` module.
+**Consequences**:
+- `solim-reactivity` and `solim-component` capabilities are **NOT modified**. Their specs remain stable.
+- Direct field access is done via reflection (e.g., `Signal`'s value/listener/observer fields, `Computed`'s dependency map, `ComponentContext`/`ParentStack`/`ReactiveContext` static stacks, `BaseComponent` registered disposables).
+- Any new accessors needed only for debugging are invoked through reflection, never compiled into Solim.
+- **Alternatives**: Source-level debug hooks - rejected because they modify Solim source; separate debug build - rejected, complex maintenance.
 
 ### 3. MCP Server Location: New `solim-mcp` module
 **Decision**: Create separate module `solim-mcp` under `solim/` directory.
@@ -51,7 +55,8 @@ The MCP (Model Context Protocol) is a standardized protocol for AI assistants to
 
 | Risk | Mitigation |
 |------|------------|
-| Performance overhead when enabled | Hooks are no-ops when disabled; lazy initialization; sampling for high-frequency signals |
+| Performance overhead when enabled | Reflection cached/handled abstractly (MethodHandle); lazy initialization; sampling for high-frequency signals |
+| Reflection fragility (field name/type changes in Solim) | Centralized reflective descriptors with graceful degradation; warn + skip broken introspection instead of failing |
 | Memory leaks from subscriptions | Automatic cleanup on component dispose; weak references for signal observers |
 | Exposing internal implementation details | Curated API surface; transform internal models to stable debug DTOs |
 | MCP protocol changes | Pin MCP SDK version; abstract transport layer |
@@ -60,7 +65,7 @@ The MCP (Model Context Protocol) is a standardized protocol for AI assistants to
 ## Migration Plan
 
 1. Create `solim-mcp` module with MCP server skeleton
-2. Add debug hooks to Solim core (Component, Signal, Binding)
+2. Implement reflection-based introspection layer over Solim (Component tree, Signal/Computed values, bindings) - **no Solim source changes**
 3. Implement MCP tools: `get_component_tree`, `get_signal_values`, `get_bindings`, `get_layout`
 4. Add WebSocket transport with subscription support
 5. Add configuration (enabled, port, token)

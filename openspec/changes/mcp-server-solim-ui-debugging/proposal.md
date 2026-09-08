@@ -8,6 +8,7 @@ Debugging Solim UI components currently requires manual inspection or custom log
 - New capability: `solim-mcp-debug-server` - MCP server for real-time UI state inspection
 - WebSocket/HTTP endpoints for querying component tree, signal values, reactive bindings, layout metrics
 - Integration with Solim's existing reactive system to expose live data
+- **Inspection is done purely via reflection - no modifications to Solim source code**
 
 ## Capabilities
 
@@ -15,13 +16,12 @@ Debugging Solim UI components currently requires manual inspection or custom log
 - `solim-mcp-debug-server`: MCP server providing real-time UI debugging data (component hierarchy, signal states, binding status, layout info)
 
 ### Modified Capabilities
-- `solim-reactivity`: May need to expose internal signal/binding inspection APIs
-- `solim-component`: May need to expose component tree traversal for debugging
+- **None.** All inspection is performed through reflection over the existing Solim reactive system. No debug hooks are added to `solim-reactivity` or `solim-component`.
 
 ## Impact
 
 - New Solim module for MCP server implementation
 - New dependencies: MCP SDK (if not already available)
-- Modifications to Solim core to expose debugging hooks
+- **No modifications to Solim core** - all state inspection uses reflection against existing classes
 - Configuration for enabling/disabling debug server
 - Security considerations for exposing internal state

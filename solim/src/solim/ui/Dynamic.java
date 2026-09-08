@@ -41,7 +41,13 @@ public final class Dynamic<T> extends BaseComponent {
 			}
 			container.clearChildren();
 			if (value != null && factory != null) {
-				currentComponent = factory.apply(value);
+				currentComponent = ParentStack.isolate(() -> {
+					Component c = factory.apply(value);
+					if (c != null) {
+						c.element();
+					}
+					return c;
+				});
 				if (currentComponent != null) {
 					Element el = currentComponent.element();
 					Cell<?> cell = container.add(el);

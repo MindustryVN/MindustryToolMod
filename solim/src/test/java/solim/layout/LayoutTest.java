@@ -357,6 +357,34 @@ class LayoutTest {
 	}
 
 	@Test
+	void reactiveGridInsideScrollHasNoGhostCells() {
+		Table root = new Table();
+		root.setSize(1024, 768);
+
+		solim.signal.Signal<arc.struct.Seq<String>> items = solim.signal.Signal.of(arc.struct.Seq.with("feat1", "feat2"));
+		Scroll[] scrollRef = new Scroll[1];
+
+		Column col = Ui.column().grow().children(() -> {
+			Ui.row().growX().gap(8f).children(() -> {
+				Ui.image().size(24, 24);
+				Ui.button().height(40).width(200);
+			});
+			scrollRef[0] = Ui.scroll().grow().children(() -> {
+				Ui.grid(solim.signal.Signal.of(2), items, x -> x, x -> Ui.card().height(160).width(300).children(() -> {}));
+			});
+		});
+
+		root.add(col.element()).grow().expand();
+		root.validate();
+		root.layout();
+
+		Table content = scrollRef[0].content();
+		assertEquals(1, content.getCells().size, "Scroll content must only contain the grid table, with no ghost cells");
+		Table gridTable = (Table) content.getChildren().first();
+		assertSame(gridTable, content.getCells().first().get(), "First and only cell in scroll content must be the grid table");
+	}
+
+	@Test
 	void sizedTextFieldGrowAfterAttachment() {
 		org.junit.jupiter.api.Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
 		Table parent = new Table();

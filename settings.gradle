@@ -2,3 +2,4 @@ rootProject.name = 'MindustryToolMod'
 
 include 'mod'
 include 'solim'
+include 'solim-mcp'

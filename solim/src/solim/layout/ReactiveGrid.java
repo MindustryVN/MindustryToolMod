@@ -98,7 +98,13 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 
 				Component comp = activeComponents.get(key);
 				if (comp == null) {
-					comp = itemFactory.apply(item);
+					comp = ParentStack.isolate(() -> {
+						Component c = itemFactory.apply(item);
+						if (c != null) {
+							c.element();
+						}
+						return c;
+					});
 				}
 				nextComponents.put(key, comp);
 			}
@@ -135,7 +141,13 @@ public final class ReactiveGrid<T, K> extends BaseComponent {
 				table.add(emptyTable).center().pad(40f);
 			} else if (emptyViewSupplier != null) {
 				if (currentEmptyComponent == null) {
-					currentEmptyComponent = emptyViewSupplier.get();
+					currentEmptyComponent = ParentStack.isolate(() -> {
+						Component c = emptyViewSupplier.get();
+						if (c != null) {
+							c.element();
+						}
+						return c;
+					});
 				}
 				table.add(currentEmptyComponent.element()).pad(40f).center();
 			}

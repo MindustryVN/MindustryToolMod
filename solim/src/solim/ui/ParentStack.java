@@ -9,6 +9,7 @@ import java.util.Deque;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Supplier;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
@@ -79,6 +80,42 @@ public final class ParentStack {
 
 	public static int size() {
 		return stack.size();
+	}
+
+	/**
+	 * Executes the given supplier in an isolated ParentStack context where no parent is on the stack.
+	 * Any components created within the supplier will not attach to parents on the outer stack,
+	 * but internal hierarchies within the supplier remain fully functional.
+	 */
+	public static <T> T isolate(Supplier<T> supplier) {
+		if (supplier == null) {
+			return null;
+		}
+		Deque<Entry> saved = new ArrayDeque<>(stack);
+		stack.clear();
+		try {
+			return supplier.get();
+		} finally {
+			stack.clear();
+			stack.addAll(saved);
+		}
+	}
+
+	/**
+	 * Executes the given runnable in an isolated ParentStack context where no parent is on the stack.
+	 */
+	public static void isolate(Runnable runnable) {
+		if (runnable == null) {
+			return;
+		}
+		Deque<Entry> saved = new ArrayDeque<>(stack);
+		stack.clear();
+		try {
+			runnable.run();
+		} finally {
+			stack.clear();
+			stack.addAll(saved);
+		}
 	}
 
 	/**

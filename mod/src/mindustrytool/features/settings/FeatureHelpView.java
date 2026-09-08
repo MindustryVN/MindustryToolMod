@@ -7,6 +7,7 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.util.Scaling;
 import lombok.AllArgsConstructor;
+import mindustry.Vars;
 import mindustry.ui.Styles;
 import mindustrytool.features.Feature;
 import solim.core.BaseComponent;
@@ -27,9 +28,12 @@ public class FeatureHelpView extends BaseComponent {
 
         return scroll()
                 .grow()
+                .center()
                 .children(() -> {
                     column()
                             .growX()
+                            .center()
+                            .maxWidth(Vars.mobile ? dvh(80) : dvh(50))
                             .padding(16f)
                             .gap(12f)
                             .children(() -> {

@@ -64,7 +64,13 @@ public final class ForEach<T, K> extends BaseComponent {
 
 			Component comp = activeComponents.get(key);
 			if (comp == null) {
-				comp = itemFactory.apply(item);
+				comp = ParentStack.isolate(() -> {
+					Component c = itemFactory.apply(item);
+					if (c != null) {
+						c.element();
+					}
+					return c;
+				});
 			}
 			nextComponents.put(key, comp);
 		}

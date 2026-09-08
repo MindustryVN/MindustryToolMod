@@ -76,6 +76,7 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 
 	public Scroll center() {
 		outer.center();
+        content.center();
 		return this;
 	}
 
