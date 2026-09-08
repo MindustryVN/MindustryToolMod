@@ -46,7 +46,7 @@ public class ConfigValue<T> {
     }
 
     public @Nullable T get() {
-        return signal.get();
+        return signal.peek();
     }
 
     public void set(@Nullable T value) {
@@ -55,7 +55,7 @@ public class ConfigValue<T> {
         updating = true;
         try {
             setter.accept(value);
-            if (!Objects.equals(signal.get(), value)) {
+            if (!Objects.equals(signal.peek(), value)) {
                 signal.set(value);
             }
         } finally {

@@ -1,6 +1,9 @@
 # solim-mcp-debug-server Specification
 
-## ADDED Requirements
+## Purpose
+TBD - created by archiving change mcp-server-solim-ui-debugging. Update Purpose after archive.
+
+## Requirements
 
 ### Requirement: Reflection-based introspection without source changes
 The MCP debug server SHALL inspect live Solim UI state purely through Java reflection over existing Solim classes. It SHALL NOT require any modifications to Solim core source code (`solim-reactivity`, `solim-component`, or any other existing Solim capability).
