@@ -104,10 +104,46 @@ public final class SolimImage implements Component, Disposable {
 			return this;
 		}
 
+		public SizedImage height(@Nullable Readable<Float> height) {
+			if (height != null) {
+				Effect e = Effect.of(() -> {
+					Float h = height.get();
+					if (h != null) height(h);
+				});
+				ComponentContext.register(e);
+			}
+			return this;
+		}
+
 		public SizedImage width(float width) {
 			this.customPrefWidth = width;
 			setWidth(width);
 			invalidateHierarchy();
+			return this;
+		}
+
+		public SizedImage width(@Nullable Readable<Float> width) {
+			if (width != null) {
+				Effect e = Effect.of(() -> {
+					Float w = width.get();
+					if (w != null) width(w);
+				});
+				ComponentContext.register(e);
+			}
+			return this;
+		}
+
+		public SizedImage size(@Nullable Readable<Float> size) {
+			if (size != null) {
+				width(size);
+				height(size);
+			}
+			return this;
+		}
+
+		public SizedImage size(@Nullable Readable<Float> width, @Nullable Readable<Float> height) {
+			if (width != null) width(width);
+			if (height != null) height(height);
 			return this;
 		}
 

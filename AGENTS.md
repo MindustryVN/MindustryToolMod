@@ -520,6 +520,47 @@ value.subscribe(v -> {
 });
 ```
 
+## ❌ Never Call `signal.get()` in `build()` — Mandatory
+
+**Never unwrap signals using `.get()` during component construction.**
+
+Calling `signal.get()` in `build()` extracts a static snapshot once and severs all reactivity. The UI will never update when the signal changes.
+
+Pass the `Readable<T>` / `Signal<T>` directly to the component, or use `.map()` to transform it. If an untracked one-time read is truly intentional (such as inside an `onClick` callback), use `signal.peek()`.
+
+❌ Bad (Static snapshot, breaks reactivity):
+```java
+@Override
+protected Element build() {
+    float scale = scaleSignal.get(); // ❌ Severed! Will not update on scale change
+    int cols = colsSignal.get();       // ❌ Severed!
+    String name = nameSignal.get();    // ❌ Severed!
+
+    return column(() -> {
+        text(name);
+        text(countSignal.get() + " items"); // ❌ Not reactive!
+        grid(cols).children(() -> ...);
+        button().size(48f * scale);         // ❌ Static size!
+    });
+}
+```
+
+✅ Good (Declarative reactive flow):
+```java
+@Override
+protected Element build() {
+    Readable<Float> buttonSize = scaleSignal.map(s -> 48f * s);
+    Readable<String> countText = countSignal.map(c -> c + " items");
+
+    return column(() -> {
+        text(nameSignal);
+        text(countText);
+        grid(colsSignal).children(() -> ...);
+        button().size(buttonSize);
+    });
+}
+```
+
 ---
 
 # Automatic Component Binding

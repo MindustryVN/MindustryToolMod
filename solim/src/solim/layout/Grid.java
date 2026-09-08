@@ -5,7 +5,10 @@ import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
 import solim.core.Component;
+import solim.core.ComponentContext;
 import solim.modifier.ElementModifiers;
+import solim.signal.Effect;
+import solim.signal.Readable;
 import solim.ui.ParentStack;
 
 /** Simple grid with fixed column count. */
@@ -47,6 +50,19 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 
 	public Grid columns(int c) {
 		this.columns = Math.max(1, c);
+		return this;
+	}
+
+	public Grid columns(@Nullable Readable<Integer> c) {
+		if (c != null) {
+			Effect e = Effect.of(() -> {
+				Integer cols = c.get();
+				if (cols != null) {
+					this.columns = Math.max(1, cols);
+				}
+			});
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 

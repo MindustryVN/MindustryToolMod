@@ -97,6 +97,16 @@ public final class Ui {
         return grid(columns).children(r);
     }
 
+    public static Grid grid(Readable<Integer> columns) {
+        Grid g = new Grid().columns(columns);
+        ParentStack.attachToParent(g.element());
+        return g;
+    }
+
+    public static Grid grid(Readable<Integer> columns, @Nullable Runnable r) {
+        return grid(columns).children(r);
+    }
+
     public static Row wrap() {
         return row();
     }

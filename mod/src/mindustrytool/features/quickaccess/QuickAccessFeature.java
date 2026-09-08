@@ -17,160 +17,161 @@ import solim.signal.Signal;
 
 public class QuickAccessFeature extends Feature {
 
-	public final ConfigGroup config;
-	public final ConfigValue<Float> opacityConfig;
-	public final ConfigValue<Float> scaleConfig;
-	public final ConfigValue<Integer> colsConfig;
-	public final ConfigValue<Set<String>> hiddenFeaturesConfig;
+    public final ConfigGroup config;
+    public final ConfigValue<Float> opacityConfig;
+    public final ConfigValue<Float> scaleConfig;
+    public final ConfigValue<Integer> colsConfig;
+    public final ConfigValue<Set<String>> hiddenFeaturesConfig;
 
-	public final ConfigGroup portraitGroup;
-	public final ConfigGroup landscapeGroup;
+    public final ConfigGroup portraitGroup;
+    public final ConfigGroup landscapeGroup;
 
-	public final Signal<Float> xSignal;
-	public final Signal<Float> ySignal;
+    public final Signal<Float> xSignal;
+    public final Signal<Float> ySignal;
 
-	private @Nullable QuickAccessHudView hudView;
-	private @Nullable QuickAccessSettingsDialog settingsDialog;
+    private @Nullable QuickAccessHudView hudView;
+    private @Nullable QuickAccessSettingsDialog settingsDialog;
 
-	public QuickAccessFeature() {
-		super(FeatureMetadata.builder()
-				.id("quick-access")
-				.icon(Icon.menu)
-				.order(10)
-				.enabledByDefault(true)
-				.quickAccess(false)
-				.build());
+    public QuickAccessFeature() {
+        super(FeatureMetadata.builder()//
+                .id("quick-access")//
+                .icon(Icon.menu)//
+                .order(10)//
+                .enabledByDefault(true)//
+                .quickAccess(false)//
+                .build());
 
-		config = ConfigGroup.of(getMetadata());
+        config = ConfigGroup.of(getMetadata());
 
-		opacityConfig = config.floatValue("opacity", 1f);
-		scaleConfig = config.floatValue("scale", 1f);
-		colsConfig = config.intValue("cols", 6);
-		hiddenFeaturesConfig = config.setValue("hidden", String.class, Collections.emptySet());
+        opacityConfig = config.floatValue("opacity", 1f);
+        scaleConfig = config.floatValue("scale", 1f);
+        colsConfig = config.intValue("cols", 6);
+        hiddenFeaturesConfig = config.setValue("hidden", String.class, Collections.emptySet());
 
-		portraitGroup = config.group("portrait");
-		landscapeGroup = config.group("landscape");
+        portraitGroup = config.group("portrait");
+        landscapeGroup = config.group("landscape");
 
-		xSignal = Signal.of(x());
-		ySignal = Signal.of(y());
+        xSignal = Signal.of(x());
+        ySignal = Signal.of(y());
 
-		xSignal.subscribe(val -> currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(val));
-		ySignal.subscribe(val -> currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(val));
-	}
+        xSignal.subscribe(val -> currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(val));
+        ySignal.subscribe(val -> currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(val));
+    }
 
-	private ConfigGroup currentOrientationGroup() {
-		return Core.graphics.isPortrait() ? portraitGroup : landscapeGroup;
-	}
+    private ConfigGroup currentOrientationGroup() {
+        return Core.graphics.isPortrait() ? portraitGroup : landscapeGroup;
+    }
 
-	public float x() {
-		Float val = currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).get();
-		return val != null ? val : Core.graphics.getWidth() / 2f;
-	}
+    public float x() {
+        Float val = currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).get();
+        return val != null ? val : Core.graphics.getWidth() / 2f;
+    }
 
-	public void x(float value) {
-		currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(value);
-		xSignal.set(value);
-	}
+    public void x(float value) {
+        currentOrientationGroup().floatValue("x", Core.graphics.getWidth() / 2f).set(value);
+        xSignal.set(value);
+    }
 
-	public float y() {
-		Float val = currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).get();
-		return val != null ? val : Core.graphics.getHeight() / 2f;
-	}
+    public float y() {
+        Float val = currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).get();
+        return val != null ? val : Core.graphics.getHeight() / 2f;
+    }
 
-	public void y(float value) {
-		currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(value);
-		ySignal.set(value);
-	}
+    public void y(float value) {
+        currentOrientationGroup().floatValue("y", Core.graphics.getHeight() / 2f).set(value);
+        ySignal.set(value);
+    }
 
-	public float opacity() {
-		Float val = opacityConfig.get();
-		return val != null ? val : 1f;
-	}
+    public float opacity() {
+        Float val = opacityConfig.get();
+        return val != null ? val : 1f;
+    }
 
-	public void opacity(float value) {
-		opacityConfig.set(value);
-	}
+    public void opacity(float value) {
+        opacityConfig.set(value);
+    }
 
-	public float scale() {
-		Float val = scaleConfig.get();
-		return val != null ? val : 1f;
-	}
+    public float scale() {
+        Float val = scaleConfig.get();
+        return val != null ? val : 1f;
+    }
 
-	public void scale(float value) {
-		scaleConfig.set(value);
-	}
+    public void scale(float value) {
+        scaleConfig.set(value);
+    }
 
-	public int cols() {
-		Integer val = colsConfig.get();
-		return val != null ? val : 6;
-	}
+    public int cols() {
+        Integer val = colsConfig.get();
+        return val != null ? val : 6;
+    }
 
-	public void cols(int value) {
-		colsConfig.set(value);
-	}
+    public void cols(int value) {
+        colsConfig.set(value);
+    }
 
-	public boolean isFeatureVisible(String id) {
-		Set<String> hidden = hiddenFeaturesConfig.get();
-		return hidden == null || !hidden.contains(id);
-	}
+    public boolean isFeatureVisible(String id) {
+        Set<String> hidden = hiddenFeaturesConfig.get();
+        return hidden == null || !hidden.contains(id);
+    }
 
-	public void setFeatureVisible(String id, boolean visible) {
-		Set<String> current = hiddenFeaturesConfig.get();
-		Set<String> hidden = current != null ? new HashSet<>(current) : new HashSet<>();
-		if (visible) {
-			hidden.remove(id);
-		} else {
-			hidden.add(id);
-		}
-		hiddenFeaturesConfig.set(hidden);
-	}
+    public void setFeatureVisible(String id, boolean visible) {
+        Set<String> current = hiddenFeaturesConfig.get();
+        Set<String> hidden = current != null ? new HashSet<>(current) : new HashSet<>();
+        if (visible) {
+            hidden.remove(id);
+        } else {
+            hidden.add(id);
+        }
+        hiddenFeaturesConfig.set(hidden);
+    }
 
-	public void resetPosition() {
-		x(Core.graphics.getWidth() / 2f);
-		y(Core.graphics.getHeight() / 2f);
-	}
+    public void resetPosition() {
+        x(Core.graphics.getWidth() / 2f);
+        y(Core.graphics.getHeight() / 2f);
+    }
 
-	@Override
-	public void onEnable() {
-		if (Vars.ui.hudGroup != null) {
-			if (hudView != null) {
-				hudView.element().remove();
-				hudView.dispose();
-			}
+    @Override
+    public void onEnable() {
+        if (Vars.ui.hudGroup != null) {
+            if (hudView != null) {
+                hudView.element().remove();
+                hudView.dispose();
+            }
 
-			hudView = new QuickAccessHudView(this);
-			Element el = hudView.element();
-			el.name = "quick-access-hud";
-			el.visible(() -> Vars.ui.hudfrag != null && Vars.ui.hudfrag.shown && Vars.state != null && Vars.state.isGame());
+            hudView = new QuickAccessHudView(this);
+            Element el = hudView.element();
+            el.name = "quick-access-hud";
+            el.visible(() -> Vars.ui.hudfrag != null && Vars.ui.hudfrag.shown && Vars.state != null
+                    && Vars.state.isGame());
 
-			Core.app.post(() -> {
-				if (hudView != null && Vars.ui.hudGroup != null) {
-					Vars.ui.hudGroup.addChild(el);
-				}
-			});
-		}
-	}
+            Core.app.post(() -> {
+                if (hudView != null && Vars.ui.hudGroup != null) {
+                    Vars.ui.hudGroup.addChild(el);
+                }
+            });
+        }
+    }
 
-	@Override
-	public void onDisable() {
-		if (hudView != null) {
-			hudView.element().remove();
-			hudView.dispose();
-			hudView = null;
-		}
-	}
+    @Override
+    public void onDisable() {
+        if (hudView != null) {
+            hudView.element().remove();
+            hudView.dispose();
+            hudView = null;
+        }
+    }
 
-	public void rebuildHud() {
-		if (hudView != null) {
-			hudView.rebuild();
-		}
-	}
+    public void rebuildHud() {
+        if (hudView != null) {
+            hudView.rebuild();
+        }
+    }
 
-	@Override
-	public @Nullable Dialog getSettingDialog() {
-		if (settingsDialog == null) {
-			settingsDialog = new QuickAccessSettingsDialog(this);
-		}
-		return settingsDialog;
-	}
+    @Override
+    public @Nullable Dialog getSettingDialog() {
+        if (settingsDialog == null) {
+            settingsDialog = new QuickAccessSettingsDialog(this);
+        }
+        return settingsDialog;
+    }
 }

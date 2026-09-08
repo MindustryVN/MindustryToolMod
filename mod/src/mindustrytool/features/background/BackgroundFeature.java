@@ -18,7 +18,10 @@ import mindustrytool.features.FeatureMetadata;
 public class BackgroundFeature extends Feature {
 
     public BackgroundFeature() {
-        super(FeatureMetadata.builder().id("background").icon(Icon.image).quickAccess(true).build());
+        super(FeatureMetadata.builder()//
+                .id("background")//
+                .icon(Icon.image)//
+                .build());
     }
 
     static final String SETTING_KEY = "mindustrytool.background.path";
@@ -120,12 +123,8 @@ public class BackgroundFeature extends Feature {
                     Draw.alpha(opacity / 100f);
                 }
 
-                Draw.rect(
-                        region,
-                        Core.graphics.getWidth() / 2f,
-                        Core.graphics.getHeight() / 2f,
-                        Core.graphics.getWidth(),
-                        Core.graphics.getHeight());
+                Draw.rect(region, Core.graphics.getWidth() / 2f, Core.graphics.getHeight() / 2f,
+                        Core.graphics.getWidth(), Core.graphics.getHeight());
             } catch (Exception e) {
                 Log.err(e);
             } finally {

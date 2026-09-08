@@ -61,6 +61,16 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		return width(w).height(h);
 	}
 
+	/** Sets both preferred width and height to the same reactive value. */
+	default SELF size(Readable<Float> s) {
+		return width(s).height(s);
+	}
+
+	/** Sets preferred width and height to separate reactive values. */
+	default SELF size(Readable<Float> w, Readable<Float> h) {
+		return width(w).height(h);
+	}
+
 	// ---------- minimum size ----------
 
 	/** Sets the minimum width to a static value. */

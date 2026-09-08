@@ -1,5 +1,6 @@
 package solim.signal;
 
+import arc.util.Log;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -9,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import solim.core.ComponentContext;
 
 /** Lazy computed value with dynamic dependency tracking. */
 public final class Computed<T> implements ReactiveObserver, Readable<T> {
@@ -28,15 +30,27 @@ public final class Computed<T> implements ReactiveObserver, Readable<T> {
 		this.supplier = supplier;
 	}
 
+	@Override
 	public T get() {
 		if (disposed) {
 			// still return cached if available, but no tracking
 			return cachedValue;
 		}
+		if (ReactiveContext.current() == null && ComponentContext.current() != null) {
+			Log.warn("[Solim Reactivity Warning] Computed.get() was called during build() of component '@'! This severs reactivity. Pass the Computed/Readable directly to the component or use .map(). If an untracked read is intentional, use .peek().", ComponentContext.current().getClass().getSimpleName());
+		}
 		if (dirty || !hasValue) {
 			recompute();
 		}
 		ReactiveContext.track(this);
+		return cachedValue;
+	}
+
+	@Override
+	public T peek() {
+		if (dirty || !hasValue) {
+			recompute();
+		}
 		return cachedValue;
 	}
 
