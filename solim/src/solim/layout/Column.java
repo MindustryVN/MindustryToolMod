@@ -37,6 +37,11 @@ public final class Column implements Component {
 		return table;
 	}
 
+	public Column name(String name) {
+		ElementModifiers.name(table, name);
+		return this;
+	}
+
 	public Column gap(float g) {
 		ElementModifiers.gap(table, g);
 		return this;

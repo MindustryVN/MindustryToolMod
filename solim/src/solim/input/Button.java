@@ -278,6 +278,11 @@ public final class Button implements Component, Disposable {
 		return sizedButton;
 	}
 
+	public Button name(String name) {
+		ElementModifiers.name(sizedButton, name);
+		return this;
+	}
+
 	@Override
 	public Element element() {
 		return sizedButton;

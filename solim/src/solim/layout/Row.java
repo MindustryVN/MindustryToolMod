@@ -36,6 +36,11 @@ public final class Row implements Component {
 		return table;
 	}
 
+	public Row name(String name) {
+		ElementModifiers.name(table, name);
+		return this;
+	}
+
 	public Row gap(float g) {
 		ElementModifiers.gap(table, g);
 		return this;

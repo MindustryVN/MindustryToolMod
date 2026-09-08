@@ -111,6 +111,12 @@ public final class SolimTextField implements Component, Disposable {
 	}
 
 	@Override
+	public SolimTextField name(String name) {
+		ElementModifiers.name(field, name);
+		return this;
+	}
+
+	@Override
 	public void dispose() {
 		if (effect != null) {
 			effect.dispose();

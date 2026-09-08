@@ -109,4 +109,28 @@ class InputWidgetsTest {
 		// TextArea not yet implemented; placeholder
 		assertTrue(true);
 	}
+
+	@Test
+	void inputWidgetsName() {
+		Signal<Boolean> b = Signal.of(false);
+		Checkbox cb = new Checkbox("Test", b).name("cb");
+		assertEquals("cb", cb.element().name);
+		cb.dispose();
+
+		SolimSlider sl = new SolimSlider(Signal.of(0f), 0f, 1f, 0.1f).name("sl");
+		assertEquals("sl", sl.element().name);
+		sl.dispose();
+
+		SolimTextField tf = new SolimTextField(Signal.of("")).name("tf");
+		assertEquals("tf", tf.element().name);
+		tf.dispose();
+
+		Switch sw = new Switch(Signal.of(false)).name("sw");
+		assertEquals("sw", sw.element().name);
+		sw.dispose();
+
+		SolimSelect<String> sel = new SolimSelect<>(Signal.of("a"), Arrays.asList("a", "b")).name("sel");
+		assertEquals("sel", sel.element().name);
+		sel.dispose();
+	}
 }

@@ -3,13 +3,15 @@ package solim.input;
 import arc.scene.ui.CheckBox;
 import arc.util.Nullable;
 import java.util.function.Consumer;
+import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Signal;
 
 /** Checkbox widget bound to Signal&lt;Boolean&gt;. */
-public final class Checkbox implements Disposable {
+public final class Checkbox implements Component, Disposable {
 	private final CheckBox checkBox = new CheckBox("");
 	private final @Nullable Signal<Boolean> signal;
 	private Effect effect;
@@ -58,6 +60,17 @@ public final class Checkbox implements Disposable {
 
 	public CheckBox checkBox() {
 		return checkBox;
+	}
+
+	@Override
+	public CheckBox element() {
+		return checkBox;
+	}
+
+	@Override
+	public Checkbox name(String name) {
+		ElementModifiers.name(checkBox, name);
+		return this;
 	}
 
 	@Override

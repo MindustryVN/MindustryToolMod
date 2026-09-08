@@ -4,7 +4,7 @@
 TBD - created by archiving change create-solim-core. Update Purpose after archive.
 ## Requirements
 ### Requirement: Component interface
-The framework SHALL provide `solim.core.Component` with `arc.scene.Element element()` and `default void dispose()` . `element()` SHALL return the underlying Arc `Element` built for this component.
+The framework SHALL provide `solim.core.Component` with `arc.scene.Element element()`, `default void dispose()`, and `default Component name(String name)` to rename the component's underlying Arc `Element`.
 
 #### Scenario: Component returns Element
 - **WHEN** `Component c = new MyComponent()` and `Element e = c.element()` is called
@@ -13,6 +13,10 @@ The framework SHALL provide `solim.core.Component` with `arc.scene.Element eleme
 #### Scenario: Default dispose is no-op
 - **WHEN** a `Component` does not override `dispose()`
 - **THEN** calling `dispose()` does not throw and is safe
+
+#### Scenario: Default name sets element name
+- **WHEN** `Component c = new MyComponent()` and `c.name("custom-name")` is called
+- **THEN** `c.element().name` equals `"custom-name"` and `c` is returned
 
 ### Requirement: BaseComponent single-build semantics
 `BaseComponent` SHALL be an abstract class implementing `Component` with lazy `build()` semantics: `protected abstract Element build()` runs exactly once on first `element()` call, result is cached, and subsequent `element()` calls return cached instance. Components SHALL NOT automatically re-render.

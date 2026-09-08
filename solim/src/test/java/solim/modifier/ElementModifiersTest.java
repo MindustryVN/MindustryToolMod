@@ -2,20 +2,39 @@ package solim.modifier;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import arc.Core;
+import arc.mock.MockApplication;
+import arc.mock.MockGraphics;
 import arc.scene.Element;
 import arc.scene.ui.layout.CellAccess;
 import arc.scene.ui.layout.Table;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.input.Button;
 import solim.layout.Card;
 import solim.layout.Column;
+import solim.layout.Container;
+import solim.layout.Divider;
 import solim.layout.Grid;
 import solim.layout.ReactiveGrid;
 import solim.layout.Row;
+import solim.layout.Scroll;
+import solim.layout.SolimStack;
+import solim.layout.Spacer;
 import solim.layout.Wrap;
 import solim.signal.Signal;
 
 class ElementModifiersTest {
+
+	@BeforeAll
+	static void checkArcContext() {
+		if (Core.app == null) {
+			Core.app = new MockApplication();
+		}
+		if (Core.graphics == null) {
+			Core.graphics = new MockGraphics();
+		}
+	}
 
 	@Test
 	void elementModifiersGapOnTable() {
@@ -34,9 +53,9 @@ class ElementModifiersTest {
 		assertEquals(10f, CellAccess.padTop(table.defaults()), 0.01f);
 
 		Element element = new Element();
-		assertDoesNotThrow(() -> ElementModifiers.gap(element, 20f));
-		assertDoesNotThrow(() -> ElementModifiers.gap((Table) null, 20f));
-		assertDoesNotThrow(() -> ElementModifiers.gap((Element) null, 20f));
+		assertThrows(IllegalArgumentException.class, () -> ElementModifiers.gap(element, 20f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.gap((Table) null, 20f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.gap((Element) null, 20f));
 	}
 
 	@Test
@@ -66,5 +85,70 @@ class ElementModifiersTest {
 			s -> new Row()
 		).gap(24f);
 		assertEquals(12f, CellAccess.padTop(rgrid.table().defaults()), 0.01f);
+	}
+
+	@Test
+	void elementModifiersNameOnElement() {
+		Element element = new Element();
+		ElementModifiers.name(element, "test-element");
+		assertEquals("test-element", element.name);
+
+		assertThrows(NullPointerException.class, () -> ElementModifiers.name(null, "ignored"));
+	}
+
+	@Test
+	void elementModifiersNullThrows() {
+		assertThrows(NullPointerException.class, () -> ElementModifiers.width(null, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.height(null, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.size(null, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.size(null, 10f, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.x(null, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.y(null, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.position(null, 10f, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.visible(null, true));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.align(null, 0));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.top(null));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.bottom(null));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.left(null));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.right(null));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.center(null));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.margin(null, 10f));
+		assertThrows(NullPointerException.class, () -> ElementModifiers.padding(null, 10f));
+	}
+
+	@Test
+	void componentNameDelegationAndChaining() {
+		Row row = new Row().name("my-row").gap(8f);
+		assertEquals("my-row", row.element().name);
+
+		Column column = new Column().name("my-column").gap(8f);
+		assertEquals("my-column", column.element().name);
+
+		Card card = new Card().name("my-card").gap(8f);
+		assertEquals("my-card", card.element().name);
+
+		Scroll scroll = new Scroll().name("my-scroll");
+		assertEquals("my-scroll", scroll.element().name);
+
+		Grid grid = new Grid().name("my-grid").gap(8f);
+		assertEquals("my-grid", grid.element().name);
+
+		Container container = new Container().name("my-container");
+		assertEquals("my-container", container.element().name);
+
+		Divider divider = new Divider().name("my-divider");
+		assertEquals("my-divider", divider.element().name);
+
+		Spacer spacer = new Spacer().name("my-spacer");
+		assertEquals("my-spacer", spacer.element().name);
+
+		SolimStack stack = new SolimStack().name("my-stack");
+		assertEquals("my-stack", stack.element().name);
+
+		Wrap wrap = new Wrap().name("my-wrap").gap(8f);
+		assertEquals("my-wrap", wrap.element().name);
+
+		Button button = new Button().name("my-button").gap(8f);
+		assertEquals("my-button", button.element().name);
 	}
 }

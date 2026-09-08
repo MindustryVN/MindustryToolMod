@@ -21,6 +21,7 @@ import java.util.function.Supplier;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.core.Disposable;
+import solim.modifier.ElementModifiers;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
 
@@ -29,7 +30,7 @@ import solim.ui.ParentStack;
  * full declarative
  * configuration, reactive signal creation, and clean lifecycle management.
  */
-public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disposable {
+public class SolimDialog extends BaseDialog implements Component, Disposable, arc.util.Disposable {
 
     private final List<Disposable> disposables = new ArrayList<>();
     private boolean isShown = false;
@@ -182,6 +183,17 @@ public class SolimDialog extends BaseDialog implements Disposable, arc.util.Disp
     }
 
     public Table dialog() {
+        return this;
+    }
+
+    @Override
+    public Element element() {
+        return this;
+    }
+
+    @Override
+    public SolimDialog name(String name) {
+        ElementModifiers.name(this, name);
         return this;
     }
 

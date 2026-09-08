@@ -121,6 +121,11 @@ public final class Card implements Component, Disposable {
 		return cardButton;
 	}
 
+	public Card name(String name) {
+		ElementModifiers.name(cardButton, name);
+		return this;
+	}
+
 	public Card width(float width) {
 		ElementModifiers.width(cardButton, width);
 		return this;
@@ -362,11 +367,6 @@ public final class Card implements Component, Disposable {
 		if (background != null) {
 			cardButton.setBackground(background);
 		}
-		return this;
-	}
-
-	public Card name(String name) {
-		cardButton.name = name;
 		return this;
 	}
 

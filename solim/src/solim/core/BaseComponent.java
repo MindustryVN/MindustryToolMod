@@ -6,10 +6,12 @@ import arc.func.Func;
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
+import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import solim.modifier.ElementModifiers;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
 
@@ -19,6 +21,7 @@ import solim.ui.ParentStack;
  */
 public abstract class BaseComponent implements Component {
 	private Element cached;
+	private @Nullable String componentName;
 	private final List<Disposable> disposables = new ArrayList<>();
 	private boolean disposed = false;
 
@@ -33,11 +36,23 @@ public abstract class BaseComponent implements Component {
 	protected abstract Element build();
 
 	@Override
+	public BaseComponent name(String name) {
+		this.componentName = name;
+		if (cached != null) {
+			ElementModifiers.name(cached, name);
+		}
+		return this;
+	}
+
+	@Override
 	public final Element element() {
 		if (cached == null) {
 			ComponentContext.push(this);
 			try {
 				cached = build();
+				if (componentName != null) {
+					ElementModifiers.name(cached, componentName);
+				}
 			} finally {
 				ComponentContext.pop();
 			}

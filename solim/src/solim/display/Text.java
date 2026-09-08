@@ -197,6 +197,12 @@ public final class Text implements Component, Disposable {
 	}
 
 	@Override
+	public Text name(String name) {
+		ElementModifiers.name(label, name);
+		return this;
+	}
+
+	@Override
 	public void dispose() {
 		for (Disposable d : bindings) {
 			d.dispose();

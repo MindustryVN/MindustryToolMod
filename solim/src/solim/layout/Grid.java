@@ -30,6 +30,11 @@ public final class Grid implements Component {
 		return table;
 	}
 
+	public Grid name(String name) {
+		ElementModifiers.name(table, name);
+		return this;
+	}
+
 	public Grid columns(int c) {
 		this.columns = Math.max(1, c);
 		return this;

@@ -81,4 +81,16 @@ class DisplayTest {
 		s.set("b");
 		assertEquals("a", t.label().getText().toString());
 	}
+
+	@Test
+	void textName() {
+		Text t = new Text("Hello").name("my-text");
+		assertEquals("my-text", t.element().name);
+	}
+
+	@Test
+	void imageName() {
+		SolimImage img = new SolimImage().name("my-image");
+		assertEquals("my-image", img.element().name);
+	}
 }

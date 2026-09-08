@@ -119,6 +119,11 @@ public final class Scroll implements Component {
 		return this;
 	}
 
+	public Scroll name(String name) {
+		ElementModifiers.name(outer, name);
+		return this;
+	}
+
 	@Override
 	public Element element() {
 		return outer;

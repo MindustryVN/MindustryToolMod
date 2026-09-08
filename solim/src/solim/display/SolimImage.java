@@ -188,6 +188,12 @@ public final class SolimImage implements Component, Disposable {
 	}
 
 	@Override
+	public SolimImage name(String name) {
+		ElementModifiers.name(image, name);
+		return this;
+	}
+
+	@Override
 	public void dispose() {
 		if (binding != null) binding.dispose();
 	}

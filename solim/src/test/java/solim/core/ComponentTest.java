@@ -146,4 +146,20 @@ class ComponentTest {
 			}
 		}
 	}
+
+	@Test
+	void baseComponentNameBeforeAndAfterBuild() {
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				return new Element();
+			}
+		};
+
+		comp.name("before-build");
+		assertEquals("before-build", comp.element().name);
+
+		comp.name("after-build");
+		assertEquals("after-build", comp.element().name);
+	}
 }
