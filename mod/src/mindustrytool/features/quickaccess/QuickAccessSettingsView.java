@@ -30,7 +30,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                         spacer();
                         slider(feature.opacityConfig.signal(), 0.5f, 1.0f, 0.05f);
 
-                        row().width(unit(10)).children(() -> {
+                        row().width(unit(14)).children(() -> {
                             text(feature.opacityConfig.signal().map(v -> String.format("%.0f%%", v * 100)));
                         });
                     });
@@ -40,7 +40,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                         spacer();
                         slider(feature.scaleConfig.signal(), 0.5f, 1.5f, 0.1f);
 
-                        row().width(unit(10)).children(() -> {
+                        row().width(unit(14)).children(() -> {
                             text(feature.scaleConfig.signal().map(v -> String.format("%.0f%%", v * 100)));
                         });
                     });
@@ -50,7 +50,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                         spacer();
                         slider(feature.colsConfig.signal(), 1, 9, 1);
 
-                        row().width(unit(10)).children(() -> {
+                        row().width(unit(14)).children(() -> {
                             text(feature.colsConfig.signal().map(String::valueOf));
                         });
                     });

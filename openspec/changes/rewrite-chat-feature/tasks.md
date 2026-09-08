@@ -1,6 +1,6 @@
 ﻿## 1. Localization & Bundle Keys
 
-- [ ] 1.1 Add chat feature translation keys and comments to `assets/bundles/bundle.properties` (`feature.chat.name`, `feature.chat.description`, `feature.chat.help`, `feature.chat.settings.*`, `feature.chat.ui.*`).
+- [x] 1.1 Add chat feature translation keys and comments to `assets/bundles/bundle.properties` (`feature.chat.name`, `feature.chat.description`, `feature.chat.help`, `feature.chat.settings.*`, `feature.chat.ui.*`).
 
 ## 2. Feature Configuration & State Management
 

@@ -649,4 +649,70 @@ class LayoutTest {
 			assertEquals(8f, CellAccess.padTop(cell), 0.01f, "Reactive gap change must update all active cells");
 		}
 	}
+
+	@Test
+	void featureCardGrowXInReactiveGrid() {
+		Table root = new Table();
+		root.setSize(1024, 768);
+
+		solim.signal.Signal<arc.struct.Seq<String>> items = solim.signal.Signal.of(arc.struct.Seq.with("feat1", "feat2"));
+		ReactiveGrid<String, String>[] gridRef = new ReactiveGrid[1];
+
+		Column col = Ui.column().grow().children(() -> {
+			Ui.scroll().grow().children(() -> {
+				gridRef[0] = Ui.grid(solim.signal.Signal.of(2), items, x -> x, x -> {
+					return Ui.card().height(160).growX().children(() -> {});
+				});
+			});
+		});
+
+		root.add(col.element()).grow();
+		root.validate();
+		root.layout();
+
+		Table gridTable = gridRef[0].table();
+		System.out.println("Actual cells size: " + gridTable.getCells().size);
+		for (int i = 0; i < gridTable.getCells().size; i++) {
+			System.out.println("Cell " + i + ": " + gridTable.getCells().get(i).get());
+		}
+		assertEquals(2, gridTable.getCells().size);
+		Cell<?> cell0 = gridTable.getCells().get(0);
+		Cell<?> cell1 = gridTable.getCells().get(1);
+
+		assertTrue(CellAccess.expandX(cell0) > 0, "Cell 0 must have expandX > 0");
+		assertEquals(1f, CellAccess.fillX(cell0), 0.01f, "Cell 0 must have fillX == 1");
+		assertTrue(CellAccess.expandX(cell1) > 0, "Cell 1 must have expandX > 0");
+		assertEquals(1f, CellAccess.fillX(cell1), 0.01f, "Cell 1 must have fillX == 1");
+
+		assertEquals(cell0.get().getWidth(), cell1.get().getWidth(), 0.01f, "Both cards must have equal uniform width");
+		assertTrue(cell0.get().getWidth() > 400f, "Card must expand to fill grid column (was " + cell0.get().getWidth() + ")");
+	}
+
+	@Test
+	void featureCardSingleItemInMultiColumnReactiveGrid() {
+		Table root = new Table();
+		root.setSize(1024, 768);
+
+		solim.signal.Signal<arc.struct.Seq<String>> items = solim.signal.Signal.of(arc.struct.Seq.with("feat1"));
+		ReactiveGrid<String, String>[] gridRef = new ReactiveGrid[1];
+
+		Column col = Ui.column().grow().children(() -> {
+			Ui.scroll().grow().children(() -> {
+				gridRef[0] = Ui.grid(solim.signal.Signal.of(3), items, x -> x, x -> {
+					return Ui.card().height(160).growX().children(() -> {});
+				});
+			});
+		});
+
+		root.add(col.element()).grow();
+		root.validate();
+		root.layout();
+
+		Table gridTable = gridRef[0].table();
+		assertEquals(3, gridTable.getCells().size, "Grid table must have 3 cells (1 card + 2 padding cells)");
+		Cell<?> cell0 = gridTable.getCells().get(0);
+		assertTrue(cell0.get().getWidth() < 400f, "Card in 3-column grid must not stretch across entire 1024px (was " + cell0.get().getWidth() + ")");
+		assertTrue(cell0.get().getWidth() > 300f, "Card in 3-column grid must take its 1/3 share (was " + cell0.get().getWidth() + ")");
+	}
 }
+
