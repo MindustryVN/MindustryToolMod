@@ -7,31 +7,47 @@ import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
 import arc.scene.ui.Dialog;
 import arc.util.Log;
+import arc.util.Nullable;
 import arc.util.Reflect;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.graphics.MenuRenderer;
 import mindustrytool.Folders;
+import mindustrytool.config.ConfigGroup;
+import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 
 public class BackgroundFeature extends Feature {
 
-    public BackgroundFeature() {
-        super(FeatureMetadata.builder()//
-                .id("background")//
-                .icon(Icon.image)//
-                .build());
-    }
+    public final ConfigGroup config;
+    public final ConfigValue<String> pathConfig;
+    public final ConfigValue<Integer> opacityConfig;
 
-    static final String SETTING_KEY = "mindustrytool.background.path";
-    static final String SETTING_OPACITY_KEY = "mindustrytool.background.opacity";
     private MenuRenderer originalRenderer;
     private CustomMenuRenderer customRenderer;
-    private Dialog settingDialog;
+    private @Nullable BackgroundSettingsDialog settingDialog;
+
+    public BackgroundFeature() {
+        super(FeatureMetadata.builder()
+                .id("background")
+                .icon(Icon.image)
+                .build());
+
+        config = ConfigGroup.of(getMetadata());
+
+        pathConfig = config.stringValue("path", "");
+        opacityConfig = config.intValue("opacity", 100);
+
+        pathConfig.signal().subscribe(path -> {
+            if (isEnabled()) {
+                applyPath(path);
+            }
+        });
+    }
 
     @Override
-    public Dialog getSettingDialog() {
+    public @Nullable Dialog getSettingDialog() {
         if (settingDialog == null) {
             settingDialog = new BackgroundSettingsDialog(this);
         }
@@ -40,37 +56,35 @@ public class BackgroundFeature extends Feature {
 
     @Override
     public void onEnable() {
-        String path = Core.settings.getString(SETTING_KEY, null);
-
-        if (path != null) {
-            Fi file = Folders.backgroundsDir.child(path);
-
-            if (!file.exists()) {
-                file = Core.files.absolute(path);
-            }
-
-            if (file.exists() && !file.isDirectory()) {
-                applyBackground(file);
-            }
-        }
+        applyPath(pathConfig.get());
     }
 
     @Override
     public void onDisable() {
-        if (originalRenderer != null) {
-            try {
-                Reflect.set(Vars.ui.menufrag, "renderer", originalRenderer);
-                if (customRenderer != null) {
-                    customRenderer.dispose();
-                    customRenderer = null;
-                }
-            } catch (Exception e) {
-                Log.err("Failed to restore background", e);
-            }
-        }
+        restoreOriginalRenderer();
     }
 
-    void applyBackground(Fi file) {
+    public void resetBackground() {
+        pathConfig.reset();
+        opacityConfig.reset();
+        restoreOriginalRenderer();
+    }
+
+    public void applyPath(@Nullable String path) {
+        if (path != null && !path.trim().isEmpty()) {
+            Fi file = Folders.backgroundsDir.child(path);
+            if (!file.exists()) {
+                file = Core.files.absolute(path);
+            }
+            if (file.exists() && !file.isDirectory()) {
+                applyBackground(file);
+                return;
+            }
+        }
+        restoreOriginalRenderer();
+    }
+
+    public void applyBackground(Fi file) {
         if (!file.exists() || file.isDirectory()) {
             Core.app.post(() -> {
                 Vars.ui.showInfo("Background file invalid: " + file.absolutePath());
@@ -88,12 +102,26 @@ public class BackgroundFeature extends Feature {
             }
 
             Texture texture = new Texture(file);
-            customRenderer = new CustomMenuRenderer(texture, originalRenderer);
+            customRenderer = new CustomMenuRenderer(texture, originalRenderer, opacityConfig);
             Reflect.set(Vars.ui.menufrag, "renderer", customRenderer);
         } catch (Exception e) {
             Core.app.post(() -> {
-                Vars.ui.showException("Failed to apply background", e);
+                Vars.ui.showException(Core.bundle.get("feature.background.error.apply"), e);
             });
+        }
+    }
+
+    public void restoreOriginalRenderer() {
+        if (originalRenderer != null) {
+            try {
+                Reflect.set(Vars.ui.menufrag, "renderer", originalRenderer);
+                if (customRenderer != null) {
+                    customRenderer.dispose();
+                    customRenderer = null;
+                }
+            } catch (Exception e) {
+                Log.err("Failed to restore background", e);
+            }
         }
     }
 
@@ -101,18 +129,21 @@ public class BackgroundFeature extends Feature {
         private final Texture texture;
         private final TextureRegion region;
         private final MenuRenderer originalRenderer;
+        private final ConfigValue<Integer> opacityConfig;
 
-        public CustomMenuRenderer(Texture texture, MenuRenderer originalRenderer) {
+        public CustomMenuRenderer(Texture texture, MenuRenderer originalRenderer, ConfigValue<Integer> opacityConfig) {
             super();
             this.texture = texture;
             this.region = new TextureRegion(texture);
             this.originalRenderer = originalRenderer;
+            this.opacityConfig = opacityConfig;
         }
 
         @Override
         public void render() {
             try {
-                int opacity = Core.settings.getInt(SETTING_OPACITY_KEY, 100);
+                Integer op = opacityConfig.get();
+                int opacity = op != null ? op : 100;
 
                 if (opacity < 100 && originalRenderer != null) {
                     originalRenderer.render();
