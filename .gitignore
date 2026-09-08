@@ -167,3 +167,8 @@ get-pip.py
 mindustry/
 archive/
 bin/
+.agents/
+bundle.properties_*
+*_backup
+*_v*
+*.bak

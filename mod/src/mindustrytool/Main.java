@@ -10,6 +10,7 @@ import mindustry.mod.Mods.LoadedMod;
 import mindustrytool.components.FileIcon;
 import mindustrytool.features.FeatureManager;
 import mindustrytool.features.background.BackgroundFeature;
+import mindustrytool.features.teamresource.TeamResourceFeature;
 import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
@@ -36,7 +37,7 @@ public class Main extends Mod {
 			return;
 		}
 
-		FeatureManager.register(new BackgroundFeature());
+		FeatureManager.register(new BackgroundFeature(), new TeamResourceFeature());
 
 		Events.on(ClientLoadEvent.class, event -> {
 			registerMindustryToolButton();
