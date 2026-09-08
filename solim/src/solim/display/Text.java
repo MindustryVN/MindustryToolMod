@@ -13,6 +13,8 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.layout.ConstrainedElement;
+import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Computed;
 import solim.signal.Effect;
@@ -21,7 +23,41 @@ import solim.signal.Signal;
 
 /** Display widget for text content. */
 public final class Text implements Component, Disposable {
-	private final Label label;
+
+	public static class SizedLabel extends Label implements ConstrainedElement {
+		private final SizeConstraints constraints = new SizeConstraints();
+
+		public SizedLabel(CharSequence text) {
+			super(text);
+		}
+
+		public SizedLabel(CharSequence text, LabelStyle style) {
+			super(text, style);
+		}
+
+		@Override
+		public SizeConstraints getSizeConstraints() {
+			return constraints;
+		}
+
+		public SizedLabel growX() {
+			constraints.growX = true;
+			constraints.applyGrowToParentCell(this);
+			return this;
+		}
+
+		public SizedLabel growY() {
+			constraints.growY = true;
+			constraints.applyGrowToParentCell(this);
+			return this;
+		}
+
+		public SizedLabel grow() {
+			return growX().growY();
+		}
+	}
+
+	private final SizedLabel label;
 	private final List<Disposable> bindings = new ArrayList<>();
 
 	private float padTop;
@@ -44,8 +80,8 @@ public final class Text implements Component, Disposable {
 
 	public Text(String text, Label.LabelStyle style) {
 		this.label = (style != null || Core.scene == null)
-				? new Label(text != null ? text : "", style != null ? style : new Label.LabelStyle())
-				: new Label(text != null ? text : "");
+				? new SizedLabel(text != null ? text : "", style != null ? style : new Label.LabelStyle())
+				: new SizedLabel(text != null ? text : "");
 		this.label.name = "solim-text-label";
 	}
 
@@ -107,8 +143,25 @@ public final class Text implements Component, Disposable {
 		return this;
 	}
 
+	public Text growX() {
+		label.growX();
+		return this;
+	}
+
+	public Text growY() {
+		label.growY();
+		return this;
+	}
+
+	public Text grow() {
+		return growX().growY();
+	}
+
 	public Text wrap(boolean wrap) {
 		label.setWrap(wrap);
+		if (wrap) {
+			growX();
+		}
 		return this;
 	}
 

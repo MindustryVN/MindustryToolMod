@@ -11,13 +11,17 @@ import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 /** Scroll container wrapping a Table in a ScrollPane. */
 public final class Scroll implements Component, LayoutModifiers<Scroll> {
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
-		cell.growX().top().left();
+		cell.top().left();
+		if (Ui.isExpanding(child)) {
+			cell.growY();
+		}
 		cell.row();
 		return cell;
 	};

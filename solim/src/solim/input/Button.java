@@ -13,7 +13,9 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.layout.ConstrainedElement;
 import solim.layout.Row;
+import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Computed;
 import solim.signal.Effect;
@@ -28,7 +30,8 @@ import solim.ui.ParentStack;
  */
 public final class Button implements Component, Disposable {
 
-	public static class SizedButton extends arc.scene.ui.Button {
+	public static class SizedButton extends arc.scene.ui.Button implements ConstrainedElement {
+		private final SizeConstraints constraints = new SizeConstraints();
 		private float customPrefWidth = -1f;
 		private float customPrefHeight = -1f;
 
@@ -38,6 +41,27 @@ public final class Button implements Component, Disposable {
 
 		public SizedButton(@Nullable ButtonStyle style) {
 			super(style != null ? style : new ButtonStyle());
+		}
+
+		@Override
+		public SizeConstraints getSizeConstraints() {
+			return constraints;
+		}
+
+		public SizedButton growX() {
+			constraints.growX = true;
+			constraints.applyGrowToParentCell(this);
+			return this;
+		}
+
+		public SizedButton growY() {
+			constraints.growY = true;
+			constraints.applyGrowToParentCell(this);
+			return this;
+		}
+
+		public SizedButton grow() {
+			return growX().growY();
 		}
 
 		public void setCustomPrefWidth(float width) {
@@ -253,6 +277,20 @@ public final class Button implements Component, Disposable {
 	public Button size(float size) {
 		ElementModifiers.size(sizedButton, size);
 		return this;
+	}
+
+	public Button growX() {
+		sizedButton.growX();
+		return this;
+	}
+
+	public Button growY() {
+		sizedButton.growY();
+		return this;
+	}
+
+	public Button grow() {
+		return growX().growY();
 	}
 
 	public Button gap(float g) {

@@ -46,10 +46,12 @@ public final class FeatureSettingsView extends BaseComponent {
 
     private void toolbar() {
         row()
+                .growX()
                 .gap(unit(2))
                 .children(() -> {
                     icon(Icon.zoom);
                     textField(filter)
+                            .growX()
                             .placeholder(Core.bundle.get("feature.search.placeholder"));
 
                     button(FeatureManager::reenable)

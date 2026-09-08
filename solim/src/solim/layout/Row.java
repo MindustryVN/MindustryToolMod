@@ -1,7 +1,6 @@
 package solim.layout;
 
 import arc.scene.Element;
-import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
 import solim.core.Component;
@@ -14,7 +13,7 @@ public final class Row implements Component, LayoutModifiers<Row> {
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
-		if (child instanceof TextField || Ui.isExpanding(child)) {
+		if (Ui.isExpanding(child)) {
 			cell.growX();
 		}
 		return cell;

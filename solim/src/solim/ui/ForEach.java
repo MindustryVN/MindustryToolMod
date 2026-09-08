@@ -1,11 +1,13 @@
 package solim.ui;
 
 import arc.scene.Element;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import java.util.*;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
+import solim.layout.ConstrainedElement;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
@@ -78,7 +80,12 @@ public final class ForEach<T, K> extends BaseComponent {
 
 		container.clearChildren();
 		for (Component comp : activeComponents.values()) {
-			container.add(comp.element()).growX().row();
+			Element el = comp.element();
+			Cell<?> cell = container.add(el);
+			cell.row();
+			if (el instanceof ConstrainedElement) {
+				((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
+			}
 		}
 	}
 

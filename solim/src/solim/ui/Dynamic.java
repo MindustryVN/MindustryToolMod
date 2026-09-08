@@ -1,10 +1,12 @@
 package solim.ui;
 
 import arc.scene.Element;
+import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
+import solim.layout.ConstrainedElement;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
@@ -41,7 +43,11 @@ public final class Dynamic<T> extends BaseComponent {
 			if (value != null && factory != null) {
 				currentComponent = factory.apply(value);
 				if (currentComponent != null) {
-					container.add(currentComponent.element()).grow();
+					Element el = currentComponent.element();
+					Cell<?> cell = container.add(el);
+					if (el instanceof ConstrainedElement) {
+						((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
+					}
 				}
 			}
 		}));

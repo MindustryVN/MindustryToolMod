@@ -29,9 +29,11 @@ public class QuickAccessSettingsView extends BaseComponent {
                             .center()
                             .children(() -> {
                                 column()
+                                        .growX()
                                         .gap(unit(2))
                                         .children(() -> {
                                             row()
+                                                    .growX()
                                                     .gap(unit(2))
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.opacity"))
@@ -50,6 +52,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     });
 
                                             row()
+                                                    .growX()
                                                     .gap(unit(2))
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.scale"))
@@ -67,6 +70,7 @@ public class QuickAccessSettingsView extends BaseComponent {
                                                     });
 
                                             row()
+                                                    .growX()
                                                     .gap(unit(2))
                                                     .children(() -> {
                                                         text(Core.bundle.get("feature.quick-access.settings.columns"))

@@ -29,6 +29,7 @@ public class FeatureHelpView extends BaseComponent {
                 .grow()
                 .children(() -> {
                     column()
+                            .growX()
                             .padding(16f)
                             .gap(12f)
                             .children(() -> {

@@ -29,7 +29,6 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
-		cell.growX();
 		if (Ui.isExpanding(child)) {
 			cell.growY();
 		}

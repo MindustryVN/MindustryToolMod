@@ -12,6 +12,8 @@ import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.layout.ConstrainedElement;
+import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -20,9 +22,15 @@ import solim.signal.Signal;
 /** Display widget for drawable content. */
 public final class SolimImage implements Component, Disposable {
 
-	public static class SizedImage extends Image {
+	public static class SizedImage extends Image implements ConstrainedElement {
+		private final SizeConstraints constraints = new SizeConstraints();
 		private float customPrefWidth = -1f;
 		private float customPrefHeight = -1f;
+
+		@Override
+		public SizeConstraints getSizeConstraints() {
+			return constraints;
+		}
 
 		public SizedImage() {
 			super();
@@ -34,6 +42,22 @@ public final class SolimImage implements Component, Disposable {
 
 		public SizedImage(Drawable drawable, Scaling scaling) {
 			super(drawable, scaling);
+		}
+
+		public SizedImage growX() {
+			constraints.growX = true;
+			constraints.applyGrowToParentCell(this);
+			return this;
+		}
+
+		public SizedImage growY() {
+			constraints.growY = true;
+			constraints.applyGrowToParentCell(this);
+			return this;
+		}
+
+		public SizedImage grow() {
+			return growX().growY();
 		}
 
 		public SizedImage size(float size) {
@@ -195,7 +219,7 @@ public final class SolimImage implements Component, Disposable {
 		}
 	}
 
-	private final Image image = new Image();
+	private final SizedImage image = new SizedImage();
 	private @Nullable Effect binding;
 
 	private float padTop;
@@ -248,6 +272,20 @@ public final class SolimImage implements Component, Disposable {
 	public SolimImage size(float size) {
 		ElementModifiers.size(image, size);
 		return this;
+	}
+
+	public SolimImage growX() {
+		image.growX();
+		return this;
+	}
+
+	public SolimImage growY() {
+		image.growY();
+		return this;
+	}
+
+	public SolimImage grow() {
+		return growX().growY();
 	}
 
 	public SolimImage x(float x) {
@@ -377,7 +415,7 @@ public final class SolimImage implements Component, Disposable {
 		}
 	}
 
-	public Image image() {
+	public SizedImage image() {
 		applySpacing();
 		return image;
 	}

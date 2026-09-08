@@ -1,26 +1,31 @@
 package solim.layout;
 
 import arc.scene.Element;
-import arc.scene.ui.layout.Table;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 
 /** Divider line. */
-public final class Divider implements Component {
-    private final Table table = new Table();
+public final class Divider implements Component, LayoutModifiers<Divider> {
+    private final SizedTable table = new SizedTable();
 
     public Divider() {
         table.name = "solim-divider-table";
+        table.getSizeConstraints().growX = true;
         table.add().height(2f).growX().row();
     }
 
-    public Table table() {
+    public SizedTable table() {
         return table;
     }
 
     @Override
     public Element element() {
         return table;
+    }
+
+    @Override
+    public SizeConstraints sizeConstraints() {
+        return table.getSizeConstraints();
     }
 
     public Divider name(String name) {

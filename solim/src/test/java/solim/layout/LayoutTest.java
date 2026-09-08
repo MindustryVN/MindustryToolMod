@@ -269,4 +269,104 @@ class LayoutTest {
 		Cell<?> colCell = col.table().getCells().first();
 		assertTrue(CellAccess.expandY(colCell) > 0, "Spacer in Column must grow vertically");
 	}
+
+	@Test
+	void childrenDoNotGrowByDefault() {
+		// Column
+		Column col = Ui.column().children(() -> {
+			Ui.row().children(() -> {});
+		});
+		Cell<?> colCell = col.table().getCells().first();
+		assertEquals(0, CellAccess.expandX(colCell), "Column child must not growX by default");
+		assertEquals(0, CellAccess.expandY(colCell), "Column child must not growY by default");
+
+		// Row
+		Row row = Ui.row().children(() -> {
+			Ui.row().children(() -> {});
+			ParentStack.attachToParent(new Element());
+		});
+		Cell<?> rowChildCell = row.table().getCells().get(0);
+		Cell<?> rowElementCell = row.table().getCells().get(1);
+		assertEquals(0, CellAccess.expandX(rowChildCell), "Row child must not growX by default");
+		assertEquals(0, CellAccess.expandY(rowChildCell), "Row child must not growY by default");
+		assertEquals(0, CellAccess.expandX(rowElementCell), "Row element must not growX by default");
+		assertEquals(0, CellAccess.expandY(rowElementCell), "Row element must not growY by default");
+
+		// Card
+		Card card = Ui.card().children(() -> {
+			Ui.row().children(() -> {});
+		});
+		Cell<?> cardCell = card.container().getCells().first();
+		assertEquals(0, CellAccess.expandX(cardCell), "Card child must not growX by default");
+		assertEquals(0, CellAccess.expandY(cardCell), "Card child must not growY by default");
+		card.dispose();
+
+		// Scroll
+		Scroll scroll = Ui.scroll().children(() -> {
+			Ui.row().children(() -> {});
+		});
+		Cell<?> scrollCell = scroll.content().getCells().first();
+		assertEquals(0, CellAccess.expandX(scrollCell), "Scroll child must not growX by default");
+		assertEquals(0, CellAccess.expandY(scrollCell), "Scroll child must not growY by default");
+	}
+
+	@Test
+	void explicitGrowExpandsCells() {
+		Column col = Ui.column().children(() -> {
+			Ui.row().growX().children(() -> {});
+			Ui.row().growY().children(() -> {});
+			Ui.row().grow().children(() -> {});
+		});
+		Cell<?> cellGrowX = col.table().getCells().get(0);
+		Cell<?> cellGrowY = col.table().getCells().get(1);
+		Cell<?> cellGrow = col.table().getCells().get(2);
+
+		assertTrue(CellAccess.expandX(cellGrowX) > 0, "explicit growX must expand horizontally");
+		assertEquals(0, CellAccess.expandY(cellGrowX), "explicit growX must not expand vertically");
+
+		assertEquals(0, CellAccess.expandX(cellGrowY), "explicit growY must not expand horizontally");
+		assertTrue(CellAccess.expandY(cellGrowY) > 0, "explicit growY must expand vertically");
+
+		assertTrue(CellAccess.expandX(cellGrow) > 0, "explicit grow must expand horizontally");
+		assertTrue(CellAccess.expandY(cellGrow) > 0, "explicit grow must expand vertically");
+	}
+
+	@Test
+	void chainedGrowAfterAttachment() {
+		Column col = Ui.column().children(() -> {
+			// SizedImage with growX() chained
+			Ui.image().growX();
+			// Button with growX() chained
+			Ui.button().growX();
+			// Row with growX() chained AFTER children()
+			Ui.row().children(() -> {}).growX();
+		});
+
+		Cell<?> imgCell = col.table().getCells().get(0);
+		Cell<?> btnCell = col.table().getCells().get(1);
+		Cell<?> rowCell = col.table().getCells().get(2);
+
+		assertTrue(CellAccess.expandX(imgCell) > 0, "image.growX() after attach must expand horizontally");
+		assertEquals(1f, CellAccess.fillX(imgCell), 0.001f, "image.growX() after attach must fill horizontally");
+
+		assertTrue(CellAccess.expandX(btnCell) > 0, "button.growX() after attach must expand horizontally");
+		assertEquals(1f, CellAccess.fillX(btnCell), 0.001f, "button.growX() after attach must fill horizontally");
+
+		assertTrue(CellAccess.expandX(rowCell) > 0, "row.children().growX() after attach must expand horizontally");
+		assertEquals(1f, CellAccess.fillX(rowCell), 0.001f, "row.children().growX() after attach must fill horizontally");
+	}
+
+	@Test
+	void sizedTextFieldGrowAfterAttachment() {
+		org.junit.jupiter.api.Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
+		Table parent = new Table();
+		solim.input.SolimTextField.SizedTextField field = new solim.input.SolimTextField.SizedTextField("");
+		parent.add(field);
+		Cell<?> cell = parent.getCell(field);
+		assertEquals(0, CellAccess.expandX(cell));
+
+		field.growX();
+		assertTrue(CellAccess.expandX(cell) > 0, "field.growX() after attach must expand horizontally");
+		assertEquals(1f, CellAccess.fillX(cell), 0.001f, "field.growX() after attach must fill horizontally");
+	}
 }

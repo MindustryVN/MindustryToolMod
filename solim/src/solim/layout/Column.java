@@ -13,17 +13,6 @@ public final class Column implements Component, LayoutModifiers<Column> {
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);
-
-		// Auto-growX unless the child has an explicit preferred or bounded width.
-		// If the child also explicitly set growX(), we still apply it regardless.
-		boolean hasExplicitWidth = (child instanceof ConstrainedElement)
-				&& ((ConstrainedElement) child).getSizeConstraints().hasExplicitWidth();
-		boolean childGrowsX = (child instanceof ConstrainedElement)
-				&& ((ConstrainedElement) child).getSizeConstraints().growX;
-
-		if (!hasExplicitWidth || childGrowsX) {
-			cell.growX();
-		}
 		if (Ui.isExpanding(child)) {
 			cell.growY();
 		}

@@ -44,6 +44,7 @@ public class FeatureCard extends BaseComponent {
                             .gap(unit(2))
                             .children(() -> {
                                 row()
+                                        .growX()
                                         .children(() -> {
                                             image(metadata.getIcon()).scaling(Scaling.fit).size(unit(6))
                                                     .marginRight(unit(2));
@@ -92,11 +93,13 @@ public class FeatureCard extends BaseComponent {
                                                 ? Core.bundle.get("feature.status.enabled")
                                                 : Core.bundle.get("feature.status.disabled")))
                                         .style(Styles.defaultLabel)
+                                        .growX()
                                         .color(feature.enabled()
                                                 .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
                                         .left();
 
                                 image(Tex.whiteui)
+                                        .growX()
                                         .color(feature.enabled()
                                                 .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
                                         .height(unit(0.5f));

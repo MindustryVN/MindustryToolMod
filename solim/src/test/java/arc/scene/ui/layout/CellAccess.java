@@ -27,4 +27,12 @@ public final class CellAccess {
 	public static int expandY(Cell<?> cell) {
 		return cell.expandY;
 	}
+
+	public static float fillX(Cell<?> cell) {
+		return cell.fillX;
+	}
+
+	public static float fillY(Cell<?> cell) {
+		return cell.fillY;
+	}
 }

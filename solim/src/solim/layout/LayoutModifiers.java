@@ -121,6 +121,9 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	 */
 	default SELF growX() {
 		sizeConstraints().growX = true;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyGrowToParentCell(((solim.core.Component) this).element());
+		}
 		return self();
 	}
 
@@ -130,6 +133,9 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	 */
 	default SELF growY() {
 		sizeConstraints().growY = true;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyGrowToParentCell(((solim.core.Component) this).element());
+		}
 		return self();
 	}
 

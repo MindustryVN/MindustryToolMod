@@ -3,6 +3,8 @@ package solim.ui;
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.scene.Element;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.CellAccess;
 import java.util.*;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
@@ -137,5 +139,27 @@ class StructuralReactivityTest {
 
 		grid.dispose();
 		assertTrue(grid.isDisposed());
+	}
+
+	@Test
+	void testForEachChildrenDoNotGrowByDefault() {
+		Signal<List<String>> items = Signal.of(Arrays.asList("A"));
+		ForEach<String, String> fe = new ForEach<>(items, id -> id, id -> new TestComponent(id));
+		fe.element();
+		Cell<?> cell = fe.container().getCells().first();
+		assertEquals(0, CellAccess.expandX(cell), "ForEach item must not growX by default");
+		assertEquals(0, CellAccess.expandY(cell), "ForEach item must not growY by default");
+		fe.dispose();
+	}
+
+	@Test
+	void testDynamicChildDoesNotGrowByDefault() {
+		Signal<String> source = Signal.of("A");
+		Dynamic<String> dyn = new Dynamic<>(source, val -> new TestComponent(val));
+		dyn.element();
+		Cell<?> cell = dyn.container().getCells().first();
+		assertEquals(0, CellAccess.expandX(cell), "Dynamic item must not grow by default");
+		assertEquals(0, CellAccess.expandY(cell), "Dynamic item must not grow by default");
+		dyn.dispose();
 	}
 }

@@ -1,6 +1,8 @@
 package solim.layout;
 
+import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -81,6 +83,22 @@ public final class SizeConstraints {
 		if (growY) cell.growY();
 
 		return effects;
+	}
+
+	/**
+	 * Immediately applies grow constraints to the element's parent cell if the element is
+	 * already attached to a parent Table.
+	 */
+	public void applyGrowToParentCell(@Nullable Element element) {
+		if (element != null && element.parent instanceof Table) {
+			Table parentTable = (Table) element.parent;
+			Cell<?> cell = parentTable.getCell(element);
+			if (cell != null) {
+				if (growX) cell.growX();
+				if (growY) cell.growY();
+				parentTable.invalidate();
+			}
+		}
 	}
 
 	// ---------- private helpers ----------
