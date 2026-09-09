@@ -1,6 +1,5 @@
 package mindustrytool.features.teamresource;
 
-import arc.Core;
 import arc.graphics.Color;
 import arc.struct.ObjectSet;
 import arc.struct.Seq;

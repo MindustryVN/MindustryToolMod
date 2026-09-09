@@ -1,5 +1,6 @@
 package mindustrytool.services;
 
+import arc.util.serialization.Jval;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
@@ -314,6 +315,17 @@ public final class MindustryTool {
                 .timeout(LONG_TIMEOUT)
                 .sendAsync(BodyHandlers.ofByteArray())
                 .thenApply(r -> r.body());
+    }
+
+    // ─── Translation ────────────────────────────────────────────────
+    public static CompletableFuture<String> translate(String content, String targetLanguage) {
+        Jval body = Jval.newObject();
+        body.put("content", content);
+        body.put("target", targetLanguage);
+        return api.post("/translations/translate")
+                .json(body.toString())
+                .sendAsync()
+                .thenApply(Request.Response::body);
     }
 
     // ─── Paged search helper ───────────────────────────────────────

@@ -92,6 +92,42 @@ public class ChatService {
         });
     }
 
+    public void fetchOlderMessages(String channelId) {
+        if (channelId == null || channelId.isEmpty()) {
+            return;
+        }
+        if (Boolean.TRUE.equals(store.loadingOlder().peek())) {
+            return;
+        }
+        if (store.isFullyLoaded(channelId)) {
+            return;
+        }
+
+        List<ChatMessage> currentMsgs = store.activeMessages().peek();
+        if (currentMsgs == null || currentMsgs.isEmpty()) {
+            return;
+        }
+
+        String oldestId = currentMsgs.get(0).getId();
+        store.setLoadingOlder(true);
+
+        MindustryTool.getChatMessages(channelId, oldestId).thenAccept(older -> {
+            Core.app.post(() -> {
+                store.setLoadingOlder(false);
+                if (older == null || older.isEmpty()) {
+                    store.setFullyLoaded(channelId, true);
+                } else {
+                    store.prependMessages(channelId, older);
+                    fetchMissingUsers(older);
+                }
+            });
+        }).exceptionally(e -> {
+            Core.app.post(() -> store.setLoadingOlder(false));
+            Log.err("Failed to fetch older chat messages for " + channelId, e);
+            return null;
+        });
+    }
+
     public void loadUsers(String channelId) {
         if (channelId == null || channelId.isEmpty()) {
             return;

@@ -75,9 +75,13 @@ public class ChatChannelListView extends BaseComponent {
                             .left()
                             .growX()
                             .children(() -> {
-                                text("# " + channel.getName())
-                                        .left()
-                                        .color(isSelected.map(sel -> sel ? Pal.accent : Color.white));
+                                row().growX().children(() -> {
+                                    text("# " + channel.getName())
+                                            .left()
+                                            .color(isSelected.map(sel -> sel ? Pal.accent : Color.white));
+                                    spacer();
+                                    badgeCount(store.channelUnread(channel.getId()));
+                                });
                             });
                 });
             }).element();

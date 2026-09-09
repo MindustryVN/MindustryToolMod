@@ -33,7 +33,7 @@ public final class SolimImage implements Component, Disposable {
 		}
 
 		public SizedImage() {
-			super();
+			super((Drawable) null);
 		}
 
 		public SizedImage(Drawable drawable) {
@@ -72,7 +72,14 @@ public final class SolimImage implements Component, Disposable {
 			return this;
 		}
 
+		private Scaling scaling = Scaling.fit;
+
+		public Scaling getScaling() {
+			return scaling;
+		}
+
 		public SizedImage scaling(Scaling scaling) {
+			this.scaling = scaling;
 			setScaling(scaling);
 			return this;
 		}

@@ -2,7 +2,6 @@ package solim.ui;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
-import arc.scene.ui.layout.Table;
 import java.util.*;
 import java.util.function.Function;
 import solim.core.BaseComponent;

@@ -112,13 +112,11 @@ public class ChatOverlayHudView extends BaseComponent {
                                                 .size(unit(2), unit(2))
                                                 .color(isConnected.map(c -> c ? Pal.heal : Color.scarlet));
 
-                                        text(unread.map(count -> (count != null && count > 0)
-                                                ? String.valueOf(count)
-                                                : Core.bundle.get("feature.chat.name", "Chat")))
-                                                        .color(unread
-                                                                .map(count -> (count != null && count > 0) ? Pal.accent
-                                                                        : Color.white))
-                                                        .fontScale(0.9f);
+                                        text(Core.bundle.get("feature.chat.name", "Chat"))
+                                                .color(Color.white)
+                                                .fontScale(0.9f);
+
+                                        badgeCount(store.unreadCount());
                                     });
                                 });
                     });
@@ -196,7 +194,7 @@ public class ChatOverlayHudView extends BaseComponent {
     private void buildDesktopBody() {
         row().grow().gap(unit(1)).children(() -> {
             // Channel List
-            row().width(unit(45)).growY().children(() -> {
+            row().width(unit(60)).growY().children(() -> {
                 new ChatChannelListView(store);
             });
 
@@ -204,7 +202,7 @@ public class ChatOverlayHudView extends BaseComponent {
 
             // Message Area & Input
             column().grow().gap(unit(1)).children(() -> {
-                new ChatMessageListView(store);
+                new ChatMessageListView(store, service);
                 divider();
                 new ChatInputView(store, service);
             });
@@ -212,59 +210,28 @@ public class ChatOverlayHudView extends BaseComponent {
             divider(Direction.Y);
 
             // User List
-            row().width(unit(45)).growY().children(() -> {
+            row().width(unit(60)).growY().children(() -> {
                 new ChatUserListView(store);
             });
         });
     }
 
-    private void buildMobileBody() {
-        column().grow().children(() -> {
-            // Mobile Tabs
-            row().growX().gap(unit(1)).children(() -> {
-                button(() -> mobileTab.set(0))
-                        .style(Styles.cleart)
-                        .children(() -> {
-                            text(Core.bundle.get("feature.chat.ui.channels", "Channels"))
-                                    .color(mobileTab.map(t -> t == 0 ? Pal.accent : Color.white));
-                        })
-                        .growX();
-
-                button(() -> mobileTab.set(1))
-                        .style(Styles.cleart)
-                        .children(() -> {
-                            text(Core.bundle.get("feature.chat.ui.messages", "Messages"))
-                                    .color(mobileTab.map(t -> t == 1 ? Pal.accent : Color.white));
-                        })
-                        .growX();
-
-                button(() -> mobileTab.set(2))
-                        .style(Styles.cleart)
-                        .children(() -> {
-                            text(Core.bundle.get("feature.chat.ui.members", "Members"))
-                                    .color(mobileTab.map(t -> t == 2 ? Pal.accent : Color.white));
-                        })
-                        .growX();
-            });
-
-            divider();
-
-            row().grow().children(() -> {
-                dynamic(mobileTab, tab -> {
-                    if (tab == 0) {
-                        return new ChatChannelListView(store);
-                    } else if (tab == 2) {
-                        return new ChatUserListView(store);
-                    } else {
-                        return column().grow().gap(unit(1)).children(() -> {
-                            new ChatMessageListView(store);
-                            divider();
-                            new ChatInputView(store, service);
-                        });
-                    }
+    private Component buildMobileBody() {
+        return tabs(mobileTab)
+                .grow()
+                .tab(Core.bundle.get("feature.chat.ui.channels", "Channels"), () -> {
+                    new ChatChannelListView(store);
+                })
+                .tab(Core.bundle.get("feature.chat.ui.messages", "Messages"), () -> {
+                    column().grow().gap(unit(1)).children(() -> {
+                        new ChatMessageListView(store, service);
+                        divider();
+                        new ChatInputView(store, service);
+                    });
+                })
+                .tab(Core.bundle.get("feature.chat.ui.members", "Members"), () -> {
+                    new ChatUserListView(store);
                 });
-            });
-        });
     }
 
     public void keepInScreen() {

@@ -1,9 +1,10 @@
 package solim.input;
 
-import arc.Core;
+import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.ui.TextField;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
@@ -11,7 +12,9 @@ import solim.layout.ConstrainedElement;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
+import solim.signal.Readable;
 import solim.signal.Signal;
+import solim.ui.Binding;
 
 /**
  * TextField widget with two-way binding to a Signal&lt;String&gt;. Equality guard prevents feedback
@@ -56,10 +59,13 @@ public final class SolimTextField implements Component, Disposable {
 	private final SizedTextField field;
 	private final Signal<String> signal;
 	private Effect effect;
+	private Effect disabledEffect;
 	private boolean updating = false;
+	private Predicate<String> validator;
+	private final Signal<Boolean> valid = Signal.of(true);
 
 	public SolimTextField(Signal<String> signal) {
-		this(signal, Core.scene == null ? new TextField.TextFieldStyle() : null);
+		this(signal, (TextField.TextFieldStyle) null);
 	}
 
 	public SolimTextField(Signal<String> signal, TextField.TextFieldStyle style) {
@@ -70,19 +76,27 @@ public final class SolimTextField implements Component, Disposable {
 		// listener: type -> signal
 		field.changed(() -> {
 			if (updating) return;
-			if (!field.getText().equals(signal.get())) {
-				signal.set(field.getText());
+			String text = field.getText();
+			if (!text.equals(signal.get())) {
+				signal.set(text);
+			}
+			if (validator != null) {
+				valid.set(validator.test(text));
 			}
 		});
 		// effect: signal -> field
 		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			if (!field.getText().equals(signal.get())) {
+			String val = signal.get();
+			if (!field.getText().equals(val)) {
 				updating = true;
 				try {
-					field.setText(signal.get());
+					field.setText(val);
 				} finally {
 					updating = false;
 				}
+			}
+			if (validator != null) {
+				valid.set(validator.test(val));
 			}
 		});
 
@@ -91,6 +105,46 @@ public final class SolimTextField implements Component, Disposable {
 
 	public static SolimTextField of(Signal<String> signal) {
 		return new SolimTextField(signal);
+	}
+
+	public SolimTextField validator(Predicate<String> validator) {
+		this.validator = validator;
+		this.valid.set(validator == null || validator.test(field.getText()));
+		return this;
+	}
+
+	public Readable<Boolean> valid() {
+		return valid;
+	}
+
+	public boolean isValid() {
+		return Boolean.TRUE.equals(valid.get());
+	}
+
+	public SolimTextField onEnter(Consumer<String> onSubmit) {
+		field.keyDown(key -> {
+			if (key == KeyCode.enter && !field.isDisabled()) {
+				onSubmit.accept(field.getText());
+			}
+		});
+		return this;
+	}
+
+	public SolimTextField onEnter(Runnable onSubmit) {
+		return onEnter(text -> onSubmit.run());
+	}
+
+	public SolimTextField disabled(boolean disabled) {
+		field.setDisabled(disabled);
+		return this;
+	}
+
+	public SolimTextField disabled(Readable<Boolean> disabled) {
+		if (disabledEffect != null) {
+			disabledEffect.dispose();
+		}
+		disabledEffect = Binding.bind(disabled, d -> field.setDisabled(Boolean.TRUE.equals(d)));
+		return this;
 	}
 
 	public SolimTextField placeholder(String placeholder) {
@@ -172,6 +226,10 @@ public final class SolimTextField implements Component, Disposable {
 		if (effect != null) {
 			effect.dispose();
 			effect = null;
+		}
+		if (disabledEffect != null) {
+			disabledEffect.dispose();
+			disabledEffect = null;
 		}
 	}
 }

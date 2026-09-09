@@ -5,6 +5,7 @@ import static solim.ui.Ui.*;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
+import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
 import mindustrytool.models.response.ChatUser;
 import solim.core.BaseComponent;
@@ -92,18 +93,23 @@ public class ChatUserListView extends BaseComponent {
             }
 
             final Color finalRoleColor = roleColor;
-            return card().growX()
-                    .children(() -> {
-                        row().growX()
-                                .padding(unit(1))
-                                .gap(unit(1))
-                                .children(() -> {
-                                    text(name).color(finalRoleColor)
-                                            .fontScale(0.9f)
-                                            .left();
-                                });
-                    })
-                    .element();
+                    return card().growX()
+                            .children(() -> {
+                                row().growX()
+                                        .padding(unit(1))
+                                        .gap(unit(1))
+                                        .children(() -> {
+                                            networkImage(user.getImageUrl())
+                                                    .placeholder(Icon.players)
+                                                    .fallback(Icon.players)
+                                                    .size(unit(6), unit(6));
+
+                                            text(name).color(finalRoleColor)
+                                                    .fontScale(0.9f)
+                                                    .left();
+                                        });
+                            })
+                            .element();
         }
     }
 }

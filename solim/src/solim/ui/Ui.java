@@ -14,6 +14,8 @@ import java.util.function.Supplier;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.core.EventsUtil;
+import solim.display.Badge;
+import solim.display.NetworkImage;
 import solim.display.SolimImage;
 import solim.display.Text;
 import solim.input.Button;
@@ -29,6 +31,7 @@ import solim.layout.ReactiveGrid;
 import solim.layout.Row;
 import solim.layout.Scroll;
 import solim.layout.Spacer;
+import solim.layout.Tabs;
 import solim.overlay.Hud;
 import solim.overlay.SolimDialog;
 import solim.signal.Computed;
@@ -208,6 +211,24 @@ public final class Ui {
         return image(drawable);
     }
 
+    public static NetworkImage networkImage() {
+        NetworkImage img = new NetworkImage();
+        ParentStack.attachToParent(img.element());
+        return img;
+    }
+
+    public static NetworkImage networkImage(@Nullable String url) {
+        NetworkImage img = new NetworkImage(url);
+        ParentStack.attachToParent(img.element());
+        return img;
+    }
+
+    public static NetworkImage networkImage(@Nullable Readable<String> url) {
+        NetworkImage img = new NetworkImage(url);
+        ParentStack.attachToParent(img.element());
+        return img;
+    }
+
     public static Button button() {
         Button b = new Button();
         ParentStack.attachToParent(b.element());
@@ -365,6 +386,36 @@ public final class Ui {
 
     public static Computed<Float> dvh(Readable<Float> percentage) {
         return Units.dvh(percentage);
+    }
+
+    public static Tabs tabs(Signal<Integer> activeTab) {
+        Tabs t = new Tabs(activeTab);
+        ParentStack.attachToParent(t.element());
+        return t;
+    }
+
+    public static Badge badge(String text) {
+        Badge b = new Badge(text);
+        ParentStack.attachToParent(b.element());
+        return b;
+    }
+
+    public static Badge badge(Readable<String> text) {
+        Badge b = new Badge(text);
+        ParentStack.attachToParent(b.element());
+        return b;
+    }
+
+    public static Badge badge(int count) {
+        Badge b = Badge.ofCount(count);
+        ParentStack.attachToParent(b.element());
+        return b;
+    }
+
+    public static Badge badgeCount(Readable<Integer> count) {
+        Badge b = Badge.ofCount(count);
+        ParentStack.attachToParent(b.element());
+        return b;
     }
 
     public static float unit(float value) {

@@ -113,7 +113,7 @@ public class AuthOverlay {
 		});
 	}
 
-	private void startLoginUI() {
+	public void startLoginUI() {
 		MindustryAuthProvider auth = MindustryAuthProvider.getInstance();
 
 		if (loginDialog == null) {

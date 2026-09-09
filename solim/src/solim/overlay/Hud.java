@@ -175,7 +175,6 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Hud x(Readable<Float> x) {
 		if (x instanceof Signal) {
 			this.boundXSignal = (Signal<Float>) x;
@@ -198,7 +197,6 @@ public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
 		return this;
 	}
 
-	@SuppressWarnings("unchecked")
 	public Hud y(Readable<Float> y) {
 		if (y instanceof Signal) {
 			this.boundYSignal = (Signal<Float>) y;
