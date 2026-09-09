@@ -1,8 +1,10 @@
 package solim.input;
 
+import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
+import arc.scene.event.SceneEvent;
 import arc.scene.ui.Button.ButtonStyle;
 import arc.scene.ui.Label;
 import arc.scene.ui.Tooltip;
@@ -84,6 +86,12 @@ public final class Button implements Component {
 		public float getPrefHeight() {
 			return customPrefHeight >= 0 ? customPrefHeight : super.getPrefHeight();
 		}
+
+		@Override
+		public boolean notify(SceneEvent event, boolean capture) {
+			if (getScene() == null) return false;
+			return super.notify(event, capture);
+		}
 	}
 
 	private final SizedButton sizedButton;
@@ -159,6 +167,12 @@ public final class Button implements Component {
 		if (hasClickListener) return;
 		hasClickListener = true;
 		sizedButton.addListener(new ClickListener() {
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+				if (sizedButton.getScene() == null) return false;
+				return super.touchDown(event, x, y, pointer, button);
+			}
+
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				if (stopClickPropagation && event != null) {

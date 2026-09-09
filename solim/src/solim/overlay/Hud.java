@@ -3,7 +3,11 @@ package solim.overlay;
 import arc.Core;
 import arc.Events;
 import arc.func.Cons;
+import arc.input.KeyCode;
 import arc.scene.Element;
+import arc.scene.Group;
+import arc.scene.event.InputEvent;
+import arc.scene.event.InputListener;
 import arc.scene.event.Touchable;
 import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Table;
@@ -117,6 +121,31 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 
 	public Hud containerTouchable(Touchable touchable) {
 		container.touchable = touchable;
+		return this;
+	}
+
+	public Hud toFrontOnTouch() {
+		root.addListener(new InputListener() {
+			@Override
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+				root.toFront();
+				return false;
+			}
+		});
+		return this;
+	}
+
+	public Hud mount(@Nullable Group parent) {
+		if (parent != null) {
+			parent.addChild(root);
+		}
+		return this;
+	}
+
+	public Hud mountToScene() {
+		if (Core.scene != null) {
+			Core.scene.add(root);
+		}
 		return this;
 	}
 
@@ -299,10 +328,10 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 		float curX = root.x;
 		float curY = root.y;
 
-		if (curX < 0) curX = 0;
-		if (curY < 0) curY = 0;
 		if (curX + w > sw) curX = Math.max(0, sw - w);
+		if (curX < 0) curX = 0;
 		if (curY + h > sh) curY = Math.max(0, sh - h);
+		if (curY < 0) curY = 0;
 
 		root.setPosition(curX, curY);
 

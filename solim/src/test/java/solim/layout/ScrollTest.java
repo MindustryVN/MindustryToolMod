@@ -6,8 +6,11 @@ import arc.Core;
 import arc.mock.MockApplication;
 import arc.mock.MockGraphics;
 import arc.scene.Element;
+import arc.scene.event.EventListener;
+import arc.scene.event.InputListener;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import solim.overlay.Hud;
 import solim.ui.ParentStack;
 
 class ScrollTest {
@@ -111,5 +114,57 @@ class ScrollTest {
 		Scroll s = new Scroll();
 		assertDoesNotThrow(s::scrollToTop);
 		assertDoesNotThrow(s::scrollToBottom);
+	}
+
+	@Test
+	void scrollDisabledConfiguration() {
+		Scroll scroll = new Scroll();
+		scroll.scrollingDisabled(false, true);
+		assertFalse(scroll.isScrollingDisabledX());
+		assertTrue(scroll.isScrollingDisabledY());
+
+		scroll.scrollX(true);
+		assertFalse(scroll.isScrollingDisabledX());
+
+		scroll.scrollX(false);
+		assertTrue(scroll.isScrollingDisabledX());
+
+		scroll.scrollY(true);
+		assertFalse(scroll.isScrollingDisabledY());
+
+		scroll.scrollY(false);
+		assertTrue(scroll.isScrollingDisabledY());
+	}
+
+	@Test
+	void scrollPercentagesAndDirections() {
+		Scroll scroll = new Scroll();
+		assertDoesNotThrow(() -> {
+			scroll.scrollToBottom();
+			scroll.scrollToTop();
+			scroll.scrollPercentX(0.5f);
+			scroll.scrollPercentY(0.75f);
+		});
+	}
+
+	@Test
+	void hudToFrontOnTouchAndMount() {
+		Hud hud = new Hud();
+		hud.toFrontOnTouch();
+
+		InputListener listener = null;
+		for (EventListener l : hud.root().getListeners()) {
+			if (l instanceof InputListener) {
+				listener = (InputListener) l;
+				break;
+			}
+		}
+		assertNotNull(listener, "toFrontOnTouch should register an InputListener on hud.root()");
+
+		arc.scene.ui.layout.Table parent = new arc.scene.ui.layout.Table();
+		hud.mount(parent);
+		assertTrue(parent.getChildren().contains(hud.root()), "HUD root should be added to parent group");
+
+		hud.dispose();
 	}
 }

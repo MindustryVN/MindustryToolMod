@@ -171,9 +171,12 @@ public class QuickAccessFeature extends Feature {
     @Override
     public void onDisable() {
         if (hudView != null) {
-            hudView.element().remove();
-            hudView.dispose();
+            QuickAccessHudView view = hudView;
             hudView = null;
+            Core.app.post(() -> {
+                view.element().remove();
+                view.dispose();
+            });
         }
     }
 

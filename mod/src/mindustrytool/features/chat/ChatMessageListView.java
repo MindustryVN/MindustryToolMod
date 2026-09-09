@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import mindustry.Vars;
@@ -23,6 +24,8 @@ import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.SchematicsDialog.SchematicImage;
+import mindustrytool.features.FeatureManager;
+import mindustrytool.features.translation.TranslationFeature;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.UserData;
 import mindustrytool.services.MindustryTool;
@@ -173,7 +176,7 @@ public class ChatMessageListView extends BaseComponent {
     }
 
     public void scrollToBottom() {
-        if (scrollPane != null && scrollPane.pane() != null) {
+        if (scrollPane != null) {
             Core.app.post(() -> {
                 if (scrollPane != null && scrollPane.pane() != null) {
                     var pane = scrollPane.pane();
@@ -287,17 +290,24 @@ public class ChatMessageListView extends BaseComponent {
                                 // Body
                                 buildMessageBody(rawContent);
 
-                                // Translated text preview
+                                // Translated text card
                                 dynamic(store.translation(message.getId()), trans -> {
                                     if (trans != null && !trans.isEmpty()) {
-                                        return row().growX().top().left().padding(unit(0.5f)).children(() -> {
-                                            text(trans)
-                                                    .color(Color.lightGray)
-                                                    .fontScale(0.9f)
-                                                    .wrap()
-                                                    .left()
-                                                    .growX();
-                                        });
+                                        return card(Styles.black3, () -> {
+                                            column().growX().padding(unit(1)).gap(unit(0.5f)).left().children(() -> {
+                                                row().growX().gap(unit(1)).left().children(() -> {
+                                                    text("[#58a6ff]🌐 " + Core.bundle.get("feature.chat.ui.translated-badge", "Translated"))
+                                                            .fontScale(0.75f)
+                                                            .color(Pal.accent);
+                                                });
+                                                text(trans)
+                                                        .color(Color.white)
+                                                        .fontScale(0.9f)
+                                                        .wrap()
+                                                        .left()
+                                                        .growX();
+                                            });
+                                        }).growX();
                                     }
                                     return row();
                                 });
@@ -346,7 +356,16 @@ public class ChatMessageListView extends BaseComponent {
             }
 
             Vars.ui.showInfoToast(Core.bundle.get("feature.chat.ui.translating", "Translating..."), 2f);
-            MindustryTool.translate(message.getContent(), targetLocale).whenComplete((res, err) -> {
+
+            TranslationFeature tf = FeatureManager.getFeature(TranslationFeature.class);
+            CompletableFuture<String> future;
+            if (tf != null && tf.isEnabled() && tf.getActiveProvider().isConfigured()) {
+                future = tf.translate(message.getContent(), tf.getTargetLanguage());
+            } else {
+                future = MindustryTool.translate(message.getContent(), targetLocale);
+            }
+
+            future.whenComplete((res, err) -> {
                 Core.app.post(() -> {
                     if (err != null || res == null) {
                         Vars.ui.showInfoToast(Core.bundle.get("feature.chat.ui.translate-failed", "Translation failed"), 2f);

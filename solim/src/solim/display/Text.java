@@ -13,6 +13,7 @@ import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.layout.ConstrainedElement;
+import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Computed;
@@ -21,7 +22,7 @@ import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for text content. */
-public final class Text implements Component, Disposable {
+public final class Text implements Component, Disposable, LayoutModifiers<Text> {
 
 	public static class SizedLabel extends Label implements ConstrainedElement {
 		private final SizeConstraints constraints = new SizeConstraints();
@@ -140,6 +141,11 @@ public final class Text implements Component, Disposable {
 			label.setStyle(style);
 		}
 		return this;
+	}
+
+	@Override
+	public SizeConstraints sizeConstraints() {
+		return label.getSizeConstraints();
 	}
 
 	public Text growX() {

@@ -1,35 +1,50 @@
 package mindustrytool.services.auth;
 
+import static solim.ui.Ui.*;
+
 import arc.Core;
 import mindustry.Vars;
-import mindustry.ui.dialogs.BaseDialog;
+import solim.overlay.SolimDialog;
+import solim.signal.Signal;
+import solim.ui.Ui;
 
-public class AuthLoginDialog extends BaseDialog {
+public class AuthLoginDialog extends SolimDialog {
+
+	private final Signal<String> loginUrlSignal = Signal.of(null);
+
 	public AuthLoginDialog(MindustryAuthProvider authService) {
 		super(Core.bundle.get("auth.login.dialog-title"));
-		name = "loginDialog";
+		name("loginDialog");
+		closeOnBack();
 
-		buttons.button(Core.bundle.get("auth.login.cancel"), () -> {
-					authService.cancelLogin();
-					hide();
-				})
-				.width(230);
+		content(() -> {
+			column().grow().padding(unit(4)).center().children(() -> {
+				dynamic(loginUrlSignal, url -> {
+					if (url == null || url.isEmpty()) {
+						return text(Core.bundle.get("auth.login.loading"));
+					} else {
+						return Ui.button(() -> {
+							Core.app.setClipboardText(url);
+							Vars.ui.showInfoFade(Core.bundle.get("auth.login.copied"));
+						}).children(() -> {
+							text(url).fontScale(0.7f).wrap();
+						});
+					}
+				});
+			});
+		});
+
+		actionButton(Core.bundle.get("auth.login.cancel"), () -> {
+			authService.cancelLogin();
+			hide();
+		}).setWidth(230f);
 	}
 
 	public void showLoading() {
-		cont.clear();
-		cont.add(Core.bundle.get("auth.login.loading"));
+		loginUrlSignal.set(null);
 	}
 
 	public void showLoginUrl(String loginUrl) {
-		cont.clear();
-		cont.button(loginUrl, () -> {
-					Core.app.setClipboardText(loginUrl);
-					Vars.ui.showInfoFade(Core.bundle.get("auth.login.copied"));
-				})
-				.margin(40)
-				.growX()
-				.wrapLabel(true)
-				.fontScale(0.5f);
+		loginUrlSignal.set(loginUrl);
 	}
 }

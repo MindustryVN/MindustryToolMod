@@ -13,6 +13,7 @@ import mindustrytool.features.background.BackgroundFeature;
 import mindustrytool.features.chat.ChatFeature;
 import mindustrytool.features.quickaccess.QuickAccessFeature;
 import mindustrytool.features.teamresource.TeamResourceFeature;
+import mindustrytool.features.translation.TranslationFeature;
 import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
@@ -39,10 +40,15 @@ public class Main extends Mod {
 		self = Vars.mods.getMod(Main.class);
 
 		if (self == null) {
-			Vars.ui.showErrorMessage("Mod cant find itself, please contact admin on Discord to fix the problem");
+			Vars.ui.showErrorMessage(Core.bundle.get("error.mod-not-found", "Mod cannot find itself, please contact admin on Discord to fix the problem."));
 			return;
 		}
-		FeatureManager.register(new BackgroundFeature(), new QuickAccessFeature(), new ChatFeature(), new TeamResourceFeature());
+		FeatureManager.register(
+				new BackgroundFeature(),
+				new QuickAccessFeature(),
+				new ChatFeature(),
+				new TeamResourceFeature(),
+				new TranslationFeature());
 
 		Events.on(ClientLoadEvent.class, event -> {
 			registerMindustryToolButton();

@@ -34,6 +34,8 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
     private final Table content;
     private final ScrollPane pane;
     private boolean centered = false;
+    private boolean disableX = true;
+    private boolean disableY = false;
     private final List<Runnable> reachTopListeners = new ArrayList<>();
     private final List<Runnable> reachBottomListeners = new ArrayList<>();
     private float topThreshold = 100f;
@@ -52,7 +54,7 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
         if (Core.scene != null) {
             this.pane = outer.pane(content).grow().scrollX(false).scrollY(true).get();
             this.pane.name = "solim-scroll-pane";
-            this.pane.setScrollingDisabled(true, false);
+            this.pane.setScrollingDisabled(disableX, disableY);
         } else {
             this.pane = null;
             outer.add(content).grow();
@@ -83,6 +85,45 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 
     public Scroll pane(Consumer<ScrollPane> consumer) {
         consumer.accept(pane);
+        return this;
+    }
+
+    public Scroll scrollingDisabled(boolean disableX, boolean disableY) {
+        this.disableX = disableX;
+        this.disableY = disableY;
+        if (pane != null) {
+            pane.setScrollingDisabled(disableX, disableY);
+        }
+        return this;
+    }
+
+    public Scroll scrollX(boolean scrollX) {
+        return scrollingDisabled(!scrollX, this.disableY);
+    }
+
+    public Scroll scrollY(boolean scrollY) {
+        return scrollingDisabled(this.disableX, !scrollY);
+    }
+
+    public boolean isScrollingDisabledX() {
+        return disableX;
+    }
+
+    public boolean isScrollingDisabledY() {
+        return disableY;
+    }
+
+    public Scroll scrollPercentY(float percent) {
+        if (pane != null) {
+            pane.setScrollPercentY(percent);
+        }
+        return this;
+    }
+
+    public Scroll scrollPercentX(float percent) {
+        if (pane != null) {
+            pane.setScrollPercentX(percent);
+        }
         return this;
     }
 

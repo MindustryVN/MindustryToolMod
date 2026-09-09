@@ -1,6 +1,7 @@
 package solim.layout;
 
 import arc.scene.Element;
+import arc.scene.event.Touchable;
 import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
 import solim.core.Component;
@@ -45,6 +46,20 @@ public final class Column implements Component, LayoutModifiers<Column> {
 
 	public Column name(String name) {
 		ElementModifiers.name(table, name);
+		return this;
+	}
+
+	public Column fillParent(boolean fillParent) {
+		table.setFillParent(fillParent);
+		return this;
+	}
+
+	public Column fillParent() {
+		return fillParent(true);
+	}
+
+	public Column touchable(Touchable touchable) {
+		table.touchable = touchable;
 		return this;
 	}
 

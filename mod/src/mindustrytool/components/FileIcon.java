@@ -18,15 +18,28 @@ public class FileIcon {
 		}
 
 		try {
-			var texture =
-					new TextureRegion(new Texture(Main.self.root.child("icons").child(name)));
+			if (Main.self == null || Main.self.root == null) {
+				return fallbackIcon();
+			}
+			var file = Main.self.root.child("icons").child(name);
+			if (!file.exists()) {
+				return fallbackIcon();
+			}
+			var texture = new TextureRegion(new Texture(file));
 			var drawable = new TextureRegionDrawable(texture);
 			iconCache.put(name, drawable);
 			return drawable;
 		} catch (Exception e) {
 			Log.err(e.getMessage());
-			iconCache.put(name, Icon.book);
-			return Icon.book;
+			var fallback = fallbackIcon();
+			iconCache.put(name, fallback);
+			return fallback;
 		}
+	}
+
+	private static TextureRegionDrawable fallbackIcon() {
+		if (Icon.chat != null) return Icon.chat;
+		if (Icon.book != null) return Icon.book;
+		return new TextureRegionDrawable();
 	}
 }

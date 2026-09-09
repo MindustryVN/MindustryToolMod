@@ -8,6 +8,98 @@ dependencies{
 	testImplementation "Anuken:Mindustry:${mindustryVersion}"
 }
 
+def secretsOutputDir = layout.buildDirectory.dir("generated/sources/secrets/java").get().asFile
+
+tasks.register('generateDevXSecrets') {
+	def envFile = new File(rootProject.projectDir, ".env")
+	if (envFile.exists()) {
+		inputs.file(envFile)
+	}
+	outputs.dir(secretsOutputDir)
+
+	doLast {
+		def apiKey = ""
+		if (System.getenv("DEVX_API_KEY")) {
+			apiKey = System.getenv("DEVX_API_KEY").trim()
+		} else if (System.getenv("API_KEY")) {
+			apiKey = System.getenv("API_KEY").trim()
+		} else if (envFile.exists()) {
+			envFile.eachLine { line ->
+				line = line.trim()
+				if (line.startsWith("API_KEY=")) {
+					apiKey = line.substring("API_KEY=".length()).trim()
+				} else if (line.startsWith("DEVX_API_KEY=")) {
+					apiKey = line.substring("DEVX_API_KEY=".length()).trim()
+				}
+			}
+		}
+
+		if (apiKey.startsWith("\"") && apiKey.endsWith("\"") && apiKey.length() > 1) {
+			apiKey = apiKey.substring(1, apiKey.length() - 1).trim()
+		} else if (apiKey.startsWith("'") && apiKey.endsWith("'") && apiKey.length() > 1) {
+			apiKey = apiKey.substring(1, apiKey.length() - 1).trim()
+		}
+
+		def targetFile = new File(secretsOutputDir, "mindustrytool/features/translation/DevXSecrets.java")
+		targetFile.parentFile.mkdirs()
+
+		if (apiKey.isEmpty()) {
+			targetFile.text = """package mindustrytool.features.translation;
+
+public final class DevXSecrets {
+    private DevXSecrets() {}
+
+    public static String getApiKey() {
+        return "";
+    }
+
+    public static boolean hasBuiltInKey() {
+        return false;
+    }
+}
+"""
+		} else {
+			byte[] keyBytes = apiKey.getBytes(java.nio.charset.StandardCharsets.UTF_8)
+			byte[] mask = [0x5A, 0xA5, 0x3C, 0xC3, 0x69, 0x96, 0x0F, 0xF0] as byte[]
+			byte[] encoded = new byte[keyBytes.length]
+			for (int i = 0; i < keyBytes.length; i++) {
+				encoded[i] = (byte) (keyBytes[i] ^ mask[i % mask.length])
+			}
+
+			def bytesArrayString = encoded.collect { it.toString() }.join(", ")
+			def maskArrayString = mask.collect { it.toString() }.join(", ")
+
+			targetFile.text = """package mindustrytool.features.translation;
+
+public final class DevXSecrets {
+    private static final byte[] ENCODED = new byte[]{ ${bytesArrayString} };
+    private static final byte[] MASK = new byte[]{ ${maskArrayString} };
+
+    private DevXSecrets() {}
+
+    public static String getApiKey() {
+        if (ENCODED.length == 0) return "";
+        byte[] decoded = new byte[ENCODED.length];
+        for (int i = 0; i < ENCODED.length; i++) {
+            decoded[i] = (byte) (ENCODED[i] ^ MASK[i % MASK.length]);
+        }
+        return new String(decoded, java.nio.charset.StandardCharsets.UTF_8);
+    }
+
+    public static boolean hasBuiltInKey() {
+        return ENCODED.length > 0;
+    }
+}
+"""
+		}
+	}
+}
+
+sourceSets.main.java.srcDir(secretsOutputDir)
+compileJava.dependsOn generateDevXSecrets
+compileTestJava.dependsOn generateDevXSecrets
+
+
 tasks.register('jarAndroid'){
 	dependsOn "jar"
 	def projectName = rootProject.name

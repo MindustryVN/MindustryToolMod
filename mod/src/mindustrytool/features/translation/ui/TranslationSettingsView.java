@@ -1,0 +1,335 @@
+package mindustrytool.features.translation.ui;
+
+import static solim.ui.Ui.*;
+
+import arc.Core;
+import arc.graphics.Color;
+import arc.scene.Element;
+import mindustry.graphics.Pal;
+import mindustry.ui.Styles;
+import mindustrytool.features.translation.TranslationFeature;
+import mindustrytool.features.translation.TranslationProvider;
+import mindustrytool.features.translation.providers.DeepLTranslationProvider;
+import mindustrytool.features.translation.providers.DevXTranslationProvider;
+import mindustrytool.features.translation.providers.GeminiTranslationProvider;
+import mindustrytool.features.translation.providers.MindustryToolTranslationProvider;
+import mindustrytool.services.auth.AuthLoginDialog;
+import mindustrytool.services.auth.MindustryAuthProvider;
+import solim.core.BaseComponent;
+import solim.core.Component;
+import solim.signal.Computed;
+import solim.signal.Readable;
+import solim.signal.Signal;
+
+/**
+ * Declarative Solim settings view for Chat Translation feature.
+ */
+public class TranslationSettingsView extends BaseComponent {
+
+	private final TranslationFeature feature;
+	private final Signal<String> testInputSignal = Signal.of("Hello from Mindustry! How is the defense going?");
+	private final Signal<String> testResultSignal = Signal.of(
+			Core.bundle.get("feature.translation.test.result-placeholder", "Translation result will appear here..."));
+	private final Signal<Boolean> isTestingSignal = Signal.of(false);
+	private final Signal<Boolean> testSuccessSignal = Signal.of(true);
+
+	public TranslationSettingsView(TranslationFeature feature) {
+		this.feature = feature;
+	}
+
+	@Override
+	protected Element build() {
+		return column().grow().children(() -> {
+			scroll().grow().children(() -> {
+				column().growX().padding(unit(3)).gap(unit(2.5f)).children(() -> {
+
+					// ─── 1. Target Language Row ─────────────────────
+					row().growX().children(() -> {
+						text(Core.bundle.format(
+								"feature.translation.pref.target-lang",
+								feature.getTargetLanguage())).color(Pal.accent).left().growX();
+
+						Readable<String> activeProvider = feature.providerConfig.signal().map(id -> {
+							for (TranslationProvider p : feature.getProviders()) {
+								if (p.getId().equals(id)) return p.getName();
+							}
+							return id != null ? id : "";
+						});
+						text(activeProvider.map(name -> "[lightgray]Provider: [accent]" + name)).right();
+					});
+
+					divider();
+
+					// ─── 2. Provider Selection ──────────────────────
+					text(Core.bundle.get("feature.translation.settings.providers", "Translation Provider"))
+							.color(Color.lightGray).left();
+
+					grid(dvw(90f).map(w -> (w != null && w > 700f) ? 4 : 2)).growX().gap(unit(1)).children(() -> {
+						for (TranslationProvider provider : feature.getProviders()) {
+							Readable<Boolean> isSelected = feature.providerConfig.signal().map(id -> provider.getId().equals(id));
+							button(provider.getName(), () -> feature.providerConfig.set(provider.getId()))
+									.style(Styles.togglet)
+									.checked(isSelected)
+									.height(unit(8))
+									.growX();
+						}
+					});
+
+					// ─── 3. Provider Settings ───────────────────────
+					dynamic(feature.providerConfig.signal(), this::buildProviderPanel).growX();
+
+					divider();
+
+					// ─── 4. Incoming Chat ───────────────────────────
+					text(Core.bundle.get("feature.translation.incoming.title", "Incoming Chat"))
+							.color(Pal.accent).left();
+
+					checkbox(
+							Core.bundle.get("feature.translation.pref.show-original", "Show original message"),
+							feature.showOriginalConfig.signal()
+					);
+
+					divider();
+
+					// ─── 5. Outgoing Chat ───────────────────────────
+					text(Core.bundle.get("feature.translation.outgoing.title", "Outgoing Chat"))
+							.color(Pal.accent).left();
+
+					checkbox(
+							Core.bundle.get("feature.translation.outgoing.enable", "Translate outgoing chat messages automatically"),
+							feature.outgoingEnabledConfig.signal()
+					);
+
+					text(Core.bundle.get("feature.translation.outgoing.target-lang", "Outgoing Target Language"))
+							.color(Color.lightGray).left();
+
+					// Quick language selector buttons
+					grid(dvw(90f).map(w -> (w != null && w > 800f) ? 6 : 3)).growX().gap(unit(1)).children(() -> {
+						String[] popularLangs = {"English", "Vietnamese", "Chinese", "Russian", "Japanese", "Spanish"};
+						for (String lang : popularLangs) {
+							Readable<Boolean> isCurrent = feature.outgoingTargetLangConfig.signal().map(lang::equalsIgnoreCase);
+							button(lang, () -> feature.outgoingTargetLangConfig.set(lang))
+									.style(Styles.togglet)
+									.checked(isCurrent)
+									.height(unit(7))
+									.growX();
+						}
+					});
+
+					// Custom language textfield
+					textField(feature.outgoingTargetLangConfig.signal())
+							.placeholder(Core.bundle.get("feature.translation.outgoing.target-lang.hint", "e.g. English, Chinese..."))
+							.growX();
+
+					// Outgoing format
+					text(Core.bundle.get("feature.translation.outgoing.format", "Outgoing Format"))
+							.color(Color.lightGray).left();
+
+					row().growX().gap(unit(2)).children(() -> {
+						Readable<Boolean> isBoth = feature.outgoingFormatConfig.signal().map(f -> !"translated_only".equalsIgnoreCase(f));
+						Readable<Boolean> isOnly = feature.outgoingFormatConfig.signal().map("translated_only"::equalsIgnoreCase);
+
+						button(Core.bundle.get("feature.translation.outgoing.format.both", "Translated (Original)"),
+								() -> feature.outgoingFormatConfig.set("both"))
+								.style(Styles.togglet)
+								.checked(isBoth)
+								.height(unit(7))
+								.growX();
+
+						button(Core.bundle.get("feature.translation.outgoing.format.translated-only", "Translated Only"),
+								() -> feature.outgoingFormatConfig.set("translated_only"))
+								.style(Styles.togglet)
+								.checked(isOnly)
+								.height(unit(7))
+								.growX();
+					});
+
+					text(Core.bundle.get("feature.translation.outgoing.hint", "Tip: Type // to send original without translating, or /tr <text> to translate on demand."))
+							.color(Color.gray).wrap().growX();
+
+					divider();
+
+					// ─── 6. Connection Test ─────────────────────────
+					buildTesterWidget();
+				});
+			});
+		}).element();
+	}
+
+	private Component buildProviderPanel(String providerId) {
+		if (GeminiTranslationProvider.ID.equals(providerId)) {
+			return buildGeminiPanel();
+		} else if (DevXTranslationProvider.ID.equals(providerId)) {
+			return buildDevXPanel();
+		} else if (DeepLTranslationProvider.ID.equals(providerId)) {
+			return buildDeepLPanel();
+		} else if (MindustryToolTranslationProvider.ID.equals(providerId)) {
+			return buildMindustryToolPanel();
+		}
+		return column();
+	}
+
+	private Component buildDevXPanel() {
+		return column().growX().gap(unit(2)).children(() -> {
+			// Timeout slider
+			row().growX().gap(unit(2)).children(() -> {
+				Computed<String> timeoutLabel = feature.devxTimeoutConfig.signal()
+						.map(t -> Core.bundle.format("feature.translation.devx.timeout", t != null ? t : 10));
+				text(timeoutLabel).left().growX();
+				row().width(unit(35)).right().children(() -> {
+					slider(feature.devxTimeoutConfig.signal(), 3, 30, 1);
+				});
+			});
+
+			// History context slider
+			row().growX().gap(unit(2)).children(() -> {
+				Computed<String> historyLabel = feature.devxMaxHistoryConfig.signal()
+						.map(h -> Core.bundle.format("feature.translation.devx.history", h != null ? h : 5));
+				text(historyLabel).left().growX();
+				row().width(unit(35)).right().children(() -> {
+					slider(feature.devxMaxHistoryConfig.signal(), 0, 10, 1);
+				});
+			});
+		});
+	}
+
+	private Component buildGeminiPanel() {
+		return column().growX().gap(unit(2)).children(() -> {
+			// API Key
+			text(Core.bundle.get("feature.translation.gemini.api-key", "Gemini API Key")).left().color(Color.lightGray);
+			textField(feature.geminiApiKeyConfig.signal())
+					.placeholder(Core.bundle.get("feature.translation.gemini.api-key.hint", "AIzaSy..."))
+					.growX();
+
+			// Model selection
+			text(Core.bundle.get("feature.translation.gemini.model", "Model")).left().color(Color.lightGray);
+			row().growX().gap(unit(1)).children(() -> {
+				for (String model : GeminiTranslationProvider.MODELS) {
+					Readable<Boolean> isCurrent = feature.geminiModelConfig.signal().map(model::equals);
+					button(model, () -> feature.geminiModelConfig.set(model))
+							.style(Styles.togglet)
+							.checked(isCurrent)
+							.height(unit(7))
+							.growX();
+				}
+			});
+
+			// Timeout slider
+			row().growX().gap(unit(2)).children(() -> {
+				Computed<String> timeoutLabel = feature.geminiTimeoutConfig.signal()
+						.map(t -> Core.bundle.format("feature.translation.gemini.timeout", t != null ? t : 10));
+				text(timeoutLabel).left().growX();
+				row().width(unit(35)).right().children(() -> {
+					slider(feature.geminiTimeoutConfig.signal(), 3, 30, 1);
+				});
+			});
+
+			// History context slider
+			row().growX().gap(unit(2)).children(() -> {
+				Computed<String> historyLabel = feature.geminiMaxHistoryConfig.signal()
+						.map(h -> Core.bundle.format("feature.translation.gemini.history", h != null ? h : 5));
+				text(historyLabel).left().growX();
+				row().width(unit(35)).right().children(() -> {
+					slider(feature.geminiMaxHistoryConfig.signal(), 0, 10, 1);
+				});
+			});
+		});
+	}
+
+	private Component buildDeepLPanel() {
+		return column().growX().gap(unit(2)).children(() -> {
+			// API Key
+			text(Core.bundle.get("feature.translation.deepl.api-key", "DeepL API Key")).left().color(Color.lightGray);
+			textField(feature.deeplApiKeyConfig.signal())
+					.placeholder(Core.bundle.get("feature.translation.deepl.api-key.hint", "...:fx"))
+					.growX();
+
+			// Timeout slider
+			row().growX().gap(unit(2)).children(() -> {
+				Computed<String> timeoutLabel = feature.deeplTimeoutConfig.signal()
+						.map(t -> Core.bundle.format("feature.translation.deepl.timeout", t != null ? t : 10));
+				text(timeoutLabel).left().growX();
+				row().width(unit(35)).right().children(() -> {
+					slider(feature.deeplTimeoutConfig.signal(), 2, 20, 1);
+				});
+			});
+		});
+	}
+
+	private Component buildMindustryToolPanel() {
+		return column().growX().gap(unit(2)).children(() -> {
+			boolean loggedIn = MindustryAuthProvider.getInstance().isLoggedIn();
+			if (loggedIn) {
+				String username = MindustryAuthProvider.getInstance().getAccessToken() != null ? "Player" : "User";
+				text(Core.bundle.format("feature.translation.mindustrytool.logged-in", username)).color(Pal.heal).left();
+			} else {
+				row().growX().gap(unit(2)).children(() -> {
+					text(Core.bundle.get("feature.translation.mindustrytool.not-logged-in")).color(Pal.accent).growX();
+					button(Core.bundle.get("feature.translation.mindustrytool.login-btn", "Log In"), () -> {
+						new AuthLoginDialog(MindustryAuthProvider.getInstance()).show();
+					}).style(Styles.defaultb).height(unit(7));
+				});
+			}
+
+			// Timeout slider
+			row().growX().gap(unit(2)).children(() -> {
+				Computed<String> timeoutLabel = feature.mindustryToolTimeoutConfig.signal()
+						.map(t -> Core.bundle.format("feature.translation.mindustrytool.timeout", t != null ? t : 30));
+				text(timeoutLabel).left().growX();
+				row().width(unit(35)).right().children(() -> {
+					slider(feature.mindustryToolTimeoutConfig.signal(), 5, 60, 5);
+				});
+			});
+		});
+	}
+
+	private void buildTesterWidget() {
+		column().growX().gap(unit(2)).children(() -> {
+			text(Core.bundle.get("feature.translation.test.title", "Connection Test")).left().color(Pal.accent);
+
+			row().growX().gap(unit(2)).children(() -> {
+				textField(testInputSignal).growX();
+
+				Readable<String> buttonLabel = isTestingSignal.map(testing ->
+						testing ? Core.bundle.get("feature.translation.test.testing", "Translating...")
+								: Core.bundle.get("feature.translation.test.button", "Test Translate"));
+
+				button(() -> {
+					if (Boolean.TRUE.equals(isTestingSignal.get())) {
+						return;
+					}
+					isTestingSignal.set(true);
+					testResultSignal.set(Core.bundle.get("feature.translation.test.testing", "Translating..."));
+					testSuccessSignal.set(true);
+
+					feature.testTranslate(testInputSignal.get())
+							.thenAccept(result -> {
+								Core.app.post(() -> {
+									isTestingSignal.set(false);
+									testSuccessSignal.set(true);
+									testResultSignal.set(Core.bundle.format("feature.translation.test.success", result));
+								});
+							})
+							.exceptionally(err -> {
+								Throwable cause = err.getCause() != null ? err.getCause() : err;
+								Core.app.post(() -> {
+									isTestingSignal.set(false);
+									testSuccessSignal.set(false);
+									testResultSignal.set(Core.bundle.format("feature.translation.test.error", cause.getMessage()));
+								});
+								return null;
+							});
+				})
+				.style(Styles.defaultb)
+				.height(unit(9))
+				.width(unit(36))
+				.children(() -> text(buttonLabel));
+			});
+
+			text(testResultSignal)
+					.color(testSuccessSignal.map(s -> s ? Pal.heal : Pal.remove))
+					.wrap()
+					.growX();
+		});
+	}
+}
