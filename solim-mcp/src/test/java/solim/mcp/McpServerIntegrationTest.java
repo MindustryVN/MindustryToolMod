@@ -170,6 +170,57 @@ try {
 		}
 	}
 
+	@Test
+	void noAuthModeAllowsConnectionsWithoutToken() throws Exception {
+		int httpPort = freePort();
+		SolimMcpServer server = SolimMcpServer.start(
+			new McpConfig(true, "127.0.0.1", 0, httpPort, "", 100),
+			SnapshotRoot.fixed(new arc.scene.ui.layout.Table()));
+		assertNotNull(server);
+
+		try {
+			// HTTP test without auth header
+			String body = "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"tools/list\"}";
+			String ok = httpPost(httpPort, body, null);
+			assertTrue(ok.startsWith("HTTP/1.1 200"), ok);
+			assertTrue(ok.contains("get_component_tree"), ok);
+
+			// WebSocket test without token
+			LinkedBlockingQueue<String> inbox = new LinkedBlockingQueue<>();
+			WebSocketClient client = new WebSocketClient(
+				new URI("ws://127.0.0.1:" + server.webSocketPort() + "/")) {
+				@Override
+				public void onOpen(ServerHandshake handshake) {}
+
+				@Override
+				public void onMessage(String message) {
+					inbox.add(message);
+				}
+
+				@Override
+				public void onClose(int code, String reason, boolean remote) {}
+
+				@Override
+				public void onError(Exception ex) {}
+			};
+
+			try {
+				assertTrue(client.connectBlocking(5, TimeUnit.SECONDS));
+				client.send("{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}");
+				String wsResponse = inbox.poll(5, TimeUnit.SECONDS);
+				assertNotNull(wsResponse);
+				assertTrue(wsResponse.contains("get_component_tree"), wsResponse);
+			} finally {
+				try {
+					client.closeBlocking();
+				} catch (Exception ignored) {
+				}
+			}
+		} finally {
+			server.stop();
+		}
+	}
+
 	private static String awaitNotify(LinkedBlockingQueue<String> inbox, String needle, int seconds)
 			throws InterruptedException {
 		long deadline = System.currentTimeMillis() + TimeUnit.SECONDS.toMillis(seconds);

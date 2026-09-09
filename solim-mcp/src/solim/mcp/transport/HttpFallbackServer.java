@@ -106,7 +106,7 @@ public final class HttpFallbackServer implements AutoCloseable {
 				read += r;
 			}
 
-			if (!config.token.equals(token)) {
+			if (!config.token.isEmpty() && !config.token.equals(token)) {
 				writeResponse(out, 401, "{\"error\":\"unauthorized\"}");
 				return;
 			}

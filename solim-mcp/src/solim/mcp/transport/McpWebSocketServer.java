@@ -70,11 +70,14 @@ public final class McpWebSocketServer extends WebSocketServer {
 
 	@Override
 	public void onStart() {
-		Log.info("[solim-mcp] WebSocket server listening on {0}:{1} (token: {2})",
-			config.host, config.port, mask(config.token));
+		Log.info("[solim-mcp] WebSocket server listening on {0}:{1} ({2})",
+			config.host, config.port, config.token.isEmpty() ? "no auth required" : "token: " + mask(config.token));
 	}
 
 	private boolean authorized(ClientHandshake handshake) {
+		if (config.token.isEmpty()) {
+			return true;
+		}
 		String query = handshake.getResourceDescriptor();
 		String token = queryToken(query);
 		if (token == null && handshake.hasFieldValue("X-Mcp-Token")) {

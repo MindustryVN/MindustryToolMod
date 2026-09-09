@@ -1,10 +1,15 @@
-﻿## ADDED Requirements
+﻿# solim-network-image Specification
 
+## Purpose
+Provides asynchronous texture fetching and rendering with in-memory caching and reactive URL binding.
+
+## Requirements
 ### Requirement: Declarative Network Image Component
-The system SHALL provide a `NetworkImage` component (`solim.display.NetworkImage`, `Ui.networkImage`) that asynchronously fetches an image from an HTTP/HTTPS URL and displays it in the Solim UI tree.
+The system SHALL provide a NetworkImage component (solim.display.NetworkImage, Ui.networkImage) that asynchronously fetches an image from an HTTP/HTTPS URL and displays it in the Solim UI tree.
 
 #### Scenario: Async image loaded successfully
-- **WHEN** a valid image URL is supplied to `networkImage(url)`
+- **WHEN** a valid image URL is supplied to 
+etworkImage(url)
 - **THEN** the component initially renders the placeholder drawable and transitions to the downloaded texture once the network response is received.
 
 #### Scenario: Image download failure fallback
@@ -19,7 +24,7 @@ The system SHALL maintain an in-memory texture cache for downloaded images to av
 - **THEN** the component retrieves the texture from cache immediately on the main thread without re-triggering an HTTP fetch.
 
 ### Requirement: Reactive URL Binding
-The system SHALL support dynamic image updates when provided a `Readable<String>` URL source.
+The system SHALL support dynamic image updates when provided a Readable<String> URL source.
 
 #### Scenario: URL signal change
 - **WHEN** the underlying URL signal changes to a new image address

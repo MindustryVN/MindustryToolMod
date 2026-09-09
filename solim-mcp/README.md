@@ -16,47 +16,62 @@ degrades gracefully if a Solim field is renamed or removed.
 
 ## Enabling the server
 
-Disabled by default. Enable with a system property, e.g. in a launcher or script:
+Enabled by default with no authentication required. Can be configured via system properties, e.g. in a launcher or script:
 
 ```text
--solim.mcp.enabled=true
--solim.mcp.host=127.0.0.1
--solim.mcp.port=8754
--solim.mcp.httpPort=0
--solim.mcp.token=my-secret-token
--solim.mcp.pollMs=500
+-Dsolim.mcp.enabled=true
+-Dsolim.mcp.host=127.0.0.1
+-Dsolim.mcp.port=8754
+-Dsolim.mcp.httpPort=0
+-Dsolim.mcp.token=my-secret-token
+-Dsolim.mcp.pollMs=500
 ```
 
-| Property               | Default     | Meaning                                       |
-| ---------------------- | ----------- | --------------------------------------------- |
-| `solim.mcp.enabled`    | `false`     | Set to `true` to bind sockets                |
-| `solim.mcp.host`       | `127.0.0.1` | Bind host                                     |
-| `solim.mcp.port`       | `8754`      | WebSocket bind port                           |
-| `solim.mcp.httpPort`   | `0`         | HTTP fallback port; `0` disables              |
-| `solim.mcp.token`      | *random*    | Required connection token when enabled        |
-| `solim.mcp.pollMs`     | `500`       | Subscription sampling interval (ms)           |
+| Property               | Default     | Meaning                                               |
+| ---------------------- | ----------- | ----------------------------------------------------- |
+| `solim.mcp.enabled`    | `true`      | Set to `false` to disable                             |
+| `solim.mcp.host`       | `127.0.0.1` | Bind host                                             |
+| `solim.mcp.port`       | `8754`      | WebSocket bind port                                   |
+| `solim.mcp.httpPort`   | `0`         | HTTP fallback port; `0` disables                      |
+| `solim.mcp.token`      | *(empty)*   | Optional connection token; if empty, no auth required |
+| `solim.mcp.pollMs`     | `500`       | Subscription sampling interval (ms)                   |
 
-When enabled without a token, a random token is generated and printed to the log. When disabled,
-no socket is ever opened and reflection costs are zero.
+When `solim.mcp.token` is set, connections must present the token. When unset or empty, all connections are allowed without authentication.
 
 ## Connecting
 
-WebSocket URL with token:
+WebSocket URL (no auth):
+
+```text
+ws://127.0.0.1:8754/
+```
+
+If a token is configured:
 
 ```text
 ws://127.0.0.1:8754/?token=my-secret-token
 ```
 
-Token can also be passed as the `X-Mcp-Token` request header. Unauthorized connections are closed
-immediately (client sees close code 4003 or -1/1006 depending on timing) and never exchange data.
+Token can also be passed as the `X-Mcp-Token` request header.
 
-Client compatibility notes:
+### Antigravity Integration
 
-- Clients that support custom WebSocket URIs can connect to the `ws://` URL above directly and
-  speak the JSON-RPC subset described below.
-- Clients that support HTTP can point at the HTTP fallback (`http://127.0.0.1:PORT/mcp`) with
-  `Authorization: Bearer <token>`; only one-off tool calls will work (no streamed notifications).
-- The token is always printed in the server startup log so assistants can be configured in-game.
+Antigravity communicates via stdio. Use `bridge.js` to bridge Antigravity's stdio to the WebSocket server:
+
+In `~/.gemini/config/mcp_config.json`:
+```json
+{
+  "mcpServers": {
+    "solim": {
+      "command": "node",
+      "args": ["<path-to-repo>/solim-mcp/bridge.js"],
+      "env": {
+        "SOLIM_MCP_URL": "ws://127.0.0.1:8754/"
+      }
+    }
+  }
+}
+```
 
 ## Protocol
 
