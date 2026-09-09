@@ -30,5 +30,5 @@
 
 ## 6. Verification & End-to-End Validation
 
-- [ ] 6.1 Run `./gradlew test` to ensure all Solim unit tests and mod tests pass
-- [ ] 6.2 Build and launch Mindustry with `./run.bat` and verify chat UI live via Solim MCP tools: test typing in chat input without losing focus, verify avatar sizes, verify top-left alignment, and check scroll behaviors
+- [x] 6.1 Run `./gradlew test` to ensure all Solim unit tests and mod tests pass
+- [x] 6.2 Build and launch Mindustry with `./run.bat` and verify chat UI live via Solim MCP tools: test typing in chat input without losing focus, verify avatar sizes, verify top-left alignment, and check scroll behaviors
