@@ -3,6 +3,7 @@ package solim.input;
 import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.ui.TextField;
+import arc.util.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import solim.core.Component;
@@ -58,9 +59,8 @@ public final class SolimTextField implements Component, Disposable {
 
 	private final SizedTextField field;
 	private final Signal<String> signal;
-	private Effect effect;
+	private @Nullable TwoWayBinding<String> binding;
 	private Effect disabledEffect;
-	private boolean updating = false;
 	private Predicate<String> validator;
 	private final Signal<Boolean> valid = Signal.of(true);
 
@@ -72,33 +72,26 @@ public final class SolimTextField implements Component, Disposable {
 		this.field = style != null ? new SizedTextField("", style) : new SizedTextField("");
 		this.field.name = "solim-textfield-textField";
 		this.signal = signal;
-		field.setText(signal.get());
-		// listener: type -> signal
-		field.changed(() -> {
-			if (updating) return;
-			String text = field.getText();
-			if (!text.equals(signal.get())) {
-				signal.set(text);
-			}
-			if (validator != null) {
-				valid.set(validator.test(text));
-			}
-		});
-		// effect: signal -> field
-		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			String val = signal.get();
-			if (!field.getText().equals(val)) {
-				updating = true;
-				try {
-					field.setText(val);
-				} finally {
-					updating = false;
+		field.setText(signal.peek() != null ? signal.peek() : "");
+		this.binding = new TwoWayBinding<>(
+			signal,
+			field::getText,
+			val -> {
+				field.setText(val != null ? val : "");
+				if (validator != null) {
+					valid.set(validator.test(val));
 				}
+			},
+			onChange -> {
+				field.changed(() -> {
+					onChange.run();
+					if (validator != null) {
+						valid.set(validator.test(field.getText()));
+					}
+				});
+				return () -> {};
 			}
-			if (validator != null) {
-				valid.set(validator.test(val));
-			}
-		});
+		);
 
 		ComponentContext.register(this);
 	}
@@ -223,9 +216,9 @@ public final class SolimTextField implements Component, Disposable {
 
 	@Override
 	public void dispose() {
-		if (effect != null) {
-			effect.dispose();
-			effect = null;
+		if (binding != null) {
+			binding.dispose();
+			binding = null;
 		}
 		if (disabledEffect != null) {
 			disabledEffect.dispose();

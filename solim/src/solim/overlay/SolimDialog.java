@@ -147,9 +147,26 @@ public class SolimDialog extends BaseDialog implements Component, Disposable, ar
 
     /**
      * Creates a reactive signal initialized from the supplier that recalculates
+     * whenever the callback registrar invokes the given callback. The returned disposable is owned
+     * by this dialog.
+     */
+    public <T> Signal<T> createSignal(java.util.function.Function<Runnable, Disposable> registrar, Supplier<T> supplier) {
+        Signal<T> signal = Signal.of(supplier.get());
+        if (registrar != null) {
+            Disposable d = registrar.apply(() -> signal.set(supplier.get()));
+            registerDisposable(d);
+        }
+        return signal;
+    }
+
+    /**
+     * Creates a reactive signal initialized from the supplier that recalculates
      * whenever the callback
      * registrar invokes the given callback (e.g. {@code this.resized(callback)}).
+     *
+     * @deprecated Use {@link #createSignal(java.util.function.Function, Supplier)} to support cleanup.
      */
+    @Deprecated
     public <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
         Signal<T> signal = Signal.of(supplier.get());
         if (callbackRegistrar != null) {

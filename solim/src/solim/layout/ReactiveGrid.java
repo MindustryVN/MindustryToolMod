@@ -26,7 +26,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 	private final Readable<? extends Iterable<T>> items;
 	private final Function<T, K> keyExtractor;
 	private final Function<T, Component> itemFactory;
-	private final Map<K, Component> activeComponents = new LinkedHashMap<>();
+	private final solim.ui.StructuralReconciler<K, Component> reconciler = new solim.ui.StructuralReconciler<>();
 	private final List<Disposable> itemBindings = new ArrayList<>();
 
 	private Runnable emptyRunnable;
@@ -73,14 +73,12 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 
 	public ReactiveGrid<T, K> gap(@Nullable Readable<Float> gapSignal) {
 		if (gapSignal != null) {
-			Effect e = Effect.of(() -> {
+			own(Effect.of(() -> {
 				Float g = gapSignal.get();
 				if (g != null) {
 					gap(g);
 				}
-			});
-			registerDisposable(e);
-			ComponentContext.register(e);
+			}));
 		}
 		return this;
 	}
@@ -99,55 +97,17 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 	protected Element build() {
 		table.top().left();
 
-		registerDisposable(Effect.of(() -> {
+		Effect.of(() -> {
 			Iterable<T> itemList = items.get();
 			int cols = Math.max(1, columnCount.get() != null ? columnCount.get() : 1);
 			updateItemsAndReflow(itemList, cols);
-		}));
+		});
 
 		return table;
 	}
 
 	private void updateItemsAndReflow(Iterable<T> itemList, int cols) {
-		if (itemList == null) {
-			itemList = Collections.emptyList();
-		}
-
-		Map<K, Component> nextComponents = new LinkedHashMap<>();
-		Set<K> currentKeys = new HashSet<>();
-
-		ComponentContext.pause();
-		try {
-			for (T item : itemList) {
-				K key = keyExtractor.apply(item);
-				currentKeys.add(key);
-
-				Component comp = activeComponents.get(key);
-				if (comp == null) {
-					comp = ParentStack.isolate(() -> {
-						Component c = itemFactory.apply(item);
-						if (c != null) {
-							c.element();
-						}
-						return c;
-					});
-				}
-				nextComponents.put(key, comp);
-			}
-		} finally {
-			ComponentContext.resume();
-		}
-
-		// Dispose components no longer present in collection
-		for (Map.Entry<K, Component> entry : activeComponents.entrySet()) {
-			if (!currentKeys.contains(entry.getKey())) {
-				entry.getValue().dispose();
-			}
-		}
-
-		activeComponents.clear();
-		activeComponents.putAll(nextComponents);
-
+		reconciler.reconcile(itemList, keyExtractor, itemFactory);
 		reflow(cols);
 	}
 
@@ -160,7 +120,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 		table.clear();
 		table.top().left();
 
-		if (activeComponents.isEmpty()) {
+		if (reconciler.isEmpty()) {
 			if (emptyRunnable != null) {
 				Table emptyTable = new Table();
 				ParentStack.push(emptyTable);
@@ -191,7 +151,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 		}
 
 		int col = 0;
-		for (Component comp : activeComponents.values()) {
+		for (Component comp : reconciler.activeComponents().values()) {
 			Element el = comp.element();
 			Cell<?> cell = table.add(el).pad(gap / 2f).top().left();
 			if (el instanceof ConstrainedElement) {
@@ -220,10 +180,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 		}
 		itemBindings.clear();
 
-		for (Component comp : activeComponents.values()) {
-			comp.dispose();
-		}
-		activeComponents.clear();
+		reconciler.dispose();
 
 		if (currentEmptyComponent != null) {
 			currentEmptyComponent.dispose();

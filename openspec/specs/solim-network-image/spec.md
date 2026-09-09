@@ -2,7 +2,6 @@
 
 ## Purpose
 Provides asynchronous texture fetching and rendering with in-memory caching and reactive URL binding.
-
 ## Requirements
 ### Requirement: Declarative Network Image Component
 The system SHALL provide a NetworkImage component (solim.display.NetworkImage, Ui.networkImage) that asynchronously fetches an image from an HTTP/HTTPS URL and displays it in the Solim UI tree.
@@ -29,3 +28,11 @@ The system SHALL support dynamic image updates when provided a Readable<String> 
 #### Scenario: URL signal change
 - **WHEN** the underlying URL signal changes to a new image address
 - **THEN** the component updates its display to fetch and render the new image.
+
+### Requirement: Enforced Size Constraints Overriding Intrinsic Texture Dimensions
+The `NetworkImage` component and underlying `SizedImage` SHALL respect explicit size constraints and preferred dimensions, preventing downloaded image dimensions from overriding configured sizes.
+
+#### Scenario: Network image loaded with explicit size
+- **WHEN** `networkImage(...).size(w, h)` is specified and a network image texture is loaded
+- **THEN** the component's preferred width and height remain fixed at `w` and `h` rather than expanding to the texture's native dimensions.
+

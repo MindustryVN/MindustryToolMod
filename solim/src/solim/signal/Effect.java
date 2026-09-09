@@ -33,36 +33,52 @@ public final class Effect implements ReactiveObserver, Disposable {
 		this.cleanupConsumer = cleanupConsumer;
 	}
 
+	/**
+	 * Creates an effect from a runnable. If called inside an active component build scope, the effect
+	 * is automatically owned by that component (registered before its initial execution).
+	 */
 	public static Effect of(Runnable runnable) {
-		Effect e = new Effect(runnable, null, null);
-		e.runEffect();
-		return e;
+		return create(runnable, null, null);
 	}
 
+	/**
+	 * Creates an effect from a supplier that returns a cleanup runnable. If called inside an active
+	 * component build scope, the effect is automatically owned by that component.
+	 */
 	public static Effect of(Supplier<Runnable> supplier) {
-		Effect e = new Effect(null, supplier, null);
-		e.runEffect();
-		return e;
+		return create(null, supplier, null);
 	}
 
+	/** Alias for {@link #of(Supplier)}. */
 	public static Effect ofSupplier(Supplier<Runnable> supplier) {
 		return of(supplier);
 	}
 
 	/**
-	 * For API {@code Effect.of(() -> { Subscription s=...; return s::dispose; })} use ofSupplier.
-	 * This overload handles cleanup consumer: {@code Effect.of(cleanup -> { ... cleanup.add(...);
-	 * })}.
+	 * Creates an effect with a cleanup consumer. If called inside an active component build scope,
+	 * the effect is automatically owned by that component.
+	 *
+	 * <p>For API {@code Effect.of(() -> { Subscription s=...; return s::dispose; })} use ofSupplier.
+	 * This overload handles cleanup consumer: {@code Effect.of(cleanup -> { ... cleanup.add(...); })}.
 	 */
 	public static Effect of(Consumer<Cleanup> consumer) {
-		Effect e = new Effect(null, null, consumer);
-		e.runEffect();
-		return e;
+		return create(null, null, consumer);
 	}
 
 	/** Convenience alias matching requirement example: effect(() -> {...}) */
 	public static Effect effect(Runnable r) {
 		return of(r);
+	}
+
+	/**
+	 * Internal factory: registers the effect with the active ComponentContext (if any) BEFORE
+	 * running it so that ownership is established even if the initial run throws.
+	 */
+	private static Effect create(Runnable runnable, Supplier<Runnable> supplier, Consumer<Cleanup> cleanupConsumer) {
+		Effect effect = new Effect(runnable, supplier, cleanupConsumer);
+		solim.core.ComponentContext.register(effect);
+		effect.runEffect();
+		return effect;
 	}
 
 	private void runEffect() {

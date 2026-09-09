@@ -18,7 +18,7 @@ public final class SolimSelect<T> implements Component, Disposable {
 	private final Signal<T> signal;
 	private final List<T> options;
 	private int selectedIndex = 0;
-	private Effect effect;
+	private Disposable binding;
 
 	{
 		selectBox.name = "solim-select-selectBox";
@@ -27,22 +27,30 @@ public final class SolimSelect<T> implements Component, Disposable {
 	public SolimSelect(Signal<T> signal, List<T> options) {
 		this.signal = signal;
 		this.options = options;
-		if (signal.get() != null) {
-			int idx = options.indexOf(signal.get());
+		if (signal.peek() != null) {
+			int idx = options.indexOf(signal.peek());
 			if (idx >= 0) selectedIndex = idx;
 		}
-		selectBox.setText(String.valueOf(signal.get()));
-		selectBox.changed(() -> {
-			// cycle through options
-			selectedIndex = (selectedIndex + 1) % options.size();
-			signal.set(options.get(selectedIndex));
-		});
-		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			T cur = signal.get();
-			int idx = options.indexOf(cur);
-			if (idx >= 0) selectedIndex = idx;
-			selectBox.setText(String.valueOf(cur));
-		});
+		selectBox.setText(String.valueOf(signal.peek()));
+		this.binding = new TwoWayBinding<>(
+			signal,
+			() -> options.isEmpty() ? null : options.get(selectedIndex),
+			cur -> {
+				int idx = options.indexOf(cur);
+				if (idx >= 0) selectedIndex = idx;
+				selectBox.setText(String.valueOf(cur));
+			},
+			onChange -> {
+				selectBox.changed(() -> {
+					if (!options.isEmpty()) {
+						selectedIndex = (selectedIndex + 1) % options.size();
+						onChange.run();
+					}
+				});
+				return () -> {};
+			}
+		);
+		solim.core.ComponentContext.register(this);
 	}
 
 	public static <T> SolimSelect<T> of(Signal<T> signal, List<T> options) {
@@ -66,6 +74,9 @@ public final class SolimSelect<T> implements Component, Disposable {
 
 	@Override
 	public void dispose() {
-		if (effect != null) effect.dispose();
+		if (binding != null) {
+			binding.dispose();
+			binding = null;
+		}
 	}
 }

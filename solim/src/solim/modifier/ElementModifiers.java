@@ -16,8 +16,27 @@ import solim.signal.Readable;
 import solim.signal.Signal;
 
 /**
- * Utility class providing static helper methods for modifying Arc elements and
- * tables.
+ * Category A — Self / Element modifiers.
+ *
+ * <p>Static utility methods that modify the Arc {@link arc.scene.Element} itself: its size,
+ * position, visibility, color, name, and so on. These affect the element directly and do NOT
+ * configure the element's parent cell or container child defaults.
+ *
+ * <p>Modifier targets:
+ * <ul>
+ *   <li>{@code width/height/size} — element's preferred size (sets on the element and its
+ *       {@link solim.layout.ConstrainedElement} constraints)</li>
+ *   <li>{@code x/y/position} — element's position in local coordinates</li>
+ *   <li>{@code visible/opacity/alpha} — element's visibility and transparency</li>
+ *   <li>{@code name} — element's debug name</li>
+ *   <li>{@code align} — element's internal content alignment</li>
+ *   <li>{@code gap} — spacing between children inside a Table-based container</li>
+ *   <li>{@code margin/pad} — padding on the element (container-internal defaults)</li>
+ * </ul>
+ *
+ * <p>Contrast with {@link solim.layout.LayoutModifiers}, which is a Category B interface that
+ * configures how the element behaves inside its <em>parent</em> layout cell (grow, margin as
+ * parent-cell padding, alignment in parent, etc.).
  */
 public final class ElementModifiers {
 

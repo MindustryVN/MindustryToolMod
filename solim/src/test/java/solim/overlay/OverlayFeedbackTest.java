@@ -85,7 +85,10 @@ class OverlayFeedbackTest {
 		java.util.List<Runnable> resizeCallbacks = new java.util.ArrayList<>();
 
 		// Test callback-based signal creation (e.g. this.resized(callback))
-		Signal<Integer> resizeSignal = d.createSignal(resizeCallbacks::add, () -> counter[0]);
+		Signal<Integer> resizeSignal = d.createSignal(cb -> {
+			resizeCallbacks.add(cb);
+			return () -> resizeCallbacks.remove(cb);
+		}, () -> counter[0]);
 		assertEquals(10, resizeSignal.get());
 
 		counter[0] = 25;
@@ -109,6 +112,7 @@ class OverlayFeedbackTest {
 		// Test disposal cleans up listeners
 		d.dispose();
 		assertTrue(d.isDisposed());
+		assertTrue(resizeCallbacks.isEmpty(), "Callback subscription must be unregistered on dispose");
 
 		counter[0] = 999;
 		Events.fire(new TestDialogEvent(99));

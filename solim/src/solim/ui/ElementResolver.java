@@ -15,7 +15,7 @@ public final class ElementResolver {
 		if (child instanceof Component) {
 			Component c = (Component) child;
 			ComponentContext.registerChild(c);
-			return c.element();
+			return ParentStack.isolate(c::element);
 		}
 		throw new IllegalArgumentException("Cannot resolve child to Element: " + child);
 	}

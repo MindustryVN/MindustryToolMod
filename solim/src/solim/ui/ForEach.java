@@ -21,7 +21,7 @@ public final class ForEach<T, K> extends BaseComponent implements ConstrainedEle
 	private final Readable<? extends Iterable<T>> collection;
 	private final Function<T, K> keyExtractor;
 	private final Function<T, Component> itemFactory;
-	private final Map<K, Component> activeComponents = new LinkedHashMap<>();
+	private final StructuralReconciler<K, Component> reconciler = new StructuralReconciler<>();
 
 	public ForEach(
 			Readable<? extends Iterable<T>> collection,
@@ -52,47 +52,15 @@ public final class ForEach<T, K> extends BaseComponent implements ConstrainedEle
 	@Override
 	protected Element build() {
 		container.top().left();
-		own(Effect.of(this::reconcile));
+		Effect.of(this::reconcile);
 		return container;
 	}
 
 	private void reconcile() {
-		Iterable<T> items = collection.get();
-		if (items == null) {
-			items = Collections.emptyList();
-		}
-
-		Map<K, Component> nextComponents = new LinkedHashMap<>();
-		Set<K> currentKeys = new HashSet<>();
-
-		for (T item : items) {
-			K key = keyExtractor.apply(item);
-			currentKeys.add(key);
-
-			Component comp = activeComponents.get(key);
-			if (comp == null) {
-				comp = ParentStack.isolate(() -> {
-					Component c = itemFactory.apply(item);
-					if (c != null) {
-						c.element();
-					}
-					return c;
-				});
-			}
-			nextComponents.put(key, comp);
-		}
-
-		for (Map.Entry<K, Component> entry : activeComponents.entrySet()) {
-			if (!currentKeys.contains(entry.getKey())) {
-				entry.getValue().dispose();
-			}
-		}
-
-		activeComponents.clear();
-		activeComponents.putAll(nextComponents);
+		Map<K, Component> active = reconciler.reconcile(collection.get(), keyExtractor, itemFactory);
 
 		container.clearChildren();
-		for (Component comp : activeComponents.values()) {
+		for (Component comp : active.values()) {
 			Element el = comp.element();
 			Cell<?> cell = container.add(el);
 			cell.row();
@@ -104,10 +72,7 @@ public final class ForEach<T, K> extends BaseComponent implements ConstrainedEle
 
 	@Override
 	protected void onDispose() {
-		for (Component comp : activeComponents.values()) {
-			comp.dispose();
-		}
-		activeComponents.clear();
+		reconciler.dispose();
 		container.clearChildren();
 	}
 }

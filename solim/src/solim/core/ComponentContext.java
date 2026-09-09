@@ -7,6 +7,9 @@ import java.util.Deque;
  * Ambient component build context tracking the active building component. Allows child components,
  * disposables, and reactive bindings instantiated during build() to be automatically registered and
  * owned without manual own() calls.
+ *
+ * <p>Use {@link #withoutAutoOwnership(Runnable)} instead of the raw {@link #pause()}/{@link
+ * #resume()} methods when temporarily suppressing auto-registration.
  */
 public final class ComponentContext {
 	private static final Deque<BaseComponent> stack = new ArrayDeque<>();
@@ -32,11 +35,41 @@ public final class ComponentContext {
 		return stack.peek();
 	}
 
-	public static void pause() {
+	/**
+	 * Suspends automatic ownership registration for resources created within the given action.
+	 * Auto-ownership is guaranteed to be restored after {@code action} returns, even if it throws.
+	 *
+	 * <p>Prefer this over calling {@link #pause()} and {@link #resume()} directly to avoid leaving
+	 * the context permanently paused on exceptions.
+	 */
+	public static void withoutAutoOwnership(Runnable action) {
+		paused++;
+		try {
+			action.run();
+		} finally {
+			if (paused > 0) {
+				paused--;
+			}
+		}
+	}
+
+	/**
+	 * Suspends automatic resource registration. Prefer {@link #withoutAutoOwnership(Runnable)}.
+	 *
+	 * @deprecated Internal use only. Use {@link #withoutAutoOwnership(Runnable)} instead.
+	 */
+	@Deprecated
+	static void pause() {
 		paused++;
 	}
 
-	public static void resume() {
+	/**
+	 * Resumes automatic resource registration. Prefer {@link #withoutAutoOwnership(Runnable)}.
+	 *
+	 * @deprecated Internal use only. Use {@link #withoutAutoOwnership(Runnable)} instead.
+	 */
+	@Deprecated
+	static void resume() {
 		if (paused > 0) {
 			paused--;
 		}
@@ -58,7 +91,7 @@ public final class ComponentContext {
 		}
 		BaseComponent current = stack.peek();
 		if (current != null) {
-			current.registerDisposable(disposable);
+			current.own(disposable);
 		}
 		return disposable;
 	}
@@ -70,7 +103,7 @@ public final class ComponentContext {
 		}
 		BaseComponent current = stack.peek();
 		if (current != null && current != child) {
-			current.registerDisposable(child::dispose);
+			current.own(child);
 		}
 		return child;
 	}

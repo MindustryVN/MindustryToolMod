@@ -12,8 +12,7 @@ import solim.signal.Signal;
 /** Slider widget bound to Signal&lt;Float&gt;. */
 public final class SolimSlider implements Component, Disposable {
 	private final Slider slider = new Slider(0f, 1f, 0.1f, false);
-	private Effect effect;
-	private boolean updating = false;
+	private Disposable binding;
 
 	{
 		slider.name = "solim-slider-slider";
@@ -22,48 +21,34 @@ public final class SolimSlider implements Component, Disposable {
 	public SolimSlider(Signal<Float> signal, float min, float max, float step) {
 		slider.setRange(min, max);
 		slider.setStepSize(step);
-		slider.setValue(signal.get());
-		slider.changed(() -> {
-			if (updating) return;
-			if (Math.abs(slider.getValue() - signal.get()) > 0.0001f) {
-				signal.set(slider.getValue());
-			}
-		});
-		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			if (Math.abs(slider.getValue() - signal.get()) > 0.0001f) {
-				updating = true;
-				try {
-					slider.setValue(signal.get());
-				} finally {
-					updating = false;
-				}
-			}
-		});
+		slider.setValue(signal.peek());
+		this.binding = new TwoWayBinding<>(
+			signal,
+			slider::getValue,
+			slider::setValue,
+			onChange -> {
+				slider.changed(onChange::run);
+				return () -> {};
+			},
+			(a, b) -> a != null && b != null && Math.abs(a - b) <= 0.0001f
+		);
 		ComponentContext.register(this);
 	}
 
 	public SolimSlider(Signal<Integer> signal, int min, int max, int step) {
 		slider.setRange(min, max);
 		slider.setStepSize(step);
-		slider.setValue(signal.get());
-		slider.changed(() -> {
-			if (updating) return;
-			int intVal = Math.round(slider.getValue());
-			if (intVal != signal.get()) {
-				signal.set(intVal);
-			}
-		});
-		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			int sigVal = signal.get();
-			if (Math.round(slider.getValue()) != sigVal) {
-				updating = true;
-				try {
-					slider.setValue(sigVal);
-				} finally {
-					updating = false;
-				}
-			}
-		});
+		slider.setValue(signal.peek());
+		this.binding = new TwoWayBinding<>(
+			signal,
+			() -> Math.round(slider.getValue()),
+			val -> slider.setValue(val != null ? val : 0),
+			onChange -> {
+				slider.changed(onChange::run);
+				return () -> {};
+			},
+			java.util.Objects::equals
+		);
 		ComponentContext.register(this);
 	}
 
@@ -92,6 +77,9 @@ public final class SolimSlider implements Component, Disposable {
 
 	@Override
 	public void dispose() {
-		if (effect != null) effect.dispose();
+		if (binding != null) {
+			binding.dispose();
+			binding = null;
+		}
 	}
 }

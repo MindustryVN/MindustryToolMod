@@ -3,20 +3,35 @@ package solim.layout;
 import solim.signal.Readable;
 
 /**
- * Shared mixin interface that all Solim layout components implement.
+ * Category B — Parent-layout modifiers (and Category C — container modifiers).
  *
- * <p>Provides the full CSS-style size constraint API from a single place, avoiding
- * duplication across {@link Row}, {@link Column}, {@link Card}, {@link Grid}, and
- * {@link Scroll}.
+ * <p>Mixin interface implemented by Solim layout containers ({@link Row}, {@link Column},
+ * {@link Card}, {@link Grid}, {@link Scroll}, etc.). Each method configures how this component
+ * behaves inside its <em>parent</em> layout cell, or how the container manages its children.
  *
- * <p>Constraint semantics:
+ * <p>Modifier categories:
  * <ul>
- *   <li>{@code width/height} — preferred size (CSS {@code width/height})</li>
- *   <li>{@code minWidth/minHeight} — lower bound (CSS {@code min-width/min-height})</li>
- *   <li>{@code maxWidth/maxHeight} — upper bound (CSS {@code max-width/max-height})</li>
- *   <li>{@code growX/growY} — independent flex-grow flags; a component can have both
- *       {@code .width(unit(10)).growX()} simultaneously (CSS flex-basis style)</li>
+ *   <li><b>Category B — Parent-cell configuration</b>: {@code growX/growY/grow}, {@code margin},
+ *       {@code align} — these are applied to the {@link arc.scene.ui.layout.Cell} that the
+ *       parent layout allocates for this element.</li>
+ *   <li><b>Category A — Element size</b>: {@code width/height/size/minWidth/maxWidth} —
+ *       these go into {@link SizeConstraints} and are applied to the cell as preferred/min/max
+ *       size constraints. They do NOT directly mutate the element unlike
+ *       {@link solim.modifier.ElementModifiers} static methods.</li>
+ *   <li><b>Category C — Container defaults</b>: {@code padding/gap/opacity} — stored on the
+ *       component's root element and affect how children are laid out.</li>
  * </ul>
+ *
+ * <p>Contrast with {@link solim.modifier.ElementModifiers}, which is a Category A static
+ * utility that mutates an Arc element's own properties directly.
+ *
+ * <p>Fluent ordering convention:
+ * <ol>
+ *   <li>Container/self configuration (before {@code children()})</li>
+ *   <li>{@code children()} — declare child components</li>
+ *   <li>Parent-layout modifiers — {@code grow()}, {@code margin()}, etc. (after
+ *       {@code children()})</li>
+ * </ol>
  *
  * @param <SELF> the concrete component type, enabling fluent chaining
  */

@@ -15,8 +15,8 @@ import solim.signal.Signal;
 public final class Switch implements Component, Disposable {
 	private final TextButton button = new TextButton("");
 	private final Signal<Boolean> signal;
-	private Effect effect;
-	private boolean updating = false;
+	private boolean state;
+	private Disposable binding;
 
 	{
 		button.name = "solim-switch-switchBox";
@@ -24,27 +24,28 @@ public final class Switch implements Component, Disposable {
 
 	public Switch(Signal<Boolean> signal) {
 		this.signal = signal;
-		updateVisual();
-		button.changed(() -> {
-			if (updating) return;
-			signal.set(!signal.get());
-		});
-		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			updateVisual();
-		});
+		this.state = Boolean.TRUE.equals(signal.peek());
+		button.setText(state ? "ON" : "OFF");
+		this.binding = new TwoWayBinding<>(
+			signal,
+			() -> state,
+			val -> {
+				state = Boolean.TRUE.equals(val);
+				button.setText(state ? "ON" : "OFF");
+			},
+			onChange -> {
+				button.changed(() -> {
+					state = !state;
+					onChange.run();
+				});
+				return () -> {};
+			}
+		);
+		solim.core.ComponentContext.register(this);
 	}
 
 	public static Switch of(Signal<Boolean> signal) {
 		return new Switch(signal);
-	}
-
-	private void updateVisual() {
-		updating = true;
-		try {
-			button.setText(signal.get() ? "ON" : "OFF");
-		} finally {
-			updating = false;
-		}
 	}
 
 	public TextButton button() {
@@ -64,6 +65,9 @@ public final class Switch implements Component, Disposable {
 
 	@Override
 	public void dispose() {
-		if (effect != null) effect.dispose();
+		if (binding != null) {
+			binding.dispose();
+			binding = null;
+		}
 	}
 }

@@ -73,7 +73,7 @@ public class ChatMessageListView extends BaseComponent {
             return result;
         });
 
-        own(Effect.of(() -> {
+        Effect.of(() -> {
             String chanId = store.activeChannelId().get();
             if (!Objects.equals(chanId, lastChannelId)) {
                 lastChannelId = chanId;
@@ -81,9 +81,9 @@ public class ChatMessageListView extends BaseComponent {
                 lastFirstMessageId = null;
                 scrollToBottom();
             }
-        }));
+        });
 
-        own(Effect.of(() -> {
+        Effect.of(() -> {
             List<ChatMessage> msgs = store.activeMessages().get();
             if (msgs == null || msgs.isEmpty()) {
                 lastMessageCount = 0;
@@ -125,7 +125,7 @@ public class ChatMessageListView extends BaseComponent {
 
             lastMessageCount = count;
             lastFirstMessageId = firstId;
-        }));
+        });
 
         Core.app.post(this::scrollToBottom);
 

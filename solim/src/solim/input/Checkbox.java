@@ -56,8 +56,7 @@ public final class Checkbox implements Component, Disposable {
 
 	private final SizedCheckBox checkBox;
 	private final @Nullable Signal<Boolean> signal;
-	private Effect effect;
-	private boolean updating = false;
+	private @Nullable TwoWayBinding<Boolean> binding;
 
 	public Checkbox(String label, Signal<Boolean> signal) {
 		this(label, signal, Core.scene == null ? new CheckBoxStyle() : null);
@@ -69,21 +68,17 @@ public final class Checkbox implements Component, Disposable {
 				? new SizedCheckBox(label != null ? label : "", style)
 				: new SizedCheckBox(label != null ? label : "");
 		checkBox.name = "solim-checkbox-checkBox";
-		checkBox.setChecked(signal.get());
-		checkBox.changed(() -> {
-			if (updating) return;
-			signal.set(checkBox.isChecked());
-		});
-		this.effect = Effect.of((Consumer<Effect.Cleanup>) cleanup -> {
-			if (checkBox.isChecked() != signal.get()) {
-				updating = true;
-				try {
-					checkBox.setChecked(signal.get());
-				} finally {
-					updating = false;
-				}
+		checkBox.setChecked(signal.peek());
+		this.binding = new TwoWayBinding<>(
+			signal,
+			checkBox::isChecked,
+			checkBox::setChecked,
+			onChange -> {
+				checkBox.changed(onChange::run);
+				// Arc CheckBox.changed() does not return a cleanup handle; cannot unregister
+				return () -> {};
 			}
-		});
+		);
 		ComponentContext.register(this);
 	}
 
@@ -146,6 +141,9 @@ public final class Checkbox implements Component, Disposable {
 
 	@Override
 	public void dispose() {
-		if (effect != null) effect.dispose();
+		if (binding != null) {
+			binding.dispose();
+			binding = null;
+		}
 	}
 }

@@ -48,7 +48,7 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 	@Override
 	protected Element build() {
 		container.top().left();
-		own(Effect.of(() -> {
+		Effect.of(() -> {
 			T value = source.get();
 			if (currentComponent != null) {
 				currentComponent.dispose();
@@ -79,7 +79,7 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 				}
 				container.invalidateHierarchy();
 			}
-		}));
+		});
 		return container;
 	}
 
