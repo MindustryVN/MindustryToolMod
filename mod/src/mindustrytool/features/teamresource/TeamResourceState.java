@@ -164,7 +164,7 @@ public class TeamResourceState {
         if (timer.get(0, 30f)) {
             updateRates();
 
-            boolean showPower = feature != null ? Boolean.TRUE.equals(feature.showPowerConfig.get()) : TeamResourceConfig.showPower();
+            boolean showPower = feature == null || Boolean.TRUE.equals(feature.showPowerConfig.get());
             if (showPower) {
                 if (updatePowerStats()) {
                     changed = true;
@@ -341,7 +341,7 @@ public class TeamResourceState {
             int amount = coreItems.get(item);
             int rate = rateDisplay != null ? rateDisplay.get(item) : 0;
 
-            boolean alwaysShow = feature != null ? Boolean.TRUE.equals(feature.alwaysShowFlowRateConfig.get()) : TeamResourceConfig.alwaysShowFlowRate();
+            boolean alwaysShow = feature == null || Boolean.TRUE.equals(feature.alwaysShowFlowRateConfig.get());
             if (alwaysShow) {
                 return formatAmountWithRate(amount, rate);
             }

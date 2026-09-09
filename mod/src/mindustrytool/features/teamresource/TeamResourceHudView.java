@@ -232,7 +232,7 @@ public class TeamResourceHudView extends BaseComponent {
 
     private Component createItemCard(Item item, Readable<Float> cardHeight, Readable<Float> iconSize, Readable<Float> scale) {
         Card card = card(Styles.black3, () -> {
-            row().growX().gap(unit(1)).children(() -> {
+            row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
                 image(new TextureRegionDrawable(item.uiIcon)).size(iconSize).scaling(Scaling.fit);
                 column().left().children(() -> {
                     text(state.tickSignal.map(t -> state.getFormattedAmount(item)))
@@ -245,12 +245,6 @@ public class TeamResourceHudView extends BaseComponent {
                 });
             });
         })
-        .padding(
-            scale.map(s -> 2f * (s != null ? s : 1f)),
-            scale.map(s -> 4f * (s != null ? s : 1f)),
-            scale.map(s -> 2f * (s != null ? s : 1f)),
-            scale.map(s -> 4f * (s != null ? s : 1f))
-        )
         .margin(scale.map(s -> 2f * (s != null ? s : 1f)))
         .growX()
         .height(cardHeight)
@@ -281,19 +275,13 @@ public class TeamResourceHudView extends BaseComponent {
 
     private Component createUnitCard(UnitType type, Readable<Float> cardHeight, Readable<Float> iconSize, Readable<Float> scale) {
         return card(Styles.black3, () -> {
-            row().growX().gap(unit(1)).children(() -> {
+            row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
                 image(new TextureRegionDrawable(type.uiIcon)).size(iconSize).scaling(Scaling.fit);
                 text(state.tickSignal.map(t -> state.getUnitCountText(type)))
                         .style(Styles.outlineLabel)
                         .fontScale(scale.map(s -> 0.72f * (s != null ? s : 1f)));
             });
         })
-        .padding(
-            scale.map(s -> 2f * (s != null ? s : 1f)),
-            scale.map(s -> 4f * (s != null ? s : 1f)),
-            scale.map(s -> 2f * (s != null ? s : 1f)),
-            scale.map(s -> 4f * (s != null ? s : 1f))
-        )
         .margin(scale.map(s -> 2f * (s != null ? s : 1f)))
         .growX()
         .height(cardHeight);

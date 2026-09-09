@@ -93,9 +93,9 @@ public class ChatUserListView extends BaseComponent {
 
             final Color finalRoleColor = roleColor;
             return card().growX()
-                    .padding(unit(1))
                     .children(() -> {
                         row().growX()
+                                .padding(unit(1))
                                 .gap(unit(1))
                                 .children(() -> {
                                     text(name).color(finalRoleColor)

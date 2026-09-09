@@ -199,66 +199,6 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 		return this;
 	}
 
-	public Card padding(float p) {
-		ElementModifiers.padding(container, p);
-		return this;
-	}
-
-	public Card padding(float top, float left, float bottom, float right) {
-		ElementModifiers.padding(container, top, left, bottom, right);
-		return this;
-	}
-
-	public Card paddingTop(float top) {
-		ElementModifiers.paddingTop(container, top);
-		return this;
-	}
-
-	public Card paddingBottom(float bottom) {
-		ElementModifiers.paddingBottom(container, bottom);
-		return this;
-	}
-
-	public Card paddingLeft(float left) {
-		ElementModifiers.paddingLeft(container, left);
-		return this;
-	}
-
-	public Card paddingRight(float right) {
-		ElementModifiers.paddingRight(container, right);
-		return this;
-	}
-
-	public Card padding(@Nullable Readable<Float> p) {
-		if (p != null) {
-			Effect e = Effect.of(() -> {
-				Float v = p.get();
-				if (v != null) {
-					padding(v);
-				}
-			});
-			bindings.add(e);
-			ComponentContext.register(e);
-		}
-		return this;
-	}
-
-	public Card padding(@Nullable Readable<Float> top, @Nullable Readable<Float> left, @Nullable Readable<Float> bottom, @Nullable Readable<Float> right) {
-		Effect e = Effect.of(() -> {
-			float t = top != null && top.get() != null ? top.get() : 0f;
-			float l = left != null && left.get() != null ? left.get() : 0f;
-			float b = bottom != null && bottom.get() != null ? bottom.get() : 0f;
-			float r = right != null && right.get() != null ? right.get() : 0f;
-			padding(t, l, b, r);
-		});
-		bindings.add(e);
-		ComponentContext.register(e);
-		return this;
-	}
-
-	// Note: padding() configures the inner spacing of the card container,
-	// while margin() is inherited from LayoutModifiers and configures outer spacing on the parent cell.
-
 	@Override
 	public Card top() {
 		ElementModifiers.top(container);

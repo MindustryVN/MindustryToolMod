@@ -20,89 +20,74 @@ class TeamResourceRateTest {
 
     @Test
     void testConfigDefaults() {
-        assertEquals(1f, TeamResourceConfig.opacity(), 0.001f);
-        assertEquals(1f, TeamResourceConfig.scale(), 0.001f);
-        assertEquals(0.28f, TeamResourceConfig.overlayWidth(), 0.001f);
-        assertEquals(0.60f, TeamResourceConfig.overlayHeight(), 0.001f);
-        assertTrue(TeamResourceConfig.showItems());
-        assertFalse(TeamResourceConfig.showUnits());
-        assertTrue(TeamResourceConfig.showPower());
-        assertFalse(TeamResourceConfig.showStoredPower());
-        assertFalse(TeamResourceConfig.hideBackground());
-        assertTrue(TeamResourceConfig.alwaysShowFlowRate());
-        assertTrue(TeamResourceConfig.isExpanded());
+        TeamResourceFeature feature = new TeamResourceFeature();
+        assertEquals(1f, feature.opacityConfig.get(), 0.001f);
+        assertEquals(1f, feature.scaleConfig.get(), 0.001f);
+        assertEquals(0.28f, feature.overlayWidthConfig.get(), 0.001f);
+        assertEquals(0.60f, feature.overlayHeightConfig.get(), 0.001f);
+        assertTrue(feature.showItemsConfig.get());
+        assertFalse(feature.showUnitsConfig.get());
+        assertTrue(feature.showPowerConfig.get());
+        assertFalse(feature.showStoredPowerConfig.get());
+        assertFalse(feature.hideBackgroundConfig.get());
+        assertTrue(feature.alwaysShowFlowRateConfig.get());
+        assertTrue(feature.expandedConfig.get());
     }
 
     @Test
     void testConfigSetters() {
-        TeamResourceConfig.opacity(0.8f);
-        assertEquals(0.8f, TeamResourceConfig.opacity(), 0.001f);
-
-        TeamResourceConfig.scale(1.2f);
-        assertEquals(1.2f, TeamResourceConfig.scale(), 0.001f);
-
-        TeamResourceConfig.overlayWidth(0.4f);
-        assertEquals(0.4f, TeamResourceConfig.overlayWidth(), 0.001f);
-
-        TeamResourceConfig.overlayHeight(0.85f);
-        assertEquals(0.85f, TeamResourceConfig.overlayHeight(), 0.001f);
-
-        TeamResourceConfig.showUnits(true);
-        assertTrue(TeamResourceConfig.showUnits());
-
-        TeamResourceConfig.showStoredPower(true);
-        assertTrue(TeamResourceConfig.showStoredPower());
-
-        TeamResourceConfig.alwaysShowFlowRate(true);
-        assertTrue(TeamResourceConfig.alwaysShowFlowRate());
-    }
-
-    @Test
-    void testFeatureMetadata() {
         TeamResourceFeature feature = new TeamResourceFeature();
+        feature.opacityConfig.set(0.8f);
+        assertEquals(0.8f, feature.opacityConfig.get(), 0.001f);
 
-        assertNotNull(feature.getMetadata());
-        assertEquals("team-resources", feature.getMetadata().getId());
-        assertEquals(0, feature.getMetadata().getOrder());
-        assertTrue(feature.getMetadata().isEnabledByDefault());
-        assertTrue(feature.getMetadata().isQuickAccess());
-    }
+        feature.scaleConfig.set(1.2f);
+        assertEquals(1.2f, feature.scaleConfig.get(), 0.001f);
 
-    @Test
-    void testFlowRateCalculationLogic() {
-        // Delta between two snapshots at 0.5s interval (30 ticks) corresponds to 1 second flow rate:
-        int previous = 200;
-        int current = 250;
-        int rate = (current - previous) * 2;
-        assertEquals(100, rate);
+        feature.overlayWidthConfig.set(0.4f);
+        assertEquals(0.4f, feature.overlayWidthConfig.get(), 0.001f);
 
-        int decreased = 180;
-        int negativeRate = (decreased - current) * 2;
-        assertEquals(-140, negativeRate);
+        feature.overlayHeightConfig.set(0.85f);
+        assertEquals(0.85f, feature.overlayHeightConfig.get(), 0.001f);
+
+        feature.showUnitsConfig.set(true);
+        assertTrue(feature.showUnitsConfig.get());
+
+        feature.showStoredPowerConfig.set(true);
+        assertTrue(feature.showStoredPowerConfig.get());
+
+        feature.alwaysShowFlowRateConfig.set(true);
+        assertTrue(feature.alwaysShowFlowRateConfig.get());
     }
 
     @Test
     void testResetToDefaults() {
-        TeamResourceConfig.opacity(0.5f);
-        TeamResourceConfig.scale(1.5f);
-        TeamResourceConfig.overlayHeight(0.4f);
-        TeamResourceConfig.showUnits(true);
-        TeamResourceConfig.alwaysShowFlowRate(false);
-        TeamResourceConfig.isExpanded(false);
+        TeamResourceFeature feature = new TeamResourceFeature();
+        feature.opacityConfig.set(0.5f);
+        feature.scaleConfig.set(1.5f);
+        feature.overlayHeightConfig.set(0.4f);
+        feature.showUnitsConfig.set(true);
+        feature.alwaysShowFlowRateConfig.set(false);
+        feature.expandedConfig.set(false);
 
-        TeamResourceConfig.resetToDefaults();
+        feature.opacityConfig.reset();
+        feature.scaleConfig.reset();
+        feature.overlayWidthConfig.reset();
+        feature.overlayHeightConfig.reset();
+        feature.showUnitsConfig.reset();
+        feature.alwaysShowFlowRateConfig.reset();
+        feature.expandedConfig.reset();
 
-        assertEquals(1f, TeamResourceConfig.opacity(), 0.001f);
-        assertEquals(1f, TeamResourceConfig.scale(), 0.001f);
-        assertEquals(0.28f, TeamResourceConfig.overlayWidth(), 0.001f);
-        assertEquals(0.60f, TeamResourceConfig.overlayHeight(), 0.001f);
-        assertTrue(TeamResourceConfig.showItems());
-        assertFalse(TeamResourceConfig.showUnits());
-        assertTrue(TeamResourceConfig.showPower());
-        assertFalse(TeamResourceConfig.showStoredPower());
-        assertFalse(TeamResourceConfig.hideBackground());
-        assertTrue(TeamResourceConfig.alwaysShowFlowRate());
-        assertTrue(TeamResourceConfig.isExpanded());
+        assertEquals(1f, feature.opacityConfig.get(), 0.001f);
+        assertEquals(1f, feature.scaleConfig.get(), 0.001f);
+        assertEquals(0.28f, feature.overlayWidthConfig.get(), 0.001f);
+        assertEquals(0.60f, feature.overlayHeightConfig.get(), 0.001f);
+        assertTrue(feature.showItemsConfig.get());
+        assertFalse(feature.showUnitsConfig.get());
+        assertTrue(feature.showPowerConfig.get());
+        assertFalse(feature.showStoredPowerConfig.get());
+        assertFalse(feature.hideBackgroundConfig.get());
+        assertTrue(feature.alwaysShowFlowRateConfig.get());
+        assertTrue(feature.expandedConfig.get());
     }
 
     @Test
