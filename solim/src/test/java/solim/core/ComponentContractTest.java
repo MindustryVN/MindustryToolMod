@@ -11,21 +11,16 @@ import solim.signal.Signal;
 class ComponentContractTest {
 
 	@Test
-	void componentInterfaceHasBuildAndDispose() {
-		Component comp = new Component() {
-			@Override
-			public Element element() {
-				return new Element();
-			}
-		};
-		assertDoesNotThrow(comp::dispose);
-		assertNotNull(comp.element());
-	}
+	void componentInterfaceDisposeIsNoOpAndPreservesElement() {
+		Element element = new Element();
+		element.name = "contract-element";
+		Component comp = () -> element;
 
-	@Test
-	void componentDefaultDisposeIsNoOp() {
-		Component comp = () -> new Element();
-		assertDoesNotThrow(comp::dispose);
+		comp.dispose();
+		comp.dispose();
+
+		assertSame(element, comp.element());
+		assertEquals("contract-element", comp.element().name);
 	}
 
 	@Test

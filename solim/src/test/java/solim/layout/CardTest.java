@@ -27,48 +27,50 @@ class CardTest {
 	}
 
 	@Test
-	void cardCreatesElement() {
+	void createsWithDefaultNames() {
 		Card c = new Card();
-		assertNotNull(c.element());
-		assertNotNull(c.cardButton());
-		assertNotNull(c.container());
+		assertEquals("solim-card-cardButton", c.cardButton().name);
+		assertEquals("solim-card-container", c.container().name);
 	}
 
 	@Test
-	void cardWithBackground() {
+	void childrenAreAddedToContainer() {
 		Card c = new Card();
-		assertNotNull(c.cardButton());
-	}
+		Element first = new Element();
+		Element second = new Element();
 
-	@Test
-	void cardChildren() {
-		Card c = new Card();
 		c.children(() -> {
-			ParentStack.add(new Element());
-			ParentStack.add(new Element());
+			ParentStack.add(first);
+			ParentStack.add(second);
 		});
+
 		assertEquals(2, c.container().getChildren().size);
+		assertSame(first, c.container().getChildren().get(0));
+		assertSame(second, c.container().getChildren().get(1));
 		c.dispose();
 	}
 
 	@Test
-	void cardOnClick() {
+	void onClickExecutesCallback() {
 		boolean[] clicked = {false};
 		Card c = new Card().onClick(() -> clicked[0] = true);
+
 		InputEvent event = new InputEvent();
 		c.cardButton().getListeners().forEach(listener -> {
 			if (listener instanceof ClickListener) {
 				((ClickListener) listener).clicked(event, 0f, 0f);
 			}
 		});
+
 		assertTrue(clicked[0]);
 		c.dispose();
 	}
 
 	@Test
-	void cardOnClickStoppedEvent() {
+	void onClickDoesNotExecuteWhenEventStopped() {
 		boolean[] clicked = {false};
 		Card c = new Card().onClick(() -> clicked[0] = true);
+
 		InputEvent stoppedEvent = new InputEvent();
 		stoppedEvent.stop();
 		c.cardButton().getListeners().forEach(listener -> {
@@ -76,12 +78,13 @@ class CardTest {
 				((ClickListener) listener).clicked(stoppedEvent, 0f, 0f);
 			}
 		});
-		assertFalse(clicked[0], "Card onClick should not execute when event is stopped");
+
+		assertFalse(clicked[0]);
 		c.dispose();
 	}
 
 	@Test
-	void cardColorModifier() {
+	void colorModifierUpdatesButtonColor() {
 		Card c = new Card();
 		c.color(Color.scarlet);
 		assertEquals(Color.scarlet, c.cardButton().color);
@@ -89,64 +92,73 @@ class CardTest {
 	}
 
 	@Test
-	void cardReactiveColor() {
+	void reactiveColorUpdatesButtonColor() {
 		Signal<Color> colorSig = Signal.of(Color.green);
 		Card c = new Card().color(colorSig);
 		assertEquals(Color.green, c.cardButton().color);
+
 		colorSig.set(Color.blue);
 		assertEquals(Color.blue, c.cardButton().color);
 		c.dispose();
 	}
 
 	@Test
-	void cardReactiveWidth() {
+	void reactiveWidthUpdatesButtonPrefWidth() {
 		Signal<Float> widthSig = Signal.of(200f);
 		Card c = new Card();
 		c.width(widthSig);
 		assertEquals(200f, c.cardButton().getPrefWidth(), 0.01f);
+
 		widthSig.set(300f);
 		assertEquals(300f, c.cardButton().getPrefWidth(), 0.01f);
 		c.dispose();
 	}
 
 	@Test
-	void cardReactiveHeight() {
+	void reactiveHeightUpdatesButtonPrefHeight() {
 		Signal<Float> heightSig = Signal.of(150f);
 		Card c = new Card();
 		c.height(heightSig);
 		assertEquals(150f, c.cardButton().getPrefHeight(), 0.01f);
+
 		heightSig.set(200f);
 		assertEquals(200f, c.cardButton().getPrefHeight(), 0.01f);
 		c.dispose();
 	}
 
 	@Test
-	void cardVisibleModifier() {
+	void visibleModifierChangesButtonVisibility() {
 		Card c = new Card();
+
 		c.visible(false);
 		assertFalse(c.cardButton().visible);
+
 		c.visible(true);
 		assertTrue(c.cardButton().visible);
 		c.dispose();
 	}
 
 	@Test
-	void cardReactiveVisible() {
+	void reactiveVisibleUpdatesButtonVisibility() {
 		Signal<Boolean> vis = Signal.of(true);
 		Card c = new Card().visible(vis);
 		assertTrue(c.cardButton().visible);
+
 		vis.set(false);
 		assertFalse(c.cardButton().visible);
 		c.dispose();
 	}
 
 	@Test
-	void cardPositionModifiers() {
+	void positionSetsButtonCoordinates() {
 		Card c = new Card();
+
 		c.x(10f);
 		assertEquals(10f, c.cardButton().x, 0.01f);
+
 		c.y(20f);
 		assertEquals(20f, c.cardButton().y, 0.01f);
+
 		c.position(30f, 40f);
 		assertEquals(30f, c.cardButton().x, 0.01f);
 		assertEquals(40f, c.cardButton().y, 0.01f);
@@ -154,7 +166,7 @@ class CardTest {
 	}
 
 	@Test
-	void cardNameModifier() {
+	void nameModifierUpdatesButtonName() {
 		Card c = new Card();
 		c.name("my-card");
 		assertEquals("my-card", c.cardButton().name);
@@ -162,35 +174,16 @@ class CardTest {
 	}
 
 	@Test
-	void cardGapModifier() {
+	void tableIsSameAsCardButton() {
 		Card c = new Card();
-		c.gap(8f);
-		assertNotNull(c.container());
+		assertSame(c.cardButton(), c.element());
 		c.dispose();
 	}
 
 	@Test
-	void cardTopBottomLeftRightCenter() {
+	void sizeConstraintsDelegatesToButton() {
 		Card c = new Card();
-		c.top();
-		c.bottom();
-		c.left();
-		c.right();
-		c.center();
-		assertNotNull(c.container());
-		c.dispose();
-	}
-
-	@Test
-	void cardImplementsComponent() {
-		Card c = new Card();
-		assertInstanceOf(solim.core.Component.class, c);
-	}
-
-	@Test
-	void cardSizeConstraints() {
-		Card c = new Card();
-		assertNotNull(c.sizeConstraints());
+		assertSame(c.cardButton().getSizeConstraints(), c.sizeConstraints());
 		c.dispose();
 	}
 }

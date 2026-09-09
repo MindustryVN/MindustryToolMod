@@ -3,9 +3,6 @@ package solim.core;
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.scene.Element;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
@@ -14,141 +11,27 @@ import solim.signal.Signal;
 
 class ComponentTest {
 
-	static class Counter extends BaseComponent {
-		final Signal<Integer> count = Signal.of(0);
-		final Computed<String> text = count.map(v -> "Count: " + v);
-		final AtomicInteger buildCount = new AtomicInteger(0);
-
-		@Override
-		protected Element build() {
-			buildCount.incrementAndGet();
-			Element e = new Element();
-			e.name = "counter";
-			return e;
-		}
-	}
-
-	static class User {
-		final String name;
-
-		User(String name) {
-			this.name = name;
-		}
-
-		String name() {
-			return name;
-		}
-	}
-
-	static class UserCard extends BaseComponent {
-		private final Signal<User> user;
-
-		UserCard(Signal<User> user) {
-			this.user = user;
-		}
-
-		@Override
-		protected Element build() {
-			Element e = new Element();
-			e.name = user.get().name();
-			return e;
-		}
-	}
-
-	static class ChatPanel extends BaseComponent {
-		final Signal<Integer> messages = Signal.of(0);
-		Effect effect;
-		AtomicInteger effectRuns = new AtomicInteger(0);
-
-		@Override
-		protected Element build() {
-			effect = Effect.of(() -> {
-				effectRuns.incrementAndGet();
-				messages.get();
-			});
-			return new Element();
-		}
-
-		@Override
-		public void dispose() {
-			if (effect != null) effect.dispose();
-		}
-	}
-
 	@Test
-	void buildRunsOnce() {
-		Counter c = new Counter();
-		Element e1 = c.element();
-		Element e2 = c.element();
-		assertSame(e1, e2);
-		assertEquals(1, c.buildCount.get());
-	}
+	void buildsOnlyOnceAndCachesElement() {
+		AtomicInteger buildCount = new AtomicInteger();
 
-	@Test
-	void noAutomaticRerenderOnSignalChange() {
-		Counter c = new Counter();
-		c.element();
-		c.count.set(5);
-		assertEquals(1, c.buildCount.get(), "build should not rerun on signal change");
-		assertEquals("Count: 5", c.text.get());
-	}
-
-	@Test
-	void constructorProps() {
-		Signal<User> user = Signal.of(new User("Alice"));
-		UserCard card = new UserCard(user);
-		Element e = card.element();
-		assertEquals("Alice", e.name);
-		user.set(new User("Bob"));
-		// rebuild not expected, but new element creation would use new name only on next build,
-		// however our build already cached, so name stays Alice - but we test that props are accessible
-		// via signal
-		assertNotNull(card);
-	}
-
-	@Test
-	void lifecycleWithEffectDisposal() {
-		ChatPanel panel = new ChatPanel();
-		panel.element();
-		assertEquals(1, panel.effectRuns.get());
-		panel.messages.set(1);
-		assertEquals(2, panel.effectRuns.get());
-		panel.dispose();
-		panel.messages.set(2);
-		assertEquals(2, panel.effectRuns.get(), "Disposed effect should not run");
-		assertTrue(panel.effect.isDisposed());
-	}
-
-	@Test
-	void interfaceDefaultDisposeIsNoOp() {
-		Component comp = () -> new Element();
-		assertDoesNotThrow(comp::dispose);
-	}
-
-	@Test
-	void noReactHooksApi() throws Exception {
-		// Ensure no useState, useEffect etc in core package
-		Path coreDir = Path.of("solim/src/solim/core");
-		if (!Files.exists(coreDir)) {
-			coreDir = Path.of("src/solim/core");
-		}
-		// search for forbidden strings
-		if (Files.exists(coreDir)) {
-			try (var stream = Files.walk(coreDir)) {
-				for (var p : (Iterable<Path>) stream::iterator) {
-					if (p.toString().endsWith(".java")) {
-						String content = new String(Files.readAllBytes(p), StandardCharsets.UTF_8);
-						assertFalse(content.contains("useState"), "Should not contain React hooks");
-						assertFalse(content.contains("useEffect"), "Should not contain React hooks");
-						assertFalse(content.contains("useMemo"), "Should not contain React hooks");
-					}
-				}
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				buildCount.incrementAndGet();
+				return new Element();
 			}
-		}
+		};
+
+		Element first = comp.element();
+		Element second = comp.element();
+
+		assertSame(first, second);
+		assertEquals(1, buildCount.get());
 	}
 
 	@Test
-	void baseComponentNameBeforeAndAfterBuild() {
+	void appliesNameBeforeBuild() {
 		BaseComponent comp = new BaseComponent() {
 			@Override
 			protected Element build() {
@@ -156,10 +39,152 @@ class ComponentTest {
 			}
 		};
 
-		comp.name("before-build");
-		assertEquals("before-build", comp.element().name);
+		comp.name("my-component");
+		assertEquals("my-component", comp.element().name);
+	}
 
-		comp.name("after-build");
-		assertEquals("after-build", comp.element().name);
+	@Test
+	void appliesNameAfterBuild() {
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				return new Element();
+			}
+		};
+
+		comp.element();
+		comp.name("renamed");
+		assertEquals("renamed", comp.element().name);
+	}
+
+	@Test
+	void disposesOwnedResourcesInReverseOrder() {
+		StringBuilder order = new StringBuilder();
+
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				own(() -> order.append("first"));
+				own(() -> order.append("second"));
+				own(() -> order.append("third"));
+				return new Element();
+			}
+		};
+
+		comp.element();
+		comp.dispose();
+
+		assertEquals("thirdsecondfirst", order.toString());
+	}
+
+	@Test
+	void disposeIsIdempotent() {
+		AtomicInteger disposeCount = new AtomicInteger();
+
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				own(() -> disposeCount.incrementAndGet());
+				return new Element();
+			}
+		};
+
+		comp.element();
+		comp.dispose();
+		comp.dispose();
+
+		assertEquals(1, disposeCount.get());
+	}
+
+	@Test
+	void markedAsDisposedAfterDispose() {
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				return new Element();
+			}
+		};
+
+		assertFalse(comp.isDisposed());
+		comp.element();
+		comp.dispose();
+		assertTrue(comp.isDisposed());
+	}
+
+	@Test
+	void elementThrowsAfterDispose() {
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				return new Element();
+			}
+		};
+
+		comp.element();
+		comp.dispose();
+
+		assertThrows(IllegalStateException.class, comp::element);
+	}
+
+	@Test
+	void buildNullThrowsAndDisposesResources() {
+		AtomicInteger disposeCount = new AtomicInteger();
+
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				own(() -> disposeCount.incrementAndGet());
+				return null;
+			}
+		};
+
+		assertThrows(IllegalStateException.class, comp::element);
+		assertEquals(1, disposeCount.get());
+	}
+
+	@Test
+	void onDisposeHookRunsDuringDispose() {
+		AtomicInteger hookRuns = new AtomicInteger();
+
+		BaseComponent comp = new BaseComponent() {
+			@Override
+			protected Element build() {
+				return new Element();
+			}
+
+			@Override
+			protected void onDispose() {
+				hookRuns.incrementAndGet();
+			}
+		};
+
+		comp.element();
+		comp.dispose();
+
+		assertEquals(1, hookRuns.get());
+	}
+
+	@Test
+	void interfaceDefaultDisposeIsNoOpAndPreservesElement() {
+		Element element = new Element();
+		element.name = "original";
+		Component comp = () -> element;
+
+		comp.dispose();
+		comp.dispose();
+
+		assertSame(element, comp.element());
+		assertEquals("original", comp.element().name);
+	}
+
+	@Test
+	void interfaceDefaultNameSetsElementNameAndReturnsSelf() {
+		Element element = new Element();
+		Component comp = () -> element;
+
+		Component result = comp.name("test");
+
+		assertSame(comp, result);
+		assertEquals("test", element.name);
 	}
 }

@@ -101,23 +101,29 @@ class LayoutTest {
 	@Test
 	void dividerRenders() {
 		Divider dx = new Divider();
-		assertNotNull(dx.table());
 		assertEquals(Direction.X, dx.direction());
 		assertTrue(dx.sizeConstraints().growX);
 		assertFalse(dx.sizeConstraints().growY);
 
 		Divider dy = new Divider(Direction.Y);
-		assertNotNull(dy.table());
 		assertEquals(Direction.Y, dy.direction());
 		assertTrue(dy.sizeConstraints().growY);
 		assertFalse(dy.sizeConstraints().growX);
 	}
 
 	@Test
-	void rowDraggableAndBackground() {
+	void rowDraggableRegistersListener() {
 		Row r = new Row().draggable();
-		assertNotNull(r.table());
-		assertNotNull(r.element());
+		assertEquals(arc.scene.event.Touchable.enabled, r.table().touchable);
+
+		boolean hasDragListener = false;
+		for (arc.scene.event.EventListener l : r.table().getListeners()) {
+			if (l instanceof arc.scene.event.InputListener) {
+				hasDragListener = true;
+				break;
+			}
+		}
+		assertTrue(hasDragListener, "draggable() must register an InputListener");
 	}
 
 	@Test
@@ -133,8 +139,8 @@ class LayoutTest {
 		Scroll s = new Scroll();
 		Element e = new Element();
 		s.add(e);
-		assertNotNull(s.content());
 		assertEquals(1, s.content().getChildren().size);
+		assertSame(e, s.content().getChildren().get(0));
 	}
 
 	@Test
@@ -155,17 +161,27 @@ class LayoutTest {
 	}
 
 	@Test
-	void columnAligns() {
+	void columnAlignPreservesChildrenAndReturnsSelf() {
 		Column c = new Column();
-		c.align(Align.CENTER);
-		assertNotNull(c.table());
+		Element child = new Element();
+		c.add(child);
+
+		assertSame(c, c.align(Align.CENTER));
+		assertSame(c, c.align(Align.START));
+		assertSame(c, c.align(Align.END));
+		assertEquals(1, c.table().getChildren().size);
+		assertSame(child, c.table().getChildren().get(0));
 	}
 
 	@Test
-	void rowJustifyVariants() {
+	void rowJustifyPreservesChildrenAndReturnsSelf() {
 		for (Justify j : Justify.values()) {
-			Row r = new Row().justify(j);
-			assertNotNull(r.table());
+			Row r = new Row();
+			Element child = new Element();
+			r.add(child);
+			assertSame(r, r.justify(j));
+			assertEquals(1, r.table().getChildren().size);
+			assertSame(child, r.table().getChildren().get(0));
 		}
 	}
 

@@ -58,7 +58,7 @@ class HudTest {
 	@Test
 	void hudDefaultsAndTouchable() {
 		Hud hud = Ui.hud();
-		assertNotNull(hud.element());
+		assertEquals("solim-hud-root", hud.element().name);
 		assertEquals(Touchable.childrenOnly, hud.element().touchable, "HUD root should allow touch pass-through");
 		assertEquals(Touchable.enabled, hud.container().touchable, "HUD container should be enabled for touches");
 		hud.dispose();

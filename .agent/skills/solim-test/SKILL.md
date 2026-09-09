@@ -30,6 +30,77 @@ Tests must primarily verify:
 
 Do not write tests that merely prove an object exists unless object creation itself is the behavior being tested.
 
+# Assertion-to-Claim Rule
+
+Every test name makes a behavioral claim.
+
+The assertions must directly prove that claim.
+
+Before accepting a test, compare:
+
+1. Test name
+2. Action performed
+3. Assertion
+
+They must all describe the same behavior.
+
+Bad:
+
+@Test
+void reactiveColumnsUpdatesLayout() {
+    Signal<Integer> columns = Signal.of(2);
+    grid.columns(columns);
+
+    grid.add(...);
+
+    assertEquals(3, grid.table().getChildren().size);
+}
+
+Problem:
+- Name claims reactive updates.
+- Action never changes the Signal.
+- Assertion only checks child count.
+
+This test must be rejected.
+
+---
+
+## Feature Removal Test
+
+For every feature test, mentally remove the feature implementation.
+
+Ask:
+
+> If `columns()` did absolutely nothing, would this test fail?
+
+If no, the test does not test `columns()`.
+
+Examples:
+
+If this implementation is removed:
+
+grid.columns(4);
+
+then this test:
+
+assertEquals(3, table.getChildren().size);
+
+still passes.
+
+Therefore the test is invalid for testing columns.
+
+The same rule applies to:
+
+- modifiers
+- reactive bindings
+- layout configuration
+- validation
+- lifecycle
+- disposal
+- reconciliation
+
+Every test must fail when the specific feature it claims to test is removed or broken.
+
 ---
 
 # Critical Rule: Do Not Write "Does Not Crash" Tests

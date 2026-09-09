@@ -21,51 +21,41 @@ class DividerTest {
 	}
 
 	@Test
-	void dividerDefaultDirection() {
+	void defaultDirectionIsX() {
 		Divider d = new Divider();
-		assertNotNull(d.element());
-		assertNotNull(d.table());
 		assertEquals(Direction.X, d.direction());
 	}
 
 	@Test
-	void dividerHorizontalDirection() {
+	void horizontalDividerSetsGrowX() {
 		Divider d = new Divider(Direction.X);
-		assertEquals(Direction.X, d.direction());
 		assertTrue(d.sizeConstraints().growX);
 		assertFalse(d.sizeConstraints().growY);
 	}
 
 	@Test
-	void dividerVerticalDirection() {
+	void verticalDividerSetsGrowY() {
 		Divider d = new Divider(Direction.Y);
-		assertEquals(Direction.Y, d.direction());
 		assertTrue(d.sizeConstraints().growY);
 		assertFalse(d.sizeConstraints().growX);
 	}
 
 	@Test
-	void dividerNullDirectionDefaultsToX() {
+	void nullDirectionDefaultsToX() {
 		Divider d = new Divider(null);
 		assertEquals(Direction.X, d.direction());
 	}
 
 	@Test
-	void dividerNameModifier() {
+	void nameModifierUpdatesTableName() {
 		Divider d = new Divider();
 		d.name("my-divider");
 		assertEquals("my-divider", d.table().name);
 	}
 
 	@Test
-	void dividerImplementsComponent() {
+	void tableIsSameAsElement() {
 		Divider d = new Divider();
-		assertInstanceOf(solim.core.Component.class, d);
-	}
-
-	@Test
-	void dividerSizeConstraints() {
-		Divider d = new Divider();
-		assertNotNull(d.sizeConstraints());
+		assertSame(d.table(), d.element());
 	}
 }

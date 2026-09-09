@@ -105,12 +105,6 @@ class InputWidgetsTest {
 	}
 
 	@Test
-	void textAreaMultiline() {
-		// TextArea not yet implemented; placeholder
-		assertTrue(true);
-	}
-
-	@Test
 	void inputWidgetsName() {
 		Signal<Boolean> b = Signal.of(false);
 		Checkbox cb = new Checkbox("Test", b).name("cb");

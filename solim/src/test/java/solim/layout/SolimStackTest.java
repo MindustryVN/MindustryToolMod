@@ -22,39 +22,35 @@ class SolimStackTest {
 	}
 
 	@Test
-	void stackCreatesElement() {
+	void createsStackWithDefaultName() {
 		SolimStack s = new SolimStack();
-		assertNotNull(s.element());
-		assertNotNull(s.stack());
+		assertEquals("solim-stack-stack", s.stack().name);
 	}
 
 	@Test
-	void stackAddsChildren() {
+	void addAddsChildToStack() {
 		SolimStack s = new SolimStack();
 		Element bg = new Element();
 		Element fg = new Element();
+
 		s.add(bg);
 		s.add(fg);
+
 		assertEquals(2, s.stack().getChildren().size);
+		assertSame(bg, s.stack().getChildren().get(0));
+		assertSame(fg, s.stack().getChildren().get(1));
 	}
 
 	@Test
-	void stackSingleChild() {
-		SolimStack s = new SolimStack();
-		s.add(new Element());
-		assertEquals(1, s.stack().getChildren().size);
-	}
-
-	@Test
-	void stackNameModifier() {
+	void nameModifierUpdatesStackName() {
 		SolimStack s = new SolimStack();
 		s.name("my-stack");
 		assertEquals("my-stack", s.stack().name);
 	}
 
 	@Test
-	void stackImplementsComponent() {
+	void stackIsSameAsElement() {
 		SolimStack s = new SolimStack();
-		assertInstanceOf(solim.core.Component.class, s);
+		assertSame(s.stack(), s.element());
 	}
 }

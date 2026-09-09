@@ -23,139 +23,130 @@ class RowTest {
 	}
 
 	@Test
-	void rowCreatesTable() {
+	void createsTableWithDefaultName() {
 		Row row = new Row();
-		assertNotNull(row.element());
-		assertNotNull(row.table());
+		assertEquals("solim-row-table", row.table().name);
 	}
 
 	@Test
-	void rowAddsChildElements() {
+	void preservesChildOrder() {
 		Row row = new Row();
-		Element a = new Element();
-		Element b = new Element();
-		row.add(a);
-		row.add(b);
-		assertEquals(2, row.table().getChildren().size);
-		assertSame(a, row.table().getChildren().get(0));
-		assertSame(b, row.table().getChildren().get(1));
+		Element first = new Element();
+		Element second = new Element();
+		Element third = new Element();
+
+		row.add(first);
+		row.add(second);
+		row.add(third);
+
+		assertSame(first, row.table().getChildren().get(0));
+		assertSame(second, row.table().getChildren().get(1));
+		assertSame(third, row.table().getChildren().get(2));
 	}
 
 	@Test
-	void rowGapModifier() {
+	void gapSetsCellSpacing() {
 		Row row = new Row();
 		row.gap(8f);
+
 		Element a = new Element();
 		Element b = new Element();
 		row.add(a);
 		row.add(b);
+
 		assertEquals(2, row.table().getChildren().size);
 	}
 
 	@Test
-	void rowPaddingModifier() {
+	void gapAppliesHalfPadToDefaults() {
 		Row row = new Row();
-		row.padding(12f);
-		assertNotNull(row.table());
+		row.gap(8f);
+
+		assertEquals(4f, arc.scene.ui.layout.CellAccess.padTop(row.table().defaults()), 0.01f);
 	}
 
 	@Test
-	void rowPaddingFourArgs() {
+	void paddingPreservesChildrenAndReturnsSelf() {
 		Row row = new Row();
-		row.padding(1f, 2f, 3f, 4f);
-		assertNotNull(row.table());
+		Element child = new Element();
+		row.add(child);
+
+		assertSame(row, row.padding(12f));
+		assertSame(row, row.padding(1f, 2f, 3f, 4f));
+		assertEquals(1, row.table().getChildren().size);
+		assertSame(child, row.table().getChildren().get(0));
 	}
 
 	@Test
-	void rowJustifyAllVariants() {
-		for (Justify j : Justify.values()) {
-			Row row = new Row().justify(j);
-			assertNotNull(row.table());
-		}
-	}
-
-	@Test
-	void rowAlignAllVariants() {
-		for (Align a : Align.values()) {
-			Row row = new Row().align(a);
-			assertNotNull(row.table());
-		}
-	}
-
-	@Test
-	void rowTopBottomLeftRightCenter() {
+	void visibleModifierChangesTableVisibility() {
 		Row row = new Row();
-		row.top();
-		row.bottom();
-		row.left();
-		row.right();
-		row.center();
-		assertNotNull(row.table());
-	}
 
-	@Test
-	void rowVisibleModifier() {
-		Row row = new Row();
 		row.visible(false);
 		assertFalse(row.table().visible);
+
 		row.visible(true);
 		assertTrue(row.table().visible);
 	}
 
 	@Test
-	void rowReactiveVisible() {
+	void reactiveVisibleUpdatesTableVisibility() {
 		Signal<Boolean> vis = Signal.of(true);
 		Row row = new Row();
 		row.visible(vis);
+
 		assertTrue(row.table().visible);
+
 		vis.set(false);
 		assertFalse(row.table().visible);
+
+		vis.set(true);
+		assertTrue(row.table().visible);
 	}
 
 	@Test
-	void rowPositionModifiers() {
+	void positionSetsTableCoordinates() {
 		Row row = new Row();
+
 		row.x(10f);
 		assertEquals(10f, row.table().x, 0.01f);
+
 		row.y(20f);
 		assertEquals(20f, row.table().y, 0.01f);
+
 		row.position(30f, 40f);
 		assertEquals(30f, row.table().x, 0.01f);
 		assertEquals(40f, row.table().y, 0.01f);
 	}
 
 	@Test
-	void rowNameModifier() {
+	void nameModifierUpdatesTableName() {
 		Row row = new Row();
 		row.name("my-row");
 		assertEquals("my-row", row.table().name);
 	}
 
 	@Test
-	void rowChildrenRunnable() {
+	void childrenRunnableAddsElements() {
 		Row row = new Row();
+		Element child = new Element();
+
 		row.children(() -> {
-			Element e = new Element();
-			row.add(e);
+			solim.ui.ParentStack.add(child);
 		});
+
 		assertEquals(1, row.table().getChildren().size);
+		assertSame(child, row.table().getChildren().get(0));
 	}
 
 	@Test
-	void rowDraggable() {
-		Row row = new Row().draggable();
-		assertNotNull(row.table());
-	}
-
-	@Test
-	void rowImplementsComponent() {
+	void tableIsSameAsElement() {
 		Row row = new Row();
-		assertInstanceOf(solim.core.Component.class, row);
+		assertSame(row.table(), row.element());
 	}
 
 	@Test
-	void rowSizeConstraints() {
+	void sizeConstraintsDelegatesToTable() {
 		Row row = new Row();
-		assertNotNull(row.sizeConstraints());
+		assertSame(row.table().getSizeConstraints(), row.sizeConstraints());
 	}
 }

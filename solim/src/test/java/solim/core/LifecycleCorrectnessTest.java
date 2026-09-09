@@ -234,8 +234,8 @@ class LifecycleCorrectnessTest {
 		assertEquals(2, map1.size());
 		TestComp compA = map1.get("A");
 		TestComp compB = map1.get("B");
-		assertNotNull(compA);
-		assertNotNull(compB);
+		assertEquals("A", compA.id);
+		assertEquals("B", compB.id);
 
 		// Second reconciliation: B, C (A removed, B reused, C added)
 		Map<String, TestComp> map2 = reconciler.reconcile(

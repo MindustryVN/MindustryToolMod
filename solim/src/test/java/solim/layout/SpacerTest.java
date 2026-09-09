@@ -21,27 +21,15 @@ class SpacerTest {
 	}
 
 	@Test
-	void spacerCreatesElement() {
-		Spacer s = new Spacer();
-		assertNotNull(s.element());
-	}
-
-	@Test
-	void spacerIsExpanding() {
+	void elementIsExpanding() {
 		Spacer s = new Spacer();
 		assertEquals("expanding", s.element().userObject);
 	}
 
 	@Test
-	void spacerNameModifier() {
+	void nameModifierUpdatesElementName() {
 		Spacer s = new Spacer();
 		s.name("my-spacer");
-		assertNotNull(s.element());
-	}
-
-	@Test
-	void spacerImplementsComponent() {
-		Spacer s = new Spacer();
-		assertInstanceOf(solim.core.Component.class, s);
+		assertEquals("my-spacer", s.element().name);
 	}
 }

@@ -59,17 +59,17 @@ class StructuralReactivityTest {
 		});
 
 		Element el = dyn.element();
-		assertNotNull(el);
+		assertSame(dyn.container(), el);
 		assertEquals(1, dyn.container().getChildren().size);
 		TestComponent compA = instances.get("A");
-		assertNotNull(compA);
+		assertEquals("A", compA.id);
 		assertFalse(compA.wasDisposed);
 
 		// Switch dynamic subtree
 		toggle.set(false);
 		assertTrue(compA.wasDisposed, "Previous component must be disposed on change");
 		TestComponent compB = instances.get("B");
-		assertNotNull(compB);
+		assertEquals("B", compB.id);
 		assertFalse(compB.wasDisposed);
 		assertEquals(1, dyn.container().getChildren().size);
 
@@ -89,15 +89,15 @@ class StructuralReactivityTest {
 			return tc;
 		});
 
-		assertNotNull(fe.element());
+		assertSame(fe.container(), fe.element());
 		assertEquals(3, fe.container().getChildren().size);
 
 		TestComponent a = created.get("A");
 		TestComponent b = created.get("B");
 		TestComponent c = created.get("C");
-		assertNotNull(a);
-		assertNotNull(b);
-		assertNotNull(c);
+		assertEquals("A", a.id);
+		assertEquals("B", b.id);
+		assertEquals("C", c.id);
 
 		// Update items to [B, C, D]
 		items.set(Arrays.asList("B", "C", "D"));
@@ -107,7 +107,7 @@ class StructuralReactivityTest {
 		assertFalse(c.wasDisposed, "Retained item C must not be disposed");
 
 		TestComponent d = created.get("D");
-		assertNotNull(d, "New item D must be created");
+		assertEquals("D", d.id, "New item D must be created");
 		assertFalse(d.wasDisposed);
 
 		// Total children should now be 3
@@ -131,7 +131,7 @@ class StructuralReactivityTest {
 			return new TestComponent(id);
 		});
 
-		assertNotNull(grid.element());
+		assertSame(grid.table(), grid.element());
 		assertEquals(5, grid.table().getChildren().size);
 		assertEquals(1, factoryCallCount.get("A"));
 		assertEquals(1, factoryCallCount.get("B"));

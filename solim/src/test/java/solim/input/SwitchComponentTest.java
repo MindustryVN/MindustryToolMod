@@ -16,41 +16,38 @@ class SwitchComponentTest {
 	}
 
 	@Test
-	void switchCreatesElement() {
-		Switch sw = new Switch(Signal.of(false));
-		assertNotNull(sw.element());
-		assertNotNull(sw.button());
+	void signalUpdatesButtonText() {
+		Signal<Boolean> on = Signal.of(false);
+		Switch sw = new Switch(on);
+
+		assertEquals("OFF", sw.button().getText());
+
+		on.set(true);
+		assertEquals("ON", sw.button().getText());
+
+		on.set(false);
+		assertEquals("OFF", sw.button().getText());
 		sw.dispose();
 	}
 
 	@Test
-	void switchBinding() {
-		Signal<Boolean> on = Signal.of(false);
-		Switch sw = new Switch(on);
-		assertEquals("OFF", sw.button().getText());
-		on.set(true);
+	void staticFactoryCreatesSwitch() {
+		Switch sw = Switch.of(Signal.of(true));
 		assertEquals("ON", sw.button().getText());
 		sw.dispose();
 	}
 
 	@Test
-	void switchNameModifier() {
+	void nameModifierUpdatesElementName() {
 		Switch sw = new Switch(Signal.of(false)).name("sw");
 		assertEquals("sw", sw.element().name);
 		sw.dispose();
 	}
 
 	@Test
-	void switchImplementsComponent() {
+	void elementIsSameAsButton() {
 		Switch sw = new Switch(Signal.of(false));
-		assertInstanceOf(solim.core.Component.class, sw);
-		sw.dispose();
-	}
-
-	@Test
-	void switchStaticFactory() {
-		Switch sw = Switch.of(Signal.of(true));
-		assertEquals("ON", sw.button().getText());
+		assertSame(sw.button(), sw.element());
 		sw.dispose();
 	}
 }

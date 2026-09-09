@@ -17,11 +17,12 @@ class BadgeComponentTest {
 	}
 
 	@Test
-	void badgeCreatesElement() {
+	void badgeCreatesWithDefaultNameAndLabelChild() {
 		Badge b = new Badge("MOD");
-		assertNotNull(b.element());
-		assertNotNull(b.table());
-		assertNotNull(b.text());
+		assertEquals("solim-badge-table", b.table().name);
+		assertSame(b.table(), b.element());
+		assertSame(b.text().label(), b.table().getChildren().get(0));
+		assertEquals("MOD", b.text().label().getText().toString());
 		b.dispose();
 	}
 
@@ -106,22 +107,23 @@ class BadgeComponentTest {
 	}
 
 	@Test
-	void badgeSizeConstraints() {
-		Badge b = new Badge("TAG");
-		assertNotNull(b.sizeConstraints());
+	void badgeDisposeStopsCountVisibilityUpdates() {
+		Signal<Integer> unread = Signal.of(3);
+		Badge b = Badge.ofCount(unread);
+		assertTrue(b.element().visible);
+
 		b.dispose();
+		unread.set(0);
+
+		// Binding disposed: visibility must stay as it was before disposal.
+		assertTrue(b.element().visible);
 	}
 
 	@Test
-	void badgeImplementsComponent() {
+	void badgeFluentApiReturnsSameInstance() {
 		Badge b = new Badge("TAG");
-		assertInstanceOf(solim.core.Component.class, b);
+		assertSame(b, b.hideOnZero(false));
+		assertSame(b, b.name("x"));
 		b.dispose();
-	}
-
-	@Test
-	void badgeDispose() {
-		Badge b = new Badge("TAG");
-		assertDoesNotThrow(b::dispose);
 	}
 }

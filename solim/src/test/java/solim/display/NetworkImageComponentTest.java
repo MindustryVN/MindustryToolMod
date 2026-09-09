@@ -31,11 +31,10 @@ class NetworkImageComponentTest {
 	}
 
 	@Test
-	void networkImageCreatesElement() {
+	void networkImageElementIsBackedImage() {
 		NetworkImage.setImageLoader((url, success, error) -> {});
 		NetworkImage img = new NetworkImage("https://example.com/test.png");
-		assertNotNull(img.element());
-		assertNotNull(img.image());
+		assertSame(img.image(), img.element());
 		img.dispose();
 	}
 
@@ -105,8 +104,17 @@ class NetworkImageComponentTest {
 	}
 
 	@Test
-	void networkImageDispose() {
-		NetworkImage img = new NetworkImage();
-		assertDoesNotThrow(img::dispose);
+	void networkImageDisposeStopsReactiveUrlUpdates() {
+		arc.graphics.g2d.TextureRegion regionA = new arc.graphics.g2d.TextureRegion();
+		NetworkImage.setImageLoader((url, success, error) -> success.get(regionA));
+		Signal<String> urlSignal = Signal.of("https://example.com/a.png");
+		NetworkImage img = new NetworkImage(urlSignal);
+		assertTrue(NetworkImage.isCached("https://example.com/a.png"));
+
+		img.dispose();
+		urlSignal.set("https://example.com/b.png");
+
+		// After disposal the new URL must not trigger a load.
+		assertFalse(NetworkImage.isCached("https://example.com/b.png"));
 	}
 }

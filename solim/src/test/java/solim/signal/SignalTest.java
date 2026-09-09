@@ -51,13 +51,11 @@ class SignalTest {
 		assertEquals("Disabled", t.get());
 		enabled.set(true);
 		assertEquals("Enabled", t.get());
-		// dispose test
+		// dispose test: clears dependencies and cached value
 		t.dispose();
-		enabled.set(false);
-		// after dispose, get should return last cached but not recompute? Our impl returns cached after
-		// dispose
-		// Just verify no exception
-		assertDoesNotThrow(t::get);
+		assertTrue(t.isDisposed());
+		assertEquals(0, enabled.observerCount());
+		assertNull(t.get());
 	}
 
 	@Test

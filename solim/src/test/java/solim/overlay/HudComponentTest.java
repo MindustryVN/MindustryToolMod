@@ -55,10 +55,12 @@ class HudComponentTest {
 	}
 
 	@Test
-	void hudCreatesElement() {
+	void hudCreatesWithDefaultNamesAndHierarchy() {
 		Hud hud = new Hud();
-		assertNotNull(hud.element());
-		assertNotNull(hud.container());
+		assertEquals("solim-hud-root", hud.element().name);
+		assertEquals("solim-hud-container", hud.container().name);
+		assertSame(hud.container(), hud.root().getChildren().get(0));
+		assertSame(hud.root(), hud.element());
 		hud.dispose();
 	}
 
@@ -158,15 +160,19 @@ class HudComponentTest {
 	}
 
 	@Test
-	void hudDispose() {
+	void hudDisposeStopsReactiveUpdates() {
 		Hud hud = new Hud();
-		assertDoesNotThrow(hud::dispose);
-	}
+		Signal<Float> x = Signal.of(40f);
+		hud.x(x);
+		assertEquals(40f, hud.element().x, 0.01f);
 
-	@Test
-	void hudImplementsComponent() {
-		Hud hud = new Hud();
-		assertInstanceOf(solim.core.Component.class, hud);
 		hud.dispose();
+		x.set(150f);
+
+		assertEquals(40f, hud.element().x, 0.01f);
+
+		// Idempotent: second dispose is safe.
+		hud.dispose();
+		assertEquals(40f, hud.element().x, 0.01f);
 	}
 }
