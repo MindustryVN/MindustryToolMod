@@ -88,9 +88,8 @@ public class ChatOverlayHudView extends BaseComponent {
         Readable<Integer> unread = store.unreadCount();
 
         return card(Styles.black8)
-                .padding(unit(1))
                 .children(() -> {
-                    row().gap(unit(1)).children(() -> {
+                    row().padding(unit(1)).gap(unit(1)).children(() -> {
                         // Drag handle
                         button()
                                 .style(Styles.clearNonei)
@@ -144,9 +143,8 @@ public class ChatOverlayHudView extends BaseComponent {
         return card(Styles.black8)
                 .width(winWidth)
                 .height(winHeight)
-                .padding(unit(2))
                 .children(() -> {
-                    column().grow().children(() -> {
+                    column().grow().padding(unit(2)).children(() -> {
                         // Window Action Bar (draggable bar wrapping title & action buttons)
                         row().growX()
                                 .background(Styles.black6)

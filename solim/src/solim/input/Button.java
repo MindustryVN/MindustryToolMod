@@ -243,6 +243,15 @@ public final class Button implements Component, Disposable {
 		return this;
 	}
 
+	public Button checked(@Nullable Readable<Boolean> signal) {
+		if (signal != null) {
+			Effect e = Effect.of(() -> sizedButton.setChecked(Boolean.TRUE.equals(signal.get())));
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
+		return this;
+	}
+
 	public Button visible(@Nullable Readable<Boolean> signal) {
 		if (signal != null) {
 			Effect e = Effect.of(() -> sizedButton.visible = Boolean.TRUE.equals(signal.get()));

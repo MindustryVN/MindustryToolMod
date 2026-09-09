@@ -170,4 +170,6 @@ archive/
 bin/
 arc/
 .bin
+backup/
+scratch/
 

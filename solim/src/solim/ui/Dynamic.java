@@ -2,22 +2,23 @@ package solim.ui;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
-import arc.scene.ui.layout.Table;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.ConstrainedElement;
+import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
 import solim.layout.SizedTable;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
 /** Structural reactive component for switching dynamic subtrees based on a reactive value. */
-public final class Dynamic<T> extends BaseComponent implements ConstrainedElement {
+public final class Dynamic<T> extends BaseComponent implements ConstrainedElement, LayoutModifiers<Dynamic<T>> {
 	private final SizedTable container = new SizedTable();
 	private final Readable<T> source;
 	private final Function<T, Component> factory;
 	private Component currentComponent;
+	private final java.util.List<solim.core.Disposable> currentBindings = new java.util.ArrayList<>();
 
 	public Dynamic(Readable<T> source, Function<T, Component> factory) {
 		this.source = source;
@@ -39,6 +40,11 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 	}
 
 	@Override
+	public SizeConstraints sizeConstraints() {
+		return container.getSizeConstraints();
+	}
+
+	@Override
 	protected Element build() {
 		container.top().left();
 		own(Effect.of(() -> {
@@ -47,6 +53,10 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 				currentComponent.dispose();
 				currentComponent = null;
 			}
+			for (solim.core.Disposable d : currentBindings) {
+				d.dispose();
+			}
+			currentBindings.clear();
 			container.clearChildren();
 			if (value != null && factory != null) {
 				currentComponent = ParentStack.isolate(() -> {
@@ -60,7 +70,8 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 					Element el = currentComponent.element();
 					Cell<?> cell = container.add(el);
 					if (el instanceof ConstrainedElement) {
-						((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
+						java.util.List<solim.core.Disposable> effects = ((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
+						currentBindings.addAll(effects);
 					}
 				}
 				container.invalidateHierarchy();
@@ -75,6 +86,10 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 			currentComponent.dispose();
 			currentComponent = null;
 		}
+		for (solim.core.Disposable d : currentBindings) {
+			d.dispose();
+		}
+		currentBindings.clear();
 		container.clearChildren();
 	}
 }

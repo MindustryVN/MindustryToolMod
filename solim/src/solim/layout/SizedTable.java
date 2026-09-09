@@ -33,14 +33,32 @@ public class SizedTable extends Table implements ConstrainedElement {
 	public float getPrefWidth() {
 		if (constraints == null) return super.getPrefWidth();
 		@Nullable Float v = constraints.prefWidth != null ? constraints.prefWidth.get() : null;
-		return v != null ? Math.max(0f, v) : super.getPrefWidth();
+		float pref = v != null ? Math.max(0f, v) : super.getPrefWidth();
+		@Nullable Float max = constraints.maxWidth != null ? constraints.maxWidth.get() : null;
+		if (max != null && max > 0f) {
+			pref = Math.min(pref, max);
+		}
+		@Nullable Float min = constraints.minWidth != null ? constraints.minWidth.get() : null;
+		if (min != null && min > 0f) {
+			pref = Math.max(pref, min);
+		}
+		return pref;
 	}
 
 	@Override
 	public float getPrefHeight() {
 		if (constraints == null) return super.getPrefHeight();
 		@Nullable Float v = constraints.prefHeight != null ? constraints.prefHeight.get() : null;
-		return v != null ? Math.max(0f, v) : super.getPrefHeight();
+		float pref = v != null ? Math.max(0f, v) : super.getPrefHeight();
+		@Nullable Float max = constraints.maxHeight != null ? constraints.maxHeight.get() : null;
+		if (max != null && max > 0f) {
+			pref = Math.min(pref, max);
+		}
+		@Nullable Float min = constraints.minHeight != null ? constraints.minHeight.get() : null;
+		if (min != null && min > 0f) {
+			pref = Math.max(pref, min);
+		}
+		return pref;
 	}
 
 	@Override
