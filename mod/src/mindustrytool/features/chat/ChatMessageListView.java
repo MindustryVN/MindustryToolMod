@@ -264,7 +264,6 @@ public class ChatMessageListView extends BaseComponent {
 
                     button(() -> useSchematic(schematic))
                             .style(Styles.flatt)
-                            .growX()
                             .height(unit(35))
                             .children(() -> {
                                 add(new SchematicImage(schematic).setScaling(Scaling.fit));
