@@ -5,6 +5,7 @@ import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
+import solim.signal.Readable;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
 
@@ -158,6 +159,11 @@ public final class Column implements Component, LayoutModifiers<Column> {
 	}
 
 	public Column visible(boolean visible) {
+		ElementModifiers.visible(table, visible);
+		return this;
+	}
+
+	public Column visible(@Nullable Readable<Boolean> visible) {
 		ElementModifiers.visible(table, visible);
 		return this;
 	}

@@ -235,6 +235,102 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		return self();
 	}
 
+	// ---------- margin (outer spacing via parent cell pad) ----------
+
+	default SELF margin(float m) {
+		return margin(m, m, m, m);
+	}
+
+	default SELF margin(float top, float left, float bottom, float right) {
+		sizeConstraints().padTop = Readable.of(top);
+		sizeConstraints().padLeft = Readable.of(left);
+		sizeConstraints().padBottom = Readable.of(bottom);
+		sizeConstraints().padRight = Readable.of(right);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF margin(Readable<Float> m) {
+		return margin(m, m, m, m);
+	}
+
+	default SELF margin(Readable<Float> top, Readable<Float> left, Readable<Float> bottom, Readable<Float> right) {
+		sizeConstraints().padTop = top;
+		sizeConstraints().padLeft = left;
+		sizeConstraints().padBottom = bottom;
+		sizeConstraints().padRight = right;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginTop(float top) {
+		sizeConstraints().padTop = Readable.of(top);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginTop(Readable<Float> top) {
+		sizeConstraints().padTop = top;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginBottom(float bottom) {
+		sizeConstraints().padBottom = Readable.of(bottom);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginBottom(Readable<Float> bottom) {
+		sizeConstraints().padBottom = bottom;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginLeft(float left) {
+		sizeConstraints().padLeft = Readable.of(left);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginLeft(Readable<Float> left) {
+		sizeConstraints().padLeft = left;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginRight(float right) {
+		sizeConstraints().padRight = Readable.of(right);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	default SELF marginRight(Readable<Float> right) {
+		sizeConstraints().padRight = right;
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
 	// ---------- internal ----------
 
 	@SuppressWarnings("unchecked")

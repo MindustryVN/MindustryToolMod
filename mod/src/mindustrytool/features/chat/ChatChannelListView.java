@@ -68,8 +68,8 @@ public class ChatChannelListView extends BaseComponent {
             Computed<Boolean> isSelected = new Computed<>(
                     () -> Objects.equals(store.activeChannelId().get(), channel.getId()));
 
-            return card().growX().padding(unit(1)).children(() -> {
-                row().growX().left().children(() -> {
+            return card().growX().children(() -> {
+                row().growX().padding(unit(1)).left().children(() -> {
                     button(() -> store.setActiveChannelId(channel.getId()))
                             .style(Styles.cleart)
                             .left()

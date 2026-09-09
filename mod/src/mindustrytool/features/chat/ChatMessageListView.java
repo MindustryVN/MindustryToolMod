@@ -99,8 +99,8 @@ public class ChatMessageListView extends BaseComponent {
             String timeStr = formatTime(message.getCreatedAt());
             String rawContent = message.getContent() != null ? message.getContent() : "";
 
-            return card().growX().padding(unit(1)).children(() -> {
-                column().growX().gap(unit(1)).children(() -> {
+            return card().growX().children(() -> {
+                column().growX().padding(unit(1)).gap(unit(1)).children(() -> {
                     // Header: Author name, timestamp, action buttons (reply, copy)
                     row().growX().gap(unit(1)).children(() -> {
                         text(authorName)
@@ -233,8 +233,8 @@ public class ChatMessageListView extends BaseComponent {
         }
 
         private void buildSchematicCard(Schematic schematic) {
-            card().growX().padding(unit(1.5f)).children(() -> {
-                column().growX().gap(unit(1)).children(() -> {
+            card().growX().children(() -> {
+                column().growX().padding(unit(1.5f)).gap(unit(1)).children(() -> {
                     row().growX().gap(unit(1)).children(() -> {
                         text(schematic.name())
                                 .color(Pal.accent)

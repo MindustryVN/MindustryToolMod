@@ -226,7 +226,7 @@ class LayoutTest {
 				.height(180f)
 				.width(widthSignal)
 				.color(colorSignal)
-				.padding(12f)
+				.margin(12f)
 				.children(() -> {
 					ParentStack.add(new Element());
 					ParentStack.add(new Element());

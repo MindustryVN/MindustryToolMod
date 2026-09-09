@@ -287,6 +287,20 @@ public final class Text implements Component, Disposable {
 		return this;
 	}
 
+	public Text fontScale(Readable<Float> scale) {
+		if (scale != null) {
+			Effect e = Effect.of(() -> {
+				Float s = scale.get();
+				if (s != null) {
+					label.setFontScale(s);
+				}
+			});
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
+		return this;
+	}
+
 	public Text size(float width, float height) {
 		ElementModifiers.size(label, width, height);
 		return this;

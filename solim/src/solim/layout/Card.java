@@ -199,96 +199,6 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 		return this;
 	}
 
-	public Card padding(float p) {
-		ElementModifiers.padding(container, p);
-		return this;
-	}
-
-	public Card padding(float top, float left, float bottom, float right) {
-		ElementModifiers.padding(container, top, left, bottom, right);
-		return this;
-	}
-
-	public Card paddingTop(float top) {
-		ElementModifiers.paddingTop(container, top);
-		return this;
-	}
-
-	public Card paddingBottom(float bottom) {
-		ElementModifiers.paddingBottom(container, bottom);
-		return this;
-	}
-
-	public Card paddingLeft(float left) {
-		ElementModifiers.paddingLeft(container, left);
-		return this;
-	}
-
-	public Card paddingRight(float right) {
-		ElementModifiers.paddingRight(container, right);
-		return this;
-	}
-
-	public Card margin(float m) {
-		ElementModifiers.margin(container, m);
-		return this;
-	}
-
-	public Card margin(float top, float left, float bottom, float right) {
-		ElementModifiers.margin(container, top, left, bottom, right);
-		return this;
-	}
-
-	public Card marginTop(float top) {
-		ElementModifiers.marginTop(container, top);
-		return this;
-	}
-
-	public Card marginBottom(float bottom) {
-		ElementModifiers.marginBottom(container, bottom);
-		return this;
-	}
-
-	public Card marginLeft(float left) {
-		ElementModifiers.marginLeft(container, left);
-		return this;
-	}
-
-	public Card marginRight(float right) {
-		ElementModifiers.marginRight(container, right);
-		return this;
-	}
-
-	public Card pad(float p) {
-		ElementModifiers.pad(container, p);
-		return this;
-	}
-
-	public Card pad(float top, float left, float bottom, float right) {
-		ElementModifiers.pad(container, top, left, bottom, right);
-		return this;
-	}
-
-	public Card padTop(float top) {
-		ElementModifiers.padTop(container, top);
-		return this;
-	}
-
-	public Card padBottom(float bottom) {
-		ElementModifiers.padBottom(container, bottom);
-		return this;
-	}
-
-	public Card padLeft(float left) {
-		ElementModifiers.padLeft(container, left);
-		return this;
-	}
-
-	public Card padRight(float right) {
-		ElementModifiers.padRight(container, right);
-		return this;
-	}
-
 	@Override
 	public Card top() {
 		ElementModifiers.top(container);
@@ -354,6 +264,11 @@ public final class Card implements Component, Disposable, LayoutModifiers<Card> 
 	}
 
 	public Card visible(boolean visible) {
+		ElementModifiers.visible(cardButton, visible);
+		return this;
+	}
+
+	public Card visible(@Nullable Readable<Boolean> visible) {
 		ElementModifiers.visible(cardButton, visible);
 		return this;
 	}

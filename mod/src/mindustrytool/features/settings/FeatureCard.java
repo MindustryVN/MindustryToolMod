@@ -28,10 +28,10 @@ public class FeatureCard extends BaseComponent {
     protected Element build() {
         var metadata = feature.getMetadata();
 
-        return card(Styles.black8).name("FeatureCard-" + metadata.getId()).height(unit(60)).padding(unit(2)).growX()
+        return card(Styles.black8).name("FeatureCard-" + metadata.getId()).height(unit(60)).growX()
                 .color(feature.enabled().map(value -> Boolean.TRUE.equals(value) ? Color.green : Color.scarlet))
                 .onClick(() -> feature.setEnabled(!feature.isEnabled())).children(() -> {
-                    column().grow().gap(unit(2)).children(() -> {
+                    column().grow().padding(unit(2)).gap(unit(2)).children(() -> {
                         row().growX().children(() -> {
                             image(metadata.getIcon()).scaling(Scaling.fit).size(unit(6)).marginRight(unit(2));
 
