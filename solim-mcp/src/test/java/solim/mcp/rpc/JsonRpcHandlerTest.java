@@ -50,22 +50,25 @@ class JsonRpcHandlerTest {
 		JsonNode node = mapper.readTree(handler.handle(
 			"{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}", sink));
 		JsonNode tools = node.path("result").path("tools");
-		assertEquals(7, tools.size());
+		assertEquals(8, tools.size());
 		boolean foundTree = false;
 		boolean foundJs = false;
 		boolean foundClick = false;
 		boolean foundFind = false;
+		boolean foundStop = false;
 		for (JsonNode tool : tools) {
 			String name = tool.path("name").asText();
 			if ("get_component_tree".equals(name)) foundTree = true;
 			if ("execute_js".equals(name)) foundJs = true;
 			if ("click_element".equals(name)) foundClick = true;
 			if ("find_elements".equals(name)) foundFind = true;
+			if ("stop".equals(name)) foundStop = true;
 		}
 		assertTrue(foundTree);
 		assertTrue(foundJs);
 		assertTrue(foundClick);
 		assertTrue(foundFind);
+		assertTrue(foundStop);
 	}
 
 	@Test
@@ -76,6 +79,30 @@ class JsonRpcHandlerTest {
 		assertEquals(3, node.path("id").asInt());
 		String text = node.path("result").path("content").path(0).path("text").asText();
 		assertTrue(text.contains("\"root\""), text);
+	}
+
+	@Test
+	void toolsCallStop() throws Exception {
+		java.util.concurrent.atomic.AtomicBoolean called = new java.util.concurrent.atomic.AtomicBoolean(false);
+		Table root = new Table();
+		JsonRpcHandler customHandler = new JsonRpcHandler(
+			new ToolRegistry(SnapshotRoot.fixed(root), () -> called.set(true)));
+
+		String response = customHandler.handle(
+			"{\"jsonrpc\":\"2.0\",\"id\":30,\"method\":\"tools/call\",\"params\":{\"name\":\"stop\",\"arguments\":{}}}", sink);
+		JsonNode node = mapper.readTree(response);
+		assertEquals(30, node.path("id").asInt());
+		String text = node.path("result").path("content").path(0).path("text").asText();
+		assertTrue(text.contains("\"stopped\":true"), text);
+		assertTrue(called.get());
+
+		// Test alias stop_mindustry
+		called.set(false);
+		String aliasResp = customHandler.handle(
+			"{\"jsonrpc\":\"2.0\",\"id\":31,\"method\":\"tools/call\",\"params\":{\"name\":\"stop_mindustry\",\"arguments\":{}}}", sink);
+		JsonNode aliasNode = mapper.readTree(aliasResp);
+		assertEquals(31, aliasNode.path("id").asInt());
+		assertTrue(called.get());
 	}
 
 	@Test

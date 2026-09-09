@@ -17,6 +17,10 @@ public final class ToolRegistry {
 	private final SnapshotRoot snapshotRoot;
 
 	public ToolRegistry(SnapshotRoot snapshotRoot) {
+		this(snapshotRoot, null);
+	}
+
+	public ToolRegistry(SnapshotRoot snapshotRoot, Runnable exitAction) {
 		this.snapshotRoot = snapshotRoot;
 		register(new ComponentTreeTool(snapshotRoot));
 		register(new SignalValuesTool(snapshotRoot));
@@ -25,6 +29,7 @@ public final class ToolRegistry {
 		register(new FindElementsTool(snapshotRoot));
 		register(new ClickElementTool(snapshotRoot));
 		register(new ExecuteJsTool());
+		register(exitAction != null ? new StopTool(exitAction) : new StopTool());
 	}
 
 	private void register(McpTool tool) {
@@ -32,7 +37,11 @@ public final class ToolRegistry {
 	}
 
 	public McpTool get(String name) {
-		return tools.get(name);
+		McpTool tool = tools.get(name);
+		if (tool == null && "stop_mindustry".equals(name)) {
+			return tools.get("stop");
+		}
+		return tool;
 	}
 
 	public ArrayNode list() {

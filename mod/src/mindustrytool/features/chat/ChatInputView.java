@@ -31,20 +31,22 @@ public class ChatInputView extends BaseComponent {
 
     @Override
     protected Element build() {
+        Readable<Boolean> isLoggedIn = store.loggedIn().map(l -> Boolean.TRUE.equals(l));
+        Readable<Boolean> isNotLoggedIn = isLoggedIn.map(l -> !l);
         Readable<Boolean> hasReply = store.replyTarget().map(t -> t != null);
         Readable<Boolean> canSend = isSending.map(s -> !s);
 
-        return dynamic(store.loggedIn(), loggedIn -> {
-            if (!Boolean.TRUE.equals(loggedIn)) {
-                return row().growX().padding(unit(1)).children(() -> {
-                    button(Core.bundle.get("auth.login", "Login"), () -> AuthOverlay.getInstance().startLoginUI())
-                            .style(Styles.defaultt)
-                            .growX()
-                            .height(unit(10));
-                });
-            }
+        return column().growX().gap(unit(1)).children(() -> {
+            // Login banner when not logged in
+            row().growX().padding(unit(1)).visible(isNotLoggedIn).children(() -> {
+                button(Core.bundle.get("auth.login", "Login"), () -> AuthOverlay.getInstance().startLoginUI())
+                        .style(Styles.defaultt)
+                        .growX()
+                        .height(unit(10));
+            });
 
-            return column().growX().gap(unit(1)).children(() -> {
+            // Composer area when logged in
+            column().growX().gap(unit(1)).visible(isLoggedIn).children(() -> {
                 dynamic(hasReply, replying -> {
                     if (Boolean.TRUE.equals(replying)) {
                         ChatMessage target = store.replyTarget().peek();

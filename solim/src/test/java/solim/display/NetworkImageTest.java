@@ -120,4 +120,20 @@ class NetworkImageTest {
 		assertEquals(Scaling.fill, img.image().getScaling());
 		img.dispose();
 	}
+
+	@Test
+	void explicitSizeOverridesLoadedTextureDimensions() {
+		TextureRegion largeRegion = new TextureRegion();
+		largeRegion.width = 512;
+		largeRegion.height = 512;
+
+		NetworkImage.setImageLoader((url, success, error) -> success.get(largeRegion));
+
+		NetworkImage img = new NetworkImage("https://example.com/large-avatar.png")
+				.size(32f, 32f);
+
+		assertEquals(32f, img.image().getPrefWidth(), "Pref width must remain locked to explicit 32f");
+		assertEquals(32f, img.image().getPrefHeight(), "Pref height must remain locked to explicit 32f");
+		img.dispose();
+	}
 }

@@ -31,7 +31,10 @@ public final class ElementModifiers {
         element.setWidth(val);
         if (element instanceof SizedButton) {
             ((SizedButton) element).setCustomPrefWidth(val);
-        } else if (element instanceof ConstrainedElement) {
+        } else if (element instanceof SizedImage) {
+            ((SizedImage) element).setCustomPrefWidth(val);
+        }
+        if (element instanceof ConstrainedElement) {
             ((ConstrainedElement) element).getSizeConstraints().prefWidth = Readable.of(val);
         }
         element.invalidateHierarchy();
@@ -44,7 +47,10 @@ public final class ElementModifiers {
         element.setHeight(val);
         if (element instanceof SizedButton) {
             ((SizedButton) element).setCustomPrefHeight(val);
-        } else if (element instanceof ConstrainedElement) {
+        } else if (element instanceof SizedImage) {
+            ((SizedImage) element).setCustomPrefHeight(val);
+        }
+        if (element instanceof ConstrainedElement) {
             ((ConstrainedElement) element).getSizeConstraints().prefHeight = Readable.of(val);
         }
         element.invalidateHierarchy();

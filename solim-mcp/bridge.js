@@ -119,6 +119,14 @@ const STATIC_TOOLS = [
       },
       required: ['code']
     }
+  },
+  {
+    name: 'stop',
+    description: 'Stops and exits the running Mindustry instance.',
+    inputSchema: {
+      type: 'object',
+      properties: {}
+    }
   }
 ];
 
@@ -288,6 +296,21 @@ rl.on('line', (line) => {
       break;
 
     case 'tools/call':
+      if (request.params && (request.params.name === 'stop' || request.params.name === 'stop_mindustry')) {
+        sendToClient({
+          jsonrpc: '2.0',
+          id: request.id,
+          result: {
+            content: [
+              {
+                type: 'text',
+                text: JSON.stringify({ stopped: true, message: 'Mindustry is not running (already stopped).' })
+              }
+            ]
+          }
+        });
+        break;
+      }
       sendToClient({
         jsonrpc: '2.0',
         id: request.id,

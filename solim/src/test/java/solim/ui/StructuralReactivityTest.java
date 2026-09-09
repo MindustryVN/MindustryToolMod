@@ -3,16 +3,30 @@ package solim.ui;
 import static org.junit.jupiter.api.Assertions.*;
 import static solim.ui.Ui.card;
 
+import arc.Core;
+import arc.mock.MockApplication;
+import arc.mock.MockGraphics;
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.CellAccess;
 import java.util.*;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
 import solim.layout.ReactiveGrid;
 import solim.signal.Signal;
 
 class StructuralReactivityTest {
+
+	@BeforeAll
+	static void initArc() {
+		if (Core.app == null) {
+			Core.app = new MockApplication();
+		}
+		if (Core.graphics == null) {
+			Core.graphics = new MockGraphics();
+		}
+	}
 
 	static class TestComponent extends BaseComponent {
 		final String id;
@@ -185,6 +199,32 @@ class StructuralReactivityTest {
 		dyn.element();
 		Cell<?> dynCell = dyn.container().getCells().first();
 		assertEquals(1, CellAccess.expandX(dynCell), "Constrained child in Dynamic must growX");
+		dyn.dispose();
+	}
+
+	@Test
+	void testDynamicFactoryDoesNotTrackSignalsEvaluatedDuringChildBuild() {
+		Signal<Boolean> switcher = Signal.of(true);
+		Signal<String> internalChildSignal = Signal.of("initial");
+		int[] factoryBuildCount = new int[]{0};
+
+		Dynamic<Boolean> dyn = new Dynamic<>(switcher, val -> {
+			factoryBuildCount[0]++;
+			String text = internalChildSignal.get();
+			return new TestComponent(val + "-" + text);
+		});
+
+		dyn.element();
+		assertEquals(1, factoryBuildCount[0], "Dynamic factory must run once initially");
+
+		// Changing internalChildSignal must NOT trigger the Dynamic switcher!
+		internalChildSignal.set("updated");
+		assertEquals(1, factoryBuildCount[0], "Updating signal read during child build must not re-run Dynamic factory");
+
+		// Changing switcher MUST trigger the Dynamic switcher
+		switcher.set(false);
+		assertEquals(2, factoryBuildCount[0], "Updating switcher source must trigger Dynamic factory");
+
 		dyn.dispose();
 	}
 }

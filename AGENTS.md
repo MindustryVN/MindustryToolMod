@@ -808,6 +808,8 @@ The mod runs inside Mindustry's initialized runtime, where scene, graphics, skin
 
 To test the live UI, run `run.bat` to auto build and run mindustry, then interact with the UI via solim MCP server.
 
+**Always stop the Mindustry instance when testing is done** by calling the MCP `stop` tool. Never leave Mindustry running in the background after verification is complete.
+
 ## Solim
 
 UI primitives and framework behavior in the `solim/` module should be tested.
@@ -854,7 +856,7 @@ Verify:
 * [ ] State has a clear source of truth.
 * [ ] `old/` was not modified unless explicitly requested.
 
-### UI
+### UI & Cleanup
 
 * [ ] Solim was used instead of direct Arc UI where possible.
 * [ ] UI is declarative and readable.
@@ -862,5 +864,6 @@ Verify:
 * [ ] Effects are only used for genuine side effects.
 * [ ] Bindings and resources are automatically owned and disposed.
 * [ ] Structural changes use targeted reconciliation instead of unnecessary full rebuilds.
+* [ ] If Mindustry was started to test UI, it has been stopped using the MCP `stop` tool.
 
 **A UI or player-facing feature is not complete until its user-visible text is properly translated and its UI follows the Solim architecture.**

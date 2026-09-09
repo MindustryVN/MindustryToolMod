@@ -38,4 +38,35 @@ public final class ReactiveContext {
 	public static int size() {
 		return stack.size();
 	}
+
+	/** Temporarily suspends active dependency tracking while executing the supplier. */
+	public static <T> T untracked(java.util.function.Supplier<T> supplier) {
+		if (stack.isEmpty()) {
+			return supplier.get();
+		}
+		Deque<ReactiveObserver> saved = new ArrayDeque<>(stack);
+		stack.clear();
+		try {
+			return supplier.get();
+		} finally {
+			stack.clear();
+			stack.addAll(saved);
+		}
+	}
+
+	/** Temporarily suspends active dependency tracking while executing the runnable. */
+	public static void untracked(Runnable runnable) {
+		if (stack.isEmpty()) {
+			runnable.run();
+			return;
+		}
+		Deque<ReactiveObserver> saved = new ArrayDeque<>(stack);
+		stack.clear();
+		try {
+			runnable.run();
+		} finally {
+			stack.clear();
+			stack.addAll(saved);
+		}
+	}
 }

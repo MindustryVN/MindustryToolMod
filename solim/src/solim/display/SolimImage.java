@@ -251,14 +251,74 @@ public final class SolimImage implements Component, Disposable {
 			}
 		}
 
+		public void setCustomPrefWidth(float w) {
+			this.customPrefWidth = w;
+		}
+
+		public void setCustomPrefHeight(float h) {
+			this.customPrefHeight = h;
+		}
+
+		public float getCustomPrefWidth() {
+			return customPrefWidth;
+		}
+
+		public float getCustomPrefHeight() {
+			return customPrefHeight;
+		}
+
 		@Override
 		public float getPrefWidth() {
+			if (constraints != null && constraints.prefWidth != null) {
+				Float v = constraints.prefWidth.get();
+				if (v != null) return Math.max(0f, v);
+			}
 			return customPrefWidth >= 0 ? customPrefWidth : super.getPrefWidth();
 		}
 
 		@Override
 		public float getPrefHeight() {
+			if (constraints != null && constraints.prefHeight != null) {
+				Float v = constraints.prefHeight.get();
+				if (v != null) return Math.max(0f, v);
+			}
 			return customPrefHeight >= 0 ? customPrefHeight : super.getPrefHeight();
+		}
+
+		@Override
+		public float getMinWidth() {
+			if (constraints != null && constraints.minWidth != null) {
+				Float v = constraints.minWidth.get();
+				if (v != null) return Math.max(0f, v);
+			}
+			return super.getMinWidth();
+		}
+
+		@Override
+		public float getMinHeight() {
+			if (constraints != null && constraints.minHeight != null) {
+				Float v = constraints.minHeight.get();
+				if (v != null) return Math.max(0f, v);
+			}
+			return super.getMinHeight();
+		}
+
+		@Override
+		public float getMaxWidth() {
+			if (constraints != null && constraints.maxWidth != null) {
+				Float v = constraints.maxWidth.get();
+				if (v != null) return Math.max(0f, v);
+			}
+			return super.getMaxWidth();
+		}
+
+		@Override
+		public float getMaxHeight() {
+			if (constraints != null && constraints.maxHeight != null) {
+				Float v = constraints.maxHeight.get();
+				if (v != null) return Math.max(0f, v);
+			}
+			return super.getMaxHeight();
 		}
 	}
 

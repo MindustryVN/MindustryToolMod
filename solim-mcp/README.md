@@ -139,6 +139,14 @@ Arguments: `{"code": "JavaScript code string"}` (required). Executes JavaScript 
 {"result":"3","success":true}
 ```
 
+#### `stop`
+
+Arguments: `{}` (no arguments required). Cleanly stops and exits the running Mindustry application instance.
+
+```json
+{"stopped":true,"message":"Stopping Mindustry..."}
+```
+
 ## HTTP fallback
 
 One-off POSTs (no streaming): `POST /mcp` with a JSON-RPC body. Requires

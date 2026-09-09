@@ -26,10 +26,12 @@ public class ChatUserListView extends BaseComponent {
 
         return column()
                 .grow()
+                .top().left()
                 .gap(unit(1))
                 .children(() -> {
                     row()
                             .growX()
+                            .top().left()
                             .padding(unit(1))
                             .children(() -> {
                                 text(Core.bundle.get("feature.chat.ui.members", "Members"))
@@ -42,9 +44,11 @@ public class ChatUserListView extends BaseComponent {
 
                     scroll()
                             .grow()
+                            .left()
                             .children(() -> {
                                 column()
                                         .growX()
+                                        .top().left()
                                         .gap(unit(1))
                                         .children(() -> {
                                             dynamic(hasUsers, available -> {
@@ -54,11 +58,13 @@ public class ChatUserListView extends BaseComponent {
                                                 } else {
                                                     return column()
                                                             .padding(unit(2))
+                                                            .top().left()
                                                             .children(() -> {
                                                                 text(Core.bundle.get("feature.chat.ui.empty-members",
                                                                         "No members online."))
                                                                                 .color(Color.gray)
-                                                                                .fontScale(0.9f);
+                                                                                .fontScale(0.9f)
+                                                                                .left();
                                                             });
                                                 }
                                             });
@@ -93,23 +99,24 @@ public class ChatUserListView extends BaseComponent {
             }
 
             final Color finalRoleColor = roleColor;
-                    return card().growX()
-                            .children(() -> {
-                                row().growX()
-                                        .padding(unit(1))
-                                        .gap(unit(1))
-                                        .children(() -> {
-                                            networkImage(user.getImageUrl())
-                                                    .placeholder(Icon.players)
-                                                    .fallback(Icon.players)
-                                                    .size(unit(6), unit(6));
+            return card().growX().top().left()
+                    .children(() -> {
+                        row().growX().top().left()
+                                .padding(unit(1))
+                                .gap(unit(1))
+                                .children(() -> {
+                                    networkImage(user.getImageUrl())
+                                            .placeholder(Icon.players)
+                                            .fallback(Icon.players)
+                                            .size(unit(6), unit(6))
+                                            .top().left();
 
-                                            text(name).color(finalRoleColor)
-                                                    .fontScale(0.9f)
-                                                    .left();
-                                        });
-                            })
-                            .element();
+                                    text(name).color(finalRoleColor)
+                                            .fontScale(0.9f)
+                                            .left();
+                                });
+                    })
+                    .element();
         }
     }
 }

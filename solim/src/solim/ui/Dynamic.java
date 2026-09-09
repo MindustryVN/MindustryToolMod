@@ -10,6 +10,7 @@ import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
 import solim.layout.SizedTable;
 import solim.signal.Effect;
+import solim.signal.ReactiveContext;
 import solim.signal.Readable;
 
 /** Structural reactive component for switching dynamic subtrees based on a reactive value. */
@@ -59,13 +60,15 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 			currentBindings.clear();
 			container.clearChildren();
 			if (value != null && factory != null) {
-				currentComponent = ParentStack.isolate(() -> {
-					Component c = factory.apply(value);
-					if (c != null) {
-						c.element();
-					}
-					return c;
-				});
+				currentComponent = ReactiveContext.untracked(() ->
+					ParentStack.isolate(() -> {
+						Component c = factory.apply(value);
+						if (c != null) {
+							c.element();
+						}
+						return c;
+					})
+				);
 				if (currentComponent != null) {
 					Element el = currentComponent.element();
 					Cell<?> cell = container.add(el);

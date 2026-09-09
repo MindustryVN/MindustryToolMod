@@ -29,6 +29,7 @@ import mindustrytool.services.MindustryTool;
 import solim.core.BaseComponent;
 import solim.layout.Scroll;
 import solim.signal.Computed;
+import solim.signal.Effect;
 import solim.signal.Readable;
 
 public class ChatMessageListView extends BaseComponent {
@@ -39,6 +40,10 @@ public class ChatMessageListView extends BaseComponent {
     private final ChatStore store;
     private final @Nullable ChatService service;
     private @Nullable Scroll scrollPane;
+
+    private @Nullable String lastChannelId = null;
+    private int lastMessageCount = 0;
+    private @Nullable String lastFirstMessageId = null;
 
     public ChatMessageListView(ChatStore store) {
         this(store, null);
@@ -68,23 +73,82 @@ public class ChatMessageListView extends BaseComponent {
             return result;
         });
 
-        return column().grow().gap(unit(1)).children(() -> {
+        own(Effect.of(() -> {
+            String chanId = store.activeChannelId().get();
+            if (!Objects.equals(chanId, lastChannelId)) {
+                lastChannelId = chanId;
+                lastMessageCount = 0;
+                lastFirstMessageId = null;
+                scrollToBottom();
+            }
+        }));
+
+        own(Effect.of(() -> {
+            List<ChatMessage> msgs = store.activeMessages().get();
+            if (msgs == null || msgs.isEmpty()) {
+                lastMessageCount = 0;
+                lastFirstMessageId = null;
+                return;
+            }
+
+            int count = msgs.size();
+            String firstId = msgs.get(0).getId();
+            boolean isOlderPrepended = lastMessageCount > 0 && count > lastMessageCount && !Objects.equals(firstId, lastFirstMessageId);
+            boolean isNewAppended = lastMessageCount > 0 && count > lastMessageCount && Objects.equals(firstId, lastFirstMessageId);
+
+            if (isOlderPrepended) {
+                float prevContentHeight = (scrollPane != null && scrollPane.content() != null) ? scrollPane.content().getPrefHeight() : 0f;
+                float prevScrollY = (scrollPane != null && scrollPane.pane() != null) ? scrollPane.pane().getScrollY() : 0f;
+
+                Core.app.post(() -> {
+                    if (scrollPane != null && scrollPane.pane() != null && scrollPane.content() != null) {
+                        var pane = scrollPane.pane();
+                        pane.layout();
+                        float newContentHeight = scrollPane.content().getPrefHeight();
+                        float heightDelta = newContentHeight - prevContentHeight;
+                        if (heightDelta > 0) {
+                            pane.setScrollY(prevScrollY + heightDelta);
+                        }
+                    }
+                });
+            } else if (isNewAppended) {
+                if (scrollPane != null && scrollPane.pane() != null) {
+                    var pane = scrollPane.pane();
+                    boolean wasNearBottom = (pane.getMaxY() - pane.getScrollY()) <= 150f;
+                    if (wasNearBottom) {
+                        scrollToBottom();
+                    }
+                }
+            } else if (lastMessageCount == 0) {
+                scrollToBottom();
+            }
+
+            lastMessageCount = count;
+            lastFirstMessageId = firstId;
+        }));
+
+        Core.app.post(this::scrollToBottom);
+
+        return column().grow().top().left().gap(unit(1)).children(() -> {
             scrollPane = scroll()
                     .grow()
+                    .left()
                     .onReachTop(50f, () -> {
                         String activeId = store.activeChannelId().peek();
-                        if (activeId != null && !activeId.isEmpty() && service != null) {
+                        var msgs = store.activeMessages().peek();
+                        if (activeId != null && !activeId.isEmpty() && service != null && msgs != null && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())) {
                             service.fetchOlderMessages(activeId);
                         }
                     })
                     .children(() -> {
-                        column().growX().gap(unit(1)).children(() -> {
+                        column().growX().top().left().gap(unit(1)).children(() -> {
                             dynamic(store.loadingOlder(), loading -> {
                                 if (Boolean.TRUE.equals(loading)) {
-                                    return row().center().padding(unit(2)).children(() -> {
+                                    return row().top().left().padding(unit(2)).children(() -> {
                                         text(Core.bundle.get("feature.chat.ui.loading-older", "Loading older messages..."))
                                                 .color(Color.gray)
-                                                .fontScale(0.85f);
+                                                .fontScale(0.85f)
+                                                .left();
                                     });
                                 }
                                 return row();
@@ -95,10 +159,11 @@ public class ChatMessageListView extends BaseComponent {
                                     return forEach(displayMessages, dm -> dm.message.getId(),
                                             dm -> new MessageItem(dm, store, service));
                                 } else {
-                                    return column().padding(unit(4)).children(() -> {
+                                    return column().padding(unit(4)).top().left().children(() -> {
                                         text(Core.bundle.get("feature.chat.ui.empty-messages", "No messages yet."))
                                                 .color(Color.gray)
-                                                .fontScale(0.9f);
+                                                .fontScale(0.9f)
+                                                .left();
                                     });
                                 }
                             });
@@ -111,7 +176,17 @@ public class ChatMessageListView extends BaseComponent {
         if (scrollPane != null && scrollPane.pane() != null) {
             Core.app.post(() -> {
                 if (scrollPane != null && scrollPane.pane() != null) {
-                    scrollPane.pane().setScrollPercentY(1f);
+                    var pane = scrollPane.pane();
+                    pane.layout();
+                    pane.setScrollPercentY(1f);
+                    pane.setScrollY(pane.getMaxY());
+                    Core.app.post(() -> {
+                        if (scrollPane != null && scrollPane.pane() != null) {
+                            var p = scrollPane.pane();
+                            p.layout();
+                            p.setScrollPercentY(1f);
+                        }
+                    });
                 }
             });
         }
@@ -170,24 +245,26 @@ public class ChatMessageListView extends BaseComponent {
 
             return card()
                     .growX()
+                    .top().left()
                     .onClick(() -> store.toggleExpanded(message.getId()))
                     .children(() -> {
-                        row().growX().padding(unit(1)).gap(unit(1.5f)).children(() -> {
+                        row().growX().top().left().padding(unit(1)).gap(unit(1.5f)).children(() -> {
                             // Left Avatar or indent spacer
                             if (isFirst) {
                                 networkImage(avatarUrl)
                                         .placeholder(Icon.players)
                                         .fallback(Icon.players)
-                                        .size(unit(8), unit(8));
+                                        .size(unit(8), unit(8))
+                                        .top().left();
                             } else {
-                                row().width(unit(8));
+                                row().width(unit(8)).top().left();
                             }
 
                             // Content area
-                            column().growX().gap(unit(0.5f)).children(() -> {
+                            column().growX().top().left().gap(unit(0.5f)).children(() -> {
                                 // Author and timestamp header
                                 if (isFirst) {
-                                    row().growX().gap(unit(1)).children(() -> {
+                                    row().growX().top().left().gap(unit(1)).children(() -> {
                                         text(authorName)
                                                 .color(authorColor)
                                                 .fontScale(0.95f)
@@ -213,7 +290,7 @@ public class ChatMessageListView extends BaseComponent {
                                 // Translated text preview
                                 dynamic(store.translation(message.getId()), trans -> {
                                     if (trans != null && !trans.isEmpty()) {
-                                        return row().growX().padding(unit(0.5f)).children(() -> {
+                                        return row().growX().top().left().padding(unit(0.5f)).children(() -> {
                                             text(trans)
                                                     .color(Color.lightGray)
                                                     .fontScale(0.9f)
@@ -228,7 +305,7 @@ public class ChatMessageListView extends BaseComponent {
                                 // Interactive action bar
                                 dynamic(store.expandedMessageId(), expId -> {
                                     if (Objects.equals(expId, message.getId())) {
-                                        return row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
+                                        return row().growX().top().left().padding(unit(1)).gap(unit(1)).children(() -> {
                                             button(Core.bundle.get("button.copy", "Copy"), () -> {
                                                 try {
                                                     Core.app.setClipboardText(rawContent);
@@ -302,7 +379,7 @@ public class ChatMessageListView extends BaseComponent {
             }
 
             final String displaySnippet = targetSnippet;
-            row().growX().gap(unit(1)).padding(unit(0.5f)).children(() -> {
+            row().growX().top().left().gap(unit(1)).padding(unit(0.5f)).children(() -> {
                 image(Icon.rightSmall).size(unit(4), unit(4)).color(Color.gray);
                 text(displaySnippet)
                         .color(Color.gray)
@@ -317,9 +394,9 @@ public class ChatMessageListView extends BaseComponent {
 
             if (content.startsWith("player-connect://")) {
                 final String link = content;
-                card().growX().children(() -> {
-                    column().growX().padding(unit(1.5f)).gap(unit(1)).children(() -> {
-                        row().growX().gap(unit(1)).children(() -> {
+                card().growX().top().left().children(() -> {
+                    column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
+                        row().growX().top().left().gap(unit(1)).children(() -> {
                             image(Icon.host).size(unit(5), unit(5)).color(Pal.accent);
                             text(Core.bundle.get("feature.chat.ui.room-invite", "Room Invite"))
                                     .color(Pal.accent)
@@ -327,7 +404,7 @@ public class ChatMessageListView extends BaseComponent {
                                     .left();
                         });
                         text(link).color(Color.lightGray).fontScale(0.85f).ellipsis().left();
-                        row().gap(unit(1)).children(() -> {
+                        row().top().left().gap(unit(1)).children(() -> {
                             button(Core.bundle.get("button.copy", "Copy Link"), () -> {
                                 Core.app.setClipboardText(link);
                                 Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.copied", "Copied!"));
@@ -340,12 +417,13 @@ public class ChatMessageListView extends BaseComponent {
 
             if (IMAGE_URL_PATTERN.matcher(content).matches()) {
                 final String imageUrl = content;
-                column().growX().gap(unit(1)).children(() -> {
+                column().growX().top().left().gap(unit(1)).children(() -> {
                     text(imageUrl).color(Color.lightGray).fontScale(0.85f).wrap().left().growX();
                     networkImage(imageUrl)
                             .placeholder(Icon.image)
                             .fallback(Icon.cancel)
-                            .size(unit(40), unit(30));
+                            .size(unit(40), unit(30))
+                            .top().left();
                 });
                 return;
             }
@@ -356,9 +434,9 @@ public class ChatMessageListView extends BaseComponent {
                 String type = matcher.group(1);
                 String itemId = matcher.group(2);
 
-                card().growX().children(() -> {
-                    column().growX().padding(unit(1.5f)).gap(unit(1)).children(() -> {
-                        row().growX().gap(unit(1)).children(() -> {
+                card().growX().top().left().children(() -> {
+                    column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
+                        row().growX().top().left().gap(unit(1)).children(() -> {
                             image("maps".equals(type) ? Icon.map : Icon.paste).size(unit(5), unit(5)).color(Pal.accent);
                             text(("maps".equals(type) ? "Map: " : "Schematic: ") + itemId)
                                     .color(Pal.accent)
@@ -366,7 +444,7 @@ public class ChatMessageListView extends BaseComponent {
                                     .ellipsis()
                                     .left();
                         });
-                        row().gap(unit(1)).children(() -> {
+                        row().top().left().gap(unit(1)).children(() -> {
                             button(Core.bundle.get("button.copy", "Copy Link"), () -> {
                                 Core.app.setClipboardText(fullUrl);
                                 Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.copied", "Copied!"));
@@ -401,19 +479,19 @@ public class ChatMessageListView extends BaseComponent {
                 if (schematic != null) {
                     if (!prev.isEmpty()) {
                         final String prevText = prev;
-                        row().growX().children(() -> {
+                        row().growX().top().left().children(() -> {
                             text(prevText).color(Color.white).wrap().left().growX();
                         });
                     }
 
                     final Schematic finalSchem = schematic;
-                    row().growX().children(() -> {
+                    row().growX().top().left().children(() -> {
                         buildSchematicCard(finalSchem);
                     });
 
                     if (!after.isEmpty()) {
                         final String afterText = after;
-                        row().growX().children(() -> {
+                        row().growX().top().left().children(() -> {
                             text(afterText).color(Color.white).wrap().left().growX();
                         });
                     }
@@ -423,7 +501,7 @@ public class ChatMessageListView extends BaseComponent {
 
             // Standard text message
             final String text = content;
-            row().growX().children(() -> {
+            row().growX().top().left().children(() -> {
                 text(text)
                         .color(Color.white)
                         .wrap()
@@ -433,9 +511,9 @@ public class ChatMessageListView extends BaseComponent {
         }
 
         private void buildSchematicCard(Schematic schematic) {
-            card().growX().children(() -> {
-                column().growX().padding(unit(1.5f)).gap(unit(1)).children(() -> {
-                    row().growX().gap(unit(1)).children(() -> {
+            card().growX().top().left().children(() -> {
+                column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
+                    row().growX().top().left().gap(unit(1)).children(() -> {
                         text(schematic.name())
                                 .color(Pal.accent)
                                 .fontScale(0.95f)

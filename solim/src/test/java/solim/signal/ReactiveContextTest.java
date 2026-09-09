@@ -97,4 +97,22 @@ class ReactiveContextTest {
 		assertDoesNotThrow(() -> ReactiveContext.track(s));
 		assertEquals(5, s.get());
 	}
+
+	@Test
+	void testUntrackedExecution() {
+		Signal<Integer> count = Signal.of(0);
+		int[] effectRuns = new int[]{0};
+
+		Effect.of(() -> {
+			effectRuns[0]++;
+			// read inside untracked
+			int val = ReactiveContext.untracked(count::get);
+			assertEquals(val, count.peek());
+		});
+
+		assertEquals(1, effectRuns[0]);
+		count.set(1);
+		count.set(2);
+		assertEquals(1, effectRuns[0], "Effect should not re-run because signal read was untracked");
+	}
 }
