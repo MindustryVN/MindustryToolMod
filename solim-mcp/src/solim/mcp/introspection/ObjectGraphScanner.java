@@ -1,17 +1,13 @@
 package solim.mcp.introspection;
 
 import arc.scene.Element;
-import arc.util.Log;
 import arc.util.Nullable;
 import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;

@@ -1,7 +1,6 @@
 package solim.mcp.transport;
 
 import arc.util.Log;
-import arc.util.Nullable;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
