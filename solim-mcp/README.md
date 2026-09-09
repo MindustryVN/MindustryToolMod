@@ -131,6 +131,14 @@ Arguments: `{"target": "name or class name of an element"}` (required).
 {"layout":{"x":0,"y":0,"width":1920,"height":1080,"visible":true,"expanding":false}}
 ```
 
+#### `execute_js`
+
+Arguments: `{"code": "JavaScript code string"}` (required). Executes JavaScript inside Mindustry's live Rhino runtime on the main game thread, with full access to `Vars`, `Core`, `UnitTypes`, `Blocks`, etc.
+
+```json
+{"result":"3","success":true}
+```
+
 ## HTTP fallback
 
 One-off POSTs (no streaming): `POST /mcp` with a JSON-RPC body. Requires

@@ -79,6 +79,11 @@ class McpServerIntegrationTest {
 			assertNotNull(tree);
 			assertTrue(tree.contains("gadget"), tree);
 
+			client.send("{\"jsonrpc\":\"2.0\",\"id\":31,\"method\":\"tools/call\",\"params\":{\"name\":\"execute_js\",\"arguments\":{\"code\":\"1 + 2\"}}}");
+			String js = inbox.poll(5, TimeUnit.SECONDS);
+			assertNotNull(js);
+			assertTrue(js.contains("3"), js);
+
 			client.send("{\"jsonrpc\":\"2.0\",\"id\":4,\"method\":\"solim/subscribe\"}");
 			String subscribed = inbox.poll(5, TimeUnit.SECONDS);
 			assertNotNull(subscribed);

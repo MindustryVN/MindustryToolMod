@@ -82,9 +82,9 @@ copy "%JAR_PATH%" "%DEST_FOLDER%" /y
 echo Running %APP_TO_RUN%...
 set "ext=%APP_TO_RUN:~-4%"
 if /I "%ext%"==".jar" (
-    start "" javaw -jar "%APP_TO_RUN%"
+    start /d "%DEFAULT_DIR%" "" javaw -jar "%APP_TO_RUN%"
 ) else (
-    start "" "%APP_TO_RUN%"
+    start /d "%DEFAULT_DIR%" "" "%APP_TO_RUN%"
 )
 
 echo Done.

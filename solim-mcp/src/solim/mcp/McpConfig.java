@@ -58,7 +58,7 @@ public final class McpConfig {
 	private static int parsePort(String raw) {
 		try {
 			int port = Integer.parseInt(raw);
-			if (port < 1 || port > 65535) {
+			if (port < 0 || port > 65535) {
 				throw new IllegalArgumentException("port out of range: " + port);
 			}
 			return port;

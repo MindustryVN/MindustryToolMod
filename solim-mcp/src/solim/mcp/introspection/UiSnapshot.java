@@ -217,9 +217,14 @@ public final class UiSnapshot {
 				throw new RuntimeException("Timed out waiting for UI thread to capture snapshot");
 			}
 			if (error.get() != null) {
-				throw new RuntimeException(error.get());
+				Throwable t = error.get();
+				if (t instanceof RuntimeException) throw (RuntimeException) t;
+				if (t instanceof Error) throw (Error) t;
+				throw new RuntimeException(t);
 			}
 			return result.get();
+		} catch (RuntimeException e) {
+			throw e;
 		} catch (Exception e) {
 			throw new RuntimeException("Failed to capture UI snapshot", e);
 		}

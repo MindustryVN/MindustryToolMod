@@ -22,6 +22,9 @@ public final class ToolRegistry {
 		register(new SignalValuesTool(snapshotRoot));
 		register(new BindingsTool(snapshotRoot));
 		register(new LayoutTool(snapshotRoot));
+		register(new FindElementsTool(snapshotRoot));
+		register(new ClickElementTool(snapshotRoot));
+		register(new ExecuteJsTool());
 	}
 
 	private void register(McpTool tool) {

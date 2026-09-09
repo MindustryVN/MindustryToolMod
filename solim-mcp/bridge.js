@@ -73,6 +73,52 @@ const STATIC_TOOLS = [
       },
       required: ['target']
     }
+  },
+  {
+    name: 'find_elements',
+    description: 'Searches the live UI hierarchy for elements matching a query by name, class, or label text.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Substring to search for in element names, class names, or label text (case-insensitive).'
+        },
+        maxResults: {
+          type: 'integer',
+          description: 'Maximum number of matching elements to return (default 25).'
+        }
+      },
+      required: ['query']
+    }
+  },
+  {
+    name: 'click_element',
+    description: 'Finds a UI element by name or class and triggers a click event on the main game thread.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        target: {
+          type: 'string',
+          description: 'Element name or class name to click.'
+        }
+      },
+      required: ['target']
+    }
+  },
+  {
+    name: 'execute_js',
+    description: 'Executes JavaScript code in the live Mindustry Rhino environment and returns the evaluated result.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        code: {
+          type: 'string',
+          description: 'JavaScript code to evaluate in the Rhino runtime.'
+        }
+      },
+      required: ['code']
+    }
   }
 ];
 

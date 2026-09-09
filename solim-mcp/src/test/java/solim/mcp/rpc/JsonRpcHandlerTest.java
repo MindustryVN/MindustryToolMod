@@ -46,16 +46,26 @@ class JsonRpcHandlerTest {
 	}
 
 	@Test
-	void toolsListContainsAllFourTools() throws Exception {
+	void toolsListContainsAllTools() throws Exception {
 		JsonNode node = mapper.readTree(handler.handle(
 			"{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}", sink));
 		JsonNode tools = node.path("result").path("tools");
-		assertEquals(4, tools.size());
+		assertEquals(7, tools.size());
 		boolean foundTree = false;
+		boolean foundJs = false;
+		boolean foundClick = false;
+		boolean foundFind = false;
 		for (JsonNode tool : tools) {
-			if ("get_component_tree".equals(tool.path("name").asText())) foundTree = true;
+			String name = tool.path("name").asText();
+			if ("get_component_tree".equals(name)) foundTree = true;
+			if ("execute_js".equals(name)) foundJs = true;
+			if ("click_element".equals(name)) foundClick = true;
+			if ("find_elements".equals(name)) foundFind = true;
 		}
 		assertTrue(foundTree);
+		assertTrue(foundJs);
+		assertTrue(foundClick);
+		assertTrue(foundFind);
 	}
 
 	@Test
