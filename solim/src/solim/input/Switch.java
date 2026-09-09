@@ -1,18 +1,16 @@
 package solim.input;
 
 import arc.scene.ui.TextButton;
-import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
-import solim.signal.Effect;
 import solim.signal.Signal;
 
 /**
  * Switch widget bound to Signal&lt;Boolean&gt;. Uses TextButton as a visual toggle; state held in
  * signal.
  */
-public final class Switch implements Component, Disposable {
+public final class Switch implements Component {
 	private final TextButton button = new TextButton("");
 	private final Signal<Boolean> signal;
 	private boolean state;

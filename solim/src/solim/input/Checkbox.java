@@ -15,7 +15,7 @@ import solim.signal.Effect;
 import solim.signal.Signal;
 
 /** Checkbox widget bound to Signal&lt;Boolean&gt;. */
-public final class Checkbox implements Component, Disposable {
+public final class Checkbox implements Component {
 
 	public static class SizedCheckBox extends CheckBox implements ConstrainedElement {
 		private final SizeConstraints constraints = new SizeConstraints();

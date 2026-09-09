@@ -29,7 +29,7 @@ import solim.ui.ParentStack;
 /**
  * Pure Button container widget supporting explicit children composition, custom width/height sizing, and reactive state.
  */
-public final class Button implements Component, Disposable {
+public final class Button implements Component {
 
 	public static class SizedButton extends arc.scene.ui.Button implements ConstrainedElement {
 		private final SizeConstraints constraints = new SizeConstraints();

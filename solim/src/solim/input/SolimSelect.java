@@ -2,18 +2,16 @@ package solim.input;
 
 import arc.scene.ui.TextButton;
 import java.util.List;
-import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
-import solim.signal.Effect;
 import solim.signal.Signal;
 
 /**
  * Select widget bound to Signal&lt;T&gt;. Uses TextButton as placeholder (Arc SelectBox unavailable
  * in this version). State held in signal; visual updates on change.
  */
-public final class SolimSelect<T> implements Component, Disposable {
+public final class SolimSelect<T> implements Component {
 	private final TextButton selectBox = new TextButton("");
 	private final Signal<T> signal;
 	private final List<T> options;

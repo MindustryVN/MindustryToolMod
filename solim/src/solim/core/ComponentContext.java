@@ -53,28 +53,6 @@ public final class ComponentContext {
 		}
 	}
 
-	/**
-	 * Suspends automatic resource registration. Prefer {@link #withoutAutoOwnership(Runnable)}.
-	 *
-	 * @deprecated Internal use only. Use {@link #withoutAutoOwnership(Runnable)} instead.
-	 */
-	@Deprecated
-	static void pause() {
-		paused++;
-	}
-
-	/**
-	 * Resumes automatic resource registration. Prefer {@link #withoutAutoOwnership(Runnable)}.
-	 *
-	 * @deprecated Internal use only. Use {@link #withoutAutoOwnership(Runnable)} instead.
-	 */
-	@Deprecated
-	static void resume() {
-		if (paused > 0) {
-			paused--;
-		}
-	}
-
 	public static void clear() {
 		stack.clear();
 		paused = 0;

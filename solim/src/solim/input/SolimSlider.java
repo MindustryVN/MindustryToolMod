@@ -1,16 +1,14 @@
 package solim.input;
 
 import arc.scene.ui.Slider;
-import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
-import solim.signal.Effect;
 import solim.signal.Signal;
 
 /** Slider widget bound to Signal&lt;Float&gt;. */
-public final class SolimSlider implements Component, Disposable {
+public final class SolimSlider implements Component {
 	private final Slider slider = new Slider(0f, 1f, 0.1f, false);
 	private Disposable binding;
 

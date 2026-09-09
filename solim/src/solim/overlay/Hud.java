@@ -30,7 +30,7 @@ import solim.ui.ParentStack;
  * Content children are nested within an inner enabled container.
  * Automatically adapts to screen resize events via {@link #keepInScreen()}.
  */
-public class Hud implements Component, Disposable, LayoutModifiers<Hud> {
+public class Hud implements Component, LayoutModifiers<Hud> {
 
 	private final SizedTable root;
 	private final Table container;

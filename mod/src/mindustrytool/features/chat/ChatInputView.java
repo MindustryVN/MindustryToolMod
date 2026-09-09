@@ -13,7 +13,6 @@ import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.UserData;
 import mindustrytool.services.auth.AuthOverlay;
 import solim.core.BaseComponent;
-import solim.input.SolimTextField;
 import solim.signal.Readable;
 import solim.signal.Signal;
 
@@ -59,7 +58,8 @@ public class ChatInputView extends BaseComponent {
                                 : (authorId != null ? authorId : "message");
                         return row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
                             image(Icon.leftSmall).size(unit(4), unit(4)).color(Pal.accent);
-                            text(Core.bundle.format("feature.chat.ui.replying", targetName)).color(Color.lightGray).fontScale(0.85f).left();
+                            text(Core.bundle.format("feature.chat.ui.replying", targetName)).color(Color.lightGray)
+                                    .fontScale(0.85f).left();
                             spacer();
                             button(() -> store.setReplyTarget(null))
                                     .style(Styles.clearNonei)
@@ -71,7 +71,7 @@ public class ChatInputView extends BaseComponent {
                 });
 
                 row().growX().gap(unit(1)).children(() -> {
-                    SolimTextField tf = textField(messageText)
+                    textField(messageText)
                             .placeholder(Core.bundle.get("feature.chat.ui.placeholder", "Message..."))
                             .validator(this::isValidInput)
                             .onEnter(this::onSend)

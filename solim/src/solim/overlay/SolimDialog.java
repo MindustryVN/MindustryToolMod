@@ -30,7 +30,7 @@ import solim.ui.ParentStack;
  * full declarative
  * configuration, reactive signal creation, and clean lifecycle management.
  */
-public class SolimDialog extends BaseDialog implements Component, Disposable, arc.util.Disposable {
+public class SolimDialog extends BaseDialog implements Component {
 
     private final List<Disposable> disposables = new ArrayList<>();
     private boolean isShown = false;

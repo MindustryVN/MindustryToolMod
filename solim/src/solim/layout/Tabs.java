@@ -21,7 +21,7 @@ import solim.ui.ParentStack;
 /**
  * Tabs layout component: provides a tab header button bar and switches between tab content panels reactively.
  */
-public final class Tabs implements Component, Disposable, LayoutModifiers<Tabs> {
+public final class Tabs implements Component, LayoutModifiers<Tabs> {
 
 	private final SizedTable root;
 	private final SizedTable headerBar;

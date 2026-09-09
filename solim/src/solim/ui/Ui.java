@@ -368,13 +368,7 @@ public final class Ui {
         return EventsUtil.createSignal(eventType, mapper, initial);
     }
 
-    public static <T> Signal<T> createSignal(java.util.function.Function<Runnable, solim.core.Disposable> callbackRegistrar, Supplier<T> supplier) {
-        return EventsUtil.createSignal(callbackRegistrar, supplier);
-    }
-
-    /** @deprecated Use {@link #createSignal(java.util.function.Function, Supplier)} to support cleanup. */
-    @Deprecated
-    public static <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
+    public static <T> Signal<T> createSignal(Function<Runnable, Disposable> callbackRegistrar, Supplier<T> supplier) {
         return EventsUtil.createSignal(callbackRegistrar, supplier);
     }
 

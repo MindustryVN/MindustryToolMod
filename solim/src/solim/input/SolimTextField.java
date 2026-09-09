@@ -8,7 +8,6 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 import solim.core.Component;
 import solim.core.ComponentContext;
-import solim.core.Disposable;
 import solim.layout.ConstrainedElement;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
@@ -22,7 +21,7 @@ import solim.ui.Binding;
  * loop. Automatically registers with the active ComponentContext if created during a component
  * build.
  */
-public final class SolimTextField implements Component, Disposable {
+public final class SolimTextField implements Component {
 
 	public static class SizedTextField extends TextField implements ConstrainedElement {
 		private final SizeConstraints constraints = new SizeConstraints();

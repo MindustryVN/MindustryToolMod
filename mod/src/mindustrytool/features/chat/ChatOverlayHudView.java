@@ -85,7 +85,6 @@ public class ChatOverlayHudView extends BaseComponent {
 
     private Component buildCollapsedBadge() {
         Readable<Boolean> isConnected = store.connected();
-        Readable<Integer> unread = store.unreadCount();
 
         return card(Styles.black8)
                 .children(() -> {

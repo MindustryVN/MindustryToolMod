@@ -8,7 +8,6 @@ import arc.util.Log;
 import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import solim.modifier.ElementModifiers;
@@ -97,17 +96,6 @@ public abstract class BaseComponent implements Component {
 	}
 
 	/**
-	 * Registers a disposable resource with this component's lifecycle. Resources are disposed in
-	 * reverse registration order when this component is disposed.
-	 *
-	 * @deprecated Use {@link #own(Disposable)} instead.
-	 */
-	@Deprecated
-	public <T extends Disposable> T registerDisposable(T disposable) {
-		return own(disposable);
-	}
-
-	/**
 	 * Owns a disposable resource: adds it to this component's disposal list and returns it. The
 	 * resource will be disposed (in reverse registration order) when this component is disposed.
 	 * Safe to call with {@code null}.
@@ -117,20 +105,6 @@ public abstract class BaseComponent implements Component {
 			disposables.add(disposable);
 		}
 		return disposable;
-	}
-
-	/**
-	 * Owns a child component: registers its disposal with this component.
-	 *
-	 * @deprecated Components now implement {@link Disposable} via the {@link Component} interface.
-	 *     Use {@link #own(Disposable)} instead.
-	 */
-	@Deprecated
-	protected <T extends Component> T ownChild(T child) {
-		if (child != null) {
-			own(child);
-		}
-		return child;
 	}
 
 	/**
@@ -176,22 +150,6 @@ public abstract class BaseComponent implements Component {
 		Signal<T> signal = Signal.of(supplier.get());
 		if (registrar != null) {
 			own(registrar.apply(() -> signal.set(supplier.get())));
-		}
-		return signal;
-	}
-
-	/**
-	 * Creates a reactive signal initialized from the supplier that recalculates whenever the callback
-	 * registrar invokes the given callback.
-	 *
-	 * @deprecated Use {@link #createSignal(Function, Supplier)} to ensure the callback can be
-	 *     properly unregistered on disposal.
-	 */
-	@Deprecated
-	public <T> Signal<T> createSignal(Consumer<Runnable> callbackRegistrar, Supplier<T> supplier) {
-		Signal<T> signal = Signal.of(supplier.get());
-		if (callbackRegistrar != null) {
-			callbackRegistrar.accept(() -> signal.set(supplier.get()));
 		}
 		return signal;
 	}

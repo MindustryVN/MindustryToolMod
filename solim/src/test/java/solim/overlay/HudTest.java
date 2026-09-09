@@ -18,7 +18,6 @@ import mindustry.game.EventType.ResizeEvent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import solim.modifier.ElementModifiers;
 import solim.signal.Signal;
 import solim.ui.Ui;
 

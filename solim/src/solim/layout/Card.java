@@ -25,7 +25,7 @@ import solim.ui.Ui;
  * Clickable and stylable card container component with support for inner children, reactive
  * width/height/color bindings, and click event bubbling control.
  */
-public final class Card implements Component, Disposable, LayoutModifiers<Card> {
+public final class Card implements Component, LayoutModifiers<Card> {
 
 	public static final ParentStack.Attacher ATTACHER = (table, child) -> {
 		Cell<?> cell = table.add(child);

@@ -9,7 +9,6 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import solim.core.BaseComponent;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
