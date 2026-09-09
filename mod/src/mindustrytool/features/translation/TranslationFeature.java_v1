@@ -367,6 +367,26 @@ public class TranslationFeature extends Feature {
 		return getActiveProvider().translate(text, targetLang);
 	}
 
+	public CompletableFuture<String> translate(String text, String targetLanguage) {
+		return getActiveProvider().translate(text, targetLanguage);
+	}
+
+	public void resetToDefaults() {
+		providerConfig.set(GeminiTranslationProvider.ID);
+		showOriginalConfig.set(true);
+		outgoingEnabledConfig.set(true);
+		outgoingTargetLangConfig.set("English");
+		outgoingFormatConfig.set("both");
+		outgoingShowOriginalConfig.set(true);
+		geminiModelConfig.set(GeminiTranslationProvider.MODELS[0]);
+		geminiTimeoutConfig.set(10);
+		geminiMaxHistoryConfig.set(5);
+		deeplTimeoutConfig.set(10);
+		mindustryToolTimeoutConfig.set(30);
+		devxTimeoutConfig.set(10);
+		devxMaxHistoryConfig.set(5);
+	}
+
 	@Override
 	public @Nullable Dialog getSettingDialog() {
 		if (settingsDialog == null) {

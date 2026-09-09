@@ -1,6 +1,7 @@
 package mindustrytool.features.translation.ui;
 
 import arc.Core;
+import mindustry.gen.Icon;
 import mindustrytool.features.translation.TranslationFeature;
 import solim.overlay.SolimDialog;
 

@@ -170,7 +170,6 @@ build/
 .agent/skills/i18n-localization/
 .agent/skills/java-architect/
 mod/src/test/
-*_v*
 
 mindustry/
 archive/
@@ -179,4 +178,7 @@ arc/
 .bin
 backup/
 scratch/
+
+*_v*
+*_backup
 
