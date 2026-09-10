@@ -43,19 +43,20 @@ class ForEachComponentTest {
 	}
 
 	@Test
-	void forEachCreatesElement() {
-		Signal<List<String>> items = Signal.of(Arrays.asList("A", "B"));
-		ForEach<String, String> fe = new ForEach<>(items, id -> id, id -> new TestComponent(id));
-		assertNotNull(fe.element());
-		fe.dispose();
-	}
-
-	@Test
-	void forEachRendersItems() {
+	void forEachRendersItemsInOrder() {
 		Signal<List<String>> items = Signal.of(Arrays.asList("A", "B", "C"));
-		ForEach<String, String> fe = new ForEach<>(items, id -> id, id -> new TestComponent(id));
-		assertNotNull(fe.element());
+		Map<String, TestComponent> created = new HashMap<>();
+		ForEach<String, String> fe = new ForEach<>(items, id -> id, id -> {
+			TestComponent tc = new TestComponent(id);
+			created.put(id, tc);
+			return tc;
+		});
+		fe.element();
 		assertEquals(3, fe.container().getChildren().size);
+		assertSame(created.get("A").element(), fe.container().getChildren().get(0));
+		assertSame(created.get("B").element(), fe.container().getChildren().get(1));
+		assertSame(created.get("C").element(), fe.container().getChildren().get(2));
+		assertSame(fe.container(), fe.element());
 		fe.dispose();
 	}
 
@@ -71,7 +72,7 @@ class ForEachComponentTest {
 		fe.element();
 
 		TestComponent a = created.get("A");
-		assertNotNull(a);
+		assertEquals("A", a.id);
 
 		// Update items to [B, C, D]
 		items.set(Arrays.asList("B", "C", "D"));

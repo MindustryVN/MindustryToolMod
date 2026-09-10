@@ -7,7 +7,6 @@ import arc.mock.MockApplication;
 import arc.mock.MockGraphics;
 import arc.scene.Element;
 import arc.scene.ui.layout.CellAccess;
-import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.signal.Signal;
@@ -25,147 +24,135 @@ class ColumnTest {
 	}
 
 	@Test
-	void columnCreatesTable() {
+	void createsTableWithDefaultName() {
 		Column col = new Column();
-		assertNotNull(col.element());
-		assertNotNull(col.table());
+		assertEquals("solim-column-table", col.table().name);
 	}
 
 	@Test
-	void columnAddsChildElements() {
+	void preservesChildOrder() {
+		Column col = new Column();
+		Element first = new Element();
+		Element second = new Element();
+		Element third = new Element();
+
+		col.add(first).row();
+		col.add(second).row();
+		col.add(third);
+
+		assertSame(first, col.table().getChildren().get(0));
+		assertSame(second, col.table().getChildren().get(1));
+		assertSame(third, col.table().getChildren().get(2));
+	}
+
+	@Test
+	void gapAppliesHalfPadToDefaultsAndExistingCells() {
 		Column col = new Column();
 		Element a = new Element();
 		Element b = new Element();
 		col.add(a).row();
 		col.add(b);
-		assertEquals(2, col.table().getChildren().size);
-		assertSame(a, col.table().getChildren().get(0));
-		assertSame(b, col.table().getChildren().get(1));
-	}
 
-	@Test
-	void columnGapModifier() {
-		Column col = new Column();
 		col.gap(16f);
-		Element a = new Element();
-		Element b = new Element();
-		col.add(a).row();
-		col.add(b);
+
+		assertEquals(8f, CellAccess.padTop(col.table().defaults()), 0.01f);
 		assertEquals(2, col.table().getChildren().size);
 	}
 
 	@Test
-	void columnPaddingModifier() {
+	void paddingPreservesChildrenAndReturnsSelf() {
 		Column col = new Column();
-		col.padding(24f);
-		assertNotNull(col.table());
+		Element child = new Element();
+		col.add(child);
+
+		assertSame(col, col.padding(24f));
+		assertSame(col, col.padding(1f, 2f, 3f, 4f));
+		assertEquals(1, col.table().getChildren().size);
+		assertSame(child, col.table().getChildren().get(0));
 	}
 
 	@Test
-	void columnPaddingFourArgs() {
+	void visibleModifierChangesTableVisibility() {
 		Column col = new Column();
-		col.padding(1f, 2f, 3f, 4f);
-		assertNotNull(col.table());
-	}
 
-	@Test
-	void columnAlignCenter() {
-		Column col = new Column();
-		col.align(Align.CENTER);
-		assertNotNull(col.table());
-	}
-
-	@Test
-	void columnAlignStart() {
-		Column col = new Column();
-		col.align(Align.START);
-		assertNotNull(col.table());
-	}
-
-	@Test
-	void columnAlignEnd() {
-		Column col = new Column();
-		col.align(Align.END);
-		assertNotNull(col.table());
-	}
-
-	@Test
-	void columnTopBottomLeftRightCenter() {
-		Column col = new Column();
-		col.top();
-		col.bottom();
-		col.left();
-		col.right();
-		col.center();
-		assertNotNull(col.table());
-	}
-
-	@Test
-	void columnVisibleModifier() {
-		Column col = new Column();
 		col.visible(false);
 		assertFalse(col.table().visible);
+
 		col.visible(true);
 		assertTrue(col.table().visible);
 	}
 
 	@Test
-	void columnReactiveVisible() {
+	void reactiveVisibleUpdatesTableVisibility() {
 		Signal<Boolean> vis = Signal.of(true);
 		Column col = new Column();
 		col.visible(vis);
+
 		assertTrue(col.table().visible);
+
 		vis.set(false);
 		assertFalse(col.table().visible);
+
+		vis.set(true);
+		assertTrue(col.table().visible);
 	}
 
 	@Test
-	void columnPositionModifiers() {
+	void positionSetsTableCoordinates() {
 		Column col = new Column();
+
 		col.x(10f);
 		assertEquals(10f, col.table().x, 0.01f);
+
 		col.y(20f);
 		assertEquals(20f, col.table().y, 0.01f);
+
 		col.position(30f, 40f);
 		assertEquals(30f, col.table().x, 0.01f);
 		assertEquals(40f, col.table().y, 0.01f);
 	}
 
 	@Test
-	void columnNameModifier() {
+	void nameModifierUpdatesTableName() {
 		Column col = new Column();
 		col.name("my-column");
 		assertEquals("my-column", col.table().name);
 	}
 
 	@Test
-	void columnChildrenRunnable() {
-		Column col = new Column();
-		col.children(() -> {
-			Element e = new Element();
-			col.add(e);
-		});
-		assertEquals(1, col.table().getChildren().size);
-	}
-
-	@Test
-	void columnGrowModifiers() {
+	void childrenRunnableAddsElements() {
 		Column col = new Column();
 		Element child = new Element();
-		col.add(child);
-		// Column uses growY for expanding children
-		assertNotNull(col.table());
+
+		col.children(() -> {
+			solim.ui.ParentStack.add(child);
+		});
+
+		assertEquals(1, col.table().getChildren().size);
+		assertSame(child, col.table().getChildren().get(0));
 	}
 
 	@Test
-	void columnImplementsComponent() {
+	void fluentApiReturnsSameColumn() {
 		Column col = new Column();
-		assertInstanceOf(solim.core.Component.class, col);
+
+		assertSame(col, col.gap(8f));
+		assertSame(col, col.padding(4f));
+		assertSame(col, col.name("test"));
+		assertSame(col, col.visible(true));
+		assertSame(col, col.x(0f));
+		assertSame(col, col.y(0f));
 	}
 
 	@Test
-	void columnSizeConstraints() {
+	void tableIsSameAsElement() {
 		Column col = new Column();
-		assertNotNull(col.sizeConstraints());
+		assertSame(col.table(), col.element());
+	}
+
+	@Test
+	void sizeConstraintsDelegatesToTable() {
+		Column col = new Column();
+		assertSame(col.table().getSizeConstraints(), col.sizeConstraints());
 	}
 }

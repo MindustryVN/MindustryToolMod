@@ -100,7 +100,7 @@ class ParentStackTest {
 				ParentStack.pop();
 			}
 		});
-		assertNotNull(thrown);
+		assertEquals("boom", thrown.getMessage());
 		assertEquals(0, ParentStack.size());
 	}
 
@@ -121,10 +121,11 @@ class ParentStackTest {
 
 	@Test
 	void resolveComponent() {
-		Component comp = () -> new Element();
+		Element inner = new Element();
+		inner.name = "resolved-inner";
+		Component comp = () -> inner;
 		Element resolved = ElementResolver.resolve(comp);
-		assertNotNull(resolved);
-		assertNotNull(comp.element());
+		assertSame(inner, resolved);
 	}
 
 	@Test

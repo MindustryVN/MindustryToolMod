@@ -70,8 +70,6 @@ class AmbientOwnershipTest {
 		ParentComponent parent = new ParentComponent();
 		parent.element();
 
-		assertNotNull(parent.child);
-		assertNotNull(parent.customDisposable);
 		assertFalse(parent.childDisposed.get());
 		assertFalse(parent.customDisposable.disposedFlag.get());
 

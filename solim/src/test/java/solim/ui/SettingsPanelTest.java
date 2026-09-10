@@ -3,6 +3,7 @@ package solim.ui;
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.Core;
+import arc.scene.Element;
 import org.junit.jupiter.api.Test;
 
 class SettingsPanelTest {
@@ -25,10 +26,13 @@ class SettingsPanelTest {
 	}
 
 	@Test
-	void renderIfSceneAvailable() {
+	void renderBuildsColumnWithChildrenIfSceneAvailable() {
 		if (Core.scene != null) {
 			SettingsPanel panel = new SettingsPanel();
-			assertNotNull(panel.element());
+			Element el = panel.element();
+			assertTrue(el instanceof arc.scene.ui.layout.Table);
+			assertTrue(((arc.scene.ui.layout.Table) el).getChildren().size > 0);
+			assertSame(el, panel.element());
 			panel.dispose();
 		}
 	}

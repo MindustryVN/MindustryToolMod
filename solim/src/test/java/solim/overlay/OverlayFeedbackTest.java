@@ -125,9 +125,17 @@ class OverlayFeedbackTest {
 	void progressBarReactive() {
 		Signal<Float> progress = Signal.of(0.3f);
 		ProgressBar pb = new ProgressBar(progress);
+		assertEquals(1, pb.bar().getChildren().size);
+		arc.scene.Element firstFill = pb.bar().getChildren().get(0);
+
 		progress.set(0.7f);
-		assertNotNull(pb.bar());
+		assertEquals(1, pb.bar().getChildren().size);
+		arc.scene.Element secondFill = pb.bar().getChildren().get(0);
+		assertNotSame(firstFill, secondFill, "Progress change must rebuild fill");
+
 		pb.dispose();
+		progress.set(0.9f);
+		assertSame(secondFill, pb.bar().getChildren().get(0), "Disposed bar must not rebuild");
 	}
 
 	@Test
@@ -143,27 +151,35 @@ class OverlayFeedbackTest {
 		Signal<Integer> count = Signal.of(5);
 		Computed<String> text = count.map(v -> v > 99 ? "99+" : String.valueOf(v));
 		Badge b = Badge.of(text);
-		assertNotNull(b.table());
+		assertEquals("5", ((arc.scene.ui.Label) b.table().getChildren().get(0)).getText().toString());
+
 		count.set(50);
-		text.get();
+		assertEquals("50", ((arc.scene.ui.Label) b.table().getChildren().get(0)).getText().toString());
+
+		count.set(150);
+		assertEquals("99+", ((arc.scene.ui.Label) b.table().getChildren().get(0)).getText().toString());
+
 		b.dispose();
+		count.set(7);
+		assertEquals("99+", ((arc.scene.ui.Label) b.table().getChildren().get(0)).getText().toString());
 	}
 
 	@Test
-	void spinnerExists() {
+	void spinnerShowsLoadingText() {
 		Spinner s = new Spinner();
-		assertNotNull(s.label());
+		assertEquals("Loading...", s.label().getText().toString());
 	}
 
 	@Test
-	void avatarExists() {
+	void avatarContainsSizedImage() {
 		Avatar a = new Avatar();
-		assertNotNull(a.table());
+		assertEquals(1, a.table().getChildren().size);
+		assertTrue(a.table().getChildren().get(0) instanceof arc.scene.ui.Image);
 	}
 
 	@Test
-	void popupExists() {
+	void popupStartsEmpty() {
 		Popup p = new Popup();
-		assertNotNull(p.table());
+		assertEquals(0, p.table().getChildren().size);
 	}
 }

@@ -16,27 +16,25 @@ class CheckboxComponentTest {
 	}
 
 	@Test
-	void checkboxCreatesElement() {
-		Checkbox cb = new Checkbox("Test", Signal.of(false));
-		assertNotNull(cb.element());
-		assertNotNull(cb.checkBox());
-		cb.dispose();
-	}
-
-	@Test
-	void checkboxBinding() {
+	void signalUpdatesCheckedState() {
 		Signal<Boolean> enabled = Signal.of(false);
 		Checkbox cb = new Checkbox("Enable", enabled);
+
 		assertFalse(cb.checkBox().isChecked());
+
 		enabled.set(true);
 		assertTrue(cb.checkBox().isChecked());
+
+		enabled.set(false);
+		assertFalse(cb.checkBox().isChecked());
 		cb.dispose();
 	}
 
 	@Test
-	void checkboxCallback() {
+	void callbackReceivesToggleValue() {
 		boolean[] toggled = {true};
 		Checkbox cb = new Checkbox("Enable", true, val -> toggled[0] = val);
+
 		assertTrue(cb.checkBox().isChecked());
 		cb.checkBox().setChecked(false);
 		assertFalse(toggled[0]);
@@ -44,7 +42,7 @@ class CheckboxComponentTest {
 	}
 
 	@Test
-	void checkboxNameModifier() {
+	void nameModifierUpdatesElementName() {
 		Signal<Boolean> b = Signal.of(false);
 		Checkbox cb = new Checkbox("Test", b).name("cb");
 		assertEquals("cb", cb.element().name);
@@ -52,20 +50,9 @@ class CheckboxComponentTest {
 	}
 
 	@Test
-	void checkboxGrowModifiers() {
-		Signal<Boolean> b = Signal.of(false);
-		Checkbox cb = new Checkbox("Test", b);
-		cb.growX();
-		cb.growY();
-		cb.grow();
-		assertNotNull(cb.element());
-		cb.dispose();
-	}
-
-	@Test
-	void checkboxImplementsComponent() {
+	void elementIsSameAsCheckBox() {
 		Checkbox cb = new Checkbox("Test", Signal.of(false));
-		assertInstanceOf(solim.core.Component.class, cb);
+		assertSame(cb.checkBox(), cb.element());
 		cb.dispose();
 	}
 }

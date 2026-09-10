@@ -21,9 +21,10 @@ class SolimDialogComponentTest {
 	}
 
 	@Test
-	void dialogCreatesElement() {
+	void dialogCreatesWithDefaultName() {
 		SolimDialog d = new SolimDialog("Test");
-		assertNotNull(d.element());
+		assertEquals("solim-dialog-dialog", d.name);
+		assertSame(d, d.element());
 		d.dispose();
 	}
 
@@ -97,9 +98,11 @@ class SolimDialogComponentTest {
 	}
 
 	@Test
-	void dialogImplementsComponent() {
+	void dialogFluentApiReturnsSameInstance() {
 		SolimDialog d = new SolimDialog("Test");
-		assertInstanceOf(solim.core.Component.class, d);
+		assertSame(d, d.fillParent(false));
+		assertTrue(d.isFillParent() == false);
+		assertSame(d, d.fillParent(true));
 		d.dispose();
 	}
 }

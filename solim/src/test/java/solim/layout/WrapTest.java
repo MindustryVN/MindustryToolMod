@@ -22,38 +22,35 @@ class WrapTest {
 	}
 
 	@Test
-	void wrapCreatesTable() {
+	void createsTableWithDefaultName() {
 		Wrap w = new Wrap();
-		assertNotNull(w.element());
-		assertNotNull(w.table());
+		assertEquals("solim-wrap-table", w.table().name);
 	}
 
 	@Test
-	void wrapAddsChildren() {
-		Wrap w = new Wrap().gap(4f);
-		for (int i = 0; i < 3; i++) {
-			w.add(new Element());
-		}
-		assertEquals(3, w.table().getChildren().size);
-	}
-
-	@Test
-	void wrapGapModifier() {
+	void addAddsChildToTable() {
 		Wrap w = new Wrap();
-		w.gap(8f);
-		assertNotNull(w.table());
+		Element first = new Element();
+		Element second = new Element();
+
+		w.add(first);
+		w.add(second);
+
+		assertEquals(2, w.table().getChildren().size);
+		assertSame(first, w.table().getChildren().get(0));
+		assertSame(second, w.table().getChildren().get(1));
 	}
 
 	@Test
-	void wrapNameModifier() {
+	void nameModifierUpdatesTableName() {
 		Wrap w = new Wrap();
 		w.name("my-wrap");
 		assertEquals("my-wrap", w.table().name);
 	}
 
 	@Test
-	void wrapImplementsComponent() {
+	void tableIsSameAsElement() {
 		Wrap w = new Wrap();
-		assertInstanceOf(solim.core.Component.class, w);
+		assertSame(w.table(), w.element());
 	}
 }

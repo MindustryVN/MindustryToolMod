@@ -22,37 +22,49 @@ class ContainerTest {
 	}
 
 	@Test
-	void containerCreatesTable() {
+	void createsTableWithDefaultName() {
 		Container c = new Container();
-		assertNotNull(c.element());
-		assertNotNull(c.table());
+		assertEquals("solim-container-table", c.table().name);
 	}
 
 	@Test
-	void containerAddsChild() {
-		Container c = new Container().padding(12f);
+	void addAddsChildToTable() {
+		Container c = new Container();
 		Element child = new Element();
 		c.add(child);
+
 		assertEquals(1, c.table().getChildren().size);
+		assertSame(child, c.table().getChildren().get(0));
 	}
 
 	@Test
-	void containerPaddingModifier() {
+	void paddingPreservesChildrenAndReturnsSelf() {
 		Container c = new Container();
-		c.padding(16f);
-		assertNotNull(c.table());
+		Element child = new Element();
+		c.add(child);
+
+		assertSame(c, c.padding(16f));
+		assertEquals(1, c.table().getChildren().size);
+		assertSame(child, c.table().getChildren().get(0));
 	}
 
 	@Test
-	void containerNameModifier() {
+	void nameModifierUpdatesTableName() {
 		Container c = new Container();
 		c.name("my-container");
 		assertEquals("my-container", c.table().name);
 	}
 
 	@Test
-	void containerImplementsComponent() {
+	void tableIsSameAsElement() {
 		Container c = new Container();
-		assertInstanceOf(solim.core.Component.class, c);
+		assertSame(c.table(), c.element());
+	}
+
+	@Test
+	void fluentApiReturnsSameContainer() {
+		Container c = new Container();
+		assertSame(c, c.padding(8f));
+		assertSame(c, c.name("test"));
 	}
 }

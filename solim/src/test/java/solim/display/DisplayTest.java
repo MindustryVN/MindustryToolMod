@@ -55,23 +55,33 @@ class DisplayTest {
 	}
 
 	@Test
-	void imageDisplays() {
-		SolimImage img = new SolimImage();
-		assertNotNull(img.image());
+	void imageDrawableIsApplied() {
+		Drawable drawable = new arc.scene.style.TextureRegionDrawable(new arc.graphics.g2d.TextureRegion());
+		SolimImage img = new SolimImage(drawable);
+		assertSame(drawable, img.image().getDrawable());
 	}
 
 	@Test
-	void iconDisplays() {
-		Icon icon = new Icon();
-		assertNotNull(icon.image());
+	void iconDrawableIsApplied() {
+		Drawable drawable = new arc.scene.style.TextureRegionDrawable(new arc.graphics.g2d.TextureRegion());
+		Icon icon = new Icon(drawable);
+		assertSame(drawable, icon.image().getDrawable());
 	}
 
 	@Test
-	void reactiveIcon() {
-		Signal<Drawable> s = Signal.of(null);
+	void reactiveIconUpdatesDrawableAndStopsAfterDispose() {
+		Drawable first = new arc.scene.style.TextureRegionDrawable(new arc.graphics.g2d.TextureRegion());
+		Drawable second = new arc.scene.style.TextureRegionDrawable(new arc.graphics.g2d.TextureRegion());
+		Signal<Drawable> s = Signal.of(first);
 		Icon icon = Icon.of(s);
-		assertNotNull(icon);
+		assertSame(first, icon.image().getDrawable());
+
+		s.set(second);
+		assertSame(second, icon.image().getDrawable());
+
 		icon.dispose();
+		s.set(first);
+		assertSame(second, icon.image().getDrawable());
 	}
 
 	@Test

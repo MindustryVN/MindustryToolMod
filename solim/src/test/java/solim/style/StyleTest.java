@@ -40,11 +40,13 @@ class StyleTest {
 
 	@Test
 	void constantsExist() {
-		assertNotNull(Styles.PRIMARY);
-		assertNotNull(Styles.GHOST);
-		assertNotNull(Styles.BLACK6);
+		assertEquals("primary", Styles.PRIMARY.name());
+		assertEquals("ghost", Styles.GHOST.name());
+		assertEquals("black6", Styles.BLACK6.name());
 		assertTrue(Styles.PRIMARY.primary());
 		assertTrue(Styles.GHOST.ghost());
+		assertEquals(8f, Styles.PRIMARY.padding());
+		assertEquals(Color.white, Styles.PRIMARY.foreground());
 	}
 
 	@Test

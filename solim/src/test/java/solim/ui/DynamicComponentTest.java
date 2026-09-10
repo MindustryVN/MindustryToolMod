@@ -43,10 +43,18 @@ class DynamicComponentTest {
 	}
 
 	@Test
-	void dynamicCreatesElement() {
+	void dynamicCreatesWithInitialContentA() {
+		Map<String, TestComponent> instances = new HashMap<>();
 		Signal<Boolean> toggle = Signal.of(true);
-		Dynamic<Boolean> dyn = new Dynamic<>(toggle, val -> new TestComponent(val ? "A" : "B"));
-		assertNotNull(dyn.element());
+		Dynamic<Boolean> dyn = new Dynamic<>(toggle, val -> {
+			TestComponent tc = new TestComponent(val ? "A" : "B");
+			instances.put(tc.id, tc);
+			return tc;
+		});
+		dyn.element();
+		assertEquals("A", instances.get("A").id);
+		assertEquals(1, dyn.container().getChildren().size);
+		assertSame(dyn.container(), dyn.element());
 		dyn.dispose();
 	}
 
@@ -70,12 +78,12 @@ class DynamicComponentTest {
 		});
 		dyn.element();
 		TestComponent compA = instances.get("A");
-		assertNotNull(compA);
+		assertEquals("A", compA.id);
 
 		toggle.set(false);
 		assertTrue(compA.wasDisposed, "Previous component must be disposed on change");
 		TestComponent compB = instances.get("B");
-		assertNotNull(compB);
+		assertEquals("B", compB.id);
 		assertFalse(compB.wasDisposed);
 		assertEquals(1, dyn.container().getChildren().size);
 		dyn.dispose();
