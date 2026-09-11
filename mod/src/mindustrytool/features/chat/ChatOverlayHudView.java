@@ -147,7 +147,7 @@ public class ChatOverlayHudView extends BaseComponent {
                                             .style(Styles.clearNonei)
                                             .size(unit(10), unit(10))
                                             .tooltip(Core.bundle.get("feature.chat.ui.settings", "Settings"))
-                                            .children(() -> image(Icon.settings).size(unit(4), unit(4)));
+                                            .children(() -> image(Icon.settings).size(unit(5), unit(5)));
 
                                     button(() -> feature.collapsedConfig.set(true))
                                             .style(Styles.clearNonei)
