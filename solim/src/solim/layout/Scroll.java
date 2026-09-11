@@ -22,7 +22,6 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
     public static final ParentStack.Attacher ATTACHER = (table, child) -> {
         Cell<?> cell = table.add(child);
         cell.top().left();
-        cell.growX();
         if (Ui.isExpanding(child)) {
             cell.growY();
         }

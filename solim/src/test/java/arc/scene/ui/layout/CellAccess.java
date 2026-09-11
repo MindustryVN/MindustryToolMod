@@ -39,4 +39,12 @@ public final class CellAccess {
 	public static int align(Cell<?> cell) {
 		return cell.align;
 	}
+
+	public static float minWidth(Cell<?> cell) {
+		return cell.minWidth;
+	}
+
+	public static float maxWidth(Cell<?> cell) {
+		return cell.maxWidth;
+	}
 }

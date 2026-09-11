@@ -103,7 +103,6 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 	private @Nullable Drawable fallback;
 	private @Nullable Disposable binding;
 	private @Nullable String currentUrl;
-	private boolean loading = false;
 	private float padTop, padLeft, padBottom, padRight;
 	private float marginTop, marginLeft, marginBottom, marginRight;
 

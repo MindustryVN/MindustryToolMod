@@ -229,7 +229,9 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		if (this instanceof solim.core.Component) {
 			arc.scene.Element el = ((solim.core.Component) this).element();
 			if (el != null) {
-				el.userObject = "expanding";
+				if (el.userObject == null) {
+					el.userObject = this;
+				}
 				sizeConstraints().applyGrowToParentCell(el);
 			}
 		}
@@ -245,7 +247,9 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		if (this instanceof solim.core.Component) {
 			arc.scene.Element el = ((solim.core.Component) this).element();
 			if (el != null) {
-				el.userObject = "expanding";
+				if (el.userObject == null) {
+					el.userObject = this;
+				}
 				sizeConstraints().applyGrowToParentCell(el);
 			}
 		}

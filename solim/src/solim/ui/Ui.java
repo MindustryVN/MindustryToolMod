@@ -140,14 +140,6 @@ public final class Ui {
             return false;
         if ("expanding".equals(child.userObject) || Boolean.TRUE.equals(child.userObject))
             return true;
-        if (child.userObject instanceof solim.layout.LayoutModifiers) {
-            solim.layout.SizeConstraints sc = ((solim.layout.LayoutModifiers<?>) child.userObject).sizeConstraints();
-            if (sc.growX || sc.growY) return true;
-        }
-        if (child.userObject instanceof solim.layout.SizeConstraints) {
-            solim.layout.SizeConstraints sc = (solim.layout.SizeConstraints) child.userObject;
-            if (sc.growX || sc.growY) return true;
-        }
         if ("solim-spacer-table".equals(child.name) || "spacer".equals(child.name))
             return true;
         if (child.fillParent)
