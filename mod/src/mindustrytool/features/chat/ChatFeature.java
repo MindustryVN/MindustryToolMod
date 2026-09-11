@@ -2,7 +2,7 @@ package mindustrytool.features.chat;
 
 import arc.Core;
 import arc.scene.Element;
-import arc.scene.ui.Dialog;
+import solim.overlay.SolimDialog;
 import arc.util.Nullable;
 import mindustry.gen.Icon;
 import mindustrytool.features.Feature;
@@ -185,7 +185,7 @@ public class ChatFeature extends Feature {
     }
 
     @Override
-    public @Nullable Dialog getSettingDialog() {
+    public @Nullable SolimDialog getSettingDialog() {
         if (settingsDialog == null) {
             settingsDialog = new ChatSettingsDialog(this);
         }

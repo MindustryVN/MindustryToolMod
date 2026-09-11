@@ -43,9 +43,7 @@ public final class SolimImage implements Component, LayoutModifiers<SolimImage> 
 	}
 
 	public SolimImage(Drawable d) {
-		this.image = new Image(d);
-		this.image.userObject = this;
-		this.image.name = "solim-image-image";
+		this(d, Scaling.fit);
 	}
 
 	public SolimImage(Drawable d, Scaling scaling) {

@@ -15,6 +15,7 @@ import solim.overlay.SolimDialog;
 
 public final class FeatureSettingDialog extends SolimDialog {
     public FeatureSettingDialog() {
+        name("featureSettingDialog");
         addCloseButton();
         closeOnBack();
         content(new FeatureSettingsView());
@@ -37,7 +38,7 @@ public final class FeatureSettingDialog extends SolimDialog {
                     discoverSolimElements(
                             root,
                             Core.scene.root,
-                            element -> isSolimElement(element) && element instanceof FeatureSettingDialog);
+                            element -> "featureSettingDialog".equals(element.name));
 
                     Core.app.setClipboardText(JsonUtils.toJsonPretty(root));
                 });
@@ -66,20 +67,6 @@ public final class FeatureSettingDialog extends SolimDialog {
         }
 
         return node;
-    }
-
-    private boolean isSolimElement(Element element) {
-        if (element == null) return false;
-        return isSolimClass(element.getClass());
-    }
-
-    private boolean isSolimClass(Class<?> clazz) {
-        if (clazz == null || clazz == Object.class) return false;
-        Package pkg = clazz.getPackage();
-        if (pkg != null && pkg.getName().startsWith("solim.")) {
-            return true;
-        }
-        return isSolimClass(clazz.getSuperclass());
     }
 
     private UiNode createNode(Element element) {

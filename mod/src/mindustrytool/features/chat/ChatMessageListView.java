@@ -439,7 +439,7 @@ public class ChatMessageListView extends BaseComponent {
 
             final String displaySnippet = targetSnippet;
             row().growX().top().left().gap(unit(1)).padding(unit(0.5f)).children(() -> {
-                image(Icon.rightSmall).size(unit(4), unit(4)).color(Color.gray);
+                icon(Icon.rightSmall).size(unit(4), unit(4)).color(Color.gray);
                 text(displaySnippet)
                         .color(Color.gray)
                         .fontScale(0.8f)
@@ -456,7 +456,7 @@ public class ChatMessageListView extends BaseComponent {
                 card().growX().top().left().children(() -> {
                     column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
                         row().growX().top().left().gap(unit(1)).children(() -> {
-                            image(Icon.host).size(unit(5), unit(5)).color(Pal.accent);
+                            icon(Icon.host).size(unit(5), unit(5)).color(Pal.accent);
                             text(Core.bundle.get("feature.chat.ui.room-invite", "Room Invite"))
                                     .color(Pal.accent)
                                     .fontScale(0.95f)
@@ -496,7 +496,7 @@ public class ChatMessageListView extends BaseComponent {
                 card().growX().top().left().children(() -> {
                     column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
                         row().growX().top().left().gap(unit(1)).children(() -> {
-                            image("maps".equals(type) ? Icon.map : Icon.paste).size(unit(5), unit(5)).color(Pal.accent);
+                            icon("maps".equals(type) ? Icon.map : Icon.paste).size(unit(5), unit(5)).color(Pal.accent);
                             text(("maps".equals(type) ? "Map: " : "Schematic: ") + itemId)
                                     .color(Pal.accent)
                                     .fontScale(0.95f)
@@ -576,25 +576,25 @@ public class ChatMessageListView extends BaseComponent {
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("info.title", "Info"))
-                                .children(() -> image(Icon.info).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.info).size(unit(4), unit(4)));
 
                         button(() -> Vars.ui.schematics.showExport(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("editor.export", "Export"))
-                                .children(() -> image(Icon.upload).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.upload).size(unit(4), unit(4)));
 
                         button(() -> Vars.ui.schematics.showEdit(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("schematic.edit", "Edit"))
-                                .children(() -> image(Icon.pencil).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.pencil).size(unit(4), unit(4)));
 
                         button(() -> useSchematic(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("feature.chat.ui.schematic.use", "Use"))
-                                .children(() -> image(Icon.play).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.play).size(unit(4), unit(4)));
                     });
 
                     button(() -> useSchematic(schematic))

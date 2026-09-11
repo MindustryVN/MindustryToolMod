@@ -62,14 +62,14 @@ public class ChatInputView extends BaseComponent {
                             ? cachedUser.getName()
                             : (authorId != null ? authorId : "message");
                     return row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
-                        image(Icon.leftSmall).size(unit(4), unit(4)).color(Pal.accent);
+                        icon(Icon.leftSmall).size(unit(4), unit(4)).color(Pal.accent);
                         text(Core.bundle.format("feature.chat.ui.replying", targetName)).color(Color.lightGray)
                                 .fontScale(0.85f).left();
                         spacer();
                         button(() -> store.setReplyTarget(null))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
-                                .children(() -> image(Icon.cancel).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.cancel).size(unit(4), unit(4)));
                     });
                 });
 
@@ -86,13 +86,13 @@ public class ChatInputView extends BaseComponent {
                             button(() -> new AttachContentDialog(this::handleAttachContent).show())
                                     .style(Styles.defaultb)
                                     .size(unit(10))
-                                    .children(() -> image(Icon.file).size(unit(5), unit(5)));
+                                    .children(() -> icon(Icon.file).size(unit(5), unit(5)));
 
                             button(this::onSend)
                                     .style(Styles.defaultb)
                                     .enabled(canSend)
                                     .width(unit(10))
-                                    .children(() -> image(Icon.play).size(unit(5), unit(5)).color(Pal.accent));
+                                    .children(() -> icon(Icon.play).size(unit(5), unit(5)).color(Pal.accent));
                         });
                     });
                 });

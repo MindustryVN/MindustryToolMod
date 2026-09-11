@@ -3,7 +3,7 @@ package mindustrytool.features.translation;
 import arc.Core;
 import arc.Events;
 import arc.func.Cons;
-import arc.scene.ui.Dialog;
+import solim.overlay.SolimDialog;
 import arc.scene.ui.TextField;
 import arc.struct.Seq;
 import arc.util.Log;
@@ -385,7 +385,7 @@ public class TranslationFeature extends Feature {
 	}
 
 	@Override
-	public @Nullable Dialog getSettingDialog() {
+	public @Nullable SolimDialog getSettingDialog() {
 		if (settingsDialog == null) {
 			settingsDialog = new TranslationSettingsDialog(this);
 		}

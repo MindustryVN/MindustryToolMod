@@ -5,7 +5,7 @@ import arc.files.Fi;
 import arc.graphics.Texture;
 import arc.graphics.g2d.Draw;
 import arc.graphics.g2d.TextureRegion;
-import arc.scene.ui.Dialog;
+import solim.overlay.SolimDialog;
 import arc.util.Log;
 import arc.util.Nullable;
 import arc.util.Reflect;
@@ -47,7 +47,7 @@ public class BackgroundFeature extends Feature {
     }
 
     @Override
-    public @Nullable Dialog getSettingDialog() {
+    public @Nullable SolimDialog getSettingDialog() {
         if (settingDialog == null) {
             settingDialog = new BackgroundSettingsDialog(this);
         }

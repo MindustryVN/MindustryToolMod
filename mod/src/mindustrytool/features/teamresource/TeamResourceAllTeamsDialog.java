@@ -17,7 +17,7 @@ public class TeamResourceAllTeamsDialog extends SolimDialog {
     public TeamResourceAllTeamsDialog(TeamResourceState state) {
         super(Core.bundle.get("team-resources.all-teams", "All Teams"));
 
-        name = "teamResourceAllTeamsDialog";
+        name("teamResourceAllTeamsDialog");
         addCloseButton();
         closeOnBack();
 

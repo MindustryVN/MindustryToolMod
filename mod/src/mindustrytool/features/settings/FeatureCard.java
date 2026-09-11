@@ -42,18 +42,18 @@ public class FeatureCard extends BaseComponent {
                             if (feature.getMainDialog() != null) {
                                 button(() -> feature.getMainDialog().show()).style(Styles.clearNonei).size(unit(9))
                                         .tooltip(Core.bundle.get("feature.button.open-dialog"))
-                                        .children(() -> image(Icon.linkSmall));
+                                        .children(() -> icon(Icon.linkSmall));
                             }
 
                             if (feature.getSettingDialog() != null) {
                                 button(() -> feature.getSettingDialog().show()).style(Styles.clearNonei).size(unit(9))
                                         .tooltip(Core.bundle.get("feature.button.settings"))
-                                        .children(() -> image(Icon.settings));
+                                        .children(() -> icon(Icon.settings));
                             }
 
                             button(() -> new FeatureHelpDialog(feature).show()).style(Styles.clearNonei).size(unit(9))
                                     .tooltip(Core.bundle.get("feature.button.help"))
-                                    .children(() -> image(Icon.infoCircle));
+                                    .children(() -> icon(Icon.infoCircle));
                         });
 
                         text(feature.getDescription()).color(Color.lightGray).fontScale(0.9f).wrap(true).left();

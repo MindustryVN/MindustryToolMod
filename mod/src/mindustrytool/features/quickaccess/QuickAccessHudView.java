@@ -4,7 +4,7 @@ import static solim.UI.*;
 
 import arc.graphics.Color;
 import arc.scene.Element;
-import arc.scene.ui.Dialog;
+import solim.overlay.SolimDialog;
 import arc.struct.Seq;
 import arc.util.Nullable;
 import arc.util.Scaling;
@@ -63,7 +63,7 @@ public class QuickAccessHudView extends BaseComponent {
 			button()
 					.style(Styles.clearNonei)
 					.size(buttonSize)
-					.children(() -> image(Icon.move).scaling(Scaling.fit))
+					.children(() -> icon(Icon.move).scaling(Scaling.fit))
 					.draggable(parentFeature.xSignal, parentFeature.ySignal);
 
 			image(Tex.whiteui)
@@ -110,12 +110,12 @@ public class QuickAccessHudView extends BaseComponent {
 					.tooltip(f.getName())
 					.onClick(() -> f.setEnabled(!f.isEnabled()))
 					.onLongClick(300L, () -> {
-						Dialog settingDlg = f.getSettingDialog();
+						SolimDialog settingDlg = f.getSettingDialog();
 						if (settingDlg != null) {
 							settingDlg.show();
 						}
 					})
-					.children(() -> image(meta.getIcon())
+					.children(() -> icon(meta.getIcon())
 							.scaling(Scaling.fit)
 							.color(f.enabled().map(en -> en ? Color.white : Pal.gray)));
 		} else {
@@ -123,7 +123,7 @@ public class QuickAccessHudView extends BaseComponent {
 					.style(Styles.clearNonei)
 					.size(buttonSize)
 					.onClick(() -> new FeatureSettingDialog().show())
-					.children(() -> image(Icon.settings).scaling(Scaling.fit));
+					.children(() -> icon(Icon.settings).scaling(Scaling.fit));
 		}
 	}
 

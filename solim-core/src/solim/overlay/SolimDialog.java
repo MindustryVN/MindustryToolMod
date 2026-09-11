@@ -9,7 +9,6 @@ import arc.func.Func;
 import arc.scene.Element;
 import arc.scene.Scene;
 import arc.scene.style.Drawable;
-import arc.scene.ui.Dialog;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Log;
@@ -28,33 +27,40 @@ import solim.signal.Signal;
 import solim.ui.ParentStack;
 
 /**
- * Declarative dialog component for Solim. Extends Arc Dialog while providing
+ * Declarative dialog component for Solim. Wraps a Mindustry BaseDialog while providing
  * full declarative
  * configuration, reactive signal creation, and clean lifecycle management.
  */
-public class SolimDialog extends BaseDialog implements Component {
+public class SolimDialog implements Component {
 
+    private final BaseDialog wrapped;
     private final List<Disposable> disposables = new ArrayList<>();
     private boolean isShown = false;
     private boolean isDisposed = false;
+
+    /**
+     * Mirrors the wrapped dialog element's name for convenient reads.
+     * Use {@link #name(String)} to rename so both stay in sync.
+     */
+    public String name = "solim-dialog-dialog";
 
     public SolimDialog() {
         this("");
     }
 
     public SolimDialog(String title) {
-        super(title != null ? title : "");
-        this.name = "solim-dialog-dialog";
-        setFillParent(true);
+        wrapped = new BaseDialog(title != null ? title : "");
+        ElementModifiers.name(wrapped, name);
+        wrapped.setFillParent(true);
     }
 
     public SolimDialog fillParent(boolean fillParent) {
-        setFillParent(fillParent);
+        wrapped.setFillParent(fillParent);
         return this;
     }
 
     public boolean isFillParent() {
-        return fillParent;
+        return wrapped.fillParent;
     }
 
     public static SolimDialog of(String title, Runnable content) {
@@ -65,7 +71,7 @@ public class SolimDialog extends BaseDialog implements Component {
 
     public SolimDialog content(@Nullable Component component) {
         if (component != null) {
-            cont.add(component.element()).grow().expand();
+            wrapped.cont.add(component.element()).grow().expand();
             registerDisposable(component::dispose);
         }
         return this;
@@ -76,13 +82,13 @@ public class SolimDialog extends BaseDialog implements Component {
             BaseComponent comp = new BaseComponent() {
                 @Override
                 protected Element build() {
-                    ParentStack.push(cont);
+                    ParentStack.push(wrapped.cont);
                     try {
                         contentBuilder.run();
                     } finally {
                         ParentStack.pop();
                     }
-                    return cont;
+                    return wrapped.cont;
                 }
             };
             registerDisposable(comp::dispose);
@@ -96,18 +102,18 @@ public class SolimDialog extends BaseDialog implements Component {
     }
 
     public SolimDialog actionButton(String text, Runnable action) {
-        if (buttons != null) {
-            buttons.button(text != null ? text : "", action).wrapLabel(false);
+        if (wrapped.buttons != null) {
+            wrapped.buttons.button(text != null ? text : "", action).wrapLabel(false);
         }
         return this;
     }
 
     public SolimDialog actionButton(String text, Drawable icon, Runnable action) {
-        if (buttons != null) {
+        if (wrapped.buttons != null) {
             if (icon != null) {
-                buttons.button(text != null ? text : "", icon, action).wrapLabel(false);
+                wrapped.buttons.button(text != null ? text : "", icon, action).wrapLabel(false);
             } else {
-                buttons.button(text != null ? text : "", action).wrapLabel(false);
+                wrapped.buttons.button(text != null ? text : "", action).wrapLabel(false);
             }
         }
         return this;
@@ -118,12 +124,12 @@ public class SolimDialog extends BaseDialog implements Component {
     }
 
     public SolimDialog actionButton(String text, @Nullable Drawable icon, float width, float height, Runnable action) {
-        if (buttons != null) {
+        if (wrapped.buttons != null) {
             Cell<?> cell;
             if (icon != null) {
-                cell = buttons.button(text != null ? text : "", icon, action).wrapLabel(false);
+                cell = wrapped.buttons.button(text != null ? text : "", icon, action).wrapLabel(false);
             } else {
-                cell = buttons.button(text != null ? text : "", action).wrapLabel(false);
+                cell = wrapped.buttons.button(text != null ? text : "", action).wrapLabel(false);
             }
             if (cell != null) {
                 cell.size(width, height);
@@ -206,47 +212,90 @@ public class SolimDialog extends BaseDialog implements Component {
         return signal;
     }
 
-    public Table dialog() {
-        return this;
+    /** Returns the wrapped Mindustry dialog. */
+    public BaseDialog dialog() {
+        return wrapped;
+    }
+
+    /** Returns the wrapped dialog's content table. */
+    public Table cont() {
+        return wrapped.cont;
+    }
+
+    /** Returns the wrapped dialog's button row table. */
+    public Table buttons() {
+        return wrapped.buttons;
     }
 
     @Override
     public Element element() {
-        return this;
+        return wrapped;
     }
 
     @Override
     public SolimDialog name(String name) {
-        ElementModifiers.name(this, name);
+        this.name = name;
+        ElementModifiers.name(wrapped, name);
         return this;
     }
 
-    @Override
-    public Dialog show(Scene scene) {
+    public SolimDialog addCloseButton() {
+        wrapped.addCloseButton();
+        return this;
+    }
+
+    public SolimDialog addCloseButton(float width) {
+        wrapped.addCloseButton(width);
+        return this;
+    }
+
+    public SolimDialog closeOnBack() {
+        wrapped.closeOnBack();
+        return this;
+    }
+
+    public SolimDialog closeOnBack(Runnable run) {
+        wrapped.closeOnBack(run);
+        return this;
+    }
+
+    public SolimDialog hidden(Runnable run) {
+        wrapped.hidden(run);
+        return this;
+    }
+
+    public SolimDialog shown(Runnable run) {
+        wrapped.shown(run);
+        return this;
+    }
+
+    public SolimDialog setWidth(float width) {
+        wrapped.setWidth(width);
+        return this;
+    }
+
+    public SolimDialog show(Scene scene) {
         isShown = true;
         if (scene != null || Core.scene != null) {
-            super.show(scene != null ? scene : Core.scene);
+            wrapped.show(scene != null ? scene : Core.scene);
         }
         return this;
     }
 
-    @Override
-    public Dialog show() {
+    public SolimDialog show() {
         return show(Core.scene);
     }
 
-    @Override
     public void hide() {
         isShown = false;
         if (Core.scene != null) {
-            super.hide();
+            wrapped.hide();
         }
     }
 
-    @Override
     public boolean isShown() {
         if (Core.scene != null) {
-            return super.isShown();
+            return wrapped.isShown();
         }
         return isShown;
     }
@@ -259,27 +308,27 @@ public class SolimDialog extends BaseDialog implements Component {
     }
 
     public SolimDialog rounded(int radius) {
-        ElementModifiers.rounded(cont, radius);
+        ElementModifiers.rounded(wrapped.cont, radius);
         return this;
     }
 
     public SolimDialog rounded(int radius, @Nullable Color color) {
-        ElementModifiers.rounded(cont, radius, color);
+        ElementModifiers.rounded(wrapped.cont, radius, color);
         return this;
     }
 
     public SolimDialog rounded(int radius, @Nullable Readable<Color> color) {
-        ElementModifiers.rounded(cont, radius, color);
+        ElementModifiers.rounded(wrapped.cont, radius, color);
         return this;
     }
 
     public SolimDialog border(float stroke, @Nullable Color color) {
-        ElementModifiers.border(cont, stroke, color);
+        ElementModifiers.border(wrapped.cont, stroke, color);
         return this;
     }
 
     public SolimDialog border(float stroke, @Nullable Readable<Color> color) {
-        ElementModifiers.border(cont, stroke, color);
+        ElementModifiers.border(wrapped.cont, stroke, color);
         return this;
     }
 

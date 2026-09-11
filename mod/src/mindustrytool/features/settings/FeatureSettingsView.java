@@ -48,7 +48,7 @@ public final class FeatureSettingsView extends BaseComponent {
 
             button(FeatureManager::reenable).style(Styles.defaultb).width(unit(50)).height(unit(10))
                     .tooltip(Core.bundle.get("feature.button.re-enable.tooltip")).gap(unit(2)).children(() -> {
-                        image(Icon.refresh);
+                        icon(Icon.refresh);
                         text(Core.bundle.get("feature.button.re-enable"));
                     });
         });

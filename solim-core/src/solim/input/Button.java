@@ -428,6 +428,25 @@ public final class Button implements Component {
 		return this;
 	}
 
+	public Button color(Color color) {
+		button.setColor(color);
+		return this;
+	}
+
+	public Button color(Readable<Color> color) {
+		if (color != null) {
+			Effect e = Effect.of(() -> {
+				Color c = color.get();
+				if (c != null) {
+					button.setColor(c);
+				}
+			});
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
+		return this;
+	}
+
 	public Button rounded(int radius) {
 		return rounded(radius, (Color) null);
 	}

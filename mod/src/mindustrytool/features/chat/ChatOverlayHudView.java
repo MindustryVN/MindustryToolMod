@@ -94,7 +94,7 @@ public class ChatOverlayHudView extends BaseComponent {
                             .draggable(hud, feature.xSignal, feature.ySignal)
                             .children(() -> {
                                 component(new SolimStack()
-                                        .layer(() -> image(Icon.chat).size(unit(5), unit(5)).color(Color.white))
+                                        .layer(() -> icon(Icon.chat).size(unit(5), unit(5)).color(Color.white))
                                         .layer(() -> row().top().right().pad(unit(0.5f)).visible(hasUnread).children(() -> {
                                             image(Tex.whiteui)
                                                     .size(unit(1.5f), unit(1.5f))
@@ -147,13 +147,13 @@ public class ChatOverlayHudView extends BaseComponent {
                                             .style(Styles.clearNonei)
                                             .size(unit(10), unit(10))
                                             .tooltip(Core.bundle.get("feature.chat.ui.settings", "Settings"))
-                                            .children(() -> image(Icon.settings).size(unit(5), unit(5)));
+                                            .children(() -> icon(Icon.settings).size(unit(5)));
 
                                     button(() -> feature.collapsedConfig.set(true))
                                             .style(Styles.clearNonei)
                                             .size(unit(10), unit(10))
                                             .tooltip(Core.bundle.get("feature.chat.ui.collapse", "Collapse"))
-                                            .children(() -> image(Icon.cancel).size(unit(5), unit(5)));
+                                            .children(() -> icon(Icon.cancel).size(unit(5)));
                                 });
 
                         divider();

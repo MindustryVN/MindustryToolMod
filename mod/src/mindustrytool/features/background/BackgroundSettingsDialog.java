@@ -8,7 +8,7 @@ public class BackgroundSettingsDialog extends SolimDialog {
     public BackgroundSettingsDialog(BackgroundFeature feature) {
         super(Core.bundle.get("feature.background.settings.title"));
 
-        name = "backgroundSettingDialog";
+        name("backgroundSettingDialog");
         addCloseButton();
         closeOnBack();
 

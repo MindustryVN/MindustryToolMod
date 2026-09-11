@@ -10,7 +10,7 @@ public class TranslationSettingsDialog extends SolimDialog {
 	public TranslationSettingsDialog(TranslationFeature feature) {
 		super(Core.bundle.get("feature.translation.settings.title", "Chat Translation Settings"));
 
-		name = "translationSettingsDialog";
+		name("translationSettingsDialog");
 		addCloseButton();
 		closeOnBack();
 

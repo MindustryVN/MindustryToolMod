@@ -79,7 +79,7 @@ public class TeamResourceHudView extends BaseComponent {
                     button()
                             .style(Styles.clearNonei)
                             .size(buttonSize)
-                            .children(() -> image(Icon.move).scaling(Scaling.fit))
+                            .children(() -> icon(Icon.move).scaling(Scaling.fit))
                             .draggable(hud, feature.xSignal, feature.ySignal);
 
                     // Expand / Collapse toggle button
@@ -123,7 +123,7 @@ public class TeamResourceHudView extends BaseComponent {
                             .size(buttonSize)
                             .tooltip(Core.bundle.get("team-resources.settings.title", "Settings"))
                             .onClick(() -> feature.getSettingDialog().show())
-                            .children(() -> image(Icon.settings).scaling(Scaling.fit));
+                            .children(() -> icon(Icon.settings).scaling(Scaling.fit));
                 });
 
                 // 2. Expanded Content Panel

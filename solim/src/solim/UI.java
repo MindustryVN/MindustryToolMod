@@ -4,6 +4,7 @@ import arc.graphics.Color;
 import arc.func.Cons;
 import solim.graphics.CircleDrawable;
 import solim.graphics.ColoredDrawable;
+import solim.graphics.Drawables;
 import solim.graphics.RoundedDrawable;
 import arc.func.Func;
 import arc.scene.Element;
@@ -212,7 +213,11 @@ public final class UI {
     }
 
     public static SolimImage icon(Drawable drawable) {
-        return image(drawable);
+        return image(Drawables.scalable(drawable));
+    }
+
+    public static SolimImage icon(Readable<Drawable> drawable) {
+        return image(drawable != null ? drawable.map(Drawables::scalable) : null);
     }
 
     public static NetworkImage networkImage() {
@@ -311,7 +316,7 @@ public final class UI {
         Button b = button(onClick);
         b.children(() -> {
             if (icon != null) {
-                image(icon);
+                icon(icon);
             }
             if (text != null) {
                 text(text);
@@ -324,7 +329,7 @@ public final class UI {
         Button b = button(onClick);
         b.children(() -> {
             if (icon != null) {
-                image(icon);
+                icon(icon);
             }
         });
         return b;
@@ -547,5 +552,9 @@ public final class UI {
 
     public static Drawable circle() {
         return CircleDrawable.INSTANCE;
+    }
+
+    public static @Nullable Drawable scalable(@Nullable Drawable drawable) {
+        return Drawables.scalable(drawable);
     }
 }

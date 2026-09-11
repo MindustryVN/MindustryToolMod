@@ -5,7 +5,7 @@ import arc.Events;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.style.TextureRegionDrawable;
-import arc.scene.ui.Dialog;
+import solim.overlay.SolimDialog;
 import arc.util.Nullable;
 import mindustry.Vars;
 import mindustry.game.EventType.ResetEvent;
@@ -210,7 +210,7 @@ public class TeamResourceFeature extends Feature {
     }
 
     @Override
-    public @Nullable Dialog getSettingDialog() {
+    public @Nullable SolimDialog getSettingDialog() {
         if (settingsDialog == null) {
             settingsDialog = new TeamResourceSettingsDialog(this);
         }

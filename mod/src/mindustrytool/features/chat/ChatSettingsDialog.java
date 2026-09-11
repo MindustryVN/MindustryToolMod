@@ -8,7 +8,7 @@ public class ChatSettingsDialog extends SolimDialog {
     public ChatSettingsDialog(ChatFeature feature) {
         super(Core.bundle.get("feature.chat.settings.title", "Chat Settings"));
 
-        name = "chatSettingsDialog";
+        name("chatSettingsDialog");
         addCloseButton();
         closeOnBack();
 

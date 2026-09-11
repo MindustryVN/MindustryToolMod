@@ -22,7 +22,7 @@ class SolimDialogComponentTest {
 	void dialogCreatesWithDefaultName() {
 		SolimDialog d = new SolimDialog("Test");
 		assertEquals("solim-dialog-dialog", d.name);
-		assertSame(d, d.element());
+		assertSame(d.dialog(), d.element());
 		d.dispose();
 	}
 

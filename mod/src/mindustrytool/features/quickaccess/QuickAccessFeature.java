@@ -3,7 +3,7 @@ package mindustrytool.features.quickaccess;
 import arc.Core;
 import arc.Events;
 import arc.scene.Element;
-import arc.scene.ui.Dialog;
+import solim.overlay.SolimDialog;
 import arc.util.Nullable;
 import java.util.Collections;
 import java.util.HashSet;
@@ -181,7 +181,7 @@ public class QuickAccessFeature extends Feature {
     }
 
     @Override
-    public @Nullable Dialog getSettingDialog() {
+    public @Nullable SolimDialog getSettingDialog() {
         if (settingsDialog == null) {
             settingsDialog = new QuickAccessSettingsDialog(this);
         }
