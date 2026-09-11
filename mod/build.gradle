@@ -104,6 +104,7 @@ tasks.register('jarAndroid'){
 }
 
 jar{
+	dependsOn(':solim:jar', ':solim-core:jar', ':solim-mcp:jar')
 	duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
 
 	archiveFileName = "${rootProject.name}Desktop.jar"

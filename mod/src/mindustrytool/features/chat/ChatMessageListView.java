@@ -165,8 +165,8 @@ public class ChatMessageListView extends BaseComponent {
                                     return row().top().center().growX().padding(unit(2)).children(() -> {
                                         text(Core.bundle.get("feature.chat.ui.end-of-history",
                                                 "Beginning of chat history"))
-                                                .color(Color.gray)
-                                                .fontScale(0.85f);
+                                                        .color(Color.gray)
+                                                        .fontScale(0.85f);
                                     });
                                 }
                                 return row();
