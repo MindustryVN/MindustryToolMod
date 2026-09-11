@@ -98,6 +98,7 @@ public class ChatChannelListView extends BaseComponent {
                     .layer(() -> row().grow().left().children(() -> {
                         button(() -> store.setActiveChannelId(channel.getId()))
                                 .style(style)
+                                .margin(unit(1))
                                 .left()
                                 .grow()
                                 .children(() -> {

@@ -396,6 +396,14 @@ public Readable<Boolean> enabled() {
 
 # Solim UI — Mandatory
 
+## Module Separation: Do Not Use `solim-core` in `mod` — Mandatory
+
+**The `mod` module must ONLY depend on `:solim` and `:solim-mcp`. Never add a direct dependency on `:solim-core` in `mod/build.gradle`.**
+
+- `solim` is the public API library and facade for mod development (`solim.UI`).
+- `solim-core` contains the internal engine implementation.
+- Mod code must use the public `solim.UI.*` declarative facades and never bypass them to call internal mechanics like `solim.core.ComponentContext` or `solim.ui.ParentStack` directly.
+
 ## Solim-First
 
 **All application UI must use Solim and follow its declarative style.**
