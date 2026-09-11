@@ -133,7 +133,7 @@ public class ChatOverlayHudView extends BaseComponent {
                                 .draggable(hud, feature.xSignal, feature.ySignal)
                                 .children(() -> {
                                     image(circle())
-                                            .size(unit(3), unit(3))
+                                            .size(unit(3))
                                             .color(isConnected.map(c -> c ? Pal.heal : Color.scarlet));
 
                                     spacer();

@@ -9,6 +9,15 @@ import arc.scene.style.BaseDrawable;
 public class CircleDrawable extends BaseDrawable {
 	public static final CircleDrawable INSTANCE = new CircleDrawable();
 
+	public CircleDrawable() {
+		// BaseDrawable defaults minWidth/minHeight to 0. With Scaling.fit, a 0×0 source
+		// produces a 0×0 image region, causing draw() to be called with zero dimensions
+		// and Fill.circle to draw nothing. Setting 1×1 ensures Scaling.fit always
+		// preserves the cell size (1:1 aspect ratio → fills the allocated area).
+		setMinWidth(1f);
+		setMinHeight(1f);
+	}
+
 	@Override
 	public void draw(float x, float y, float width, float height) {
 		float radius = Math.min(width, height) / 2f;

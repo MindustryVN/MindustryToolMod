@@ -55,7 +55,7 @@ public class ChatChannelListView extends BaseComponent {
     }
 
     private static class ChannelItem extends BaseComponent {
-        private static final Color SELECTED_BG = new Color(0.45f, 0.35f, 0.9f, 0.4f);
+        private static final Color SELECTED_BG = new Color(0.45f, 0.35f, 0.9f, 0.8f);
         private static final TextButtonStyle selectedStyle = new TextButtonStyle() {
             {
                 down = Styles.flatDown;
@@ -94,6 +94,7 @@ public class ChatChannelListView extends BaseComponent {
                                 .margin(unit(1))
                                 .left()
                                 .grow()
+                                .rounded(unit(4))
                                 .children(() -> {
                                     text("# " + channel.getName())
                                             .left()
