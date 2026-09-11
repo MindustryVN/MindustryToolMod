@@ -16,6 +16,7 @@ import mindustry.ui.Styles;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.Direction;
+import solim.layout.SolimStack;
 import solim.overlay.Hud;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -83,37 +84,25 @@ public class ChatOverlayHudView extends BaseComponent {
 
         return card(Styles.black8)
                 .children(() -> {
-                    row().padding(unit(1)).gap(unit(1)).children(() -> {
-                        // Drag handle
-                        button()
-                                .style(Styles.clearNonei)
-                                .size(unit(7), unit(7))
-                                .children(() -> image(Icon.move).size(unit(5), unit(5)).color(Color.lightGray))
-                                .draggable(hud, feature.xSignal, feature.ySignal);
-
-                        // Clickable pill to expand
-                        button(() -> {
-                            feature.collapsedConfig.set(false);
-                            store.clearUnread();
-                        })
-                                .style(Styles.flatt)
-                                .height(unit(7))
-                                .children(() -> {
-                                    row().gap(unit(1)).children(() -> {
-                                        image(Icon.chat).size(unit(5), unit(5)).color(Color.white);
-
-                                        image(Tex.whiteui)
-                                                .size(unit(2), unit(2))
-                                                .color(isConnected.map(c -> c ? Pal.heal : Color.scarlet));
-
-                                        text(Core.bundle.get("feature.chat.name", "Chat"))
-                                                .color(Color.white)
-                                                .fontScale(0.9f);
-
-                                        badgeCount(store.unreadCount());
-                                    });
-                                });
-                    });
+                    button(() -> {
+                        feature.collapsedConfig.set(false);
+                        store.clearUnread();
+                    })
+                            .style(Styles.clearNonei)
+                            .size(unit(7), unit(7))
+                            .draggable(hud, feature.xSignal, feature.ySignal)
+                            .children(() -> {
+                                component(new SolimStack()
+                                        .layer(() -> image(Icon.chat).size(unit(5), unit(5)).color(Color.white))
+                                        .layer(() -> row().bottom().right().children(() -> {
+                                            image(Tex.whiteui)
+                                                    .size(unit(1.5f), unit(1.5f))
+                                                    .color(isConnected.map(c -> Boolean.TRUE.equals(c) ? Pal.heal : Color.scarlet));
+                                        }))
+                                        .layer(() -> row().top().right().children(() -> {
+                                            badgeCount(store.unreadCount());
+                                        })));
+                            });
                 });
     }
 
