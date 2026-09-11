@@ -3,7 +3,6 @@ package solim.overlay;
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.Core;
-import arc.Events;
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -11,7 +10,6 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.Component;
-import solim.signal.Signal;
 
 class SolimDialogComponentTest {
 

@@ -7,11 +7,9 @@ import arc.util.Nullable;
 import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.ComponentContext;
-import solim.core.Disposable;
 import solim.layout.ConstrainedElement;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
-import solim.signal.Effect;
 import solim.signal.Signal;
 
 /** Checkbox widget bound to Signal&lt;Boolean&gt;. */
