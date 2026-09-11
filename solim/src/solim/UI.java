@@ -475,6 +475,15 @@ public final class UI {
         return comp;
     }
 
+    /**
+     * Escape hatch for raw Arc elements with no Solim equivalent (e.g. SchematicImage).
+     * Prefer Solim primitives such as text() or image() whenever one exists.
+     */
+    public static <T extends Element> T arc(@Nullable T el) {
+        ParentStack.attachToParent(el);
+        return el;
+    }
+
     // --- Units ---
 
     public static float unit(float value) {

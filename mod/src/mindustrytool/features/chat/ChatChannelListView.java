@@ -6,10 +6,12 @@ import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import java.util.Objects;
+import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
 import mindustrytool.models.response.ChannelDto;
 import solim.core.BaseComponent;
+import solim.layout.SolimStack;
 import solim.signal.Computed;
 import solim.signal.Readable;
 
@@ -53,6 +55,8 @@ public class ChatChannelListView extends BaseComponent {
     }
 
     private static class ChannelItem extends BaseComponent {
+        private static final Color SELECTED_BG = new Color(0.45f, 0.35f, 0.9f, 0.4f);
+
         private final ChannelDto channel;
         private final ChatStore store;
 
@@ -65,24 +69,30 @@ public class ChatChannelListView extends BaseComponent {
         protected Element build() {
             Computed<Boolean> isSelected = new Computed<>(
                     () -> Objects.equals(store.activeChannelId().get(), channel.getId()));
+            Readable<Boolean> hasUnread = store.channelUnread(channel.getId())
+                    .map(count -> count != null && count > 0);
 
-            return card().growX().children(() -> {
-                row().growX().padding(unit(1)).left().children(() -> {
-                    button(() -> store.setActiveChannelId(channel.getId()))
-                            .style(Styles.cleart)
-                            .left()
-                            .growX()
-                            .children(() -> {
-                                row().growX().children(() -> {
+            SolimStack stack = new SolimStack()
+                    .layer(() -> image(Tex.whiteui).grow()
+                            .color(isSelected.map(sel -> Boolean.TRUE.equals(sel) ? SELECTED_BG : Color.clear)))
+                    .layer(() -> row().growX().padding(unit(1)).left().gap(unit(1)).children(() -> {
+                        button(() -> store.setActiveChannelId(channel.getId()))
+                                .style(Styles.cleart)
+                                .left()
+                                .growX()
+                                .children(() -> {
                                     text("# " + channel.getName())
                                             .left()
-                                            .color(isSelected.map(sel -> sel ? Pal.accent : Color.white));
-                                    spacer();
-                                    badgeCount(store.channelUnread(channel.getId()));
+                                            .color(isSelected.map(sel -> Boolean.TRUE.equals(sel) ? Pal.accent
+                                                    : Color.white));
                                 });
-                            });
-                });
-            }).element();
+                        image(Tex.whiteui)
+                                .size(unit(1.5f), unit(1.5f))
+                                .color(Pal.heal)
+                                .visible(hasUnread);
+                    }));
+            component(stack);
+            return stack.element();
         }
     }
 }

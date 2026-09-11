@@ -74,23 +74,27 @@ public class ChatInputView extends BaseComponent {
                 });
 
                 row().growX().gap(unit(1)).children(() -> {
-                    textField(messageText)
-                            .placeholder(Core.bundle.get("feature.chat.ui.placeholder", "Message..."))
-                            .validator(this::isValidInput)
-                            .onEnter(this::onSend)
-                            .disabled(isSending)
-                            .growX();
+                    card(Styles.black5).growX().children(() -> {
+                        row().growX().gap(unit(1)).padding(unit(1)).children(() -> {
+                            textField(messageText)
+                                    .placeholder(Core.bundle.get("feature.chat.ui.placeholder", "Message..."))
+                                    .validator(this::isValidInput)
+                                    .onEnter(this::onSend)
+                                    .disabled(isSending)
+                                    .growX();
 
-                    button(() -> new AttachContentDialog(this::handleAttachContent).show())
-                            .style(Styles.defaultb)
-                            .size(unit(10))
-                            .children(() -> image(Icon.file).size(unit(5), unit(5)));
+                            button(() -> new AttachContentDialog(this::handleAttachContent).show())
+                                    .style(Styles.defaultb)
+                                    .size(unit(10))
+                                    .children(() -> image(Icon.file).size(unit(5), unit(5)));
 
-                    button(this::onSend)
-                            .style(Styles.defaultb)
-                            .enabled(canSend)
-                            .width(unit(10))
-                            .children(() -> image(Icon.play).size(unit(5), unit(5)));
+                            button(this::onSend)
+                                    .style(Styles.defaultb)
+                                    .enabled(canSend)
+                                    .width(unit(10))
+                                    .children(() -> image(Icon.play).size(unit(5), unit(5)).color(Pal.accent));
+                        });
+                    });
                 });
             });
         }).element();

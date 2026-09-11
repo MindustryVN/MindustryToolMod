@@ -29,7 +29,9 @@ import mindustrytool.features.translation.TranslationFeature;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.UserData;
 import mindustrytool.services.MindustryTool;
+import mindustrytool.services.auth.MindustryAuthProvider;
 import solim.core.BaseComponent;
+import solim.layout.Direction;
 import solim.layout.Scroll;
 import solim.signal.Computed;
 import solim.signal.Effect;
@@ -275,22 +277,27 @@ public class ChatMessageListView extends BaseComponent {
 
             String timeStr = formatTime(message.getCreatedAt());
             String rawContent = message.getContent() != null ? message.getContent() : "";
+            boolean mentioned = isMentioningCurrentUser(rawContent);
 
             return card()
                     .growX()
                     .top().left()
                     .onClick(() -> store.toggleExpanded(message.getId()))
                     .children(() -> {
-                        row().growX().top().left().padding(unit(1)).gap(unit(1.5f)).children(() -> {
+                        row().growX().top().left().padding(isFirst ? unit(1) : unit(0.5f)).gap(unit(1.5f)).children(() -> {
                             // Left Avatar or indent spacer
                             if (isFirst) {
-                                networkImage(avatarUrl)
-                                        .placeholder(Icon.players)
-                                        .fallback(Icon.players)
-                                        .size(unit(8), unit(8))
-                                        .top().left();
+                                row().size(unit(8), unit(8)).top().left().children(() -> {
+                                    component(new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(),
+                                            unit(8)));
+                                });
                             } else {
                                 row().width(unit(8)).top().left();
+                            }
+
+                            // Accent bar for messages mentioning the current user
+                            if (mentioned) {
+                                divider(Direction.Y).color(Pal.accent).width(unit(1));
                             }
 
                             // Content area
@@ -598,6 +605,21 @@ public class ChatMessageListView extends BaseComponent {
                             });
                 });
             });
+        }
+
+        private static boolean isMentioningCurrentUser(String content) {
+            if (content == null || content.isEmpty()) {
+                return false;
+            }
+            try {
+                var session = MindustryAuthProvider.getInstance().getSession();
+                if (session == null || session.getName() == null || session.getName().isEmpty()) {
+                    return false;
+                }
+                return content.toLowerCase().contains(("@" + session.getName()).toLowerCase());
+            } catch (Exception ignored) {
+                return false;
+            }
         }
 
         private void useSchematic(Schematic schematic) {

@@ -38,7 +38,7 @@ The system SHALL provide a collapsed floating badge display when collapsedConfig
 - **THEN** the badge label updates reactively to reflect the current unread count
 
 ### Requirement: Expanded Chat Window
-The system SHALL provide an expanded chat view consisting of a header action bar, channel navigation, message feed, user roster, and composer input area. The action bar header SHALL render with a white background (`Tex.whiteui`) and SHALL be draggable across its entire area (including title text, status indicator, and spacer background) while keeping settings and collapse buttons fully clickable. The message feed SHALL wrap all message text cleanly within the message card width without horizontal overflow.
+The system SHALL provide an expanded chat view consisting of a header action bar, channel navigation, message feed, user roster, and composer input area. The action bar header SHALL render with a white background (`Tex.whiteui`) and SHALL be draggable across its entire area (including title text, status indicator, and spacer background) while keeping settings and collapse buttons fully clickable. The message feed SHALL wrap all message text cleanly within the message card width without horizontal overflow. The expanded window SHALL use a dark three-pane visual style: the selected channel row is highlighted, message rows show avatar with username + timestamp headers, member rows show presence dots, and the composer renders as a rounded input bar.
 
 #### Scenario: Collapsing the chat window
 - **WHEN** the user clicks the collapse button or presses the Escape key
@@ -60,6 +60,14 @@ The system SHALL provide an expanded chat view consisting of a header action bar
 - **WHEN** a message with long unbroken text or lengthy paragraphs is rendered in the message feed
 - **THEN** the text wraps cleanly within the bounds of the message list and does not expand the card or scroll pane horizontally
 
+#### Scenario: Selected channel is visually highlighted
+- **WHEN** a channel is the active channel
+- **THEN** its row renders with a highlighted background distinct from unselected rows
+
+#### Scenario: Message rows show avatar, username and timestamp
+- **WHEN** a first-in-group message is rendered
+- **THEN** the row shows the author avatar, the role-colored username and the gray timestamp on a single header line with the content below
+
 
 ### Requirement: Responsive Mobile and Desktop Layout
 The system SHALL provide a multi-pane layout on desktop screens and a tabbed navigation interface (Channels, Messages, Members) on mobile devices (Vars.mobile).
@@ -80,11 +88,15 @@ The message list and all item contents SHALL align to the top-left rather than b
 - **THEN** the author avatar is aligned to the top-left of the message row and does not center vertically within the row.
 
 ### Requirement: Enforced Avatar Dimensions
-User avatars in the message list and member list SHALL have fixed dimensions regardless of downloaded image resolution.
+User avatars in the message list and member list SHALL have fixed dimensions regardless of downloaded image resolution. When no avatar image is available, a fallback square SHALL show the user's first letter with a deterministic per-user color.
 
 #### Scenario: Displaying avatars with network images
 - **WHEN** user avatars are rendered in `ChatMessageListView` or `ChatUserListView`
 - **THEN** the avatar widget maintains a fixed size (unit(8) in message list, unit(6) in user list) preventing layout shifting or resizing.
+
+#### Scenario: Avatar initial fallback
+- **WHEN** a user has no avatar image URL or the image fails to load
+- **THEN** the avatar slot renders the user's uppercase first letter on a deterministic per-user background color at the same fixed size
 
 ### Requirement: Scroll Position Initialization and Preservation
 The chat message list SHALL initialize scroll position at the bottom and preserve relative scroll position instantly when messages update, without slow animation drift. Additionally, the message list SHALL display an end-of-history banner when the channel has reached the beginning of its messages.
@@ -126,4 +138,44 @@ The chat input composer SHALL render the reply-target row as a fixed layout elem
 #### Scenario: Cancelling a reply
 - **WHEN** the user clicks the cancel button in the reply row
 - **THEN** store.setReplyTarget(null) is called and the reply row collapses from layout
+
+### Requirement: Channel Unread Indicator
+Channel rows SHALL indicate unread activity so users can spot new messages without opening each channel.
+
+#### Scenario: Unread channel shows indicator
+- **WHEN** a non-active channel has an unread count greater than zero
+- **THEN** its row displays an unread indicator dot alongside the channel name
+
+#### Scenario: Active channel clears indicator
+- **WHEN** a channel becomes the active channel
+- **THEN** its unread indicator is cleared
+
+### Requirement: Member Presence and Online Count
+The member sidebar SHALL show who is online via presence dots and an online/total header count, derived from existing roster signals.
+
+#### Scenario: Online count header
+- **WHEN** the member list is rendered
+- **THEN** a header displays the online member count over the total roster count
+
+#### Scenario: Presence dots on members
+- **WHEN** a member row is rendered
+- **THEN** it shows a green presence dot for online members and a gray dot for offline members
+
+### Requirement: Mention Highlight
+Messages that mention the current user SHALL stand out from regular messages.
+
+#### Scenario: Mentioned message is highlighted
+- **WHEN** a rendered message mentions the logged-in user
+- **THEN** the message card renders with an accent highlight distinguishing it from regular messages
+
+### Requirement: Rounded Composer Bar
+The chat composer SHALL render its text field, attach button, and send button as a single rounded input bar with placeholder text.
+
+#### Scenario: Composer bar layout
+- **WHEN** a logged-in user views the composer
+- **THEN** the input field, attach affordance, and accent send button appear in one rounded bar showing the message placeholder
+
+#### Scenario: Composer behavior unchanged
+- **WHEN** the user sends a message, replies, attaches content, or hits validation limits
+- **THEN** the existing send/reply/attach/validation behavior works exactly as before the visual refresh
 

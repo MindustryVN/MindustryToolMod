@@ -4,6 +4,7 @@ import arc.Events;
 import arc.func.Cons;
 import arc.func.Func;
 import arc.scene.Element;
+import arc.scene.ui.layout.Table;
 import arc.util.Log;
 import arc.util.Nullable;
 import java.util.ArrayList;
@@ -12,6 +13,7 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import solim.modifier.ElementModifiers;
 import solim.signal.Signal;
+import solim.ui.ParentStack;
 
 /**
  * Base class with lazy single-build semantics, ambient lifecycle resource management, and automatic
@@ -34,6 +36,10 @@ public abstract class BaseComponent implements Component {
 
 	public BaseComponent() {
 		ComponentContext.registerChild(this);
+		Table parent = ParentStack.current();
+		if (parent != null) {
+			ParentStack.registerPendingComponent(this, parent);
+		}
 	}
 
 	protected abstract Element build();

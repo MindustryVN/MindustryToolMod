@@ -5,7 +5,6 @@ import static solim.UI.*;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
 import mindustrytool.models.response.ChatUser;
 import solim.core.BaseComponent;
@@ -23,20 +22,29 @@ public class ChatUserListView extends BaseComponent {
     protected Element build() {
         Readable<Boolean> hasUsers = store.activeUsers()
                 .map(list -> list != null && !list.isEmpty());
+        Readable<String> onlineCount = store.activeUsers().map(list -> {
+            int total = list != null ? list.size() : 0;
+            return Core.bundle.format("feature.chat.ui.online-count", total, total);
+        });
 
         return column()
                 .grow()
                 .top().left()
                 .gap(unit(1))
                 .children(() -> {
-                    row()
+                    column()
                             .growX()
                             .top().left()
                             .padding(unit(1))
+                            .gap(unit(0.5f))
                             .children(() -> {
                                 text(Core.bundle.get("feature.chat.ui.members", "Members"))
                                         .color(Pal.accent)
                                         .fontScale(1.1f)
+                                        .left();
+                                text(onlineCount)
+                                        .color(Color.gray)
+                                        .fontScale(0.8f)
                                         .left();
                             });
 
@@ -103,16 +111,14 @@ public class ChatUserListView extends BaseComponent {
                                 .padding(unit(1))
                                 .gap(unit(1))
                                 .children(() -> {
-                                    networkImage(user.getImageUrl())
-                                            .placeholder(Icon.players)
-                                            .fallback(Icon.players)
-                                            .size(unit(6), unit(6))
-                                            .minHeight(unit(6))
-                                            .minWidth(unit(6))
-                                            .top().left();
+                                    row().size(unit(6), unit(6)).top().left().children(() -> {
+                                        component(new ChatAvatar(name, user.getImageUrl(), name, unit(6)));
+                                    });
 
                                     text(name).color(finalRoleColor)
                                             .fontScale(0.9f)
+                                            .growX()
+                                            .ellipsis()
                                             .left();
                                 });
                     })
