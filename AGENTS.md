@@ -806,10 +806,6 @@ UI tests are **not required** for the `mod/` module.
 
 The mod runs inside Mindustry's initialized runtime, where scene, graphics, skins, fonts, atlas, and game state are available. Headless tests for mod UI are prone to runtime and mocking failures.
 
-To test the live UI, run `run.bat` to auto build and run mindustry, then interact with the UI via solim MCP server.
-
-**Always stop the Mindustry instance when testing is done** by calling the MCP `stop` tool. Never leave Mindustry running in the background after verification is complete.
-
 ## Solim
 
 UI primitives and framework behavior in the `solim/` module should be tested.

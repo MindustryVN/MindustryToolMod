@@ -41,15 +41,19 @@ Custom components SHALL be normal Java classes with constructor parameters as pr
 - **THEN** clicking button updates `text` via reactive binding without rebuilding `Counter`
 
 ### Requirement: Component as child via ElementResolver
-Layouts and parents SHALL accept children that are `Element` or `Component`; `Component` children SHALL be automatically resolved to `component.element()` without requiring callers to write `new Header().element()`.
+Layouts and parents SHALL accept children that are `Element` or `Component`; `Component` children SHALL be automatically resolved to `component.element()` without requiring callers to write `new Header().element()`. Additionally, `BaseComponent` subclasses instantiated inside a `children()` block SHALL be automatically attached to the current parent without requiring an explicit `component()` call — the `component()` call is now optional inside `children()` scopes.
 
-#### Scenario: Direct Component child
-- **WHEN** `column(() -> { add(new Header()); add(new ChatPanel()); })` where `Header`/`ChatPanel` implement `Component`
-- **THEN** parent column contains their resolved `Element`s in order
+#### Scenario: Direct Component child without component() call
+- **WHEN** `column(() -> { new Header(); new ChatPanel(); })` where `Header` and `ChatPanel` extend `BaseComponent`
+- **THEN** parent column contains their resolved `Element`s in order, without any `component()` call
 
 #### Scenario: Mixed Element and Component children
-- **WHEN** `column(() -> { text("Hello"); add(new UserCard(user)); image(tex); })`
-- **THEN** all three children are attached correctly via `ElementResolver.resolve(child)` logic
+- **WHEN** `column(() -> { text("Hello"); new UserCard(user); image(tex); })`
+- **THEN** all three children are attached correctly: `text` and `image` via `attachToParent`, `UserCard` via the auto-attach pending mechanism
+
+#### Scenario: Explicit component() still valid
+- **WHEN** `column(() -> { component(new Header()); })` (old style)
+- **THEN** the element is attached exactly once; no duplicate child is added
 
 ### Requirement: Component lifecycle and explicit disposal
 Components SHALL follow lifecycle `constructor → build() → element mounted → dispose()` . Components owning `Effect` or `Subscription` SHALL dispose them in overridden `dispose()`. Framework SHALL NOT introduce complex ownership/scope hooks; lifecycle is explicit.

@@ -5,6 +5,8 @@ import arc.util.Nullable;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Function;
+import solim.signal.Readable;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 
@@ -169,6 +171,112 @@ public class ConfigGroup {
 						Core.settings.put(key, "");
 					} else {
 						Core.settings.put(key, String.join(",", setVal));
+					}
+				});
+	}
+
+	public <K> ContextualConfigValue<Boolean, K> boolValueKeyed(
+			String name,
+			Readable<K> discriminant,
+			Function<K, String> keySuffix,
+			boolean defaultValue) {
+		return new ContextualConfigValue<>(
+				this,
+				name,
+				discriminant,
+				keySuffix,
+				defaultValue,
+				new ContextualConfigValue.ContextualPersister<Boolean>() {
+					@Override
+					public Boolean load(String key) {
+						return Core.settings.getBool(key, defaultValue);
+					}
+
+					@Override
+					public void save(String key, Boolean value) {
+						if (value != null) {
+							Core.settings.put(key, value);
+						}
+					}
+				});
+	}
+
+	public <K> ContextualConfigValue<Integer, K> intValueKeyed(
+			String name,
+			Readable<K> discriminant,
+			Function<K, String> keySuffix,
+			int defaultValue) {
+		return new ContextualConfigValue<>(
+				this,
+				name,
+				discriminant,
+				keySuffix,
+				defaultValue,
+				new ContextualConfigValue.ContextualPersister<Integer>() {
+					@Override
+					public Integer load(String key) {
+						return Core.settings.getInt(key, defaultValue);
+					}
+
+					@Override
+					public void save(String key, Integer value) {
+						if (value != null) {
+							Core.settings.put(key, value);
+						}
+					}
+				});
+	}
+
+	public <K> ContextualConfigValue<Float, K> floatValueKeyed(
+			String name,
+			Readable<K> discriminant,
+			Function<K, String> keySuffix,
+			float defaultValue) {
+		return new ContextualConfigValue<>(
+				this,
+				name,
+				discriminant,
+				keySuffix,
+				defaultValue,
+				new ContextualConfigValue.ContextualPersister<Float>() {
+					@Override
+					public Float load(String key) {
+						return Core.settings.getFloat(key, defaultValue);
+					}
+
+					@Override
+					public void save(String key, Float value) {
+						if (value != null) {
+							Core.settings.put(key, value);
+						}
+					}
+				});
+	}
+
+	public <K> ContextualConfigValue<String, K> stringValueKeyed(
+			String name,
+			Readable<K> discriminant,
+			Function<K, String> keySuffix,
+			@Nullable String defaultValue) {
+		return new ContextualConfigValue<>(
+				this,
+				name,
+				discriminant,
+				keySuffix,
+				defaultValue,
+				new ContextualConfigValue.ContextualPersister<String>() {
+					@Override
+					public String load(String key) {
+						return Core.settings.getString(key, defaultValue);
+					}
+
+					@Override
+					public void save(String key, String value) {
+						if (value == null) {
+							Core.settings.remove(key);
+						} else {
+							Core.settings.put(key, value);
+						}
 					}
 				});
 	}

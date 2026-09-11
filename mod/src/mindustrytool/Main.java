@@ -17,6 +17,7 @@ import mindustrytool.features.translation.TranslationFeature;
 import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
+import mindustrytool.features.OrientationSignal;
 import mindustrytool.services.auth.AuthOverlay;
 import mindustrytool.services.auth.MindustryAuthProvider;
 import mindustrytool.services.crash.CrashReportService;
@@ -36,6 +37,7 @@ public class Main extends Mod {
 	@Override
 	public void init() {
 		SolimMcpServer.start(McpConfig.fromProperties());
+		OrientationSignal.init();
 
 		self = Vars.mods.getMod(Main.class);
 
