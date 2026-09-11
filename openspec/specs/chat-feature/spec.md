@@ -1,4 +1,4 @@
-﻿# chat-feature Specification
+# chat-feature Specification
 
 ## Purpose
 Provides the lifecycle, persistent configurations, reactive state store, and MindustryTool network integration for the in-game chat feature.
@@ -27,7 +27,7 @@ The system SHALL manage all persistent chat settings using ConfigGroup and Confi
 - **THEN** collapsedConfig updates and persists the boolean state
 
 ### Requirement: Reactive Chat State Management
-The system SHALL maintain single-source-of-truth chat state in ChatStore using Solim Signal<T> instances for channel list, active channel, messages per channel, unread count, and connection state.
+The system SHALL maintain single-source-of-truth chat state in ChatStore using Solim Signal<T> instances for channel list, active channel, messages per channel, unread count, connection state, and reactive fully-loaded state per channel.
 
 #### Scenario: New message received in inactive channel
 - **WHEN** a message is received for a channel that is not currently active
@@ -36,6 +36,10 @@ The system SHALL maintain single-source-of-truth chat state in ChatStore using S
 #### Scenario: Selecting an active channel
 - **WHEN** a channel is selected as active
 - **THEN** active channel signal updates, unread count for that channel is cleared, and its last read message is recorded
+
+#### Scenario: Channel history fully loaded
+- **WHEN** older messages are requested for a channel and the returned list is empty or smaller than the requested page size
+- **THEN** the channel is marked as fully loaded in the reactive state store preventing further fetch requests
 
 ### Requirement: MindustryTool Service Integration
 The system SHALL interact with chat REST endpoints and SSE event streams via mindustrytool.services.MindustryTool and marshal state updates to the main thread via Core.app.post().

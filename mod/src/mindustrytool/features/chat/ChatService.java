@@ -19,6 +19,8 @@ import mindustrytool.utils.JsonUtils;
 
 public class ChatService {
 
+    public static final int PAGE_SIZE = 50;
+
     private final ChatStore store;
     private final Supplier<Boolean> windowOpenSupplier;
     private final AtomicBoolean running = new AtomicBoolean(false);
@@ -83,7 +85,11 @@ public class ChatService {
         }
         MindustryTool.getChatMessages(channelId, null).thenAccept(messages -> {
             Core.app.post(() -> {
+                if (messages != null) {
+                    Collections.reverse(messages);
+                }
                 store.setMessages(channelId, messages);
+                store.setFullyLoaded(channelId, messages == null || messages.size() < PAGE_SIZE);
                 fetchMissingUsers(messages);
             });
         }).exceptionally(e -> {
@@ -117,7 +123,11 @@ public class ChatService {
                 if (older == null || older.isEmpty()) {
                     store.setFullyLoaded(channelId, true);
                 } else {
-                    store.prependMessages(channelId, older);
+                    Collections.reverse(older);
+                    int added = store.prependMessages(channelId, older);
+                    if (older.size() < PAGE_SIZE || added == 0) {
+                        store.setFullyLoaded(channelId, true);
+                    }
                     fetchMissingUsers(older);
                 }
             });

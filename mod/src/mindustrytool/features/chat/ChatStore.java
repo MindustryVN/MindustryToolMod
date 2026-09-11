@@ -33,7 +33,7 @@ public class ChatStore {
     private final Signal<Boolean> connected = Signal.of(false);
     private final Signal<ChatMessage> replyTarget = Signal.of(null);
     private final Signal<Boolean> loadingOlder = Signal.of(false);
-    private final Map<String, Boolean> fullyLoadedChannels = new HashMap<>();
+    private final Signal<Map<String, Boolean>> fullyLoadedChannels = Signal.of(new HashMap<>());
     private final Signal<String> expandedMessageId = Signal.of(null);
     private final Signal<Map<String, String>> translatedMessages = Signal.of(new HashMap<>());
     private final Signal<String> translatingMessageId = Signal.of(null);
@@ -73,6 +73,15 @@ public class ChatStore {
             }
         }
         return null;
+    });
+
+    private final Computed<Boolean> activeChannelFullyLoaded = new Computed<>(() -> {
+        String activeId = activeChannelId.get();
+        if (activeId == null || activeId.isEmpty()) {
+            return false;
+        }
+        Map<String, Boolean> map = fullyLoadedChannels.get();
+        return map != null && Boolean.TRUE.equals(map.get(activeId));
     });
 
     public ChatStore() {
@@ -159,13 +168,24 @@ public class ChatStore {
         loadingOlder.set(loading);
     }
 
+    public Readable<Boolean> fullyLoaded(String channelId) {
+        return fullyLoadedChannels.map(map -> (map != null && channelId != null) && Boolean.TRUE.equals(map.get(channelId)));
+    }
+
+    public Readable<Boolean> activeChannelFullyLoaded() {
+        return activeChannelFullyLoaded;
+    }
+
     public boolean isFullyLoaded(String channelId) {
-        return channelId != null && Boolean.TRUE.equals(fullyLoadedChannels.get(channelId));
+        Map<String, Boolean> map = fullyLoadedChannels.peek();
+        return channelId != null && map != null && Boolean.TRUE.equals(map.get(channelId));
     }
 
     public void setFullyLoaded(String channelId, boolean fullyLoaded) {
         if (channelId != null) {
-            fullyLoadedChannels.put(channelId, fullyLoaded);
+            Map<String, Boolean> map = new HashMap<>(fullyLoadedChannels.peek() != null ? fullyLoadedChannels.peek() : Collections.emptyMap());
+            map.put(channelId, fullyLoaded);
+            fullyLoadedChannels.set(map);
         }
     }
 
@@ -207,9 +227,9 @@ public class ChatStore {
         messages.set(current);
     }
 
-    public void prependMessages(String channelId, List<ChatMessage> oldMessages) {
+    public int prependMessages(String channelId, List<ChatMessage> oldMessages) {
         if (oldMessages == null || oldMessages.isEmpty() || channelId == null) {
-            return;
+            return 0;
         }
         Map<String, List<ChatMessage>> current = new HashMap<>(messages.peek() != null ? messages.peek() : Collections.emptyMap());
         List<ChatMessage> existing = current.containsKey(channelId) ? new ArrayList<>(current.get(channelId)) : new ArrayList<>();
@@ -226,9 +246,14 @@ public class ChatStore {
                 merged.add(m);
             }
         }
+        if (merged.isEmpty()) {
+            return 0;
+        }
+        int added = merged.size();
         merged.addAll(existing);
         current.put(channelId, merged);
         messages.set(current);
+        return added;
     }
 
     public void appendMessage(ChatMessage message, boolean isWindowOpen) {

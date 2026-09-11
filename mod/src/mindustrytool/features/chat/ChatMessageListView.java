@@ -62,6 +62,11 @@ public class ChatMessageListView extends BaseComponent {
     @Override
     protected Element build() {
         Readable<Boolean> hasMessages = store.activeMessages().map(list -> list != null && !list.isEmpty());
+        Readable<Boolean> showEndOfHistory = new Computed<>(() -> {
+            Boolean fully = store.activeChannelFullyLoaded().get();
+            Boolean has = hasMessages.get();
+            return Boolean.TRUE.equals(fully) && Boolean.TRUE.equals(has);
+        });
 
         Computed<List<DisplayMessage>> displayMessages = new Computed<>(() -> {
             List<ChatMessage> msgs = store.activeMessages().get();
@@ -117,7 +122,8 @@ public class ChatMessageListView extends BaseComponent {
                         float newContentHeight = scrollPane.content().getPrefHeight();
                         float heightDelta = newContentHeight - prevContentHeight;
                         if (heightDelta > 0) {
-                            pane.setScrollY(prevScrollY + heightDelta);
+                            pane.setScrollYForce(prevScrollY + heightDelta);
+                            pane.updateVisualScroll();
                         }
                     }
                 });
@@ -147,12 +153,25 @@ public class ChatMessageListView extends BaseComponent {
                         String activeId = store.activeChannelId().peek();
                         var msgs = store.activeMessages().peek();
                         if (activeId != null && !activeId.isEmpty() && service != null && msgs != null
-                                && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())) {
+                                && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())
+                                && !store.isFullyLoaded(activeId)) {
                             service.fetchOlderMessages(activeId);
                         }
                     })
                     .children(() -> {
                         column().growX().top().left().gap(unit(1)).children(() -> {
+                            dynamic(showEndOfHistory, show -> {
+                                if (Boolean.TRUE.equals(show)) {
+                                    return row().top().center().growX().padding(unit(2)).children(() -> {
+                                        text(Core.bundle.get("feature.chat.ui.end-of-history",
+                                                "Beginning of chat history"))
+                                                .color(Color.gray)
+                                                .fontScale(0.85f);
+                                    });
+                                }
+                                return row();
+                            });
+
                             dynamic(store.loadingOlder(), loading -> {
                                 if (Boolean.TRUE.equals(loading)) {
                                     return row().top().left().padding(unit(2)).children(() -> {
@@ -190,13 +209,14 @@ public class ChatMessageListView extends BaseComponent {
                 if (scrollPane != null && scrollPane.pane() != null) {
                     var pane = scrollPane.pane();
                     pane.layout();
-                    pane.setScrollPercentY(1f);
-                    pane.setScrollY(pane.getMaxY());
+                    pane.setScrollYForce(pane.getMaxY());
+                    pane.updateVisualScroll();
                     Core.app.post(() -> {
                         if (scrollPane != null && scrollPane.pane() != null) {
                             var p = scrollPane.pane();
                             p.layout();
-                            p.setScrollPercentY(1f);
+                            p.setScrollYForce(p.getMaxY());
+                            p.updateVisualScroll();
                         }
                     });
                 }
