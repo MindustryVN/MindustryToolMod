@@ -7,6 +7,7 @@ import arc.scene.event.EventListener;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.event.Touchable;
+import arc.scene.ui.Button;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
@@ -460,9 +461,7 @@ public final class ElementModifiers {
             @Nullable Signal<Float> ySignal) {
         if (handle == null)
             return;
-        // Table containers use childrenOnly so child buttons still receive touch events.
-        // Non-Table elements use enabled since they have no children to route through.
-        handle.touchable = (handle instanceof Table) ? Touchable.childrenOnly : Touchable.enabled;
+        handle.touchable = Touchable.enabled;
         if (hud != null) {
             if (xSignal != null) hud.bindXSignal(xSignal);
             if (ySignal != null) hud.bindYSignal(ySignal);
@@ -486,6 +485,8 @@ public final class ElementModifiers {
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
                 if (event != null && event.listenerActor != null && handle.getScene() == null)
+                    return false;
+                if (event != null && isInteractiveDescendant(event.targetActor, handle))
                     return false;
                 Hud targetHud = resolveHud();
                 if (targetHud == null)
@@ -550,5 +551,21 @@ public final class ElementModifiers {
                 }
             }
         });
+    }
+
+    private static boolean isInteractiveDescendant(@Nullable Element target, Element handle) {
+        Element curr = target;
+        while (curr != null && curr != handle) {
+            if (curr instanceof Button) {
+                return true;
+            }
+            for (EventListener l : curr.getListeners()) {
+                if (l instanceof ClickListener) {
+                    return true;
+                }
+            }
+            curr = curr.parent;
+        }
+        return false;
     }
 }

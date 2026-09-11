@@ -40,8 +40,6 @@ public class ChatUserListView extends BaseComponent {
                                         .left();
                             });
 
-                    divider();
-
                     scroll()
                             .grow()
                             .left()

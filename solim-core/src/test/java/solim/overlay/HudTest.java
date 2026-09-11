@@ -378,15 +378,15 @@ class HudTest {
 	}
 
 	@Test
-	void draggableTableHandleUsesChildrenOnly() {
+	void draggableTableHandleUsesEnabled() {
 		Hud hud = new Hud();
 		Table handle = new Table();
 		assertEquals(arc.scene.event.Touchable.childrenOnly, handle.touchable,
 				"Table default touchable should be childrenOnly before draggable");
 
 		hud.draggable(handle);
-		assertEquals(arc.scene.event.Touchable.childrenOnly, handle.touchable,
-				"Table handle touchable should remain childrenOnly so child buttons stay clickable");
+		assertEquals(arc.scene.event.Touchable.enabled, handle.touchable,
+				"Table handle touchable should be enabled so entire surface is draggable");
 		hud.dispose();
 	}
 
@@ -435,35 +435,29 @@ class HudTest {
 		Signal<Float> xSig = Signal.of(100f);
 		Signal<Float> ySig = Signal.of(100f);
 
-		// Table drag handle — must use childrenOnly so child elements receive touch events
 		Table handle = new Table();
-		// Add a plain Element child that tracks whether it receives a click listener call
-		Element child = new Element();
+		// Add an interactive child with ClickListener (simulating a button)
+		Element childBtn = new Element();
 		int[] clickFired = {0};
-		child.addListener(new arc.scene.event.ClickListener() {
+		childBtn.addListener(new arc.scene.event.ClickListener() {
 			@Override
 			public void clicked(InputEvent event, float x, float y) {
 				clickFired[0]++;
 			}
 		});
-		handle.add(child);
+		handle.add(childBtn);
+
+		// Add a non-button child (simulating label/title/spacer)
+		Element label = new Element();
+		handle.add(label);
+
 		hud.draggable(handle, xSig, ySig);
 
-		// Core assertion: Table handle must use childrenOnly
-		assertEquals(Touchable.childrenOnly, handle.touchable,
-				"Table drag handle must use childrenOnly so child elements stay clickable");
+		// Core assertion: handle must use enabled
+		assertEquals(Touchable.enabled, handle.touchable,
+				"Table drag handle must use enabled so background and non-button elements are draggable");
 
-		// The child's ClickListener must still be directly reachable
-		for (EventListener l : child.getListeners()) {
-			if (l instanceof arc.scene.event.ClickListener) {
-				InputEvent ev = new InputEvent();
-				((arc.scene.event.ClickListener) l).clicked(ev, 1f, 1f);
-				break;
-			}
-		}
-		assertEquals(1, clickFired[0], "Child element click listener must still fire with childrenOnly handle");
-
-		// Drag via the handle's InputListener must still move the HUD
+		// Locate drag listener on handle
 		InputListener dragListener = null;
 		for (EventListener l : handle.getListeners()) {
 			if (l instanceof InputListener && !(l instanceof arc.scene.event.ClickListener)) {
@@ -473,9 +467,36 @@ class HudTest {
 		}
 		assertNotNull(dragListener, "Drag InputListener must be registered on the Table handle");
 
-		InputEvent dragEvent = new InputEvent();
-		dragListener.touchDown(dragEvent, 10f, 10f, 0, KeyCode.mouseLeft);
-		dragListener.touchDragged(dragEvent, 60f, 80f, 0);
+		// When touching childBtn, dragListener.touchDown should return false (delegating to button)
+		InputEvent btnEvent = new InputEvent();
+		btnEvent.targetActor = childBtn;
+		assertFalse(dragListener.touchDown(btnEvent, 5f, 5f, 0, KeyCode.mouseLeft),
+				"Touching a button must NOT capture drag");
+
+		// The child button's click listener remains directly executable
+		InputEvent ev = new InputEvent();
+		for (EventListener l : childBtn.getListeners()) {
+			if (l instanceof arc.scene.event.ClickListener) {
+				((arc.scene.event.ClickListener) l).clicked(ev, 1f, 1f);
+				break;
+			}
+		}
+		assertEquals(1, clickFired[0], "Child element click listener must fire");
+
+		// When touching label, dragListener.touchDown should return true (drags)
+		InputEvent labelEvent = new InputEvent();
+		labelEvent.targetActor = label;
+		assertTrue(dragListener.touchDown(labelEvent, 5f, 5f, 0, KeyCode.mouseLeft),
+				"Touching non-button label inside handle must initiate drag");
+
+		// When touching empty handle background, dragListener.touchDown returns true (drags)
+		InputEvent bgEvent = new InputEvent();
+		bgEvent.targetActor = handle;
+		assertTrue(dragListener.touchDown(bgEvent, 10f, 10f, 0, KeyCode.mouseLeft),
+				"Touching empty handle background must initiate drag");
+
+		// Drag via background moves the HUD
+		dragListener.touchDragged(bgEvent, 60f, 80f, 0);
 		assertEquals(150f, hud.element().x, 0.01f, "HUD must move by +50 on drag");
 		assertEquals(170f, hud.element().y, 0.01f, "HUD must move by +70 on drag");
 

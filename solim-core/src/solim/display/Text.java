@@ -113,6 +113,7 @@ public final class Text implements Component {
             Cell<?> cell = ((Table) label.parent).getCell(label);
             if (cell != null) {
                 cell.growX();
+                cell.minWidth(0f);
                 ((Table) label.parent).invalidateHierarchy();
             }
         }
@@ -135,12 +136,25 @@ public final class Text implements Component {
         return growX().growY();
     }
 
+    private boolean wrap;
+
     public Text wrap(boolean wrap) {
+        this.wrap = wrap;
         label.setWrap(wrap);
         if (wrap) {
             growX();
+            if (label.parent instanceof Table) {
+                Cell<?> cell = ((Table) label.parent).getCell(label);
+                if (cell != null) {
+                    cell.minWidth(0f);
+                }
+            }
         }
         return this;
+    }
+
+    public boolean isWrap() {
+        return wrap;
     }
 
     public Text wrap() {

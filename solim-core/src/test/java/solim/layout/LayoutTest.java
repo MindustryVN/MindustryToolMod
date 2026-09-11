@@ -9,12 +9,14 @@ import arc.mock.MockGraphics;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
+import arc.scene.ui.Label;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.CellAccess;
 import arc.scene.ui.layout.Table;
 import java.util.Arrays;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import solim.display.Text;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
 import solim.ui.Ui;
@@ -114,9 +116,8 @@ class LayoutTest {
 	@Test
 	void rowDraggableRegistersListener() {
 		Row r = new Row().draggable();
-		// Row wraps a Table, so draggable must use childrenOnly to allow child button clicks
-		assertEquals(arc.scene.event.Touchable.childrenOnly, r.table().touchable,
-				"Row (Table) drag handle must use childrenOnly so child elements stay clickable");
+		assertEquals(arc.scene.event.Touchable.enabled, r.table().touchable,
+				"Row drag handle must use enabled so entire surface is draggable");
 
 		boolean hasDragListener = false;
 		for (arc.scene.event.EventListener l : r.table().getListeners()) {
@@ -747,6 +748,24 @@ class LayoutTest {
 		Cell<?> cell0 = gridTable.getCells().get(0);
 		assertTrue(cell0.get().getWidth() < 400f, "Card in 3-column grid must not stretch across entire 1024px (was " + cell0.get().getWidth() + ")");
 		assertTrue(cell0.get().getWidth() > 300f, "Card in 3-column grid must take its 1/3 share (was " + cell0.get().getWidth() + ")");
+	}
+
+	@Test
+	void textWrapSetsMinWidthZeroOnTableCell() {
+		Table table = new Table();
+		Label.LabelStyle style = new Label.LabelStyle();
+		arc.graphics.g2d.Font.FontData fontData = new arc.graphics.g2d.Font.FontData() {};
+		style.font = new arc.graphics.g2d.Font(fontData, new arc.graphics.g2d.TextureRegion(), false);
+
+		Text text = new Text("A very long message string that wraps across multiple lines", style);
+		table.add(text.element());
+		text.wrap();
+
+		Cell<?> cell = table.getCell(text.element());
+		assertNotNull(cell, "Cell must exist in parent table");
+		assertEquals(0f, CellAccess.minWidth(cell), 0.001f, "Cell minWidth must be 0 when wrap() is set");
+		assertEquals(1, CellAccess.expandX(cell), "Cell must expandX when wrap() is set");
+		assertTrue(text.isWrap(), "Text wrap flag must be true");
 	}
 }
 

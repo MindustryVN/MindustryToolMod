@@ -36,11 +36,16 @@ public class ChatInputView extends BaseComponent {
 
         return column().growX().gap(unit(1)).children(() -> {
             // Login banner when not logged in
-            row().growX().padding(unit(1)).visible(isNotLoggedIn).children(() -> {
-                button(Core.bundle.get("auth.login", "Login"), () -> AuthOverlay.getInstance().startLoginUI())
-                        .style(Styles.defaultt)
-                        .growX()
-                        .height(unit(10));
+            dynamic(isNotLoggedIn, notLoggedIn -> {
+                if (!Boolean.TRUE.equals(notLoggedIn)) {
+                    return null;
+                }
+                return row().growX().padding(unit(1)).children(() -> {
+                    button(Core.bundle.get("auth.login", "Login"), () -> AuthOverlay.getInstance().startLoginUI())
+                            .style(Styles.defaultt)
+                            .growX()
+                            .height(unit(10));
+                });
             });
 
             // Composer area when logged in

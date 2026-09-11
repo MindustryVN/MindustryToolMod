@@ -33,8 +33,6 @@ public class ChatChannelListView extends BaseComponent {
                         .left();
             });
 
-            divider();
-
             scroll().grow().children(() -> {
                 column().growX().gap(unit(1)).children(() -> {
                     dynamic(hasChannels, available -> {

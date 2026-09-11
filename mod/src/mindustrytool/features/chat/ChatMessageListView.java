@@ -498,21 +498,15 @@ public class ChatMessageListView extends BaseComponent {
                 if (schematic != null) {
                     if (!prev.isEmpty()) {
                         final String prevText = prev;
-                        row().growX().top().left().children(() -> {
-                            text(prevText).color(Color.white).wrap().left().growX();
-                        });
+                        text(prevText).color(Color.white).wrap().left().growX();
                     }
 
                     final Schematic finalSchem = schematic;
-                    row().growX().top().left().children(() -> {
-                        buildSchematicCard(finalSchem);
-                    });
+                    buildSchematicCard(finalSchem);
 
                     if (!after.isEmpty()) {
                         final String afterText = after;
-                        row().growX().top().left().children(() -> {
-                            text(afterText).color(Color.white).wrap().left().growX();
-                        });
+                        text(afterText).color(Color.white).wrap().left().growX();
                     }
                     return;
                 }
@@ -520,13 +514,11 @@ public class ChatMessageListView extends BaseComponent {
 
             // Standard text message
             final String text = content;
-            row().growX().top().left().children(() -> {
-                text(text)
-                        .color(Color.white)
-                        .wrap()
-                        .left()
-                        .growX();
-            });
+            text(text)
+                    .color(Color.white)
+                    .wrap()
+                    .left()
+                    .growX();
         }
 
         private void buildSchematicCard(Schematic schematic) {
