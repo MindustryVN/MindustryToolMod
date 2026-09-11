@@ -14,7 +14,35 @@ class SolimTextFieldComponentTest {
 
 @BeforeAll
 static void checkArcContext() {
-    Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
+	if (Core.app == null) {
+		Core.app = new arc.mock.MockApplication();
+	}
+	if (Core.graphics == null) {
+		Core.graphics = new arc.mock.MockGraphics();
+	}
+	if (Core.gl == null) {
+		Core.gl = new arc.mock.MockGL20();
+		Core.gl20 = (arc.mock.MockGL20) Core.gl;
+	}
+	if (Core.scene == null) {
+		Core.scene = new arc.scene.Scene();
+		arc.scene.ui.TextField.TextFieldStyle style = new arc.scene.ui.TextField.TextFieldStyle();
+		arc.graphics.g2d.Font.FontData fontData = new arc.graphics.g2d.Font.FontData() {
+			@Override
+			public boolean hasGlyph(char ch) {
+				return true;
+			}
+		};
+		style.font = new arc.graphics.g2d.Font(fontData, new arc.graphics.g2d.TextureRegion(), false);
+		Core.scene.addStyle(arc.scene.ui.TextField.TextFieldStyle.class, style);
+	}
+}
+
+@org.junit.jupiter.api.AfterAll
+static void tearDownArc() {
+	Core.scene = null;
+	Core.gl = null;
+	Core.gl20 = null;
 }
 
 private void simulateKey(SolimTextField tf, KeyCode key) {
@@ -42,6 +70,7 @@ void fieldTextUpdatesSignal() {
     SolimTextField tf = new SolimTextField(input);
 
     tf.field().setText("b");
+    tf.field().change();
     assertEquals("b", input.get());
     tf.dispose();
 }
@@ -113,6 +142,41 @@ void nameModifierUpdatesElementName() {
 void elementIsSameAsField() {
     SolimTextField tf = new SolimTextField(Signal.of(""));
     assertSame(tf.field(), tf.element());
+    tf.dispose();
+}
+
+@Test
+void typeMessageSendMessageClearMessageCycle() {
+    Signal<String> messageSignal = Signal.of("");
+    SolimTextField tf = new SolimTextField(messageSignal);
+    String[] sent = {null};
+    tf.onEnter(msg -> {
+        sent[0] = msg;
+        messageSignal.set("");
+    });
+
+    // 1. "type message"
+    tf.field().setText("hello");
+    tf.field().change();
+    assertEquals("hello", tf.field().getText());
+    assertEquals("hello", messageSignal.get(), "Signal must match typed message");
+
+    // 2. "send message"
+    simulateKey(tf, KeyCode.enter);
+    assertEquals("hello", sent[0]);
+
+    // 3. "clear message"
+    assertEquals("", tf.field().getText(), "Field must be cleared");
+    assertEquals("", messageSignal.get(), "Signal must be cleared");
+
+    // 4. "type message again"
+    tf.field().setText("world");
+    tf.field().change();
+
+    // 5. "check the value signal too"
+    assertEquals("world", tf.field().getText());
+    assertEquals("world", messageSignal.get(), "Signal must reflect second message");
+
     tf.dispose();
 }
 }

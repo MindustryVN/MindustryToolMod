@@ -14,7 +14,35 @@ class SolimTextFieldTest {
 
 	@BeforeAll
 	static void checkArcContext() {
-		Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
+		if (Core.app == null) {
+			Core.app = new arc.mock.MockApplication();
+		}
+		if (Core.graphics == null) {
+			Core.graphics = new arc.mock.MockGraphics();
+		}
+		if (Core.gl == null) {
+			Core.gl = new arc.mock.MockGL20();
+			Core.gl20 = (arc.mock.MockGL20) Core.gl;
+		}
+		if (Core.scene == null) {
+			Core.scene = new arc.scene.Scene();
+			arc.scene.ui.TextField.TextFieldStyle style = new arc.scene.ui.TextField.TextFieldStyle();
+			arc.graphics.g2d.Font.FontData fontData = new arc.graphics.g2d.Font.FontData() {
+				@Override
+				public boolean hasGlyph(char ch) {
+					return true;
+				}
+			};
+			style.font = new arc.graphics.g2d.Font(fontData, new arc.graphics.g2d.TextureRegion(), false);
+			Core.scene.addStyle(arc.scene.ui.TextField.TextFieldStyle.class, style);
+		}
+	}
+
+	@org.junit.jupiter.api.AfterAll
+	static void tearDownArc() {
+		Core.scene = null;
+		Core.gl = null;
+		Core.gl20 = null;
 	}
 
 	private void simulateKey(SolimTextField tf, KeyCode key) {
@@ -106,6 +134,54 @@ class SolimTextFieldTest {
 
 		disabled.set(false);
 		assertFalse(tf.field().isDisabled());
+
+		tf.dispose();
+	}
+
+	@Test
+	void typeMessageSendMessageClearMessageCycle() {
+		Signal<String> messageSignal = Signal.of("");
+		SolimTextField tf = new SolimTextField(messageSignal);
+
+		String[] sentMessage = {null};
+		tf.onEnter(msg -> {
+			sentMessage[0] = msg;
+			messageSignal.set(""); // Clear message upon sending (e.g. ChatInputView behavior)
+		});
+
+		// Initial state
+		assertEquals("", tf.field().getText());
+		assertEquals("", messageSignal.get());
+
+		// 1. "type message": user inputs first message into the text field
+		tf.field().setText("Hello world");
+		tf.field().change();
+
+		// Check the value signal too
+		assertEquals("Hello world", tf.field().getText());
+		assertEquals("Hello world", messageSignal.get(), "Signal must track typed message");
+
+		// 2. "send message": enter key triggers onEnter callback
+		simulateKey(tf, KeyCode.enter);
+		assertEquals("Hello world", sentMessage[0], "Sent message must match typed message");
+
+		// 3. "clear message": field text and signal should be cleared
+		assertEquals("", tf.field().getText(), "Field text must be cleared after send");
+		assertEquals("", messageSignal.get(), "Signal must be cleared after send");
+
+		// 4. "type message again": user inputs second message
+		tf.field().setText("How are you?");
+		tf.field().change();
+
+		// 5. "check the value signal too": verify signal updates on second message
+		assertEquals("How are you?", tf.field().getText(), "Field text must reflect new input");
+		assertEquals("How are you?", messageSignal.get(), "Signal must reflect second typed message");
+
+		// Send second message and verify clearing
+		simulateKey(tf, KeyCode.enter);
+		assertEquals("How are you?", sentMessage[0]);
+		assertEquals("", tf.field().getText());
+		assertEquals("", messageSignal.get());
 
 		tf.dispose();
 	}

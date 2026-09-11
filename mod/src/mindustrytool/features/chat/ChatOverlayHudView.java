@@ -100,7 +100,7 @@ public class ChatOverlayHudView extends BaseComponent {
                                 .height(unit(7))
                                 .children(() -> {
                                     row().gap(unit(1)).children(() -> {
-                                        image(Icon.planet).size(unit(5), unit(5)).color(Color.white);
+                                        image(Icon.chat).size(unit(5), unit(5)).color(Color.white);
 
                                         image(Tex.whiteui)
                                                 .size(unit(2), unit(2))

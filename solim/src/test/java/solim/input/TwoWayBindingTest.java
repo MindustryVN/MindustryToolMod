@@ -86,4 +86,52 @@ class TwoWayBindingTest {
 		sig.set("B");
 		assertEquals("A", widgetVal[0], "Disposed binding should not propagate signal changes");
 	}
+
+	@Test
+	void typeMessageSendMessageClearMessageCycle() {
+		Signal<String> messageSignal = Signal.of("");
+		String[] widgetVal = {""};
+		Runnable[] widgetChangeListener = new Runnable[1];
+
+		TwoWayBinding<String> binding = new TwoWayBinding<>(
+				messageSignal,
+				() -> widgetVal[0],
+				val -> widgetVal[0] = val,
+				onChange -> {
+					widgetChangeListener[0] = onChange;
+					return () -> {};
+				}
+		);
+
+		// Initial state
+		assertEquals("", widgetVal[0]);
+		assertEquals("", messageSignal.get());
+
+		// 1. "type message": user inputs message into widget
+		widgetVal[0] = "First message";
+		widgetChangeListener[0].run();
+
+		// Check the value signal too
+		assertEquals("First message", widgetVal[0]);
+		assertEquals("First message", messageSignal.get(), "Signal must track typed widget message");
+
+		// 2. "send message": simulated send consumes message
+		String sentMessage = messageSignal.get();
+		assertEquals("First message", sentMessage);
+
+		// 3. "clear message": signal is cleared on send
+		messageSignal.set("");
+		assertEquals("", widgetVal[0], "Widget must be cleared when signal is cleared");
+		assertEquals("", messageSignal.get(), "Signal must be cleared");
+
+		// 4. "type message again": user inputs second message
+		widgetVal[0] = "Second message";
+		widgetChangeListener[0].run();
+
+		// 5. "check the value signal too": signal must update on second message
+		assertEquals("Second message", widgetVal[0]);
+		assertEquals("Second message", messageSignal.get(), "Signal must reflect second message");
+
+		binding.dispose();
+	}
 }

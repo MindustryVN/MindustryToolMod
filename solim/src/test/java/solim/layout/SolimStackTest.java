@@ -53,4 +53,13 @@ class SolimStackTest {
 		SolimStack s = new SolimStack();
 		assertSame(s.stack(), s.element());
 	}
+
+	@Test
+	void layerAddsRowChild() {
+		SolimStack s = new SolimStack();
+		s.layer(() -> new Row());
+
+		assertEquals(1, s.stack().getChildren().size);
+		assertTrue(s.stack().getChildren().get(0) instanceof arc.scene.ui.layout.Table);
+	}
 }

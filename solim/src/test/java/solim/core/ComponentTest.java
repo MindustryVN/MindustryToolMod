@@ -5,9 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import arc.scene.Element;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
-import solim.signal.Computed;
-import solim.signal.Effect;
-import solim.signal.Signal;
 
 class ComponentTest {
 

@@ -11,7 +11,6 @@ import arc.util.Scaling;
 import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.ComponentContext;
-import solim.core.Disposable;
 import solim.layout.ConstrainedElement;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
@@ -20,7 +19,7 @@ import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for drawable content. */
-public final class SolimImage implements Component, Disposable {
+public final class SolimImage implements Component {
 
 	public static class SizedImage extends Image implements ConstrainedElement {
 		private final SizeConstraints constraints = new SizeConstraints();

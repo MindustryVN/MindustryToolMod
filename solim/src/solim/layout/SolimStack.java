@@ -28,7 +28,23 @@ public final class SolimStack implements Component {
 	}
 
 	public SolimStack add(Element child) {
-		stack.add(child);
+		if (child != null) {
+			stack.add(child);
+		}
+		return this;
+	}
+
+	public SolimStack add(Component child) {
+		if (child != null) {
+			stack.add(child.element());
+		}
+		return this;
+	}
+
+	public SolimStack layer(Runnable r) {
+		Row layerRow = new Row();
+		layerRow.children(r);
+		stack.add(layerRow.element());
 		return this;
 	}
 }
