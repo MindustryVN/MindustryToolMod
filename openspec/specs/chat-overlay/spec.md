@@ -1,4 +1,4 @@
-﻿# chat-overlay Specification
+# chat-overlay Specification
 
 ## Purpose
 Provides a declarative Solim HUD overlay for in-game chat with multi-pane desktop layout, tabbed mobile view, and collapsed draggable badge mode.
@@ -15,11 +15,23 @@ The system SHALL provide a ChatOverlayHudView implemented exclusively using decl
 - **THEN** the chat overlay automatically hides without tearing down reactive bindings
 
 ### Requirement: Collapsed Badge Mode
-The system SHALL provide a collapsed floating badge display when collapsedConfig is true, showing a draggable pill with unread message count and connection status indicator.
+The system SHALL provide a collapsed floating badge display when collapsedConfig is true, showing a single draggable pill button that also expands the chat on click, plus a floating (zero-layout-space) connection status indicator.
+
+#### Scenario: Single button drags and expands
+- **WHEN** the user drags the collapsed badge
+- **THEN** the entire badge moves with the pointer via the draggable binding without opening the chat
 
 #### Scenario: Expanding from collapsed badge
-- **WHEN** the user clicks on the collapsed badge
+- **WHEN** the user clicks (without dragging) the collapsed badge
 - **THEN** collapsedConfig is set to false and the expanded chat window is displayed
+
+#### Scenario: Connection status dot is floating
+- **WHEN** the collapsed badge is rendered
+- **THEN** the connection-status indicator is positioned as a floating overlay on the chat icon and contributes zero width and zero height to the row layout
+
+#### Scenario: No separate drag-handle icon
+- **WHEN** the collapsed badge is displayed
+- **THEN** only one icon (chat icon) is visible and no separate move/drag handle icon is rendered
 
 #### Scenario: Unread badge count update
 - **WHEN** unread messages arrive while collapsed
@@ -82,4 +94,19 @@ The chat composer input field SHALL maintain focus while typing and avoid unmoun
 #### Scenario: User types message text
 - **WHEN** the user types characters into the chat text field
 - **THEN** the input component remains continuously mounted and does not lose focus between keystrokes.
+
+### Requirement: Reply Section Layout
+The chat input composer SHALL render the reply-target row as a fixed layout element that is visible only when a reply target is set, with zero height and no consumed space when not replying.
+
+#### Scenario: Reply row hidden when no reply target
+- **WHEN** the store has no reply target (replyTarget is null)
+- **THEN** the reply row has setVisible(false) and setLayoutEnabled(false) applied, occupying no vertical space in the composer
+
+#### Scenario: Reply row shown when replying
+- **WHEN** the store has a non-null reply target
+- **THEN** the reply row becomes visible and shows the target author name with a cancel button
+
+#### Scenario: Cancelling a reply
+- **WHEN** the user clicks the cancel button in the reply row
+- **THEN** store.setReplyTarget(null) is called and the reply row collapses from layout
 

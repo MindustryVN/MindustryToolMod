@@ -32,7 +32,6 @@ public class ChatInputView extends BaseComponent {
     protected Element build() {
         Readable<Boolean> isLoggedIn = store.loggedIn().map(l -> Boolean.TRUE.equals(l));
         Readable<Boolean> isNotLoggedIn = isLoggedIn.map(l -> !l);
-        Readable<Boolean> hasReply = store.replyTarget().map(t -> t != null);
         Readable<Boolean> canSend = isSending.map(s -> !s);
 
         return column().growX().gap(unit(1)).children(() -> {
@@ -46,28 +45,27 @@ public class ChatInputView extends BaseComponent {
 
             // Composer area when logged in
             column().growX().gap(unit(1)).visible(isLoggedIn).children(() -> {
-                dynamic(hasReply, replying -> {
-                    if (Boolean.TRUE.equals(replying)) {
-                        ChatMessage target = store.replyTarget().peek();
-                        String authorId = target != null ? target.getCreatedBy() : null;
-                        UserData cachedUser = (authorId != null && store.userCache().peek() != null)
-                                ? store.userCache().peek().get(authorId)
-                                : null;
-                        String targetName = (cachedUser != null && cachedUser.getName() != null)
-                                ? cachedUser.getName()
-                                : (authorId != null ? authorId : "message");
-                        return row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
-                            image(Icon.leftSmall).size(unit(4), unit(4)).color(Pal.accent);
-                            text(Core.bundle.format("feature.chat.ui.replying", targetName)).color(Color.lightGray)
-                                    .fontScale(0.85f).left();
-                            spacer();
-                            button(() -> store.setReplyTarget(null))
-                                    .style(Styles.clearNonei)
-                                    .size(unit(6), unit(6))
-                                    .children(() -> image(Icon.cancel).size(unit(4), unit(4)));
-                        });
+                dynamic(store.replyTarget(), target -> {
+                    if (target == null) {
+                        return null;
                     }
-                    return row();
+                    String authorId = target.getCreatedBy();
+                    UserData cachedUser = (authorId != null && store.userCache().peek() != null)
+                            ? store.userCache().peek().get(authorId)
+                            : null;
+                    String targetName = (cachedUser != null && cachedUser.getName() != null)
+                            ? cachedUser.getName()
+                            : (authorId != null ? authorId : "message");
+                    return row().growX().padding(unit(1)).gap(unit(1)).children(() -> {
+                        image(Icon.leftSmall).size(unit(4), unit(4)).color(Pal.accent);
+                        text(Core.bundle.format("feature.chat.ui.replying", targetName)).color(Color.lightGray)
+                                .fontScale(0.85f).left();
+                        spacer();
+                        button(() -> store.setReplyTarget(null))
+                                .style(Styles.clearNonei)
+                                .size(unit(6), unit(6))
+                                .children(() -> image(Icon.cancel).size(unit(4), unit(4)));
+                    });
                 });
 
                 row().growX().gap(unit(1)).children(() -> {

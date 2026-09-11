@@ -2,6 +2,7 @@ package solim.ui;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
@@ -15,7 +16,13 @@ import solim.signal.Readable;
 
 /** Structural reactive component for switching dynamic subtrees based on a reactive value. */
 public final class Dynamic<T> extends BaseComponent implements ConstrainedElement, LayoutModifiers<Dynamic<T>> {
-	private final SizedTable container = new SizedTable();
+	private final SizedTable container = new SizedTable() {
+		@Override
+		public void layout() {
+			updateParentCell();
+			super.layout();
+		}
+	};
 	private final Readable<T> source;
 	private final Function<T, Component> factory;
 	private Component currentComponent;
@@ -77,10 +84,27 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 						currentBindings.addAll(effects);
 					}
 				}
-				container.invalidateHierarchy();
 			}
+			updateParentCell();
+			container.invalidateHierarchy();
 		});
 		return container;
+	}
+
+	private void updateParentCell() {
+		Cell<?> parentCell = container.parent instanceof Table ? ((Table) container.parent).getCell(container) : null;
+		if (currentComponent != null) {
+			container.visible = true;
+			if (parentCell != null) {
+				parentCell.size(-1f);
+				parentCell.padTop(-1f).padBottom(-1f);
+			}
+		} else {
+			container.visible = false;
+			if (parentCell != null) {
+				parentCell.size(0f).padTop(0f).padBottom(0f);
+			}
+		}
 	}
 
 	@Override

@@ -2,6 +2,8 @@ package solim.modifier;
 
 import arc.input.KeyCode;
 import arc.scene.Element;
+import arc.scene.event.ClickListener;
+import arc.scene.event.EventListener;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.event.Touchable;
@@ -544,6 +546,13 @@ public final class ElementModifiers {
                     dy = y - lastY;
                     lastX = x;
                     lastY = y;
+                }
+                if (Math.abs(dx) > 0.5f || Math.abs(dy) > 0.5f) {
+                    for (EventListener l : handle.getListeners()) {
+                        if (l instanceof ClickListener) {
+                            ((ClickListener) l).cancel();
+                        }
+                    }
                 }
                 targetHud.element().moveBy(dx, dy);
                 targetHud.keepInScreen();

@@ -135,4 +135,28 @@ class DynamicComponentTest {
 		assertEquals(2, factoryBuildCount[0], "Updating switcher source must trigger Dynamic factory");
 		dyn.dispose();
 	}
+
+	@Test
+	void nullComponentCollapsesContainerAndParentCell() {
+		Signal<String> source = Signal.of("show");
+		Dynamic<String> dyn = new Dynamic<>(source, val -> "show".equals(val) ? new TestComponent("active") : null);
+
+		arc.scene.ui.layout.Table parent = new arc.scene.ui.layout.Table();
+		parent.defaults().padTop(8f).padBottom(8f);
+		arc.scene.ui.layout.Cell<?> parentCell = parent.add(dyn.element());
+		parent.pack();
+
+		assertTrue(dyn.container().visible);
+		assertEquals(1, dyn.container().getChildren().size);
+
+		source.set("hide");
+		parent.layout();
+
+		assertFalse(dyn.container().visible);
+		assertEquals(0, dyn.container().getChildren().size);
+		assertEquals(0f, arc.scene.ui.layout.CellAccess.padTop(parentCell), 0.01f);
+		assertEquals(0f, arc.scene.ui.layout.CellAccess.padBottom(parentCell), 0.01f);
+
+		dyn.dispose();
+	}
 }
