@@ -80,11 +80,11 @@ Framework SHALL provide `Container` (single child with padding/background), `Div
 - **THEN** child has 12px padding and background drawable
 
 ### Requirement: Use Arc-native layout mechanisms
-All layout primitives SHALL delegate to Arc's existing `Table`, `Stack`, `ScrollPane`, `Cell` APIs; SHALL NOT reimplement layout engine from scratch.
+All layout primitives and components SHALL delegate to Arc's existing `Table`, `Stack`, `ScrollPane`, and `Cell` APIs and SHALL NOT reimplement or alter Arc's layout engine. Layout containers and components SHALL NOT implement `ConstrainedElement`, SHALL NOT subclass Arc widgets to override `getPrefWidth`, `getPrefHeight`, `getMinWidth`, `getMinHeight`, `getMaxWidth`, or `getMaxHeight`, and SHALL NOT alter Arc's native layout calculations. Layout sizing, expansion, padding, and alignment SHALL be configured through native Arc `Cell` and `Element` properties.
 
-#### Scenario: No custom layout engine
-- **WHEN** `Column.java`/`Row.java` are inspected
-- **THEN** they contain `Table` or `arc.scene.ui.layout` delegation, not a custom measure/layout pass
+#### Scenario: No custom layout engine or measurement overrides
+- **WHEN** layout containers (`Row`, `Column`, `Grid`, `Scroll`, `Dynamic`, `ForEach`, `ReactiveGrid`) and Solim widgets are inspected
+- **THEN** they wrap standard Arc widgets directly without subclassing to override layout measurement methods or implementing `ConstrainedElement`
 
 ### Requirement: Justify and Align enums
 `Justify` SHALL have START, CENTER, END, BETWEEN, AROUND, EVENLY. `Align` SHALL have START, CENTER, END, STRETCH.
@@ -92,3 +92,4 @@ All layout primitives SHALL delegate to Arc's existing `Table`, `Stack`, `Scroll
 #### Scenario: Enum values exist
 - **WHEN** `Justify.values()` and `Align.values()` are inspected
 - **THEN** they contain exactly the listed constants
+
