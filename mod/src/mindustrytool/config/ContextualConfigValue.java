@@ -3,9 +3,10 @@ package mindustrytool.config;
 import arc.util.Nullable;
 import java.util.Objects;
 import java.util.function.Function;
-import solim.signal.Effect;
+import solim.signal.Computed;
 import solim.signal.Readable;
 import solim.signal.Signal;
+import solim.signal.Subscription;
 
 public class ContextualConfigValue<T, K> {
     private final ConfigGroup group;
@@ -15,7 +16,7 @@ public class ContextualConfigValue<T, K> {
     private final @Nullable T defaultValue;
     private final Signal<T> signal;
     private final ContextualPersister<T> persister;
-    private final Effect discriminantEffect;
+    private final Subscription discriminantSub;
 
     private @Nullable K currentDiscriminant;
     private String currentKey;
@@ -51,22 +52,32 @@ public class ContextualConfigValue<T, K> {
             }
         });
 
-        this.discriminantEffect = Effect.of(() -> {
-            K newDisc = discriminant.get();
-            if (updating)
-                return;
-            updating = true;
-            try {
-                T current = signal.peek();
-                persister.save(currentKey, current);
-                currentDiscriminant = newDisc;
-                currentKey = deriveKey(newDisc);
-                T loaded = loadFromSettings(currentKey);
-                signal.set(loaded != null ? loaded : defaultValue);
-            } finally {
-                updating = false;
-            }
-        });
+        this.discriminantSub = subscribeToDiscriminant();
+    }
+
+    private Subscription subscribeToDiscriminant() {
+        if (discriminant instanceof Signal) {
+            return ((Signal<K>) discriminant).subscribe(this::onDiscriminantChanged);
+        } else if (discriminant instanceof Computed) {
+            return ((Computed<K>) discriminant).subscribe(this::onDiscriminantChanged);
+        }
+        return () -> {};
+    }
+
+    private void onDiscriminantChanged(K newDisc) {
+        if (updating)
+            return;
+        updating = true;
+        try {
+            T current = signal.peek();
+            persister.save(currentKey, current);
+            currentDiscriminant = newDisc;
+            currentKey = deriveKey(newDisc);
+            T loaded = loadFromSettings(currentKey);
+            signal.set(loaded != null ? loaded : defaultValue);
+        } finally {
+            updating = false;
+        }
     }
 
     private String deriveKey(K disc) {
@@ -112,7 +123,7 @@ public class ContextualConfigValue<T, K> {
     }
 
     public void dispose() {
-        discriminantEffect.dispose();
+        discriminantSub.dispose();
     }
 
     public interface ContextualPersister<T> {

@@ -7,6 +7,7 @@ import arc.mock.MockApplication;
 import arc.mock.MockGraphics;
 import arc.scene.Element;
 import arc.scene.event.InputEvent;
+import arc.scene.ui.Button.ButtonStyle;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.modifier.ElementModifiers;
@@ -119,5 +120,20 @@ class ButtonGestureTest {
 		size.set(64f);
 		assertEquals(64f, btn.button().getWidth(), 0.01f);
 		assertEquals(64f, btn.button().getHeight(), 0.01f);
+	}
+
+	@Test
+	void reactiveButtonStyleUpdatesStyle() {
+		ButtonStyle s1 = new ButtonStyle();
+		ButtonStyle s2 = new ButtonStyle();
+		Signal<ButtonStyle> styleSignal = Signal.of(s1);
+
+		Button btn = Ui.button().style(styleSignal);
+		assertSame(s1, btn.button().getStyle());
+
+		styleSignal.set(s2);
+		assertSame(s2, btn.button().getStyle());
+
+		btn.dispose();
 	}
 }

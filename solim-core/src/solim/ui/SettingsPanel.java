@@ -3,14 +3,15 @@ package solim.ui;
 import static solim.ui.Ui.*;
 
 import arc.Core;
+import arc.graphics.Color;
 import arc.scene.Element;
+import arc.scene.ui.TextButton.TextButtonStyle;
 import arc.util.Log;
 import solim.core.BaseComponent;
 import solim.layout.Justify;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
-import solim.style.Styles;
 
 /** Example final API settings panel from requirement.md §16. */
 public final class SettingsPanel extends BaseComponent {
@@ -35,6 +36,15 @@ public final class SettingsPanel extends BaseComponent {
 		return fallback;
 	}
 
+	private static final TextButtonStyle PRIMARY_STYLE = new TextButtonStyle() {{
+		fontColor = Color.white;
+		overFontColor = Color.white;
+	}};
+	private static final TextButtonStyle GHOST_STYLE = new TextButtonStyle() {{
+		fontColor = Color.white;
+		overFontColor = Color.white;
+	}};
+
 	@Override
 	protected Element build() {
 
@@ -56,7 +66,7 @@ public final class SettingsPanel extends BaseComponent {
 							darkMode.set(!darkMode.get());
 							dirty.set(true);
 						})
-								.style(darkMode.map(value -> value ? Styles.PRIMARY : Styles.GHOST))
+								.style(darkMode.get() ? PRIMARY_STYLE : GHOST_STYLE)
 								.children(() -> text(darkMode.map(value -> value
 										? t("solim.settings.dark-mode.on", "On")
 										: t("solim.settings.dark-mode.off", "Off"))));
@@ -73,7 +83,7 @@ public final class SettingsPanel extends BaseComponent {
 									dirty.set(false);
 								})
 								.enabled(dirty)
-								.style(Styles.PRIMARY)
+								.style(PRIMARY_STYLE)
 								.children(() -> text(saveText));
 					});
 				})

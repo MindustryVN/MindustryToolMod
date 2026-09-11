@@ -19,12 +19,9 @@ import solim.core.Disposable;
 import solim.layout.Row;
 import solim.modifier.ElementModifiers;
 import solim.overlay.Hud;
-import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
-import solim.style.Style;
-import solim.style.StyleBinding;
 import solim.ui.ParentStack;
 
 /**
@@ -213,13 +210,6 @@ public final class Button implements Component {
 		return this;
 	}
 
-	public Button style(@Nullable Style style) {
-		if (style != null) {
-			StyleBinding.apply(button, style, (sb, s) -> {});
-		}
-		return this;
-	}
-
 	public Button style(@Nullable ButtonStyle style) {
 		if (style != null) {
 			button.setStyle(style);
@@ -227,18 +217,14 @@ public final class Button implements Component {
 		return this;
 	}
 
-	public Button style(@Nullable Signal<Style> s) {
-		if (s != null) {
-			Effect e = StyleBinding.bind(s, button, (sb, st) -> {});
-			bindings.add(e);
-			ComponentContext.register(e);
-		}
-		return this;
-	}
-
-	public Button style(@Nullable Computed<Style> s) {
-		if (s != null) {
-			Effect e = StyleBinding.bind(s, button, (sb, st) -> {});
+	public Button style(@Nullable Readable<? extends ButtonStyle> style) {
+		if (style != null) {
+			Effect e = Effect.of(() -> {
+				ButtonStyle s = style.get();
+				if (s != null) {
+					button.setStyle(s);
+				}
+			});
 			bindings.add(e);
 			ComponentContext.register(e);
 		}

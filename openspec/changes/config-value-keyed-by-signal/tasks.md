@@ -31,6 +31,6 @@
 ## 5. Verification
 
 - [x] 5.1 Build mod: `gradlew :mod:compileJava` — no compile errors
-- [ ] 5.2 Run Mindustry (`run.bat`), drag the chat overlay and verify position is saved per orientation (if testing on a resizable window, resize to trigger orientation change)
-- [ ] 5.3 Verify that collapsing/expanding the chat still restores the correct position for the current orientation
-- [ ] 5.4 Stop Mindustry via MCP `stop` tool after verification
+- [x] 5.2 Run Mindustry (`run.bat`), drag the chat overlay and verify position is saved per orientation (if testing on a resizable window, resize to trigger orientation change)
+- [x] 5.3 Verify that collapsing/expanding the chat still restores the correct position for the current orientation
+- [x] 5.4 Stop Mindustry via MCP `stop` tool after verification

@@ -111,8 +111,8 @@ public class ChatUserListView extends BaseComponent {
                                 .padding(unit(1))
                                 .gap(unit(1))
                                 .children(() -> {
-                                    row().size(unit(6), unit(6)).top().left().children(() -> {
-                                        new ChatAvatar(name, user.getImageUrl(), name, unit(6));
+                                    row().top().left().children(() -> {
+                                        new ChatAvatar(name, user.getImageUrl(), name, unit(8));
                                     });
 
                                     text(name).color(finalRoleColor)

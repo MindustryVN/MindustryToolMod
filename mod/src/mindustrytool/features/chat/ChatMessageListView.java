@@ -287,8 +287,8 @@ public class ChatMessageListView extends BaseComponent {
                         row().growX().top().left().padding(isFirst ? unit(1) : unit(0.5f)).gap(unit(1.5f)).children(() -> {
                             // Left Avatar or indent spacer
                             if (isFirst) {
-                                row().size(unit(8), unit(8)).top().left().children(() -> {
-                                    new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(8));
+                                row().top().left().children(() -> {
+                                    new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(10));
                                 });
                             } else {
                                 row().width(unit(8)).top().left();

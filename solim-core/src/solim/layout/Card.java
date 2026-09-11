@@ -178,6 +178,20 @@ public final class Card implements Component, LayoutModifiers<Card> {
 		return this;
 	}
 
+	public Card style(@Nullable Readable<? extends Button.ButtonStyle> style) {
+		if (style != null) {
+			Effect e = Effect.of(() -> {
+				Button.ButtonStyle s = style.get();
+				if (s != null) {
+					style(s);
+				}
+			});
+			bindings.add(e);
+			ComponentContext.register(e);
+		}
+		return this;
+	}
+
 	public Card background(Drawable background) {
 		if (background != null) {
 			cardButton.setBackground(background);
