@@ -91,7 +91,6 @@ public class ChatChannelListView extends BaseComponent {
                                 .color(Pal.heal)
                                 .visible(hasUnread);
                     }));
-            component(stack);
             return stack.element();
         }
     }

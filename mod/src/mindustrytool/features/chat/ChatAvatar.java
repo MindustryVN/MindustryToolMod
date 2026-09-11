@@ -59,7 +59,6 @@ public class ChatAvatar extends BaseComponent {
                     fallback.size(size, size);
                 })
                 .layer(() -> networkImage(avatarUrl).size(size, size).top().left());
-        component(stack);
         return stack.element();
     }
 

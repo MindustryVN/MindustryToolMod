@@ -288,8 +288,7 @@ public class ChatMessageListView extends BaseComponent {
                             // Left Avatar or indent spacer
                             if (isFirst) {
                                 row().size(unit(8), unit(8)).top().left().children(() -> {
-                                    component(new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(),
-                                            unit(8)));
+                                    new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(8));
                                 });
                             } else {
                                 row().width(unit(8)).top().left();
@@ -601,7 +600,7 @@ public class ChatMessageListView extends BaseComponent {
                             .style(Styles.flatt)
                             .height(unit(35))
                             .children(() -> {
-                                component(() -> new SchematicImage(schematic).setScaling(Scaling.fit));
+                                arc(new SchematicImage(schematic).setScaling(Scaling.fit));
                             });
                 });
             });

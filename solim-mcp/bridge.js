@@ -107,6 +107,39 @@ const STATIC_TOOLS = [
     }
   },
   {
+    name: 'take_screenshot',
+    description: 'Captures the live game screen as a base64 PNG (max 1 MB, auto-scaled). Optional x/y/width/height capture a framebuffer region (bottom-left origin).',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        maxWidth: {
+          type: 'integer',
+          description: 'Pre-scale captures wider than this (pixels). Default 1280, minimum 320.'
+        },
+        maxBytes: {
+          type: 'integer',
+          description: 'Maximum PNG size in bytes. Default 1048576 (1 MB); larger captures are scaled down.'
+        },
+        x: {
+          type: 'integer',
+          description: 'Region left edge in framebuffer pixels from the bottom-left. Requires y, width, height.'
+        },
+        y: {
+          type: 'integer',
+          description: 'Region bottom edge in framebuffer pixels from the bottom-left. Requires x, width, height.'
+        },
+        width: {
+          type: 'integer',
+          description: 'Region width in pixels. Requires x, y, height.'
+        },
+        height: {
+          type: 'integer',
+          description: 'Region height in pixels. Requires x, y, width.'
+        }
+      }
+    }
+  },
+  {
     name: 'execute_js',
     description: 'Executes JavaScript code in the live Mindustry Rhino environment and returns the evaluated result.',
     inputSchema: {

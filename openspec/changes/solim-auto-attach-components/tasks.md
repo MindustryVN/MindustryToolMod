@@ -8,23 +8,23 @@
 
 ## 2. solim facade: UI.arc(Element el)
 
-- [ ] 2.1 Add `public static Element arc(Element el)` to `UI.java` that calls `ParentStack.attachToParent(el)` and returns `el`
-- [ ] 2.2 Add a unit test: `arc(new Label("hi"))` inside a `children()` block attaches the label to the parent
+- [x] 2.1 Add `public static Element arc(Element el)` to `UI.java` that calls `ParentStack.attachToParent(el)` and returns `el`
+- [x] 2.2 Add a unit test: `arc(new Label("hi"))` inside a `children()` block attaches the label to the parent
 
 ## 3. mod: Remove redundant component() calls
 
-- [ ] 3.1 In `ChatOverlayHudView.java`, remove all `component(new Chat*View(...))` calls inside `children()` blocks — rely on auto-attach
-- [ ] 3.2 In `ChatMessageListView.java`, remove `component(new ChatAvatar(...))` call inside `children()` — rely on auto-attach
-- [ ] 3.3 In `ChatMessageListView.java`, replace `component(() -> new SchematicImage(schematic).setScaling(Scaling.fit))` with `arc(new SchematicImage(schematic).setScaling(Scaling.fit))` using the new facade
-- [ ] 3.4 In `ChatUserListView.java`, remove `component(new ChatAvatar(...))` call inside `children()` — rely on auto-attach
-- [ ] 3.5 In `ChatAvatar.java`, remove `component(stack)` call inside `build()` — rely on auto-attach
-- [ ] 3.6 In `ChatChannelListView.java`, remove `component(stack)` call inside `build()` — rely on auto-attach
-- [ ] 3.7 In `TeamResourceHudView.java`, replace `component(() -> satisfactionBar)` and `component(() -> storedBar)` with `arc(satisfactionBar)` / `arc(storedBar)`
+- [x] 3.1 In `ChatOverlayHudView.java`, remove all `component(new Chat*View(...))` calls inside `children()` blocks — rely on auto-attach
+- [x] 3.2 In `ChatMessageListView.java`, remove `component(new ChatAvatar(...))` call inside `children()` — rely on auto-attach
+- [x] 3.3 In `ChatMessageListView.java`, replace `component(() -> new SchematicImage(schematic).setScaling(Scaling.fit))` with `arc(new SchematicImage(schematic).setScaling(Scaling.fit))` using the new facade
+- [x] 3.4 In `ChatUserListView.java`, remove `component(new ChatAvatar(...))` call inside `children()` — rely on auto-attach
+- [x] 3.5 In `ChatAvatar.java`, remove `component(stack)` call inside `build()` — rely on auto-attach
+- [x] 3.6 In `ChatChannelListView.java`, remove `component(stack)` call inside `build()` — rely on auto-attach
+- [x] 3.7 In `TeamResourceHudView.java`, replace `component(() -> satisfactionBar)` and `component(() -> storedBar)` with `arc(satisfactionBar)` / `arc(storedBar)`
 
 ## 4. Verification
 
-- [ ] 4.1 Build mod: `gradlew :mod:compileJava` — confirm no compile errors
-- [ ] 4.2 Build solim-core: `gradlew :solim-core:test` — confirm all tests pass
+- [x] 4.1 Build mod: `gradlew :mod:compileJava` — confirm no compile errors
+- [x] 4.2 Build solim-core: `gradlew :solim-core:test` — confirm all tests pass
 - [ ] 4.3 Run Mindustry (`run.bat`), open chat overlay — verify all panels render correctly (channel list, message list, user list, input)
 - [ ] 4.4 Verify schematic card buttons in chat messages still render the `SchematicImage`
 - [ ] 4.5 Stop Mindustry using MCP `stop` tool after verification

@@ -298,7 +298,7 @@ public class TeamResourceHudView extends BaseComponent {
             row().growX().height(scale.map(s -> 20f * (s != null ? s : 1f)))
                 .marginBottom(scale.map(s -> 4f * (s != null ? s : 1f)))
                 .children(() -> {
-                    component(() -> satisfactionBar);
+                    arc(satisfactionBar);
                 });
 
             dynamic(feature.showStoredPowerConfig.signal(), show -> Boolean.TRUE.equals(show) ? column(() -> {
@@ -315,7 +315,7 @@ public class TeamResourceHudView extends BaseComponent {
                 row().growX().height(scale.map(s -> 20f * (s != null ? s : 1f)))
                     .marginBottom(scale.map(s -> 2f * (s != null ? s : 1f)))
                     .children(() -> {
-                        component(() -> storedBar);
+                        arc(storedBar);
                     });
             }).growX().gap(unit(1)) : row()).growX();
         }).growX().gap(unit(1));

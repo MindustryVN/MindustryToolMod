@@ -179,23 +179,23 @@ public class ChatOverlayHudView extends BaseComponent {
         row().grow().gap(unit(1)).children(() -> {
             // Channel List
             row().width(unit(60)).growY().children(() -> {
-                component(new ChatChannelListView(store));
+                new ChatChannelListView(store);
             });
 
             divider(Direction.Y);
 
             // Message Area & Input
             column().grow().gap(unit(1)).children(() -> {
-                component(new ChatMessageListView(store, service));
+                new ChatMessageListView(store, service);
                 divider();
-                component(new ChatInputView(store, service));
+                new ChatInputView(store, service);
             });
 
             divider(Direction.Y);
 
             // User List
             row().width(unit(60)).growY().children(() -> {
-                component(new ChatUserListView(store));
+                new ChatUserListView(store);
             });
         });
     }
@@ -204,17 +204,17 @@ public class ChatOverlayHudView extends BaseComponent {
         return tabs(mobileTab)
                 .grow()
                 .tab(Core.bundle.get("feature.chat.ui.channels", "Channels"), () -> {
-                    component(new ChatChannelListView(store));
+                    new ChatChannelListView(store);
                 })
                 .tab(Core.bundle.get("feature.chat.ui.messages", "Messages"), () -> {
                     column().grow().gap(unit(1)).children(() -> {
-                        component(new ChatMessageListView(store, service));
+                        new ChatMessageListView(store, service);
                         divider();
-                        component(new ChatInputView(store, service));
+                        new ChatInputView(store, service);
                     });
                 })
                 .tab(Core.bundle.get("feature.chat.ui.members", "Members"), () -> {
-                    component(new ChatUserListView(store));
+                    new ChatUserListView(store);
                 });
     }
 
