@@ -83,6 +83,7 @@ public class ChatOverlayHudView extends BaseComponent {
 
         return card()
                 .rounded(10, new Color(0f, 0f, 0f, 0.6f))
+                .margin(unit(4))
                 .children(() -> {
                     button(() -> {
                         feature.collapsedConfig.set(false);
@@ -174,7 +175,7 @@ public class ChatOverlayHudView extends BaseComponent {
     }
 
     private void buildDesktopBody() {
-        row().grow().gap(unit(1)).children(() -> {
+        row().grow().children(() -> {
             // Channel List
             row().width(unit(60)).growY().children(() -> {
                 new ChatChannelListView(store);
@@ -183,7 +184,7 @@ public class ChatOverlayHudView extends BaseComponent {
             divider(Direction.Y);
 
             // Message Area & Input
-            column().grow().gap(unit(1)).children(() -> {
+            column().grow().children(() -> {
                 new ChatMessageListView(store, service);
                 divider();
                 new ChatInputView(store, service);

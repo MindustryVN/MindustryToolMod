@@ -12,8 +12,8 @@ import solim.signal.Readable;
 
 /**
  * Fixed-size user avatar: network photo on top of a deterministic initial-letter fallback.
- * The fallback square keeps a stable per-user color so a user is recognizable before (or without)
- * their photo loading.
+ * Renders with continuous-curvature (Apple-style L4 superellipse) rounded corners on both
+ * the fallback badge and the network image layer.
  */
 public class ChatAvatar extends BaseComponent {
 
@@ -32,6 +32,7 @@ public class ChatAvatar extends BaseComponent {
     private final Readable<String> avatarUrl;
     private final @Nullable String colorKey;
     private final float size;
+    private int cornerRadius;
 
     public ChatAvatar(String displayName, String avatarUrl, @Nullable String colorKey, float size) {
         this(Readable.of(displayName), Readable.of(avatarUrl), colorKey, size);
@@ -43,22 +44,42 @@ public class ChatAvatar extends BaseComponent {
         this.avatarUrl = avatarUrl;
         this.colorKey = colorKey;
         this.size = size;
+        this.cornerRadius = Math.max(2, Math.round(size * 0.35f));
+    }
+
+    public ChatAvatar rounded(int radius) {
+        this.cornerRadius = Math.max(0, radius);
+        return this;
+    }
+
+    public int getCornerRadius() {
+        return cornerRadius;
     }
 
     @Override
     protected Element build() {
         Readable<String> initial = displayName.map(ChatAvatar::initialOf);
         Color background = colorFor(colorKey);
+        int radius = cornerRadius;
 
         SolimStack stack = new SolimStack()
                 .layer(() -> {
                     Badge fallback = badge(initial);
-                    fallback.color(background);
+                    if (radius > 0) {
+                        fallback.rounded(radius, background);
+                    } else {
+                        fallback.color(background);
+                    }
                     fallback.textColor(Color.white);
                     fallback.text().fontScale(size >= 32f ? 1.2f : 0.9f);
                     fallback.size(size, size);
                 })
-                .layer(() -> networkImage(avatarUrl).size(size, size).top().left());
+                .layer(() -> {
+                    var img = networkImage(avatarUrl).size(size, size).top().left();
+                    if (radius > 0) {
+                        img.rounded(radius);
+                    }
+                });
         return stack.element();
     }
 

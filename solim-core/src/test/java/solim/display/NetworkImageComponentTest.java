@@ -3,6 +3,7 @@ package solim.display;
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.Core;
+import arc.func.Cons;
 import arc.graphics.g2d.TextureRegion;
 import arc.mock.MockApplication;
 import arc.mock.MockGraphics;
@@ -116,5 +117,113 @@ class NetworkImageComponentTest {
 
 		// After disposal the new URL must not trigger a load.
 		assertFalse(NetworkImage.isCached("https://example.com/b.png"));
+	}
+
+	@Test
+	void networkImageRoundedRadiusTracking() {
+		NetworkImage img = new NetworkImage().rounded(12);
+		assertEquals(12, img.getCornerRadius());
+		img.dispose();
+	}
+
+	@Test
+	void networkImageRoundedCacheSeparation() {
+		TextureRegion regionSquare = new TextureRegion();
+		TextureRegion regionRounded = new TextureRegion();
+
+		NetworkImage.setImageLoader(new NetworkImage.ImageLoader() {
+			@Override
+			public void load(String url, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+				load(url, 0, onSuccess, onError);
+			}
+
+			@Override
+			public void load(String url, int radius, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+				if (radius > 0) {
+					onSuccess.get(regionRounded);
+				} else {
+					onSuccess.get(regionSquare);
+				}
+			}
+		});
+
+		String url = "https://example.com/user.png";
+		NetworkImage img1 = new NetworkImage(url);
+		NetworkImage img2 = new NetworkImage(url).rounded(8);
+
+		assertTrue(NetworkImage.isCached(url, 0));
+		assertTrue(NetworkImage.isCached(url, 8));
+		assertSame(regionSquare, NetworkImage.getCached(url, 0).getRegion());
+		assertSame(regionRounded, NetworkImage.getCached(url, 8).getRegion());
+
+		img1.dispose();
+		img2.dispose();
+	}
+
+	@Test
+	void networkImageApplyRoundedMask() {
+		int width = 30;
+		int height = 30;
+		int radius = 8;
+		arc.graphics.Pixmap pixmap = new arc.graphics.Pixmap(width, height);
+		int opaqueWhite = arc.graphics.Color.rgba8888(1f, 1f, 1f, 1f);
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				pixmap.set(x, y, opaqueWhite);
+			}
+		}
+
+		NetworkImage.applyRoundedMask(pixmap, radius);
+
+		// Outer corner tips must be fully transparent (alpha == 0)
+		assertEquals(0, pixmap.get(0, 0) & 0xFF, "Top-left tip must be transparent");
+		assertEquals(0, pixmap.get(width - 1, 0) & 0xFF, "Top-right tip must be transparent");
+		assertEquals(0, pixmap.get(0, height - 1) & 0xFF, "Bottom-left tip must be transparent");
+		assertEquals(0, pixmap.get(width - 1, height - 1) & 0xFF, "Bottom-right tip must be transparent");
+
+		// Center must remain fully opaque (alpha == 255)
+		assertEquals(255, pixmap.get(width / 2, height / 2) & 0xFF, "Center must remain fully opaque");
+
+		// Flat edge centers must remain fully opaque
+		assertEquals(255, pixmap.get(width / 2, 0) & 0xFF, "Top middle edge must remain opaque");
+		assertEquals(255, pixmap.get(0, height / 2) & 0xFF, "Left middle edge must remain opaque");
+
+		// Near the boundary inside corner (e.g. x = radius - 1, y = radius - 1), alpha should be > 0
+		int cornerInteriorAlpha = pixmap.get(radius - 1, radius - 1) & 0xFF;
+		assertTrue(cornerInteriorAlpha > 0, "Inside corner should preserve opacity");
+
+		pixmap.dispose();
+	}
+
+	@Test
+	void networkImageApplyRoundedMaskWithTargetScaling() {
+		// Pixmap is 60x60, but display size is 30x30 (2x scale factor)
+		// Radius is 8 in display units -> effective radius should be 16 in pixmap units
+		int width = 60;
+		int height = 60;
+		int displayRadius = 8;
+		arc.graphics.Pixmap pixmap = new arc.graphics.Pixmap(width, height);
+		int opaqueWhite = arc.graphics.Color.rgba8888(1f, 1f, 1f, 1f);
+
+		for (int y = 0; y < height; y++) {
+			for (int x = 0; x < width; x++) {
+				pixmap.set(x, y, opaqueWhite);
+			}
+		}
+
+		NetworkImage.applyRoundedMask(pixmap, displayRadius, 30f, 30f);
+
+		// Corner tip at (0, 0) must be transparent
+		assertEquals(0, pixmap.get(0, 0) & 0xFF);
+
+		// At (2, 2), which is outside the corner curve for R=16, alpha must be < 255
+		int scaledCornerAlpha = pixmap.get(2, 2) & 0xFF;
+		assertTrue(scaledCornerAlpha < 255, "Should be within the scaled corner curvature");
+
+		// Center (30, 30) must remain fully opaque
+		assertEquals(255, pixmap.get(30, 30) & 0xFF);
+
+		pixmap.dispose();
 	}
 }

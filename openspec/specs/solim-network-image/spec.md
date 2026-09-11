@@ -1,4 +1,4 @@
-﻿# solim-network-image Specification
+# solim-network-image Specification
 
 ## Purpose
 Provides asynchronous texture fetching and rendering with in-memory caching and reactive URL binding.
@@ -35,4 +35,16 @@ The `NetworkImage` component and underlying `SizedImage` SHALL respect explicit 
 #### Scenario: Network image loaded with explicit size
 - **WHEN** `networkImage(...).size(w, h)` is specified and a network image texture is loaded
 - **THEN** the component's preferred width and height remain fixed at `w` and `h` rather than expanding to the texture's native dimensions.
+
+### Requirement: Continuous-Curvature Corner Rounding on Network Image
+The `NetworkImage` component SHALL support configuring continuous-curvature (L4 superellipse) rounded corners via `.rounded(int radius)`. When a positive corner radius is specified, downloaded and cached textures SHALL have anti-aliased transparent corners corresponding to the specified radius.
+
+#### Scenario: Network image configured with rounded radius
+- **WHEN** `networkImage(url).rounded(radius)` is loaded with `radius > 0`
+- **THEN** the rendered texture displays with anti-aliased transparent corners according to the L4 continuous curvature superellipse formula.
+
+#### Scenario: Memory cache separation by radius
+- **WHEN** the same image URL is loaded with different corner radii (or one unrounded and one rounded)
+- **THEN** each radius produces and retrieves its own distinct cached `TextureRegionDrawable` without colliding.
+
 

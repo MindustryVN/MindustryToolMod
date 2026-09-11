@@ -37,6 +37,14 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 	@FunctionalInterface
 	public interface ImageLoader {
 		void load(String url, Cons<TextureRegion> onSuccess, Cons<Throwable> onError);
+
+		default void load(String url, int radius, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+			load(url, onSuccess, onError);
+		}
+
+		default void load(String url, int radius, float targetW, float targetH, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+			load(url, radius, onSuccess, onError);
+		}
 	}
 
 	private static final Map<String, TextureRegionDrawable> cache = new ConcurrentHashMap<>();
@@ -46,34 +54,47 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 	private static ImageLoader loader = defaultLoader();
 
 	private static ImageLoader defaultLoader() {
-		return (url, onSuccess, onError) -> {
-			if (url == null || url.trim().isEmpty()) {
-				if (onError != null) onError.get(new IllegalArgumentException("Empty URL"));
-				return;
+		return new ImageLoader() {
+			@Override
+			public void load(String url, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+				load(url, 0, 0f, 0f, onSuccess, onError);
 			}
-			try {
-				Http.get(url)
-						.timeout(10000)
-						.error(onError != null ? onError : err -> {})
-						.submit(response -> {
-							byte[] bytes = response.getResult();
-							if (bytes == null || bytes.length == 0) {
-								if (onError != null) onError.get(new IllegalStateException("Empty response"));
-								return;
-							}
-							writeToDisk(url, bytes);
-							if (Core.app != null) {
-								Core.app.post(() -> {
-									try {
-										onSuccess.get(decodeTexture(bytes));
-									} catch (Throwable t) {
-										if (onError != null) onError.get(t);
-									}
-								});
-							}
-						});
-			} catch (Throwable t) {
-				if (onError != null) onError.get(t);
+
+			@Override
+			public void load(String url, int radius, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+				load(url, radius, 0f, 0f, onSuccess, onError);
+			}
+
+			@Override
+			public void load(String url, int radius, float targetW, float targetH, Cons<TextureRegion> onSuccess, Cons<Throwable> onError) {
+				if (url == null || url.trim().isEmpty()) {
+					if (onError != null) onError.get(new IllegalArgumentException("Empty URL"));
+					return;
+				}
+				try {
+					Http.get(url)
+							.timeout(10000)
+							.error(onError != null ? onError : err -> {})
+							.submit(response -> {
+								byte[] bytes = response.getResult();
+								if (bytes == null || bytes.length == 0) {
+									if (onError != null) onError.get(new IllegalStateException("Empty response"));
+									return;
+								}
+								writeToDisk(url, bytes);
+								if (Core.app != null) {
+									Core.app.post(() -> {
+										try {
+											onSuccess.get(decodeTexture(bytes, radius, targetW, targetH));
+										} catch (Throwable t) {
+											if (onError != null) onError.get(t);
+										}
+									});
+								}
+							});
+				} catch (Throwable t) {
+					if (onError != null) onError.get(t);
+				}
 			}
 		};
 	}
@@ -86,29 +107,113 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 		cache.clear();
 	}
 
+	public static String cacheKey(@Nullable String url, int radius) {
+		return cacheKey(url, radius, 0f);
+	}
+
+	public static String cacheKey(@Nullable String url, int radius, float targetW) {
+		if (url == null) return "";
+		if (radius <= 0) return url;
+		return targetW > 0f ? url + "@r=" + radius + "x" + (int) targetW : url + "@r=" + radius;
+	}
+
 	public static boolean isCached(String url) {
-		return url != null && cache.containsKey(url);
+		return isCached(url, 0);
+	}
+
+	public static boolean isCached(String url, int radius) {
+		return isCached(url, radius, 0f);
+	}
+
+	public static boolean isCached(String url, int radius, float targetW) {
+		return url != null && cache.containsKey(cacheKey(url, radius, targetW));
 	}
 
 	public static @Nullable TextureRegionDrawable getCached(String url) {
-		return url != null ? cache.get(url) : null;
+		return getCached(url, 0);
+	}
+
+	public static @Nullable TextureRegionDrawable getCached(String url, int radius) {
+		return getCached(url, radius, 0f);
+	}
+
+	public static @Nullable TextureRegionDrawable getCached(String url, int radius, float targetW) {
+		return url != null ? cache.get(cacheKey(url, radius, targetW)) : null;
 	}
 
 	public static void putCache(String url, TextureRegion region) {
+		putCache(url, 0, region);
+	}
+
+	public static void putCache(String url, int radius, TextureRegion region) {
+		putCache(url, radius, 0f, region);
+	}
+
+	public static void putCache(String url, int radius, float targetW, TextureRegion region) {
 		if (url != null && region != null) {
-			cache.put(url, new TextureRegionDrawable(region));
+			cache.put(cacheKey(url, radius, targetW), new TextureRegionDrawable(region));
 		}
 	}
 
 	// --- Disk cache ---
 
-	private static TextureRegion decodeTexture(byte[] bytes) {
+	public static TextureRegion decodeTexture(byte[] bytes) {
+		return decodeTexture(bytes, 0, 0f, 0f);
+	}
+
+	public static TextureRegion decodeTexture(byte[] bytes, int radius) {
+		return decodeTexture(bytes, radius, 0f, 0f);
+	}
+
+	public static TextureRegion decodeTexture(byte[] bytes, int radius, float targetW, float targetH) {
 		Pixmap pixmap = new Pixmap(bytes);
+		if (radius > 0) {
+			applyRoundedMask(pixmap, radius, targetW, targetH);
+		}
 		Texture texture = new Texture(pixmap);
 		texture.setFilter(TextureFilter.linear);
 		TextureRegion region = new TextureRegion(texture);
 		pixmap.dispose();
 		return region;
+	}
+
+	public static void applyRoundedMask(Pixmap pixmap, int radius) {
+		applyRoundedMask(pixmap, radius, 0f, 0f);
+	}
+
+	public static void applyRoundedMask(Pixmap pixmap, int radius, float targetW, float targetH) {
+		if (pixmap == null || radius <= 0) return;
+		int w = pixmap.width;
+		int h = pixmap.height;
+
+		int effectiveRadius = radius;
+		if (targetW > 0f && w > 0) {
+			float scale = (float) w / targetW;
+			effectiveRadius = Math.round(radius * scale);
+		}
+		int r = Math.min(effectiveRadius, Math.min(w, h) / 2);
+		if (r <= 0) return;
+
+		for (int y = 0; y < r; y++) {
+			float dy = r - 0.5f - y;
+			for (int x = 0; x < r; x++) {
+				float dx = r - 0.5f - x;
+				float alpha = solim.graphics.RoundedGenerator.computeAlpha(dx, dy, r);
+				if (alpha >= 1f) continue;
+
+				applyAlpha(pixmap, x, y, alpha);
+				applyAlpha(pixmap, w - 1 - x, y, alpha);
+				applyAlpha(pixmap, x, h - 1 - y, alpha);
+				applyAlpha(pixmap, w - 1 - x, h - 1 - y, alpha);
+			}
+		}
+	}
+
+	private static void applyAlpha(Pixmap pixmap, int x, int y, float alpha) {
+		int pixel = pixmap.get(x, y);
+		int currentAlpha = pixel & 0xFF;
+		int newAlpha = Math.round(currentAlpha * alpha);
+		pixmap.set(x, y, (pixel & 0xFFFFFF00) | (newAlpha & 0xFF));
 	}
 
 	private static @Nullable Fi cacheDir() {
@@ -178,6 +283,7 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 	private @Nullable String currentUrl;
 	private boolean failed = false;
 	private Scaling scaling = Scaling.fit;
+	private int cornerRadius = 0;
 	private float padTop, padLeft, padBottom, padRight;
 	private float marginTop, marginLeft, marginBottom, marginRight;
 
@@ -195,6 +301,36 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 	public NetworkImage(Readable<String> url) {
 		this();
 		url(url);
+	}
+
+	@Override
+	public NetworkImage rounded(int radius) {
+		int r = Math.max(0, radius);
+		if (this.cornerRadius != r) {
+			this.cornerRadius = r;
+			if (currentUrl != null) {
+				loadUrl(currentUrl);
+			}
+		}
+		return this;
+	}
+
+	@Override
+	public NetworkImage rounded(int radius, @Nullable Color color) {
+		rounded(radius);
+		if (color != null) color(color);
+		return this;
+	}
+
+	@Override
+	public NetworkImage rounded(int radius, @Nullable Readable<Color> color) {
+		rounded(radius);
+		if (color != null) color(color);
+		return this;
+	}
+
+	public int getCornerRadius() {
+		return cornerRadius;
 	}
 
 	public NetworkImage placeholder(@Nullable Drawable placeholder) {
@@ -221,6 +357,20 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 
 	public Scaling getScaling() {
 		return scaling;
+	}
+
+	@Override
+	public NetworkImage size(float width, float height) {
+		LayoutModifiers.super.size(width, height);
+		if (cornerRadius > 0 && currentUrl != null) {
+			loadUrl(currentUrl);
+		}
+		return this;
+	}
+
+	@Override
+	public NetworkImage size(float size) {
+		return size(size, size);
 	}
 
 	public NetworkImage url(@Nullable String url) {
@@ -252,7 +402,11 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 			return;
 		}
 
-		TextureRegionDrawable cached = cache.get(url);
+		float targetW = (constraints.prefWidth != null && constraints.prefWidth.get() != null) ? constraints.prefWidth.get() : 0f;
+		float targetH = (constraints.prefHeight != null && constraints.prefHeight.get() != null) ? constraints.prefHeight.get() : 0f;
+
+		String key = cacheKey(url, cornerRadius, targetW);
+		TextureRegionDrawable cached = cache.get(key);
 		if (cached != null) {
 			applyDrawable(cached);
 			return;
@@ -264,11 +418,11 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 
 		scheduleCleanup();
 
-		if (loadFromDisk(url)) return;
+		if (loadFromDisk(url, targetW, targetH)) return;
 
-		loader.load(url, region -> {
+		loader.load(url, cornerRadius, targetW, targetH, region -> {
 			TextureRegionDrawable drawable = new TextureRegionDrawable(region);
-			cache.put(url, drawable);
+			cache.put(key, drawable);
 			if (url.equals(this.currentUrl)) {
 				this.failed = false;
 				applyDrawable(drawable);
@@ -281,7 +435,7 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 		});
 	}
 
-	private boolean loadFromDisk(String url) {
+	private boolean loadFromDisk(String url, float targetW, float targetH) {
 		try {
 			Fi dir = cacheDir();
 			if (dir == null) return false;
@@ -299,8 +453,8 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 			}
 			Core.app.post(() -> {
 				try {
-					TextureRegionDrawable drawable = new TextureRegionDrawable(decodeTexture(bytes));
-					cache.put(url, drawable);
+					TextureRegionDrawable drawable = new TextureRegionDrawable(decodeTexture(bytes, cornerRadius, targetW, targetH));
+					cache.put(cacheKey(url, cornerRadius, targetW), drawable);
 					if (url.equals(this.currentUrl)) {
 						this.failed = false;
 						applyDrawable(drawable);

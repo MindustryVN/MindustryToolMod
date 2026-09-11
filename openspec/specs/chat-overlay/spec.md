@@ -88,15 +88,15 @@ The message list and all item contents SHALL align to the top-left rather than b
 - **THEN** the author avatar is aligned to the top-left of the message row and does not center vertically within the row.
 
 ### Requirement: Enforced Avatar Dimensions
-User avatars in the message list and member list SHALL have fixed dimensions regardless of downloaded image resolution. When no avatar image is available, a fallback square SHALL show the user's first letter with a deterministic per-user color.
+User avatars in the message list and member list SHALL have fixed dimensions regardless of downloaded image resolution and SHALL render with continuous-curvature (L4 superellipse) rounded squircle corners. When no avatar image is available, a fallback badge with matching rounded corners SHALL show the user's first letter with a deterministic per-user color.
 
 #### Scenario: Displaying avatars with network images
 - **WHEN** user avatars are rendered in `ChatMessageListView` or `ChatUserListView`
-- **THEN** the avatar widget maintains a fixed size (unit(8) in message list, unit(6) in user list) preventing layout shifting or resizing.
+- **THEN** the avatar widget maintains a fixed size (unit(8) in message list, unit(6) in user list) preventing layout shifting or resizing, and renders with anti-aliased continuous-curvature rounded corners.
 
 #### Scenario: Avatar initial fallback
 - **WHEN** a user has no avatar image URL or the image fails to load
-- **THEN** the avatar slot renders the user's uppercase first letter on a deterministic per-user background color at the same fixed size
+- **THEN** the avatar slot renders the user's uppercase first letter on a deterministic per-user background color with continuous-curvature rounded corners at the same fixed size
 
 ### Requirement: Scroll Position Initialization and Preservation
 The chat message list SHALL initialize scroll position at the bottom and preserve relative scroll position instantly when messages update, without slow animation drift. Additionally, the message list SHALL display an end-of-history banner when the channel has reached the beginning of its messages.
