@@ -5,14 +5,17 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
-import arc.scene.ui.layout.Table;
+import arc.util.Nullable;
 import solim.core.Component;
-import solim.modifier.ElementModifiers;
+import solim.display.SolimImage;
+import solim.signal.Readable;
 
-/** Divider line supporting horizontal (X) and vertical (Y) directions. */
+/**
+ * Divider line supporting horizontal (X) and vertical (Y) directions.
+ * Uses an Image instead of a Table for lightweight rendering.
+ */
 public final class Divider implements Component, LayoutModifiers<Divider> {
-	private final Table table = new Table();
-	private final SizeConstraints constraints = new SizeConstraints();
+	private final SolimImage image;
 	private final Direction direction;
 
 	public Divider() {
@@ -21,32 +24,20 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 
 	public Divider(Direction direction) {
 		this.direction = direction != null ? direction : Direction.X;
-		table.userObject = this;
-		table.name = "solim-divider-table";
 		Drawable white = (Core.atlas != null && Core.atlas.has("whiteui"))
 				? Core.atlas.drawable("whiteui")
 				: null;
 
+		this.image = new SolimImage(white);
+		this.image.element().name = "solim-divider";
+		this.image.color(new Color(1f, 1f, 1f, 0.15f));
+
 		if (this.direction == Direction.Y) {
-			constraints.growY = true;
-			table.userObject = "expanding";
-			if (white != null) {
-				Image img = new Image(white);
-				img.setColor(new Color(1f, 1f, 1f, 0.15f));
-				table.add(img).width(1.5f).growY();
-			} else {
-				table.add().width(1.5f).growY();
-			}
+			growY();
+			width(1.5f);
 		} else {
-			constraints.growX = true;
-			table.userObject = "expanding";
-			if (white != null) {
-				Image img = new Image(white);
-				img.setColor(new Color(1f, 1f, 1f, 0.15f));
-				table.add(img).height(1.5f).growX().row();
-			} else {
-				table.add().height(1.5f).growX().row();
-			}
+			growX();
+			height(1.5f);
 		}
 	}
 
@@ -54,22 +45,66 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 		return direction;
 	}
 
-	public Table table() {
-		return table;
+	public SolimImage solimImage() {
+		return image;
+	}
+
+	public Image image() {
+		return image.image();
+	}
+
+	public Divider color(Color color) {
+		image.color(color);
+		return this;
+	}
+
+	public Divider color(Readable<Color> color) {
+		image.color(color);
+		return this;
+	}
+
+	@Override
+	public Divider width(float width) {
+		image.width(width);
+		return this;
+	}
+
+	@Override
+	public Divider width(@Nullable Readable<Float> width) {
+		image.width(width);
+		return this;
+	}
+
+	@Override
+	public Divider height(float height) {
+		image.height(height);
+		return this;
+	}
+
+	@Override
+	public Divider height(@Nullable Readable<Float> height) {
+		image.height(height);
+		return this;
 	}
 
 	@Override
 	public Element element() {
-		return table;
+		return image.element();
 	}
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return constraints;
+		return image.sizeConstraints();
 	}
 
+	@Override
 	public Divider name(String name) {
-		ElementModifiers.name(table, name);
+		image.name(name);
 		return this;
+	}
+
+	@Override
+	public void dispose() {
+		image.dispose();
 	}
 }

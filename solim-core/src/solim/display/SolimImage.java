@@ -13,16 +13,19 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.layout.LayoutModifiers;
+import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for drawable content. */
-public final class SolimImage implements Component {
+public final class SolimImage implements Component, LayoutModifiers<SolimImage> {
 
 	private final Image image;
 	private final List<Disposable> bindings = new ArrayList<>();
+	private final SizeConstraints constraints = new SizeConstraints();
 	private Scaling scaling = Scaling.fit;
 
 	private float padTop;
@@ -41,11 +44,13 @@ public final class SolimImage implements Component {
 
 	public SolimImage(Drawable d) {
 		this.image = new Image(d);
+		this.image.userObject = this;
 		this.image.name = "solim-image-image";
 	}
 
 	public SolimImage(Drawable d, Scaling scaling) {
 		this.image = new Image(d, scaling);
+		this.image.userObject = this;
 		this.image.name = "solim-image-image";
 	}
 
@@ -87,16 +92,29 @@ public final class SolimImage implements Component {
 		return scaling;
 	}
 
+	@Override
+	public SizeConstraints sizeConstraints() {
+		return constraints;
+	}
+
+	@Override
 	public SolimImage width(float width) {
+		constraints.prefWidth = Readable.of(width);
 		ElementModifiers.width(image, width);
+		constraints.applySizeToParentCell(image);
 		return this;
 	}
 
+	@Override
 	public SolimImage width(@Nullable Readable<Float> width) {
+		constraints.prefWidth = width;
 		if (width != null) {
 			Effect e = Effect.of(() -> {
 				Float w = width.get();
-				if (w != null) width(w);
+				if (w != null) {
+					ElementModifiers.width(image, w);
+					constraints.applySizeToParentCell(image);
+				}
 			});
 			bindings.add(e);
 			ComponentContext.register(e);
@@ -104,16 +122,24 @@ public final class SolimImage implements Component {
 		return this;
 	}
 
+	@Override
 	public SolimImage height(float height) {
+		constraints.prefHeight = Readable.of(height);
 		ElementModifiers.height(image, height);
+		constraints.applySizeToParentCell(image);
 		return this;
 	}
 
+	@Override
 	public SolimImage height(@Nullable Readable<Float> height) {
+		constraints.prefHeight = height;
 		if (height != null) {
 			Effect e = Effect.of(() -> {
 				Float h = height.get();
-				if (h != null) height(h);
+				if (h != null) {
+					ElementModifiers.height(image, h);
+					constraints.applySizeToParentCell(image);
+				}
 			});
 			bindings.add(e);
 			ComponentContext.register(e);

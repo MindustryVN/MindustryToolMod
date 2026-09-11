@@ -47,15 +47,23 @@ class DividerTest {
 	}
 
 	@Test
-	void nameModifierUpdatesTableName() {
+	void nameModifierUpdatesName() {
 		Divider d = new Divider();
 		d.name("my-divider");
-		assertEquals("my-divider", d.table().name);
+		assertEquals("my-divider", d.element().name);
 	}
 
 	@Test
-	void tableIsSameAsElement() {
+	void elementIsImage() {
 		Divider d = new Divider();
-		assertSame(d.table(), d.element());
+		assertTrue(d.element() instanceof arc.scene.ui.Image);
+	}
+
+	@Test
+	void colorAndHeightModifiers() {
+		Divider d = new Divider();
+		d.color(arc.graphics.Color.green).height(2f);
+		assertEquals(arc.graphics.Color.green, d.image().color);
+		assertEquals(2f, d.sizeConstraints().prefHeight.get());
 	}
 }

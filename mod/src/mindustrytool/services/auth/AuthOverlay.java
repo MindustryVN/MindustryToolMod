@@ -11,12 +11,10 @@ import arc.util.Nullable;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
-import mindustrytool.components.NetworkImage;
 import mindustrytool.events.LoginUriEvent;
 import mindustrytool.events.SessionLoadEvent;
 import mindustrytool.models.response.UserSession;
 import solim.core.Component;
-import solim.modifier.ElementModifiers;
 import solim.signal.Signal;
 
 public class AuthOverlay {

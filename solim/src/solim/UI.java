@@ -153,24 +153,24 @@ public final class UI {
         return column().children(r);
     }
 
-    public static Element divider() {
+    public static Divider divider() {
         return divider(Direction.X);
     }
 
-    public static Element divider(Direction direction) {
+    public static Divider divider(Direction direction) {
         Divider d = new Divider(direction);
-        ParentStack.attachToParent(d.table());
-        return d.table();
+        ParentStack.attachToParent(d.element());
+        return d;
     }
 
-    public static Element divider(String direction) {
+    public static Divider divider(String direction) {
         if (direction != null && direction.equalsIgnoreCase("y")) {
             return divider(Direction.Y);
         }
         return divider(Direction.X);
     }
 
-    public static Element divider(char direction) {
+    public static Divider divider(char direction) {
         if (direction == 'y' || direction == 'Y') {
             return divider(Direction.Y);
         }
