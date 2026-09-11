@@ -95,3 +95,14 @@ The server SHALL add negligible overhead to Solim when not in use: no hooks, no 
 #### Scenario: Zero cost when disabled
 - **WHEN** the MCP server is not enabled
 - **THEN** no reflective caches are initialized, no polling timers run, and Solim behavior is unaffected
+
+### Requirement: Screenshot tool registered in the debug server
+The MCP debug server SHALL register the `take_screenshot` tool in `ToolRegistry` so it is discoverable and callable like all existing tools.
+
+#### Scenario: tools/list advertises take_screenshot
+- **WHEN** a client calls `tools/list`
+- **THEN** the returned tool list contains an entry named `take_screenshot` with a description and an object input schema
+
+#### Scenario: Existing tools unaffected
+- **WHEN** a client calls `tools/list` or invokes any pre-existing tool
+- **THEN** all previously available tools remain present with unchanged names and behavior

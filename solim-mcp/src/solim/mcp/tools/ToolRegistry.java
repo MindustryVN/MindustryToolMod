@@ -28,6 +28,7 @@ public final class ToolRegistry {
 		register(new LayoutTool(snapshotRoot));
 		register(new FindElementsTool(snapshotRoot));
 		register(new ClickElementTool(snapshotRoot));
+		register(new ScreenshotTool());
 		register(new ExecuteJsTool());
 		register(exitAction != null ? new StopTool(exitAction) : new StopTool());
 	}
