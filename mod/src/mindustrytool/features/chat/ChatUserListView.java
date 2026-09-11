@@ -5,7 +5,6 @@ import static solim.UI.*;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import mindustry.graphics.Pal;
 import mindustrytool.models.response.ChatUser;
 import solim.core.BaseComponent;
 import solim.signal.Readable;
@@ -22,32 +21,12 @@ public class ChatUserListView extends BaseComponent {
     protected Element build() {
         Readable<Boolean> hasUsers = store.activeUsers()
                 .map(list -> list != null && !list.isEmpty());
-        Readable<String> onlineCount = store.activeUsers().map(list -> {
-            int total = list != null ? list.size() : 0;
-            return Core.bundle.format("feature.chat.ui.online-count", total, total);
-        });
 
         return column()
                 .grow()
                 .top().left()
                 .gap(unit(1))
                 .children(() -> {
-                    column()
-                            .growX()
-                            .top().left()
-                            .padding(unit(1))
-                            .gap(unit(0.5f))
-                            .children(() -> {
-                                text(Core.bundle.get("feature.chat.ui.members", "Members"))
-                                        .color(Pal.accent)
-                                        .fontScale(1.1f)
-                                        .left();
-                                text(onlineCount)
-                                        .color(Color.gray)
-                                        .fontScale(0.8f)
-                                        .left();
-                            });
-
                     scroll()
                             .grow()
                             .left()

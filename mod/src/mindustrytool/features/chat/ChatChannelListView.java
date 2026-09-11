@@ -33,13 +33,6 @@ public class ChatChannelListView extends BaseComponent {
         Readable<Boolean> hasChannels = store.channels().map(list -> list != null && !list.isEmpty());
 
         return column().grow().gap(unit(1)).children(() -> {
-            row().growX().padding(unit(1)).children(() -> {
-                text(Core.bundle.get("feature.chat.ui.channels", "Channels"))
-                        .color(Pal.accent)
-                        .fontScale(1.1f)
-                        .left();
-            });
-
             scroll().grow().children(() -> {
                 column().growX().gap(unit(1)).children(() -> {
                     dynamic(hasChannels, available -> {
