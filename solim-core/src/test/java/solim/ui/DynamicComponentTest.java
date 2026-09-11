@@ -159,4 +159,34 @@ class DynamicComponentTest {
 
 		dyn.dispose();
 	}
+
+	@Test
+	void dynamicPreservesTopRightAlignmentWithoutGrowX() {
+		Signal<Boolean> state = Signal.of(true);
+		Dynamic<Boolean> dyn = Dynamic.of(state, s -> {
+			solim.layout.Row row = Ui.row();
+			row.sizeConstraints().prefWidth = solim.signal.Readable.of(100f);
+			row.sizeConstraints().prefHeight = solim.signal.Readable.of(40f);
+			return row;
+		}).top().right();
+
+		assertFalse(dyn.sizeConstraints().growX, "Dynamic must not growX by default");
+
+		solim.layout.Column col = Ui.column().fillParent().top().right().children(() -> {
+			solim.ui.ParentStack.add(dyn);
+		});
+
+		arc.scene.ui.layout.Table table = col.table();
+		table.setSize(800f, 600f);
+		table.validate();
+		table.layout();
+
+		arc.scene.ui.layout.Cell<?> cell = table.getCells().first();
+		assertEquals(0, arc.scene.ui.layout.CellAccess.expandX(cell), "Cell in top-right column must not expandX");
+		assertTrue(dyn.element().x > 600f, "Element must be positioned on the right side (was " + dyn.element().x + ")");
+
+		dyn.dispose();
+		col.dispose();
+	}
 }
+

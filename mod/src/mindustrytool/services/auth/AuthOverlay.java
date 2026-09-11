@@ -146,7 +146,7 @@ public class AuthOverlay {
 											Core.bundle.format("auth.logout.confirm-message", user.getName()),
 											MindustryAuthProvider.getInstance()::logout);
 								});
-					});
+					}).top().right();
 				});
 	}
 

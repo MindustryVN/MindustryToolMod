@@ -132,7 +132,12 @@ public final class SizeConstraints {
 		effects.addAll(bind(cell, padBottom,  v -> cell.padBottom(Math.max(0f, v))));
 		effects.addAll(bind(cell, padRight,   v -> cell.padRight(Math.max(0f, v))));
 
-		if (growX) cell.growX();
+		if (growX) {
+			cell.growX();
+			if (minWidth == null) {
+				cell.minWidth(0f);
+			}
+		}
 		if (growY) cell.growY();
 
 		if (align != null) {

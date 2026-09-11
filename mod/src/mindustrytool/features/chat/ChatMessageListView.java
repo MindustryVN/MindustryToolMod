@@ -37,8 +37,10 @@ import solim.signal.Readable;
 
 public class ChatMessageListView extends BaseComponent {
 
-    private static final Pattern MINDUSTRY_TOOL_LINK_PATTERN = Pattern.compile("^https?://[^/]+/(?:[^/]+/)?(schematics|maps)/([a-zA-Z0-9_-]+)");
-    private static final Pattern IMAGE_URL_PATTERN = Pattern.compile("^https?://.*\\.(?:png|jpg|jpeg|gif|webp)(?:\\?.*)?$", Pattern.CASE_INSENSITIVE);
+    private static final Pattern MINDUSTRY_TOOL_LINK_PATTERN = Pattern
+            .compile("^https?://[^/]+/(?:[^/]+/)?(schematics|maps)/([a-zA-Z0-9_-]+)");
+    private static final Pattern IMAGE_URL_PATTERN = Pattern
+            .compile("^https?://.*\\.(?:png|jpg|jpeg|gif|webp)(?:\\?.*)?$", Pattern.CASE_INSENSITIVE);
 
     private final ChatStore store;
     private final @Nullable ChatService service;
@@ -96,12 +98,17 @@ public class ChatMessageListView extends BaseComponent {
 
             int count = msgs.size();
             String firstId = msgs.get(0).getId();
-            boolean isOlderPrepended = lastMessageCount > 0 && count > lastMessageCount && !Objects.equals(firstId, lastFirstMessageId);
-            boolean isNewAppended = lastMessageCount > 0 && count > lastMessageCount && Objects.equals(firstId, lastFirstMessageId);
+            boolean isOlderPrepended = lastMessageCount > 0 && count > lastMessageCount
+                    && !Objects.equals(firstId, lastFirstMessageId);
+            boolean isNewAppended = lastMessageCount > 0 && count > lastMessageCount
+                    && Objects.equals(firstId, lastFirstMessageId);
 
             if (isOlderPrepended) {
-                float prevContentHeight = (scrollPane != null && scrollPane.content() != null) ? scrollPane.content().getPrefHeight() : 0f;
-                float prevScrollY = (scrollPane != null && scrollPane.pane() != null) ? scrollPane.pane().getScrollY() : 0f;
+                float prevContentHeight = (scrollPane != null && scrollPane.content() != null)
+                        ? scrollPane.content().getPrefHeight()
+                        : 0f;
+                float prevScrollY = (scrollPane != null && scrollPane.pane() != null) ? scrollPane.pane().getScrollY()
+                        : 0f;
 
                 Core.app.post(() -> {
                     if (scrollPane != null && scrollPane.pane() != null && scrollPane.content() != null) {
@@ -139,7 +146,8 @@ public class ChatMessageListView extends BaseComponent {
                     .onReachTop(50f, () -> {
                         String activeId = store.activeChannelId().peek();
                         var msgs = store.activeMessages().peek();
-                        if (activeId != null && !activeId.isEmpty() && service != null && msgs != null && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())) {
+                        if (activeId != null && !activeId.isEmpty() && service != null && msgs != null
+                                && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())) {
                             service.fetchOlderMessages(activeId);
                         }
                     })
@@ -148,10 +156,11 @@ public class ChatMessageListView extends BaseComponent {
                             dynamic(store.loadingOlder(), loading -> {
                                 if (Boolean.TRUE.equals(loading)) {
                                     return row().top().left().padding(unit(2)).children(() -> {
-                                        text(Core.bundle.get("feature.chat.ui.loading-older", "Loading older messages..."))
-                                                .color(Color.gray)
-                                                .fontScale(0.85f)
-                                                .left();
+                                        text(Core.bundle.get("feature.chat.ui.loading-older",
+                                                "Loading older messages..."))
+                                                        .color(Color.gray)
+                                                        .fontScale(0.85f)
+                                                        .left();
                                     });
                                 }
                                 return row();
@@ -160,7 +169,7 @@ public class ChatMessageListView extends BaseComponent {
                             dynamic(hasMessages, available -> {
                                 if (Boolean.TRUE.equals(available)) {
                                     return forEach(displayMessages, dm -> dm.message.getId(),
-                                            dm -> new MessageItem(dm, store, service));
+                                            dm -> new MessageItem(dm, store, service)).growX();
                                 } else {
                                     return column().padding(unit(4)).top().left().children(() -> {
                                         text(Core.bundle.get("feature.chat.ui.empty-messages", "No messages yet."))
@@ -169,7 +178,7 @@ public class ChatMessageListView extends BaseComponent {
                                                 .left();
                                     });
                                 }
-                            });
+                            }).growX();
                         });
                     });
         }).element();
@@ -239,18 +248,20 @@ public class ChatMessageListView extends BaseComponent {
                 return Pal.accent;
             });
 
-            Readable<String> avatarUrl = user.map(u -> (u != null && u.getImageUrl() != null && !u.getImageUrl().isEmpty())
-                    ? u.getImageUrl()
-                    : null);
+            Readable<String> avatarUrl = user
+                    .map(u -> (u != null && u.getImageUrl() != null && !u.getImageUrl().isEmpty())
+                            ? u.getImageUrl()
+                            : null);
 
             String timeStr = formatTime(message.getCreatedAt());
             String rawContent = message.getContent() != null ? message.getContent() : "";
 
             return card()
+                    .growX()
                     .top().left()
                     .onClick(() -> store.toggleExpanded(message.getId()))
                     .children(() -> {
-                        row().top().left().padding(unit(1)).gap(unit(1.5f)).children(() -> {
+                        row().growX().top().left().padding(unit(1)).gap(unit(1.5f)).children(() -> {
                             // Left Avatar or indent spacer
                             if (isFirst) {
                                 networkImage(avatarUrl)
@@ -263,7 +274,7 @@ public class ChatMessageListView extends BaseComponent {
                             }
 
                             // Content area
-                            column().top().left().gap(unit(0.5f)).children(() -> {
+                            column().growX().top().left().gap(unit(0.5f)).children(() -> {
                                 // Author and timestamp header
                                 if (isFirst) {
                                     row().growX().top().left().gap(unit(1)).children(() -> {
@@ -295,9 +306,10 @@ public class ChatMessageListView extends BaseComponent {
                                         return card(Styles.black3, () -> {
                                             column().growX().padding(unit(1)).gap(unit(0.5f)).left().children(() -> {
                                                 row().growX().gap(unit(1)).left().children(() -> {
-                                                    text("[#58a6ff]🌐 " + Core.bundle.get("feature.chat.ui.translated-badge", "Translated"))
-                                                            .fontScale(0.75f)
-                                                            .color(Pal.accent);
+                                                    text("[#58a6ff]🌐 " + Core.bundle
+                                                            .get("feature.chat.ui.translated-badge", "Translated"))
+                                                                    .fontScale(0.75f)
+                                                                    .color(Pal.accent);
                                                 });
                                                 text(trans)
                                                         .color(Color.white)
@@ -318,7 +330,8 @@ public class ChatMessageListView extends BaseComponent {
                                             button(Core.bundle.get("button.copy", "Copy"), () -> {
                                                 try {
                                                     Core.app.setClipboardText(rawContent);
-                                                    Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.copied", "Copied to clipboard!"));
+                                                    Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.copied",
+                                                            "Copied to clipboard!"));
                                                 } catch (Exception ignored) {
                                                 }
                                                 store.toggleExpanded(message.getId());
@@ -367,7 +380,8 @@ public class ChatMessageListView extends BaseComponent {
             future.whenComplete((res, err) -> {
                 Core.app.post(() -> {
                     if (err != null || res == null) {
-                        Vars.ui.showInfoToast(Core.bundle.get("feature.chat.ui.translate-failed", "Translation failed"), 2f);
+                        Vars.ui.showInfoToast(Core.bundle.get("feature.chat.ui.translate-failed", "Translation failed"),
+                                2f);
                     } else {
                         store.setTranslation(message.getId(), res);
                     }
@@ -516,7 +530,8 @@ public class ChatMessageListView extends BaseComponent {
             text(text)
                     .color(Color.white)
                     .left()
-                    .wrap();
+                    .wrap()
+                    .growX();
         }
 
         private void buildSchematicCard(Schematic schematic) {
@@ -592,4 +607,3 @@ public class ChatMessageListView extends BaseComponent {
         }
     }
 }
-

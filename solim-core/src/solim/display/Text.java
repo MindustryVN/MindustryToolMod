@@ -107,7 +107,12 @@ public final class Text implements Component {
 		return this;
 	}
 
+    private boolean growX;
+    private boolean growY;
+    private boolean wrap;
+
     public Text growX() {
+        this.growX = true;
         label.userObject = "expanding";
         if (label.parent instanceof Table) {
             Cell<?> cell = ((Table) label.parent).getCell(label);
@@ -121,6 +126,7 @@ public final class Text implements Component {
     }
 
     public Text growY() {
+        this.growY = true;
         label.userObject = "expanding";
         if (label.parent instanceof Table) {
             Cell<?> cell = ((Table) label.parent).getCell(label);
@@ -135,8 +141,6 @@ public final class Text implements Component {
     public Text grow() {
         return growX().growY();
     }
-
-    private boolean wrap;
 
     public Text wrap(boolean wrap) {
         this.wrap = wrap;
@@ -270,6 +274,13 @@ public final class Text implements Component {
             Cell<?> cell = ((Table) label.parent).getCell(label);
             if (cell != null) {
                 cell.pad(padTop + marginTop, padLeft + marginLeft, padBottom + marginBottom, padRight + marginRight);
+                if (growX || wrap) {
+                    cell.growX();
+                    cell.minWidth(0f);
+                }
+                if (growY) {
+                    cell.growY();
+                }
             }
         }
     }

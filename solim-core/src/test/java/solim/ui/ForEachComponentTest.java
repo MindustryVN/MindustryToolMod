@@ -105,6 +105,44 @@ class ForEachComponentTest {
 		arc.scene.ui.layout.Cell<?> cell = fe.container().getCells().first();
 		assertEquals(0, arc.scene.ui.layout.CellAccess.expandX(cell));
 		assertEquals(0, arc.scene.ui.layout.CellAccess.expandY(cell));
+		assertEquals(0f, arc.scene.ui.layout.CellAccess.minWidth(cell), 0.001f);
 		fe.dispose();
 	}
+
+	@Test
+	void forEachImplementsLayoutModifiersAndSupportsGrowX() {
+		Signal<List<String>> items = Signal.of(Arrays.asList("A"));
+		ForEach<String, String> fe = new ForEach<>(items, id -> id, id -> new TestComponent(id));
+		assertTrue(fe instanceof solim.layout.LayoutModifiers);
+		assertNotNull(fe.sizeConstraints());
+		assertFalse(fe.sizeConstraints().growX);
+		fe.growX();
+		assertTrue(fe.sizeConstraints().growX);
+		assertSame(fe, fe.container().userObject);
+		fe.dispose();
+	}
+
+	@Test
+	void forEachInsideDynamicEnforcesMinWidthZeroOnCells() {
+		Signal<Boolean> hasItems = Signal.of(true);
+		Signal<List<String>> items = Signal.of(Arrays.asList("A"));
+
+		Dynamic<Boolean> dyn = Dynamic.of(hasItems, available -> {
+			if (Boolean.TRUE.equals(available)) {
+				return ForEach.of(items, id -> id, id -> new TestComponent(id)).growX();
+			}
+			return null;
+		});
+
+		arc.scene.ui.layout.Table root = new arc.scene.ui.layout.Table();
+		root.add(dyn.element()).width(300f);
+		root.validate();
+
+		arc.scene.ui.layout.Cell<?> dynamicCell = dyn.container().getCells().first();
+		assertNotNull(dynamicCell);
+		assertEquals(0f, arc.scene.ui.layout.CellAccess.minWidth(dynamicCell), 0.001f);
+
+		dyn.dispose();
+	}
 }
+

@@ -10,12 +10,16 @@ import solim.core.Component;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
+import solim.layout.LayoutModifiers;
+import solim.layout.SizeConstraints;
+
 /**
  * Keyed reactive list component that efficiently manages child components without rebuilding
  * unchanged items.
  */
-public final class ForEach<T, K> extends BaseComponent {
+public final class ForEach<T, K> extends BaseComponent implements LayoutModifiers<ForEach<T, K>> {
 	private final Table container = new Table();
+	private final SizeConstraints constraints = new SizeConstraints();
 	private final Readable<? extends Iterable<T>> collection;
 	private final Function<T, K> keyExtractor;
 	private final Function<T, Component> itemFactory;
@@ -28,7 +32,7 @@ public final class ForEach<T, K> extends BaseComponent {
 		this.collection = collection;
 		this.keyExtractor = keyExtractor;
 		this.itemFactory = itemFactory;
-		this.container.userObject = "expanding";
+		this.container.userObject = this;
 	}
 
 	public static <T, K> ForEach<T, K> of(
@@ -43,8 +47,13 @@ public final class ForEach<T, K> extends BaseComponent {
 	}
 
 	@Override
+	public SizeConstraints sizeConstraints() {
+		return constraints;
+	}
+
+	@Override
 	protected Element build() {
-		container.top().left();
+		applyContainerAlign();
 		Effect.of(this::reconcile);
 		return container;
 	}
@@ -56,6 +65,7 @@ public final class ForEach<T, K> extends BaseComponent {
 		for (Component comp : active.values()) {
 			Element el = comp.element();
 			Cell<?> cell = container.add(el);
+			cell.minWidth(0f);
 			solim.layout.SizeConstraints sc = solim.layout.SizeConstraints.find(comp);
 			if (sc == null) {
 				sc = solim.layout.SizeConstraints.find(el);
@@ -66,6 +76,15 @@ public final class ForEach<T, K> extends BaseComponent {
 				cell.growX();
 			}
 			cell.row();
+		}
+		applyContainerAlign();
+	}
+
+	private void applyContainerAlign() {
+		if (constraints.align != null) {
+			container.align(constraints.align);
+		} else {
+			container.top();
 		}
 	}
 

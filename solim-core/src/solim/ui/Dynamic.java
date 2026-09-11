@@ -30,8 +30,7 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 	public Dynamic(Readable<T> source, Function<T, Component> factory) {
 		this.source = source;
 		this.factory = factory;
-		this.constraints.growX = true;
-		this.container.userObject = "expanding";
+		this.container.userObject = this;
 	}
 
 	public static <T> Dynamic<T> of(Readable<T> source, Function<T, Component> factory) {
@@ -49,7 +48,7 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 
 	@Override
 	protected Element build() {
-		container.top().left();
+		applyContainerAlign();
 		Effect.of(() -> {
 			T value = source.get();
 			if (currentComponent != null) {
@@ -74,6 +73,7 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 				if (currentComponent != null) {
 					Element el = currentComponent.element();
 					Cell<?> cell = container.add(el);
+					cell.minWidth(0f);
 					SizeConstraints sc = SizeConstraints.find(currentComponent);
 					if (sc == null) {
 						sc = SizeConstraints.find(el);
@@ -85,10 +85,19 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 					}
 				}
 			}
+			applyContainerAlign();
 			updateParentCell();
 			container.invalidateHierarchy();
 		});
 		return container;
+	}
+
+	private void applyContainerAlign() {
+		if (constraints.align != null) {
+			container.align(constraints.align);
+		} else {
+			container.top();
+		}
 	}
 
 	private void updateParentCell() {
