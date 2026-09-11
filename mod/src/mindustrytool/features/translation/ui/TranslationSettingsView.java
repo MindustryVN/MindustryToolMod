@@ -12,9 +12,6 @@ import mindustrytool.features.translation.TranslationProvider;
 import mindustrytool.features.translation.providers.DeepLTranslationProvider;
 import mindustrytool.features.translation.providers.DevXTranslationProvider;
 import mindustrytool.features.translation.providers.GeminiTranslationProvider;
-import mindustrytool.features.translation.providers.MindustryToolTranslationProvider;
-import mindustrytool.services.auth.AuthLoginDialog;
-import mindustrytool.services.auth.MindustryAuthProvider;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.signal.Computed;
@@ -291,9 +288,7 @@ public class TranslationSettingsView extends BaseComponent {
 			return buildDevXPanel();
 		} else if (DeepLTranslationProvider.ID.equals(providerId)) {
 			return buildDeepLPanel();
-		} else if (MindustryToolTranslationProvider.ID.equals(providerId)) {
-			return buildMindustryToolPanel();
-		}
+        }
 		return column();
 	}
 
@@ -439,43 +434,6 @@ public class TranslationSettingsView extends BaseComponent {
 					text(timeoutLabel).left().growX();
 					row().width(unit(35)).right().children(() -> {
 						slider(feature.deeplTimeoutConfig.signal(), 2, 20, 1);
-					});
-				});
-			});
-		}).growX();
-	}
-
-	private Component buildMindustryToolPanel() {
-		return card(Styles.defaultb, () -> {
-			column().growX().padding(unit(3)).gap(unit(2)).children(() -> {
-				text("[#e67e22]☁ [white]MindustryTool Cloud").left().growX();
-
-				boolean loggedIn = MindustryAuthProvider.getInstance().isLoggedIn();
-				if (loggedIn) {
-					String username = MindustryAuthProvider.getInstance().getAccessToken() != null ? "Player" : "User";
-					card(Styles.black3, () -> {
-						row().growX().padding(unit(2)).children(() -> {
-							text(Core.bundle.format("feature.translation.mindustrytool.logged-in", username)).color(Pal.heal);
-						});
-					}).growX();
-				} else {
-					card(Styles.black3, () -> {
-						row().growX().padding(unit(2)).gap(unit(2)).children(() -> {
-							text(Core.bundle.get("feature.translation.mindustrytool.not-logged-in")).color(Pal.accent).growX();
-							button(Core.bundle.get("feature.translation.mindustrytool.login-btn", "Log In"), () -> {
-								new AuthLoginDialog(MindustryAuthProvider.getInstance()).show();
-							}).style(Styles.defaultb).height(unit(7));
-						});
-					}).growX();
-				}
-
-				// Timeout slider
-				row().growX().gap(unit(2)).children(() -> {
-					Computed<String> timeoutLabel = feature.mindustryToolTimeoutConfig.signal()
-							.map(t -> Core.bundle.format("feature.translation.mindustrytool.timeout", t != null ? t : 30));
-					text(timeoutLabel).left().growX();
-					row().width(unit(35)).right().children(() -> {
-						slider(feature.mindustryToolTimeoutConfig.signal(), 5, 60, 5);
 					});
 				});
 			});

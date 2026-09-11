@@ -218,15 +218,4 @@ public class DevXTranslationProvider implements TranslationProvider {
 		}
 		return sb.toString().trim();
 	}
-
-	private synchronized void recordHistory(String text, int maxHist) {
-		if (maxHist <= 0) {
-			history.clear();
-			return;
-		}
-		history.add(text);
-		while (history.size > Math.max(10, maxHist)) {
-			history.remove(0);
-		}
-	}
 }

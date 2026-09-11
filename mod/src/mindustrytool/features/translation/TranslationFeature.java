@@ -16,7 +16,6 @@ import mindustry.Vars;
 import mindustry.core.NetClient;
 import mindustry.game.EventType.Trigger;
 import mindustry.gen.Call;
-import mindustry.gen.Icon;
 import mindustry.gen.SendMessageCallPacket;
 import mindustry.gen.SendMessageCallPacket2;
 import mindustry.input.Binding;
@@ -28,7 +27,6 @@ import mindustrytool.features.FeatureMetadata;
 import mindustrytool.features.translation.providers.DeepLTranslationProvider;
 import mindustrytool.features.translation.providers.DevXTranslationProvider;
 import mindustrytool.features.translation.providers.GeminiTranslationProvider;
-import mindustrytool.features.translation.providers.MindustryToolTranslationProvider;
 import mindustrytool.features.translation.ui.TranslationSettingsDialog;
 import mindustrytool.services.PacketReplacer;
 import solim.signal.Signal;
@@ -139,7 +137,6 @@ public class TranslationFeature extends Feature {
 		providers.add(new GeminiTranslationProvider(this));
 		providers.add(new DevXTranslationProvider(this));
 		providers.add(new DeepLTranslationProvider(this));
-		providers.add(new MindustryToolTranslationProvider(this));
 
 		// Register packet replacements for incoming translation
 		PacketReplacer.register(SendMessageCallPacket.class, SendTranslatedMessageCallPacket::new);
