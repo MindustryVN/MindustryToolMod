@@ -109,6 +109,8 @@ public class ChatUserListView extends BaseComponent {
                                             .placeholder(Icon.players)
                                             .fallback(Icon.players)
                                             .size(unit(6), unit(6))
+                                            .minHeight(unit(6))
+                                            .minWidth(unit(6))
                                             .top().left();
 
                                     text(name).color(finalRoleColor)

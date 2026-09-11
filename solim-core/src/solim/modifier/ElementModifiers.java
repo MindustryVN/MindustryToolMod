@@ -460,7 +460,9 @@ public final class ElementModifiers {
             @Nullable Signal<Float> ySignal) {
         if (handle == null)
             return;
-        handle.touchable = Touchable.enabled;
+        // Table containers use childrenOnly so child buttons still receive touch events.
+        // Non-Table elements use enabled since they have no children to route through.
+        handle.touchable = (handle instanceof Table) ? Touchable.childrenOnly : Touchable.enabled;
         if (hud != null) {
             if (xSignal != null) hud.bindXSignal(xSignal);
             if (ySignal != null) hud.bindYSignal(ySignal);

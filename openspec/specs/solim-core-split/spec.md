@@ -1,5 +1,9 @@
-## ADDED Requirements
+# solim-core-split Specification
 
+## Purpose
+Specifies the architectural separation of the Solim UI framework into `:solim-core` (internal framework engine) and `:solim` (public API facade).
+
+## Requirements
 ### Requirement: Solim Core Module Separation
 The Solim UI framework SHALL be split into two Gradle subprojects: `:solim-core` and `:solim`.
 `:solim-core` SHALL contain all internal reactive engines, component base classes, layout implementations, widget primitives, style definitions, overlay managers, unit conversions, and structural reconcilers.

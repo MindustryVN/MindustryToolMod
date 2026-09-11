@@ -16,7 +16,6 @@ public class ChatFeature extends Feature {
 
     public final ConfigGroup config;
     public final ConfigValue<Float> opacityConfig;
-    public final ConfigValue<Float> scaleConfig;
     public final ConfigValue<Float> widthRatioConfig;
     public final ConfigValue<Float> heightRatioConfig;
     public final ConfigValue<Boolean> collapsedConfig;
@@ -50,7 +49,6 @@ public class ChatFeature extends Feature {
         config = ConfigGroup.of(getMetadata());
 
         opacityConfig = config.floatValue("opacity", 1.0f);
-        scaleConfig = config.floatValue("scale", 1.0f);
         widthRatioConfig = config.floatValue("width-ratio", 0.6f);
         heightRatioConfig = config.floatValue("height-ratio", 0.6f);
         collapsedConfig = config.boolValue("collapsed", false);
@@ -143,7 +141,6 @@ public class ChatFeature extends Feature {
 
     public void resetAppearance() {
         opacityConfig.reset();
-        scaleConfig.reset();
         widthRatioConfig.reset();
         heightRatioConfig.reset();
     }

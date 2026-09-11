@@ -38,7 +38,7 @@ The system SHALL provide a collapsed floating badge display when collapsedConfig
 - **THEN** the badge label updates reactively to reflect the current unread count
 
 ### Requirement: Expanded Chat Window
-The system SHALL provide an expanded chat view consisting of a header, channel navigation, message feed, user roster, and composer input area.
+The system SHALL provide an expanded chat view consisting of a header, channel navigation, message feed, user roster, and composer input area. The action bar header row SHALL be draggable from its background area (empty space between title and buttons) and its action buttons SHALL remain fully clickable. The drag handle SHALL NOT block child button touch events.
 
 #### Scenario: Collapsing the chat window
 - **WHEN** the user clicks the collapse button or presses the Escape key
@@ -47,6 +47,14 @@ The system SHALL provide an expanded chat view consisting of a header, channel n
 #### Scenario: Sending a chat message
 - **WHEN** the user enters message text in ChatInputView and clicks send or presses Enter
 - **THEN** MindustryTool.sendChatMessage() is executed, the input is cleared, and the message appears in the feed
+
+#### Scenario: Dragging the expanded window from the title bar background
+- **WHEN** the user touches down and drags the empty background area of the action bar (not over any button)
+- **THEN** the entire chat window moves with the drag and updates the position signals
+
+#### Scenario: Clicking action buttons in the action bar
+- **WHEN** the user clicks the settings button or collapse button in the action bar
+- **THEN** the respective button action fires (open settings dialog or collapse chat) and no drag is initiated
 
 ### Requirement: Responsive Mobile and Desktop Layout
 The system SHALL provide a multi-pane layout on desktop screens and a tabbed navigation interface (Channels, Messages, Members) on mobile devices (Vars.mobile).

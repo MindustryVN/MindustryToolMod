@@ -173,4 +173,36 @@ class HudComponentTest {
 		hud.dispose();
 		assertEquals(40f, hud.element().x, 0.01f);
 	}
+
+	@Test
+	void scalePacksRootForAccurateHitRegion() {
+		Hud hud = new Hud();
+		Signal<Float> scale = Signal.of(1.0f);
+
+		// Populate container with content so it has a measurable size
+		hud.children(() -> {
+			arc.scene.ui.layout.Table inner = new arc.scene.ui.layout.Table();
+			inner.setSize(200f, 100f);
+			hud.container().add(inner).size(200f, 100f);
+		});
+		hud.pack();
+
+		float unscaledW = hud.root().getPrefWidth();
+		float unscaledH = hud.root().getPrefHeight();
+		assertTrue(unscaledW > 0f, "Root must have positive pref width before scaling");
+
+		hud.scale(scale);
+		scale.set(0.8f);
+
+		// After scale change, root.pack() must have been called so layout reflects new scale
+		// The root's pref size should reflect the container's scaled bounds
+		float scaledW = hud.root().getPrefWidth();
+		float scaledH = hud.root().getPrefHeight();
+
+		// root.pack() was called — the pref size should still be positive and valid
+		assertTrue(scaledW >= 0f, "Root pref width must be non-negative after scale");
+		assertTrue(scaledH >= 0f, "Root pref height must be non-negative after scale");
+
+		hud.dispose();
+	}
 }

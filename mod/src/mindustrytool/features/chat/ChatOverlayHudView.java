@@ -53,7 +53,6 @@ public class ChatOverlayHudView extends BaseComponent {
         });
 
         hud.opacity(feature.opacityConfig.signal());
-        hud.scale(feature.scaleConfig.signal());
         hud.position(feature.xSignal, feature.ySignal);
         hud.toFrontOnTouch();
 

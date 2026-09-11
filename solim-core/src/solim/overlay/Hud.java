@@ -292,6 +292,7 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 				Float v = s.get();
 				if (v != null) {
 					container.setScale(v);
+					root.pack();
 				}
 			});
 			bindings.add(e);

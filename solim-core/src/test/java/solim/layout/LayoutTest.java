@@ -114,7 +114,9 @@ class LayoutTest {
 	@Test
 	void rowDraggableRegistersListener() {
 		Row r = new Row().draggable();
-		assertEquals(arc.scene.event.Touchable.enabled, r.table().touchable);
+		// Row wraps a Table, so draggable must use childrenOnly to allow child button clicks
+		assertEquals(arc.scene.event.Touchable.childrenOnly, r.table().touchable,
+				"Row (Table) drag handle must use childrenOnly so child elements stay clickable");
 
 		boolean hasDragListener = false;
 		for (arc.scene.event.EventListener l : r.table().getListeners()) {

@@ -378,15 +378,31 @@ class HudTest {
 	}
 
 	@Test
-	void draggableSetsTouchableEnabledOnHandle() {
+	void draggableTableHandleUsesChildrenOnly() {
 		Hud hud = new Hud();
 		Table handle = new Table();
-		assertEquals(arc.scene.event.Touchable.childrenOnly, handle.touchable);
+		assertEquals(arc.scene.event.Touchable.childrenOnly, handle.touchable,
+				"Table default touchable should be childrenOnly before draggable");
 
 		hud.draggable(handle);
-		assertEquals(arc.scene.event.Touchable.enabled, handle.touchable, "Handle touchable should be set to enabled");
+		assertEquals(arc.scene.event.Touchable.childrenOnly, handle.touchable,
+				"Table handle touchable should remain childrenOnly so child buttons stay clickable");
 		hud.dispose();
 	}
+
+	@Test
+	void draggableNonTableHandleUsesEnabled() {
+		Hud hud = new Hud();
+		Element handle = new Element();
+		assertEquals(arc.scene.event.Touchable.enabled, handle.touchable,
+				"Non-Table element default is enabled");
+
+		hud.draggable(handle);
+		assertEquals(arc.scene.event.Touchable.enabled, handle.touchable,
+				"Non-Table handle touchable should be enabled");
+		hud.dispose();
+	}
+
 
 	@Test
 	void keepInScreenOversizedAndClampingBothBounds() {
@@ -406,6 +422,62 @@ class HudTest {
 
 		assertEquals(524f, hud.element().x, 0.01f, "X should clamp to 1024 - 500 = 524");
 		assertEquals(468f, hud.element().y, 0.01f, "Y should clamp to 768 - 300 = 468");
+
+		hud.dispose();
+	}
+
+	@Test
+	void tableHandleDraggableAllowsChildButtonClicks() {
+		Hud hud = new Hud();
+		hud.element().setSize(200f, 100f);
+		hud.position(100f, 100f);
+
+		Signal<Float> xSig = Signal.of(100f);
+		Signal<Float> ySig = Signal.of(100f);
+
+		// Table drag handle — must use childrenOnly so child elements receive touch events
+		Table handle = new Table();
+		// Add a plain Element child that tracks whether it receives a click listener call
+		Element child = new Element();
+		int[] clickFired = {0};
+		child.addListener(new arc.scene.event.ClickListener() {
+			@Override
+			public void clicked(InputEvent event, float x, float y) {
+				clickFired[0]++;
+			}
+		});
+		handle.add(child);
+		hud.draggable(handle, xSig, ySig);
+
+		// Core assertion: Table handle must use childrenOnly
+		assertEquals(Touchable.childrenOnly, handle.touchable,
+				"Table drag handle must use childrenOnly so child elements stay clickable");
+
+		// The child's ClickListener must still be directly reachable
+		for (EventListener l : child.getListeners()) {
+			if (l instanceof arc.scene.event.ClickListener) {
+				InputEvent ev = new InputEvent();
+				((arc.scene.event.ClickListener) l).clicked(ev, 1f, 1f);
+				break;
+			}
+		}
+		assertEquals(1, clickFired[0], "Child element click listener must still fire with childrenOnly handle");
+
+		// Drag via the handle's InputListener must still move the HUD
+		InputListener dragListener = null;
+		for (EventListener l : handle.getListeners()) {
+			if (l instanceof InputListener && !(l instanceof arc.scene.event.ClickListener)) {
+				dragListener = (InputListener) l;
+				break;
+			}
+		}
+		assertNotNull(dragListener, "Drag InputListener must be registered on the Table handle");
+
+		InputEvent dragEvent = new InputEvent();
+		dragListener.touchDown(dragEvent, 10f, 10f, 0, KeyCode.mouseLeft);
+		dragListener.touchDragged(dragEvent, 60f, 80f, 0);
+		assertEquals(150f, hud.element().x, 0.01f, "HUD must move by +50 on drag");
+		assertEquals(170f, hud.element().y, 0.01f, "HUD must move by +70 on drag");
 
 		hud.dispose();
 	}

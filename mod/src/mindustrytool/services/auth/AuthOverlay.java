@@ -73,7 +73,7 @@ public class AuthOverlay {
 	}
 
 	private Component buildOverlay() {
-		return row()
+		return column()
 				.fillParent()
 				.top()
 				.right()
