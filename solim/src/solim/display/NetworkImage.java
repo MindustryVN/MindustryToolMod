@@ -31,7 +31,7 @@ import solim.signal.Readable;
  * Asynchronous image component that loads images from HTTP/HTTPS URLs,
  * maintains an in-memory texture cache, and supports reactive URL bindings and fallbacks.
  */
-public final class NetworkImage implements Component, Disposable, LayoutModifiers<NetworkImage> {
+public final class NetworkImage implements Component, LayoutModifiers<NetworkImage> {
 
 	@FunctionalInterface
 	public interface ImageLoader {

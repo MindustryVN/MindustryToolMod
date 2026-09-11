@@ -22,6 +22,7 @@ public class SizedTable extends Table implements ConstrainedElement {
 	private final SizeConstraints constraints = new SizeConstraints();
 
 	public SizedTable() {
+        top().left();
 	}
 
 	@Override

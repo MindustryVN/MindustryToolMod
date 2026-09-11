@@ -21,7 +21,7 @@ import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for text content. */
-public final class Text implements Component, Disposable {
+public final class Text implements Component {
 
 	public static class SizedLabel extends Label implements ConstrainedElement {
 		private final SizeConstraints constraints = new SizeConstraints();
@@ -82,6 +82,7 @@ public final class Text implements Component, Disposable {
 				? new SizedLabel(text != null ? text : "", style)
 				: new SizedLabel(text != null ? text : "");
 		this.label.name = "solim-text-label";
+        this.growX();
 	}
 
 	public static Text of(String text) {
