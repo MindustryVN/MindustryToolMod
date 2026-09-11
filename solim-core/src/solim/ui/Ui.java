@@ -18,6 +18,7 @@ import solim.display.Badge;
 import solim.display.NetworkImage;
 import solim.display.SolimImage;
 import solim.display.Text;
+import solim.graphics.ColoredDrawable;
 import solim.input.Button;
 import solim.input.Checkbox;
 import solim.input.SolimSlider;
@@ -453,6 +454,10 @@ public final class Ui {
             ParentStack.attachToParent(ParentStack.isolate(comp::element));
         }
         return comp;
+    }
+
+    public static ColoredDrawable colored(arc.graphics.Color color, Drawable drawable) {
+        return ColoredDrawable.of(color, drawable);
     }
 
     public static Element add(Object child) {

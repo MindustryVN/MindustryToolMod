@@ -2,6 +2,7 @@ package solim;
 
 import arc.graphics.Color;
 import arc.func.Cons;
+import solim.graphics.ColoredDrawable;
 import solim.graphics.RoundedDrawable;
 import arc.func.Func;
 import arc.scene.Element;
@@ -532,5 +533,9 @@ public final class UI {
 
     public static RoundedDrawable rounded(int radius, Color color, float stroke, Color borderColor) {
         return RoundedDrawable.of(radius, color, stroke, borderColor);
+    }
+
+    public static ColoredDrawable colored(Color color, Drawable drawable) {
+        return ColoredDrawable.of(color, drawable);
     }
 }

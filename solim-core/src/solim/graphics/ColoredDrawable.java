@@ -1,9 +1,13 @@
-package mindustrytool.components;
+package solim.graphics;
 
 import arc.graphics.Color;
 import arc.graphics.g2d.Draw;
 import arc.scene.style.Drawable;
 
+/**
+ * Drawable wrapper that tints another drawable with a fixed color.
+ * Draws the wrapped drawable with {@link Draw#color(Color)} applied and resets afterwards.
+ */
 public class ColoredDrawable implements Drawable {
     private final Color color;
     private final Drawable drawable;
@@ -11,6 +15,10 @@ public class ColoredDrawable implements Drawable {
     public ColoredDrawable(Color color, Drawable drawable) {
         this.color = color;
         this.drawable = drawable;
+    }
+
+    public static ColoredDrawable of(Color color, Drawable drawable) {
+        return new ColoredDrawable(color, drawable);
     }
 
     @Override
