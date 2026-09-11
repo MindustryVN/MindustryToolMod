@@ -119,7 +119,6 @@ public class ChatOverlayHudView extends BaseComponent {
         });
 
         Readable<Boolean> isConnected = store.connected();
-        Readable<String> channelTitle = store.activeChannel().map(c -> c != null ? "# " + c.getName() : "Chat");
 
         return card(Styles.black8)
                 .width(winWidth)
@@ -130,16 +129,11 @@ public class ChatOverlayHudView extends BaseComponent {
                         row().growX()
                                 .background(Styles.black5)
                                 .padding(unit(1), unit(2), unit(1), unit(2))
-                                .gap(unit(1))
+                                .gap(unit(2))
                                 .draggable(hud, feature.xSignal, feature.ySignal)
                                 .children(() -> {
-                                    text(channelTitle)
-                                            .color(Pal.accent)
-                                            .fontScale(1.1f)
-                                            .left();
-
-                                    image(Tex.whiteui)
-                                            .size(unit(2), unit(2))
+                                    image(circle())
+                                            .size(unit(3), unit(3))
                                             .color(isConnected.map(c -> c ? Pal.heal : Color.scarlet));
 
                                     spacer();
@@ -151,15 +145,15 @@ public class ChatOverlayHudView extends BaseComponent {
                                         }
                                     })
                                             .style(Styles.clearNonei)
-                                            .size(unit(7), unit(7))
+                                            .size(unit(10), unit(10))
                                             .tooltip(Core.bundle.get("feature.chat.ui.settings", "Settings"))
-                                            .children(() -> image(Icon.settingsSmall).size(unit(5), unit(5)));
+                                            .children(() -> image(Icon.settings).size(unit(4), unit(4)));
 
                                     button(() -> feature.collapsedConfig.set(true))
                                             .style(Styles.clearNonei)
-                                            .size(unit(7), unit(7))
+                                            .size(unit(10), unit(10))
                                             .tooltip(Core.bundle.get("feature.chat.ui.collapse", "Collapse"))
-                                            .children(() -> image(Icon.downOpen).size(unit(5), unit(5)));
+                                            .children(() -> image(Icon.cancel).size(unit(5), unit(5)));
                                 });
 
                         divider();
