@@ -30,21 +30,22 @@ The `Hud` container SHALL support a `keepInScreen()` method and automatically re
 - **THEN** hovering and clicking within the visually rendered area of the Hud triggers correct element hover and click states, with no offset between visual position and hit region
 
 ### Requirement: Draggable modifier for Hud repositioning
-The Solim framework SHALL provide a `.draggable()` modifier (or handle) that attaches touch drag handling to an element. When the handle is a `Table` container, the modifier SHALL set `touchable = childrenOnly` so that child elements (e.g. buttons) still receive touch events, while drag gestures on the empty background area of the handle are handled by the drag listener. When the handle is a non-Table element, `touchable = enabled` SHALL be set. When dragged from a background (non-child) area, it SHALL translate the parent `Hud` container by the drag delta, clamp coordinates to the screen, and optionally update reactive `Signal<Float>` x and y positions.
+The Solim framework SHALL provide a `.draggable()` modifier that attaches touch drag handling to an element. The handle element SHALL have `touchable = enabled` so its entire surface area can capture drag gestures. When a touch occurs on an interactive descendant button or clickable control within the handle, the drag listener SHALL NOT consume the event and SHALL return `false` on `touchDown` so the child control receives the click. When a touch occurs on the container background or non-button elements (such as text, images, or spacers), the drag listener SHALL return `true`, translate the parent `Hud` container by the drag delta, clamp coordinates to the screen, and optionally update reactive `Signal<Float>` x and y positions.
 
 #### Scenario: Dragging a handle moves the Hud
-- **WHEN** a user touches down and drags an element configured with `.draggable()`
-- **THEN** the parent `Hud` element's position moves by the touch displacement vector and updates the associated coordinate signals
+- **WHEN** a user touches down on a non-button area of a handle configured with `.draggable()` and drags
+- **THEN** the parent `Hud` element moves by the touch displacement vector and updates the associated coordinate signals
 
 #### Scenario: Clamping during drag movement
 - **WHEN** a drag movement attempts to push the `Hud` outside screen bounds
 - **THEN** the movement is clamped at the screen border
 
-#### Scenario: Table drag handle does not block child button clicks
-- **WHEN** a `Table` element is configured as a drag handle via `.draggable()` and contains child buttons
-- **THEN** clicking a child button fires the button's click listener and does NOT initiate dragging
+#### Scenario: Interactive descendant button receives click without drag
+- **WHEN** a user touches down and clicks a `Button` inside a handle container configured with `.draggable()`
+- **THEN** the button action fires and no `Hud` dragging is initiated
 
-#### Scenario: Non-Table drag handle is touchable
-- **WHEN** a non-Table element (e.g. a plain `Element`) is configured as a drag handle
-- **THEN** `touchable` is set to `enabled` so the element itself receives touch events
+#### Scenario: Dragging from label or spacer in handle moves Hud
+- **WHEN** a user touches down and drags on a `Label`, `Image`, or empty background area within a handle container
+- **THEN** the parent `Hud` moves with the drag gesture
+
 

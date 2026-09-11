@@ -247,11 +247,10 @@ public class ChatMessageListView extends BaseComponent {
             String rawContent = message.getContent() != null ? message.getContent() : "";
 
             return card()
-                    .growX()
                     .top().left()
                     .onClick(() -> store.toggleExpanded(message.getId()))
                     .children(() -> {
-                        row().growX().top().left().padding(unit(1)).gap(unit(1.5f)).children(() -> {
+                        row().top().left().padding(unit(1)).gap(unit(1.5f)).children(() -> {
                             // Left Avatar or indent spacer
                             if (isFirst) {
                                 networkImage(avatarUrl)
@@ -264,7 +263,7 @@ public class ChatMessageListView extends BaseComponent {
                             }
 
                             // Content area
-                            column().growX().top().left().gap(unit(0.5f)).children(() -> {
+                            column().top().left().gap(unit(0.5f)).children(() -> {
                                 // Author and timestamp header
                                 if (isFirst) {
                                     row().growX().top().left().gap(unit(1)).children(() -> {
@@ -516,9 +515,8 @@ public class ChatMessageListView extends BaseComponent {
             final String text = content;
             text(text)
                     .color(Color.white)
-                    .wrap()
                     .left()
-                    .growX();
+                    .wrap();
         }
 
         private void buildSchematicCard(Schematic schematic) {
