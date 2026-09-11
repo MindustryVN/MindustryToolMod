@@ -15,7 +15,7 @@ import solim.signal.Signal;
 
 class SnapshotIntrospectionTest {
 
-	/** Arc element subclass holding reactive sources, mirroring {@code ConstrainedElement} usage. */
+	/** Arc element subclass holding reactive sources. */
 	static class GadgetElement extends Table {
 		final Signal<Float> progress = Signal.of(0.5f);
 		final Computed<String> percent = progress.map(v -> Math.round(v * 100) + "%");

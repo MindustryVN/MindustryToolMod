@@ -5,12 +5,14 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
+import arc.scene.ui.layout.Table;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 
 /** Divider line supporting horizontal (X) and vertical (Y) directions. */
 public final class Divider implements Component, LayoutModifiers<Divider> {
-	private final SizedTable table = new SizedTable();
+	private final Table table = new Table();
+	private final SizeConstraints constraints = new SizeConstraints();
 	private final Direction direction;
 
 	public Divider() {
@@ -19,13 +21,15 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 
 	public Divider(Direction direction) {
 		this.direction = direction != null ? direction : Direction.X;
+		table.userObject = this;
 		table.name = "solim-divider-table";
 		Drawable white = (Core.atlas != null && Core.atlas.has("whiteui"))
 				? Core.atlas.drawable("whiteui")
 				: null;
 
 		if (this.direction == Direction.Y) {
-			table.getSizeConstraints().growY = true;
+			constraints.growY = true;
+			table.userObject = "expanding";
 			if (white != null) {
 				Image img = new Image(white);
 				img.setColor(new Color(1f, 1f, 1f, 0.15f));
@@ -34,7 +38,8 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 				table.add().width(1.5f).growY();
 			}
 		} else {
-			table.getSizeConstraints().growX = true;
+			constraints.growX = true;
+			table.userObject = "expanding";
 			if (white != null) {
 				Image img = new Image(white);
 				img.setColor(new Color(1f, 1f, 1f, 0.15f));
@@ -49,7 +54,7 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 		return direction;
 	}
 
-	public SizedTable table() {
+	public Table table() {
 		return table;
 	}
 
@@ -60,7 +65,7 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return table.getSizeConstraints();
+		return constraints;
 	}
 
 	public Divider name(String name) {

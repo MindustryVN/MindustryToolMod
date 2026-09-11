@@ -134,9 +134,9 @@ class GridTest {
 	}
 
 	@Test
-	void sizeConstraintsDelegatesToTable() {
+	void sizeConstraintsReturnsNonNull() {
 		Grid g = new Grid();
-		assertSame(g.table().getSizeConstraints(), g.sizeConstraints());
+		assertNotNull(g.sizeConstraints());
 	}
 
 	@Test

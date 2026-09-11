@@ -10,9 +10,6 @@ import arc.scene.event.Touchable;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
-import solim.display.SolimImage.SizedImage;
-import solim.input.Button.SizedButton;
-import solim.layout.ConstrainedElement;
 import solim.overlay.Hud;
 import solim.signal.Readable;
 import solim.signal.Signal;
@@ -26,8 +23,7 @@ import solim.signal.Signal;
  *
  * <p>Modifier targets:
  * <ul>
- *   <li>{@code width/height/size} — element's preferred size (sets on the element and its
- *       {@link solim.layout.ConstrainedElement} constraints)</li>
+ *   <li>{@code width/height/size} — element's size (sets on the element directly)</li>
  *   <li>{@code x/y/position} — element's position in local coordinates</li>
  *   <li>{@code visible/opacity/alpha} — element's visibility and transparency</li>
  *   <li>{@code name} — element's debug name</li>
@@ -50,13 +46,11 @@ public final class ElementModifiers {
             return;
         float val = Math.max(0f, width);
         element.setWidth(val);
-        if (element instanceof SizedButton) {
-            ((SizedButton) element).setCustomPrefWidth(val);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).setCustomPrefWidth(val);
-        }
-        if (element instanceof ConstrainedElement) {
-            ((ConstrainedElement) element).getSizeConstraints().prefWidth = Readable.of(val);
+        if (element.parent instanceof Table) {
+            Cell<?> cell = ((Table) element.parent).getCell(element);
+            if (cell != null) {
+                cell.width(val);
+            }
         }
         element.invalidateHierarchy();
     }
@@ -66,13 +60,11 @@ public final class ElementModifiers {
             return;
         float val = Math.max(0f, height);
         element.setHeight(val);
-        if (element instanceof SizedButton) {
-            ((SizedButton) element).setCustomPrefHeight(val);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).setCustomPrefHeight(val);
-        }
-        if (element instanceof ConstrainedElement) {
-            ((ConstrainedElement) element).getSizeConstraints().prefHeight = Readable.of(val);
+        if (element.parent instanceof Table) {
+            Cell<?> cell = ((Table) element.parent).getCell(element);
+            if (cell != null) {
+                cell.height(val);
+            }
         }
         element.invalidateHierarchy();
     }
@@ -232,8 +224,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             margin((Table) element, margin);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).margin(margin);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -247,8 +237,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             margin((Table) element, top, left, bottom, right);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).margin(top, left, bottom, right);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -262,8 +250,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             marginTop((Table) element, top);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).marginTop(top);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -277,8 +263,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             marginBottom((Table) element, bottom);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).marginBottom(bottom);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -292,8 +276,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             marginLeft((Table) element, left);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).marginLeft(left);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -307,8 +289,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             marginRight((Table) element, right);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).marginRight(right);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -370,8 +350,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             padding((Table) element, padding);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).padding(padding);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -385,8 +363,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             padding((Table) element, top, left, bottom, right);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).padding(top, left, bottom, right);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -400,8 +376,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             paddingTop((Table) element, top);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).paddingTop(top);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -415,8 +389,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             paddingBottom((Table) element, bottom);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).paddingBottom(bottom);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -430,8 +402,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             paddingLeft((Table) element, left);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).paddingLeft(left);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {
@@ -445,8 +415,6 @@ public final class ElementModifiers {
             return;
         if (element instanceof Table) {
             paddingRight((Table) element, right);
-        } else if (element instanceof SizedImage) {
-            ((SizedImage) element).paddingRight(right);
         } else if (element.parent instanceof Table) {
             Cell<?> cell = ((Table) element.parent).getCell(element);
             if (cell != null) {

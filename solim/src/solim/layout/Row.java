@@ -4,6 +4,7 @@ import arc.scene.Element;
 import arc.scene.event.Touchable;
 import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
@@ -24,15 +25,17 @@ public final class Row implements Component, LayoutModifiers<Row> {
 		return cell;
 	};
 
-	private final SizedTable table;
+	private final Table table;
+	private final SizeConstraints constraints = new SizeConstraints();
 
 	public Row() {
-		this.table = new SizedTable();
+		this.table = new Table();
+		this.table.userObject = this;
 		this.table.name = "solim-row-table";
 		this.table.left();
 	}
 
-	public SizedTable table() {
+	public Table table() {
 		return table;
 	}
 
@@ -43,7 +46,7 @@ public final class Row implements Component, LayoutModifiers<Row> {
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return table.getSizeConstraints();
+		return constraints;
 	}
 
 	public Row name(String name) {

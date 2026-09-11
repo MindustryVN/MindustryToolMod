@@ -30,8 +30,9 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
         return cell;
     };
 
-    private final SizedTable outer;
+    private final Table outer;
     private final Table content;
+    private final SizeConstraints constraints = new SizeConstraints();
     private final ScrollPane pane;
     private boolean centered = false;
     private boolean disableX = true;
@@ -45,10 +46,11 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
     private boolean updateHooked = false;
 
     public Scroll() {
-        this.outer = new SizedTable();
+        this.outer = new Table();
+        this.outer.userObject = this;
         this.outer.name = "solim-scroll-pane-outer";
         this.outer.top().left();
-        this.content = new SizedTable();
+        this.content = new Table();
         this.content.top().left();
         this.content.name = "solim-scroll-pane-content";
         if (Core.scene != null) {
@@ -61,11 +63,11 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
         }
     }
 
-    public SizedTable outer() {
+    public Table outer() {
         return outer;
     }
 
-    public Scroll outer(Consumer<SizedTable> consumer) {
+    public Scroll outer(Consumer<Table> consumer) {
         consumer.accept(outer);
         return this;
     }
@@ -242,7 +244,7 @@ public final class Scroll implements Component, LayoutModifiers<Scroll> {
 
     @Override
     public SizeConstraints sizeConstraints() {
-        return outer.getSizeConstraints();
+        return constraints;
     }
 
     public Scroll x(float x) {

@@ -113,11 +113,11 @@ class ButtonGestureTest {
 
 		Button btn = Ui.button().size(size).margin(margin);
 
-		assertEquals(48f, btn.sizedButton().getPrefWidth(), 0.01f);
-		assertEquals(48f, btn.sizedButton().getPrefHeight(), 0.01f);
+		assertEquals(48f, btn.button().getWidth(), 0.01f);
+		assertEquals(48f, btn.button().getHeight(), 0.01f);
 
 		size.set(64f);
-		assertEquals(64f, btn.sizedButton().getPrefWidth(), 0.01f);
-		assertEquals(64f, btn.sizedButton().getPrefHeight(), 0.01f);
+		assertEquals(64f, btn.button().getWidth(), 0.01f);
+		assertEquals(64f, btn.button().getHeight(), 0.01f);
 	}
 }

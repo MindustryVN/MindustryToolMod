@@ -145,8 +145,8 @@ class RowTest {
 	}
 
 	@Test
-	void sizeConstraintsDelegatesToTable() {
+	void sizeConstraintsReturnsNonNull() {
 		Row row = new Row();
-		assertSame(row.table().getSizeConstraints(), row.sizeConstraints());
+		assertNotNull(row.sizeConstraints());
 	}
 }

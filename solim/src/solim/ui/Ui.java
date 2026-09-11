@@ -140,6 +140,14 @@ public final class Ui {
             return false;
         if ("expanding".equals(child.userObject) || Boolean.TRUE.equals(child.userObject))
             return true;
+        if (child.userObject instanceof solim.layout.LayoutModifiers) {
+            solim.layout.SizeConstraints sc = ((solim.layout.LayoutModifiers<?>) child.userObject).sizeConstraints();
+            if (sc.growX || sc.growY) return true;
+        }
+        if (child.userObject instanceof solim.layout.SizeConstraints) {
+            solim.layout.SizeConstraints sc = (solim.layout.SizeConstraints) child.userObject;
+            if (sc.growX || sc.growY) return true;
+        }
         if ("solim-spacer-table".equals(child.name) || "spacer".equals(child.name))
             return true;
         if (child.fillParent)
@@ -193,21 +201,21 @@ public final class Ui {
         return s.element();
     }
 
-    public static SolimImage.SizedImage image() {
+    public static SolimImage image() {
         return image((Drawable) null);
     }
 
-    public static SolimImage.SizedImage image(Drawable drawable) {
-        SolimImage.SizedImage img = new SolimImage.SizedImage(drawable);
-        ParentStack.attachToParent(img);
+    public static SolimImage image(Drawable drawable) {
+        SolimImage img = new SolimImage(drawable);
+        ParentStack.attachToParent(img.element());
         return img;
     }
 
-    public static SolimImage.SizedImage icon() {
+    public static SolimImage icon() {
         return image();
     }
 
-    public static SolimImage.SizedImage icon(Drawable drawable) {
+    public static SolimImage icon(Drawable drawable) {
         return image(drawable);
     }
 

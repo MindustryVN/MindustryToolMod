@@ -15,13 +15,15 @@ import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 /**
  * Keyed reactive grid that reflows existing component cells when column count changes and
  * structurally reconciles items when the item collection changes.
  */
 public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutModifiers<ReactiveGrid<T, K>> {
-	private final SizedTable table = new SizedTable();
+	private final Table table = new Table();
+	private final SizeConstraints constraints = new SizeConstraints();
 	private final Readable<Integer> columnCount;
 	private final Readable<? extends Iterable<T>> items;
 	private final Function<T, K> keyExtractor;
@@ -40,6 +42,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 			Function<T, K> keyExtractor,
 			Function<T, Component> itemFactory) {
 		this.table.name = "solim-reactive-grid-table";
+		this.table.userObject = this;
 		this.columnCount = columnCount;
 		this.items = items;
 		this.keyExtractor = keyExtractor;
@@ -84,13 +87,13 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 	}
 
 
-	public SizedTable table() {
+	public Table table() {
 		return table;
 	}
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return table.getSizeConstraints();
+		return constraints;
 	}
 
 	@Override
@@ -160,12 +163,20 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 		for (Component comp : reconciler.activeComponents().values()) {
 			Element el = comp.element();
 			Cell<?> cell = table.add(el).pad(gap / 2f).top().left();
-			if (el instanceof ConstrainedElement) {
-				List<Disposable> effects = ((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
-				itemBindings.addAll(effects);
+			SizeConstraints sc = null;
+			if (comp instanceof LayoutModifiers) {
+				sc = ((LayoutModifiers<?>) comp).sizeConstraints();
+			} else if (el.userObject instanceof LayoutModifiers) {
+				sc = ((LayoutModifiers<?>) el.userObject).sizeConstraints();
 			}
-			if ((el instanceof ConstrainedElement) && ((ConstrainedElement) el).getSizeConstraints().growX) {
-				cell.uniformX();
+			if (sc != null) {
+				List<Disposable> effects = sc.applyToCell(cell);
+				itemBindings.addAll(effects);
+				if (sc.growX) {
+					cell.uniformX();
+				}
+			} else if (Ui.isExpanding(el)) {
+				cell.growX().uniformX();
 			}
 			if (++col % cols == 0) {
 				table.row();

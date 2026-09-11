@@ -26,10 +26,9 @@ public class UpdateDialog extends SolimDialog {
 				"[#" + Color.green.toString() + "]" + latestVer);
 
 		content(() -> {
-			column().growX().gap(unit(2)).left().children(() -> {
+			column().growX().gap(unit(2)).left().width(500f).children(() -> {
 				text(newVersionText)
-						.wrap()
-						.width(500f);
+						.wrap();
 
 				button("Discord: " + Config.DISCORD_INVITE_URL, () -> Core.app.openURI(Config.DISCORD_INVITE_URL))
 						.color(Color.royal)
@@ -41,7 +40,6 @@ public class UpdateDialog extends SolimDialog {
 					column().growX().left().children(() -> {
 						text(changelog != null ? changelog : "")
 								.wrap()
-								.width(480f)
 								.left();
 					});
 				});

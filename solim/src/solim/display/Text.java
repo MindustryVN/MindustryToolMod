@@ -12,9 +12,6 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
-import solim.layout.ConstrainedElement;
-import solim.layout.LayoutModifiers;
-import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Computed;
 import solim.signal.Effect;
@@ -22,42 +19,9 @@ import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for text content. */
-public final class Text implements Component, LayoutModifiers<Text> {
+public final class Text implements Component {
 
-    public static class SizedLabel extends Label implements ConstrainedElement {
-        private final SizeConstraints constraints = new SizeConstraints();
-
-        public SizedLabel(CharSequence text) {
-            super(text);
-        }
-
-        public SizedLabel(CharSequence text, LabelStyle style) {
-            super(text, style);
-        }
-
-        @Override
-        public SizeConstraints getSizeConstraints() {
-            return constraints;
-        }
-
-        public SizedLabel growX() {
-            constraints.growX = true;
-            constraints.applyGrowToParentCell(this);
-            return this;
-        }
-
-        public SizedLabel growY() {
-            constraints.growY = true;
-            constraints.applyGrowToParentCell(this);
-            return this;
-        }
-
-        public SizedLabel grow() {
-            return growX().growY();
-        }
-    }
-
-    private final SizedLabel label;
+    private final Label label;
     private final List<Disposable> bindings = new ArrayList<>();
 
     private float padTop;
@@ -80,8 +44,8 @@ public final class Text implements Component, LayoutModifiers<Text> {
 
 	public Text(String text, Label.LabelStyle style) {
 		this.label = style != null
-				? new SizedLabel(text != null ? text : "", style)
-				: new SizedLabel(text != null ? text : "");
+				? new Label(text != null ? text : "", style)
+				: new Label(text != null ? text : "");
 		this.label.name = "solim-text-label";
 	}
 
@@ -143,18 +107,27 @@ public final class Text implements Component, LayoutModifiers<Text> {
 		return this;
 	}
 
-	@Override
-	public SizeConstraints sizeConstraints() {
-		return label.getSizeConstraints();
-	}
-
     public Text growX() {
-        label.growX();
+        label.userObject = "expanding";
+        if (label.parent instanceof Table) {
+            Cell<?> cell = ((Table) label.parent).getCell(label);
+            if (cell != null) {
+                cell.growX();
+                ((Table) label.parent).invalidateHierarchy();
+            }
+        }
         return this;
     }
 
     public Text growY() {
-        label.growY();
+        label.userObject = "expanding";
+        if (label.parent instanceof Table) {
+            Cell<?> cell = ((Table) label.parent).getCell(label);
+            if (cell != null) {
+                cell.growY();
+                ((Table) label.parent).invalidateHierarchy();
+            }
+        }
         return this;
     }
 

@@ -249,12 +249,12 @@ class LayoutTest {
 				});
 
 		assertEquals(2, c.container().getChildren().size, "Card container must have 2 children");
-		assertEquals(180f, c.cardButton().getPrefHeight(), 0.01f);
-		assertEquals(250f, c.cardButton().getPrefWidth(), 0.01f);
+		assertEquals(180f, c.cardButton().getHeight(), 0.01f);
+		assertEquals(250f, c.cardButton().getWidth(), 0.01f);
 		assertEquals(Color.scarlet, c.cardButton().color);
 
 		widthSignal.set(300f);
-		assertEquals(300f, c.cardButton().getPrefWidth(), 0.01f);
+		assertEquals(300f, c.cardButton().getWidth(), 0.01f);
 
 		colorSignal.set(Color.green);
 		assertEquals(Color.green, c.cardButton().color);
@@ -420,9 +420,9 @@ class LayoutTest {
 	void sizedTextFieldGrowAfterAttachment() {
 		org.junit.jupiter.api.Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
 		Table parent = new Table();
-		solim.input.SolimTextField.SizedTextField field = new solim.input.SolimTextField.SizedTextField("");
-		parent.add(field);
-		Cell<?> cell = parent.getCell(field);
+		solim.input.SolimTextField field = new solim.input.SolimTextField("");
+		parent.add(field.element());
+		Cell<?> cell = parent.getCell(field.element());
 		assertEquals(0, CellAccess.expandX(cell));
 
 		field.growX();
@@ -434,9 +434,9 @@ class LayoutTest {
 	void checkboxGrowVariants() {
 		org.junit.jupiter.api.Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
 		Table parent = new Table();
-		solim.input.Checkbox.SizedCheckBox cb = new solim.input.Checkbox.SizedCheckBox("Test");
-		parent.add(cb);
-		Cell<?> cell = parent.getCell(cb);
+		solim.input.Checkbox cb = new solim.input.Checkbox("Test", solim.signal.Signal.of(false));
+		parent.add(cb.element());
+		Cell<?> cell = parent.getCell(cb.element());
 		assertEquals(0, CellAccess.expandX(cell));
 		assertEquals(0, CellAccess.expandY(cell));
 
@@ -595,6 +595,11 @@ class LayoutTest {
 		root.layout();
 
 		Element cardBtn = parentCol.table().getChildren().first();
+		Cell<?> c = parentCol.table().getCells().first();
+		System.out.println("DEBUG cardCenteringInsideColumn: root w=" + root.getWidth() + ", parentCol w=" + parentCol.table().getWidth());
+		System.out.println("DEBUG cell: expandX=" + CellAccess.expandX(c) + ", fillX=" + CellAccess.fillX(c));
+		System.out.println("DEBUG cell minW=" + c.getMinWidth() + ", prefW=" + c.getPrefWidth() + ", maxW=" + c.getMaxWidth());
+		System.out.println("DEBUG cardBtn: w=" + cardBtn.getWidth() + ", prefW=" + cardBtn.getPrefWidth() + ", minW=" + cardBtn.getMinWidth() + ", maxW=" + cardBtn.getMaxWidth());
 		assertEquals(400f, cardBtn.getWidth(), 0.01f);
 		assertEquals(300f, cardBtn.x, 0.01f, "Card with .center() inside column should be centered at x = 300");
 	}

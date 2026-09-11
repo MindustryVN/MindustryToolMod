@@ -3,13 +3,13 @@ package solim.input;
 import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.ui.TextField;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import java.util.function.Consumer;
 import java.util.function.Predicate;
 import solim.core.Component;
 import solim.core.ComponentContext;
-import solim.layout.ConstrainedElement;
-import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -23,52 +23,27 @@ import solim.ui.Binding;
  */
 public final class SolimTextField implements Component {
 
-	public static class SizedTextField extends TextField implements ConstrainedElement {
-		private final SizeConstraints constraints = new SizeConstraints();
-
-		public SizedTextField(String text) {
-			super(text);
-		}
-
-		public SizedTextField(String text, TextFieldStyle style) {
-			super(text, style);
-		}
-
-		@Override
-		public SizeConstraints getSizeConstraints() {
-			return constraints;
-		}
-
-		public SizedTextField growX() {
-			constraints.growX = true;
-			constraints.applyGrowToParentCell(this);
-			return this;
-		}
-
-		public SizedTextField growY() {
-			constraints.growY = true;
-			constraints.applyGrowToParentCell(this);
-			return this;
-		}
-
-		public SizedTextField grow() {
-			return growX().growY();
-		}
-	}
-
-	private final SizedTextField field;
+	private final TextField field;
 	private final Signal<String> signal;
 	private @Nullable TwoWayBinding<String> binding;
 	private Effect disabledEffect;
 	private Predicate<String> validator;
 	private final Signal<Boolean> valid = Signal.of(true);
 
+	public SolimTextField() {
+		this("");
+	}
+
+	public SolimTextField(String text) {
+		this(Signal.of(text != null ? text : ""));
+	}
+
 	public SolimTextField(Signal<String> signal) {
 		this(signal, (TextField.TextFieldStyle) null);
 	}
 
 	public SolimTextField(Signal<String> signal, TextField.TextFieldStyle style) {
-		this.field = style != null ? new SizedTextField("", style) : new SizedTextField("");
+		this.field = style != null ? new TextField("", style) : new TextField("");
 		this.field.name = "solim-textfield-textField";
 		this.signal = signal;
 		field.setText(signal.peek() != null ? signal.peek() : "");
@@ -165,12 +140,26 @@ public final class SolimTextField implements Component {
 	}
 
 	public SolimTextField growX() {
-		field.growX();
+		field.userObject = "expanding";
+		if (field.parent instanceof Table) {
+			Cell<?> cell = ((Table) field.parent).getCell(field);
+			if (cell != null) {
+				cell.growX();
+				((Table) field.parent).invalidateHierarchy();
+			}
+		}
 		return this;
 	}
 
 	public SolimTextField growY() {
-		field.growY();
+		field.userObject = "expanding";
+		if (field.parent instanceof Table) {
+			Cell<?> cell = ((Table) field.parent).getCell(field);
+			if (cell != null) {
+				cell.growY();
+				((Table) field.parent).invalidateHierarchy();
+			}
+		}
 		return this;
 	}
 
@@ -198,7 +187,7 @@ public final class SolimTextField implements Component {
 		return this;
 	}
 
-	public SizedTextField field() {
+	public TextField field() {
 		return field;
 	}
 

@@ -2,13 +2,11 @@ package solim.ui;
 
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import java.util.*;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
-import solim.layout.ConstrainedElement;
-import solim.layout.SizeConstraints;
-import solim.layout.SizedTable;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
@@ -16,8 +14,8 @@ import solim.signal.Readable;
  * Keyed reactive list component that efficiently manages child components without rebuilding
  * unchanged items.
  */
-public final class ForEach<T, K> extends BaseComponent implements ConstrainedElement {
-	private final SizedTable container = new SizedTable();
+public final class ForEach<T, K> extends BaseComponent {
+	private final Table container = new Table();
 	private final Readable<? extends Iterable<T>> collection;
 	private final Function<T, K> keyExtractor;
 	private final Function<T, Component> itemFactory;
@@ -30,7 +28,7 @@ public final class ForEach<T, K> extends BaseComponent implements ConstrainedEle
 		this.collection = collection;
 		this.keyExtractor = keyExtractor;
 		this.itemFactory = itemFactory;
-		this.container.getSizeConstraints().growX = true;
+		this.container.userObject = "expanding";
 	}
 
 	public static <T, K> ForEach<T, K> of(
@@ -40,13 +38,8 @@ public final class ForEach<T, K> extends BaseComponent implements ConstrainedEle
 		return new ForEach<>(collection, keyExtractor, itemFactory);
 	}
 
-	public SizedTable container() {
+	public Table container() {
 		return container;
-	}
-
-	@Override
-	public SizeConstraints getSizeConstraints() {
-		return container.getSizeConstraints();
 	}
 
 	@Override
@@ -63,10 +56,10 @@ public final class ForEach<T, K> extends BaseComponent implements ConstrainedEle
 		for (Component comp : active.values()) {
 			Element el = comp.element();
 			Cell<?> cell = container.add(el);
-			cell.row();
-			if (el instanceof ConstrainedElement) {
-				((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
+			if (Ui.isExpanding(el)) {
+				cell.growX();
 			}
+			cell.row();
 		}
 	}
 

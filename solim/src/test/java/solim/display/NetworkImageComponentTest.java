@@ -99,7 +99,7 @@ class NetworkImageComponentTest {
 				.scaling(Scaling.fill);
 		assertEquals(64f, img.sizeConstraints().prefWidth.get());
 		assertEquals(48f, img.sizeConstraints().prefHeight.get());
-		assertEquals(Scaling.fill, img.image().getScaling());
+		assertEquals(Scaling.fill, img.getScaling());
 		img.dispose();
 	}
 

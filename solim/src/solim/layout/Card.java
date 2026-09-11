@@ -5,7 +5,6 @@ import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
-import arc.scene.event.SceneEvent;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
 import arc.scene.ui.layout.Cell;
@@ -38,85 +37,9 @@ public final class Card implements Component, LayoutModifiers<Card> {
 		return cell;
 	};
 
-	/**
-	 * Custom Button subclass that implements {@link ConstrainedElement}, so that ATTACHERs
-	 * can read and apply size constraints from the parent cell when {@code Card} is attached.
-	 */
-	public static class CardButton extends Button implements ConstrainedElement {
-
-		private final SizeConstraints constraints = new SizeConstraints();
-
-		public CardButton() {
-			this(new ButtonStyle());
-		}
-
-		public CardButton(Drawable up) {
-			super(new ButtonStyle());
-			if (up != null) {
-				getStyle().up = up;
-			}
-		}
-
-		public CardButton(@Nullable ButtonStyle style) {
-			super(style != null ? style : new ButtonStyle());
-		}
-
-		@Override
-		public SizeConstraints getSizeConstraints() {
-			return constraints;
-		}
-
-		@Override
-		public float getPrefWidth() {
-			if (constraints == null) return super.getPrefWidth();
-			Float v = constraints.prefWidth != null ? constraints.prefWidth.get() : null;
-			return v != null ? Math.max(0f, v) : super.getPrefWidth();
-		}
-
-		@Override
-		public float getPrefHeight() {
-			if (constraints == null) return super.getPrefHeight();
-			Float v = constraints.prefHeight != null ? constraints.prefHeight.get() : null;
-			return v != null ? Math.max(0f, v) : super.getPrefHeight();
-		}
-
-		@Override
-		public float getMinWidth() {
-			if (constraints == null) return super.getMinWidth();
-			Float v = constraints.minWidth != null ? constraints.minWidth.get() : null;
-			return v != null ? Math.max(0f, v) : super.getMinWidth();
-		}
-
-		@Override
-		public float getMinHeight() {
-			if (constraints == null) return super.getMinHeight();
-			Float v = constraints.minHeight != null ? constraints.minHeight.get() : null;
-			return v != null ? Math.max(0f, v) : super.getMinHeight();
-		}
-
-		@Override
-		public float getMaxWidth() {
-			if (constraints == null) return super.getMaxWidth();
-			Float v = constraints.maxWidth != null ? constraints.maxWidth.get() : null;
-			return v != null ? Math.max(0f, v) : super.getMaxWidth();
-		}
-
-		@Override
-		public float getMaxHeight() {
-			if (constraints == null) return super.getMaxHeight();
-			Float v = constraints.maxHeight != null ? constraints.maxHeight.get() : null;
-			return v != null ? Math.max(0f, v) : super.getMaxHeight();
-		}
-
-		@Override
-		public boolean notify(SceneEvent event, boolean capture) {
-			if (getScene() == null) return false;
-			return super.notify(event, capture);
-		}
-	}
-
-	private final CardButton cardButton;
+	private final Button cardButton;
 	private final Table container = new Table();
+	private final SizeConstraints constraints = new SizeConstraints();
 	private final List<Disposable> bindings = new ArrayList<>();
 	private @Nullable Runnable onClick;
 
@@ -125,7 +48,12 @@ public final class Card implements Component, LayoutModifiers<Card> {
 	}
 
 	public Card(Drawable background) {
-		this.cardButton = new CardButton(background);
+		Button.ButtonStyle style = new Button.ButtonStyle();
+		if (background != null) {
+			style.up = background;
+		}
+		this.cardButton = new Button(style);
+		this.cardButton.userObject = this;
 		this.cardButton.name = "solim-card-cardButton";
 		this.container.name = "solim-card-container";
 		this.cardButton.top().left();
@@ -134,7 +62,8 @@ public final class Card implements Component, LayoutModifiers<Card> {
 	}
 
 	public Card(Button.ButtonStyle style) {
-		this.cardButton = new CardButton(style != null ? style : new Button.ButtonStyle());
+		this.cardButton = new Button(style != null ? style : new Button.ButtonStyle());
+		this.cardButton.userObject = this;
 		this.cardButton.name = "solim-card-cardButton";
 		this.container.name = "solim-card-container";
 		this.cardButton.top().left();
@@ -154,7 +83,7 @@ public final class Card implements Component, LayoutModifiers<Card> {
 		return container;
 	}
 
-	public CardButton cardButton() {
+	public Button cardButton() {
 		return cardButton;
 	}
 
@@ -165,7 +94,7 @@ public final class Card implements Component, LayoutModifiers<Card> {
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return cardButton.getSizeConstraints();
+		return constraints;
 	}
 
 	public Card name(String name) {

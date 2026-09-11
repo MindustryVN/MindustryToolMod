@@ -45,24 +45,64 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	/** Sets the preferred width to a static value. */
 	default SELF width(float v) {
 		sizeConstraints().prefWidth = Readable.of(v);
+		if (this instanceof solim.core.Component) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			if (el != null) {
+				el.setWidth(Math.max(0f, v));
+				sizeConstraints().applySizeToParentCell(el);
+			}
+		}
 		return self();
 	}
 
 	/** Sets the preferred width to a reactive value that updates automatically. */
 	default SELF width(Readable<Float> v) {
 		sizeConstraints().prefWidth = v;
+		if (this instanceof solim.core.Component && v != null) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			if (el != null) {
+				solim.signal.Effect e = solim.signal.Effect.of(() -> {
+					Float val = v.get();
+					if (val != null) {
+						el.setWidth(Math.max(0f, val));
+						sizeConstraints().applySizeToParentCell(el);
+					}
+				});
+				solim.core.ComponentContext.register(e);
+			}
+		}
 		return self();
 	}
 
 	/** Sets the preferred height to a static value. */
 	default SELF height(float v) {
 		sizeConstraints().prefHeight = Readable.of(v);
+		if (this instanceof solim.core.Component) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			if (el != null) {
+				el.setHeight(Math.max(0f, v));
+				sizeConstraints().applySizeToParentCell(el);
+			}
+		}
 		return self();
 	}
 
 	/** Sets the preferred height to a reactive value that updates automatically. */
 	default SELF height(Readable<Float> v) {
 		sizeConstraints().prefHeight = v;
+		if (this instanceof solim.core.Component && v != null) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			if (el != null) {
+				solim.signal.Effect e = solim.signal.Effect.of(() -> {
+					Float val = v.get();
+					if (val != null) {
+						el.setHeight(Math.max(0f, val));
+						sizeConstraints().applySizeToParentCell(el);
+					}
+				});
+				solim.core.ComponentContext.register(e);
+			}
+		}
 		return self();
 	}
 
@@ -91,24 +131,44 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	/** Sets the minimum width to a static value. */
 	default SELF minWidth(float v) {
 		sizeConstraints().minWidth = Readable.of(v);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applySizeToParentCell(((solim.core.Component) this).element());
+		}
 		return self();
 	}
 
 	/** Sets the minimum width to a reactive value. */
 	default SELF minWidth(Readable<Float> v) {
 		sizeConstraints().minWidth = v;
+		if (this instanceof solim.core.Component && v != null) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			solim.signal.Effect e = solim.signal.Effect.of(() -> {
+				sizeConstraints().applySizeToParentCell(el);
+			});
+			solim.core.ComponentContext.register(e);
+		}
 		return self();
 	}
 
 	/** Sets the minimum height to a static value. */
 	default SELF minHeight(float v) {
 		sizeConstraints().minHeight = Readable.of(v);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applySizeToParentCell(((solim.core.Component) this).element());
+		}
 		return self();
 	}
 
 	/** Sets the minimum height to a reactive value. */
 	default SELF minHeight(Readable<Float> v) {
 		sizeConstraints().minHeight = v;
+		if (this instanceof solim.core.Component && v != null) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			solim.signal.Effect e = solim.signal.Effect.of(() -> {
+				sizeConstraints().applySizeToParentCell(el);
+			});
+			solim.core.ComponentContext.register(e);
+		}
 		return self();
 	}
 
@@ -117,24 +177,44 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	/** Sets the maximum width to a static value. */
 	default SELF maxWidth(float v) {
 		sizeConstraints().maxWidth = Readable.of(v);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applySizeToParentCell(((solim.core.Component) this).element());
+		}
 		return self();
 	}
 
 	/** Sets the maximum width to a reactive value. */
 	default SELF maxWidth(Readable<Float> v) {
 		sizeConstraints().maxWidth = v;
+		if (this instanceof solim.core.Component && v != null) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			solim.signal.Effect e = solim.signal.Effect.of(() -> {
+				sizeConstraints().applySizeToParentCell(el);
+			});
+			solim.core.ComponentContext.register(e);
+		}
 		return self();
 	}
 
 	/** Sets the maximum height to a static value. */
 	default SELF maxHeight(float v) {
 		sizeConstraints().maxHeight = Readable.of(v);
+		if (this instanceof solim.core.Component) {
+			sizeConstraints().applySizeToParentCell(((solim.core.Component) this).element());
+		}
 		return self();
 	}
 
 	/** Sets the maximum height to a reactive value. */
 	default SELF maxHeight(Readable<Float> v) {
 		sizeConstraints().maxHeight = v;
+		if (this instanceof solim.core.Component && v != null) {
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			solim.signal.Effect e = solim.signal.Effect.of(() -> {
+				sizeConstraints().applySizeToParentCell(el);
+			});
+			solim.core.ComponentContext.register(e);
+		}
 		return self();
 	}
 
@@ -147,7 +227,11 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	default SELF growX() {
 		sizeConstraints().growX = true;
 		if (this instanceof solim.core.Component) {
-			sizeConstraints().applyGrowToParentCell(((solim.core.Component) this).element());
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			if (el != null) {
+				el.userObject = "expanding";
+				sizeConstraints().applyGrowToParentCell(el);
+			}
 		}
 		return self();
 	}
@@ -159,7 +243,11 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 	default SELF growY() {
 		sizeConstraints().growY = true;
 		if (this instanceof solim.core.Component) {
-			sizeConstraints().applyGrowToParentCell(((solim.core.Component) this).element());
+			arc.scene.Element el = ((solim.core.Component) this).element();
+			if (el != null) {
+				el.userObject = "expanding";
+				sizeConstraints().applyGrowToParentCell(el);
+			}
 		}
 		return self();
 	}

@@ -21,7 +21,6 @@ import solim.core.Disposable;
 import solim.layout.LayoutModifiers;
 import solim.layout.Row;
 import solim.layout.SizeConstraints;
-import solim.layout.SizedTable;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -36,15 +35,16 @@ import solim.ui.ParentStack;
  */
 public class Hud implements Component, LayoutModifiers<Hud> {
 
-	private final SizedTable root;
+	private final Table root;
 	private final Table container;
+	private final SizeConstraints constraints = new SizeConstraints();
 	private final List<Disposable> bindings = new ArrayList<>();
 	private final Cons<ResizeEvent> resizeListener;
 	private @Nullable Signal<Float> boundXSignal;
 	private @Nullable Signal<Float> boundYSignal;
 	private boolean disposed = false;
 
-	public static class HudRootTable extends SizedTable {
+	public static class HudRootTable extends Table {
 		private final Hud hud;
 
 		public HudRootTable(Hud hud) {
@@ -96,7 +96,7 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 		return root;
 	}
 
-	public SizedTable root() {
+	public Table root() {
 		return root;
 	}
 
@@ -106,7 +106,7 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return root.getSizeConstraints();
+		return constraints;
 	}
 
 	public Hud name(String name) {

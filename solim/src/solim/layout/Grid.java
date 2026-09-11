@@ -3,6 +3,7 @@ package solim.layout;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Nullable;
 import solim.core.Component;
@@ -16,13 +17,15 @@ import solim.ui.Ui;
 /** Simple grid with fixed or reactive column count and customizable gap. */
 public final class Grid implements Component, LayoutModifiers<Grid> {
 
-	private final SizedTable table;
+	private final Table table;
+	private final SizeConstraints constraints = new SizeConstraints();
 	private int columns = 1;
 	private float gap = 4f;
 	private int currentCell = 0;
 
 	public Grid() {
-		this.table = new SizedTable();
+		this.table = new Table();
+		this.table.userObject = this;
 		this.table.name = "solim-grid-table";
 		ElementModifiers.gap(table, gap);
 	}
@@ -32,7 +35,7 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 		this.columns = Math.max(1, columns);
 	}
 
-	public SizedTable table() {
+	public Table table() {
 		return table;
 	}
 
@@ -43,7 +46,7 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return table.getSizeConstraints();
+		return constraints;
 	}
 
 	public Grid name(String name) {

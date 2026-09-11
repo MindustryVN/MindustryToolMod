@@ -115,9 +115,9 @@ class ScrollTest {
 	}
 
 	@Test
-	void sizeConstraintsDelegatesToOuter() {
+	void sizeConstraintsReturnsNonNull() {
 		Scroll s = new Scroll();
-		assertSame(s.outer().getSizeConstraints(), s.sizeConstraints());
+		assertNotNull(s.sizeConstraints());
 	}
 
 	@Test

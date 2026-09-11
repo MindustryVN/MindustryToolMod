@@ -107,10 +107,12 @@ class CardTest {
 		Signal<Float> widthSig = Signal.of(200f);
 		Card c = new Card();
 		c.width(widthSig);
-		assertEquals(200f, c.cardButton().getPrefWidth(), 0.01f);
+		assertEquals(200f, c.cardButton().getWidth(), 0.01f);
+		assertEquals(200f, c.sizeConstraints().prefWidth.get(), 0.01f);
 
 		widthSig.set(300f);
-		assertEquals(300f, c.cardButton().getPrefWidth(), 0.01f);
+		assertEquals(300f, c.cardButton().getWidth(), 0.01f);
+		assertEquals(300f, c.sizeConstraints().prefWidth.get(), 0.01f);
 		c.dispose();
 	}
 
@@ -119,10 +121,12 @@ class CardTest {
 		Signal<Float> heightSig = Signal.of(150f);
 		Card c = new Card();
 		c.height(heightSig);
-		assertEquals(150f, c.cardButton().getPrefHeight(), 0.01f);
+		assertEquals(150f, c.cardButton().getHeight(), 0.01f);
+		assertEquals(150f, c.sizeConstraints().prefHeight.get(), 0.01f);
 
 		heightSig.set(200f);
-		assertEquals(200f, c.cardButton().getPrefHeight(), 0.01f);
+		assertEquals(200f, c.cardButton().getHeight(), 0.01f);
+		assertEquals(200f, c.sizeConstraints().prefHeight.get(), 0.01f);
 		c.dispose();
 	}
 
@@ -181,9 +185,9 @@ class CardTest {
 	}
 
 	@Test
-	void sizeConstraintsDelegatesToButton() {
+	void sizeConstraintsReturnsNonNull() {
 		Card c = new Card();
-		assertSame(c.cardButton().getSizeConstraints(), c.sizeConstraints());
+		assertNotNull(c.sizeConstraints());
 		c.dispose();
 	}
 }

@@ -17,10 +17,10 @@ import arc.util.Nullable;
 import arc.util.Scaling;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import arc.scene.ui.Image;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
-import solim.display.SolimImage.SizedImage;
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
@@ -97,17 +97,18 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 		}
 	}
 
-	private final SizedImage image;
+	private final Image image;
+	private final SizeConstraints constraints = new SizeConstraints();
 	private @Nullable Drawable placeholder;
 	private @Nullable Drawable fallback;
 	private @Nullable Disposable binding;
 	private @Nullable String currentUrl;
-
+	private boolean loading = false;
 	private float padTop, padLeft, padBottom, padRight;
 	private float marginTop, marginLeft, marginBottom, marginRight;
 
 	public NetworkImage() {
-		this.image = new SizedImage((Drawable) null);
+		this.image = new Image((Drawable) null);
 		this.image.setScaling(Scaling.fit);
 		ComponentContext.register(this);
 	}
@@ -125,7 +126,7 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 	public NetworkImage placeholder(@Nullable Drawable placeholder) {
 		this.placeholder = placeholder;
 		if (image.getDrawable() == null && placeholder != null) {
-			image.setDrawable(placeholder);
+			applyDrawable(placeholder);
 		}
 		return this;
 	}
@@ -140,9 +141,16 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 		return this;
 	}
 
+	private Scaling scaling = Scaling.fit;
+
 	public NetworkImage scaling(Scaling scaling) {
-		image.scaling(scaling);
+		this.scaling = scaling;
+		image.setScaling(scaling);
 		return this;
+	}
+
+	public Scaling getScaling() {
+		return scaling;
 	}
 
 	public NetworkImage url(@Nullable String url) {
@@ -207,40 +215,25 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 		image.invalidateHierarchy();
 	}
 
-	public NetworkImage size(float size) {
-		return size(size, size);
-	}
-
-	public NetworkImage size(float width, float height) {
-		width(width);
-		height(height);
-		return this;
-	}
-
-	public NetworkImage width(float width) {
-		ElementModifiers.width(image, width);
-		return this;
-	}
-
-	public NetworkImage height(float height) {
-		ElementModifiers.height(image, height);
-		return this;
-	}
-
-
 	public NetworkImage color(Color color) {
-		image.color(color);
+		image.setColor(color);
 		return this;
 	}
 
 	public NetworkImage color(Readable<Color> color) {
-		image.color(color);
+		if (color != null) {
+			Effect e = Effect.of(() -> {
+				Color c = color.get();
+				if (c != null) image.setColor(c);
+			});
+			ComponentContext.register(e);
+		}
 		return this;
 	}
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return image.getSizeConstraints();
+		return constraints;
 	}
 
 	@Override
@@ -249,7 +242,7 @@ public final class NetworkImage implements Component, LayoutModifiers<NetworkIma
 		return this;
 	}
 
-	public SizedImage image() {
+	public Image image() {
 		applySpacing();
 		return image;
 	}

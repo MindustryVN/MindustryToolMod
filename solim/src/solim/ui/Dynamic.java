@@ -6,23 +6,22 @@ import arc.scene.ui.layout.Table;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
-import solim.layout.ConstrainedElement;
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
-import solim.layout.SizedTable;
 import solim.signal.Effect;
 import solim.signal.ReactiveContext;
 import solim.signal.Readable;
 
 /** Structural reactive component for switching dynamic subtrees based on a reactive value. */
-public final class Dynamic<T> extends BaseComponent implements ConstrainedElement, LayoutModifiers<Dynamic<T>> {
-	private final SizedTable container = new SizedTable() {
+public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<Dynamic<T>> {
+	private final Table container = new Table() {
 		@Override
 		public void layout() {
 			updateParentCell();
 			super.layout();
 		}
 	};
+	private final SizeConstraints constraints = new SizeConstraints();
 	private final Readable<T> source;
 	private final Function<T, Component> factory;
 	private Component currentComponent;
@@ -31,25 +30,21 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 	public Dynamic(Readable<T> source, Function<T, Component> factory) {
 		this.source = source;
 		this.factory = factory;
-		this.container.getSizeConstraints().growX = true;
+		this.constraints.growX = true;
+		this.container.userObject = "expanding";
 	}
 
 	public static <T> Dynamic<T> of(Readable<T> source, Function<T, Component> factory) {
 		return new Dynamic<>(source, factory);
 	}
 
-	public SizedTable container() {
+	public Table container() {
 		return container;
 	}
 
 	@Override
-	public SizeConstraints getSizeConstraints() {
-		return container.getSizeConstraints();
-	}
-
-	@Override
 	public SizeConstraints sizeConstraints() {
-		return container.getSizeConstraints();
+		return constraints;
 	}
 
 	@Override
@@ -79,9 +74,8 @@ public final class Dynamic<T> extends BaseComponent implements ConstrainedElemen
 				if (currentComponent != null) {
 					Element el = currentComponent.element();
 					Cell<?> cell = container.add(el);
-					if (el instanceof ConstrainedElement) {
-						java.util.List<solim.core.Disposable> effects = ((ConstrainedElement) el).getSizeConstraints().applyToCell(cell);
-						currentBindings.addAll(effects);
+					if (Ui.isExpanding(el)) {
+						cell.growX();
 					}
 				}
 			}

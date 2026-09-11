@@ -3,56 +3,18 @@ package solim.input;
 import arc.Core;
 import arc.scene.ui.CheckBox;
 import arc.scene.ui.CheckBox.CheckBoxStyle;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import java.util.function.Consumer;
 import solim.core.Component;
 import solim.core.ComponentContext;
-import solim.layout.ConstrainedElement;
-import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.signal.Signal;
 
 /** Checkbox widget bound to Signal&lt;Boolean&gt;. */
 public final class Checkbox implements Component {
 
-	public static class SizedCheckBox extends CheckBox implements ConstrainedElement {
-		private final SizeConstraints constraints = new SizeConstraints();
-
-        {
-            top().left();
-        }
-
-		public SizedCheckBox(String text) {
-			super(text);
-		}
-
-		public SizedCheckBox(String text, CheckBoxStyle style) {
-			super(text, style);
-		}
-
-		@Override
-		public SizeConstraints getSizeConstraints() {
-			return constraints;
-		}
-
-		public SizedCheckBox growX() {
-			constraints.growX = true;
-			constraints.applyGrowToParentCell(this);
-			return this;
-		}
-
-		public SizedCheckBox growY() {
-			constraints.growY = true;
-			constraints.applyGrowToParentCell(this);
-			return this;
-		}
-
-		public SizedCheckBox grow() {
-			return growX().growY();
-		}
-	}
-
-	private final SizedCheckBox checkBox;
+	private final CheckBox checkBox;
 	private final @Nullable Signal<Boolean> signal;
 	private @Nullable TwoWayBinding<Boolean> binding;
 
@@ -63,8 +25,9 @@ public final class Checkbox implements Component {
 	public Checkbox(String label, Signal<Boolean> signal, @Nullable CheckBoxStyle style) {
 		this.signal = signal;
 		this.checkBox = style != null
-				? new SizedCheckBox(label != null ? label : "", style)
-				: new SizedCheckBox(label != null ? label : "");
+				? new CheckBox(label != null ? label : "", style)
+				: new CheckBox(label != null ? label : "");
+		checkBox.top().left();
 		checkBox.name = "solim-checkbox-checkBox";
 		checkBox.setChecked(signal.peek());
 		this.binding = new TwoWayBinding<>(
@@ -87,8 +50,9 @@ public final class Checkbox implements Component {
 	public Checkbox(String label, boolean initial, @Nullable CheckBoxStyle style, Consumer<Boolean> onChanged) {
 		this.signal = null;
 		this.checkBox = style != null
-				? new SizedCheckBox(label != null ? label : "", style)
-				: new SizedCheckBox(label != null ? label : "");
+				? new CheckBox(label != null ? label : "", style)
+				: new CheckBox(label != null ? label : "");
+		checkBox.top().left();
 		checkBox.name = "solim-checkbox-checkBox";
 		checkBox.setChecked(initial);
 		checkBox.changed(() -> {
@@ -108,26 +72,31 @@ public final class Checkbox implements Component {
 	}
 
 	public Checkbox growX() {
-		checkBox.growX();
+		checkBox.userObject = "expanding";
+		if (checkBox.parent instanceof Table) {
+			((Table) checkBox.parent).getCell(checkBox).growX();
+		}
 		return this;
 	}
 
 	public Checkbox growY() {
-		checkBox.growY();
+		checkBox.userObject = "expanding";
+		if (checkBox.parent instanceof Table) {
+			((Table) checkBox.parent).getCell(checkBox).growY();
+		}
 		return this;
 	}
 
 	public Checkbox grow() {
-		checkBox.grow();
-		return this;
+		return growX().growY();
 	}
 
-	public SizedCheckBox checkBox() {
+	public CheckBox checkBox() {
 		return checkBox;
 	}
 
 	@Override
-	public SizedCheckBox element() {
+	public CheckBox element() {
 		return checkBox;
 	}
 
@@ -145,3 +114,4 @@ public final class Checkbox implements Component {
 		}
 	}
 }
+

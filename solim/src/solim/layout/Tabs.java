@@ -3,6 +3,7 @@ package solim.layout;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button.ButtonStyle;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,22 +24,24 @@ import solim.ui.ParentStack;
  */
 public final class Tabs implements Component, LayoutModifiers<Tabs> {
 
-	private final SizedTable root;
-	private final SizedTable headerBar;
+	private final Table root;
+	private final Table headerBar;
 	private final SolimStack contentStack;
 	private final Signal<Integer> activeTab;
 	private @Nullable ButtonStyle tabButtonStyle;
 	private final List<Button> tabButtons = new ArrayList<>();
-	private final List<SizedTable> tabContents = new ArrayList<>();
+	private final List<Table> tabContents = new ArrayList<>();
 	private final List<Disposable> bindings = new ArrayList<>();
+	private final SizeConstraints constraints = new SizeConstraints();
 
 	public Tabs(Signal<Integer> activeTab) {
 		this.activeTab = activeTab;
-		this.root = new SizedTable();
+		this.root = new Table();
+		this.root.userObject = this;
 		this.root.name = "solim-tabs-root";
 		this.root.top().left();
 
-		this.headerBar = new SizedTable();
+		this.headerBar = new Table();
 		this.headerBar.name = "solim-tabs-headerBar";
 		this.headerBar.top().left();
 		this.root.add(headerBar).growX().row();
@@ -73,9 +76,7 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 	public Tabs tab(Readable<String> title, @Nullable Drawable icon, Runnable contentBuilder) {
 		int index = tabButtons.size();
 
-		Button.SizedButton sizedBtn = new Button.SizedButton(tabButtonStyle);
-
-		Button btn = new Button(sizedBtn);
+		Button btn = new Button(tabButtonStyle);
 		btn.onClick(() -> activeTab.set(index));
 		btn.checked(activeTab.map(idx -> idx != null && idx == index));
 		btn.growX();
@@ -89,10 +90,9 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 		tabButtons.add(btn);
 		headerBar.add(btn.element()).growX();
 
-		SizedTable contentContainer = new SizedTable();
+		Table contentContainer = new Table();
 		contentContainer.top().left();
-		contentContainer.getSizeConstraints().growX = true;
-		contentContainer.getSizeConstraints().growY = true;
+		contentContainer.userObject = "expanding";
 		ParentStack.push(contentContainer, Column.ATTACHER);
 		try {
 			if (contentBuilder != null) {
@@ -119,15 +119,15 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 		return tabButtons;
 	}
 
-	public List<SizedTable> contents() {
+	public List<Table> contents() {
 		return tabContents;
 	}
 
-	public SizedTable root() {
+	public Table root() {
 		return root;
 	}
 
-	public SizedTable headerBar() {
+	public Table headerBar() {
 		return headerBar;
 	}
 
@@ -138,7 +138,7 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 
 	@Override
 	public SizeConstraints sizeConstraints() {
-		return root.getSizeConstraints();
+		return constraints;
 	}
 
 	public Tabs name(String name) {

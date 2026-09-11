@@ -4,6 +4,7 @@ import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
+import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
@@ -12,7 +13,6 @@ import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
-import solim.layout.SizedTable;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -23,7 +23,8 @@ import solim.signal.Readable;
  */
 public final class Badge implements Component, LayoutModifiers<Badge> {
 
-    private final SizedTable table;
+    private final Table table;
+    private final SizeConstraints constraints = new SizeConstraints();
     private final Text label;
     private final List<Disposable> bindings = new ArrayList<>();
     private boolean hideOnZero = false;
@@ -35,7 +36,8 @@ public final class Badge implements Component, LayoutModifiers<Badge> {
     }
 
     public Badge(Readable<String> text) {
-        this.table = new SizedTable();
+        this.table = new Table();
+        this.table.userObject = this;
         this.table.name = "solim-badge-table";
         this.table.center();
 
@@ -118,7 +120,7 @@ public final class Badge implements Component, LayoutModifiers<Badge> {
         return label;
     }
 
-    public SizedTable table() {
+    public Table table() {
         return table;
     }
 
@@ -129,7 +131,7 @@ public final class Badge implements Component, LayoutModifiers<Badge> {
 
     @Override
     public SizeConstraints sizeConstraints() {
-        return table.getSizeConstraints();
+        return constraints;
     }
 
     public Badge name(String name) {

@@ -136,22 +136,22 @@ class DisplayTest {
 		Table root = new Table();
 		ParentStack.push(root);
 
-		SolimImage.SizedImage img = image((Drawable) null).padding(6f).margin(2f);
-		assertEquals(8f, CellAccess.padTop(root.getCell(img)), 0.01f);
-		assertEquals(8f, CellAccess.padLeft(root.getCell(img)), 0.01f);
-		assertEquals(8f, CellAccess.padBottom(root.getCell(img)), 0.01f);
-		assertEquals(8f, CellAccess.padRight(root.getCell(img)), 0.01f);
+		SolimImage img = image((Drawable) null).padding(6f).margin(2f);
+		assertEquals(8f, CellAccess.padTop(root.getCell(img.element())), 0.01f);
+		assertEquals(8f, CellAccess.padLeft(root.getCell(img.element())), 0.01f);
+		assertEquals(8f, CellAccess.padBottom(root.getCell(img.element())), 0.01f);
+		assertEquals(8f, CellAccess.padRight(root.getCell(img.element())), 0.01f);
 
 		img.padding(1f, 2f, 3f, 4f).margin(4f, 3f, 2f, 1f);
-		assertEquals(5f, CellAccess.padTop(root.getCell(img)), 0.01f);
-		assertEquals(5f, CellAccess.padLeft(root.getCell(img)), 0.01f);
-		assertEquals(5f, CellAccess.padBottom(root.getCell(img)), 0.01f);
-		assertEquals(5f, CellAccess.padRight(root.getCell(img)), 0.01f);
+		assertEquals(5f, CellAccess.padTop(root.getCell(img.element())), 0.01f);
+		assertEquals(5f, CellAccess.padLeft(root.getCell(img.element())), 0.01f);
+		assertEquals(5f, CellAccess.padBottom(root.getCell(img.element())), 0.01f);
+		assertEquals(5f, CellAccess.padRight(root.getCell(img.element())), 0.01f);
 
 		img.paddingBottom(10f);
-		assertEquals(12f, CellAccess.padBottom(root.getCell(img)), 0.01f);
+		assertEquals(12f, CellAccess.padBottom(root.getCell(img.element())), 0.01f);
 		img.marginBottom(5f);
-		assertEquals(15f, CellAccess.padBottom(root.getCell(img)), 0.01f);
+		assertEquals(15f, CellAccess.padBottom(root.getCell(img.element())), 0.01f);
 
 		ParentStack.pop();
 	}

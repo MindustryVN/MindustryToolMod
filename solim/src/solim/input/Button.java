@@ -4,10 +4,11 @@ import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
-import arc.scene.event.SceneEvent;
 import arc.scene.ui.Button.ButtonStyle;
 import arc.scene.ui.Label;
 import arc.scene.ui.Tooltip;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.Table;
 import arc.util.Log;
 import arc.util.Nullable;
 import java.util.ArrayList;
@@ -15,9 +16,7 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
-import solim.layout.ConstrainedElement;
 import solim.layout.Row;
-import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
 import solim.overlay.Hud;
 import solim.signal.Computed;
@@ -33,68 +32,7 @@ import solim.ui.ParentStack;
  */
 public final class Button implements Component {
 
-	public static class SizedButton extends arc.scene.ui.Button implements ConstrainedElement {
-		private final SizeConstraints constraints = new SizeConstraints();
-		private float customPrefWidth = -1f;
-		private float customPrefHeight = -1f;
-
-		public SizedButton() {
-			this(null);
-		}
-
-		public SizedButton(@Nullable ButtonStyle style) {
-			super(style != null ? style : new ButtonStyle());
-		}
-
-		@Override
-		public SizeConstraints getSizeConstraints() {
-			return constraints;
-		}
-
-		public SizedButton growX() {
-			constraints.growX = true;
-			constraints.applyGrowToParentCell(this);
-			return this;
-		}
-
-		public SizedButton growY() {
-			constraints.growY = true;
-			constraints.applyGrowToParentCell(this);
-			return this;
-		}
-
-		public SizedButton grow() {
-			return growX().growY();
-		}
-
-		public void setCustomPrefWidth(float width) {
-			this.customPrefWidth = width;
-			invalidateHierarchy();
-		}
-
-		public void setCustomPrefHeight(float height) {
-			this.customPrefHeight = height;
-			invalidateHierarchy();
-		}
-
-		@Override
-		public float getPrefWidth() {
-			return customPrefWidth >= 0 ? customPrefWidth : super.getPrefWidth();
-		}
-
-		@Override
-		public float getPrefHeight() {
-			return customPrefHeight >= 0 ? customPrefHeight : super.getPrefHeight();
-		}
-
-		@Override
-		public boolean notify(SceneEvent event, boolean capture) {
-			if (getScene() == null) return false;
-			return super.notify(event, capture);
-		}
-	}
-
-	private final SizedButton sizedButton;
+	private final arc.scene.ui.Button button;
 	private final List<Disposable> bindings = new ArrayList<>();
 	private boolean stopClickPropagation = true;
 	private @Nullable Runnable onClick;
@@ -106,31 +44,31 @@ public final class Button implements Component {
 	private boolean hasLongClickListener = false;
 
 	public Button() {
-		this(new SizedButton());
+		this(new arc.scene.ui.Button(new ButtonStyle()));
 	}
 
 	public Button(@Nullable ButtonStyle style) {
-		this(new SizedButton(style));
+		this(new arc.scene.ui.Button(style != null ? style : new ButtonStyle()));
 	}
 
 	public Button(@Nullable Runnable onClick) {
-		this(new SizedButton());
+		this();
 		onClick(onClick);
 	}
 
 	public Button(@Nullable ButtonStyle style, @Nullable Runnable onClick) {
-		this(new SizedButton(style));
+		this(style);
 		onClick(onClick);
 	}
 
-	public Button(SizedButton sizedButton) {
-		this.sizedButton = sizedButton;
-		this.sizedButton.name = "solim-button-sizedButton";
-		this.sizedButton.center();
+	public Button(arc.scene.ui.Button button) {
+		this.button = button;
+		this.button.name = "solim-button-sizedButton";
+		this.button.center();
 	}
 
 	public Button children(@Nullable Runnable r) {
-		ParentStack.push(sizedButton, Row.ATTACHER);
+		ParentStack.push(button, Row.ATTACHER);
 		try {
 			if (r != null) {
 				r.run();
@@ -166,11 +104,11 @@ public final class Button implements Component {
 	private void ensureClickListener() {
 		if (hasClickListener) return;
 		hasClickListener = true;
-		sizedButton.addListener(new ClickListener() {
+		button.addListener(new ClickListener() {
 			@Override
-			public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
-				if (sizedButton.getScene() == null) return false;
-				return super.touchDown(event, x, y, pointer, button);
+			public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode keyCode) {
+				if (Button.this.button.getScene() == null) return false;
+				return super.touchDown(event, x, y, pointer, keyCode);
 			}
 
 			@Override
@@ -196,8 +134,8 @@ public final class Button implements Component {
 	private void ensureLongClickListener() {
 		if (hasLongClickListener) return;
 		hasLongClickListener = true;
-		sizedButton.update(() -> {
-			if (sizedButton.isPressed()) {
+		button.update(() -> {
+			if (button.isPressed()) {
 				if (pressTime == -1L) {
 					pressTime = arc.util.Time.millis();
 					longPressed = false;
@@ -225,7 +163,7 @@ public final class Button implements Component {
 	public Button tooltip(@Nullable String tip) {
 		if (tip != null && !tip.isEmpty()) {
 			try {
-				sizedButton.addListener(new Tooltip(t -> t.add(tip)));
+				button.addListener(new Tooltip(t -> t.add(tip)));
 			} catch (Throwable ignored) {
 			}
 		}
@@ -235,7 +173,7 @@ public final class Button implements Component {
 	public Button tooltip(@Nullable Readable<String> tip) {
 		if (tip != null) {
 			try {
-				sizedButton.addListener(new Tooltip(t -> {
+				button.addListener(new Tooltip(t -> {
 					Label label = new Label("");
 					Effect e = Effect.of(() -> label.setText(tip.get() != null ? tip.get() : ""));
 					bindings.add(e);
@@ -250,7 +188,7 @@ public final class Button implements Component {
 
 	public Button enabled(@Nullable Readable<Boolean> signal) {
 		if (signal != null) {
-			Effect e = Effect.of(() -> sizedButton.setDisabled(!Boolean.TRUE.equals(signal.get())));
+			Effect e = Effect.of(() -> button.setDisabled(!Boolean.TRUE.equals(signal.get())));
 			bindings.add(e);
 			ComponentContext.register(e);
 		}
@@ -259,7 +197,7 @@ public final class Button implements Component {
 
 	public Button checked(@Nullable Readable<Boolean> signal) {
 		if (signal != null) {
-			Effect e = Effect.of(() -> sizedButton.setChecked(Boolean.TRUE.equals(signal.get())));
+			Effect e = Effect.of(() -> button.setChecked(Boolean.TRUE.equals(signal.get())));
 			bindings.add(e);
 			ComponentContext.register(e);
 		}
@@ -268,7 +206,7 @@ public final class Button implements Component {
 
 	public Button visible(@Nullable Readable<Boolean> signal) {
 		if (signal != null) {
-			Effect e = Effect.of(() -> sizedButton.visible = Boolean.TRUE.equals(signal.get()));
+			Effect e = Effect.of(() -> button.visible = Boolean.TRUE.equals(signal.get()));
 			bindings.add(e);
 			ComponentContext.register(e);
 		}
@@ -277,21 +215,21 @@ public final class Button implements Component {
 
 	public Button style(@Nullable Style style) {
 		if (style != null) {
-			StyleBinding.apply(sizedButton, style, (sb, s) -> {});
+			StyleBinding.apply(button, style, (sb, s) -> {});
 		}
 		return this;
 	}
 
 	public Button style(@Nullable ButtonStyle style) {
 		if (style != null) {
-			sizedButton.setStyle(style);
+			button.setStyle(style);
 		}
 		return this;
 	}
 
 	public Button style(@Nullable Signal<Style> s) {
 		if (s != null) {
-			Effect e = StyleBinding.bind(s, sizedButton, (sb, st) -> {});
+			Effect e = StyleBinding.bind(s, button, (sb, st) -> {});
 			bindings.add(e);
 			ComponentContext.register(e);
 		}
@@ -300,7 +238,7 @@ public final class Button implements Component {
 
 	public Button style(@Nullable Computed<Style> s) {
 		if (s != null) {
-			Effect e = StyleBinding.bind(s, sizedButton, (sb, st) -> {});
+			Effect e = StyleBinding.bind(s, button, (sb, st) -> {});
 			bindings.add(e);
 			ComponentContext.register(e);
 		}
@@ -308,7 +246,7 @@ public final class Button implements Component {
 	}
 
 	public Button width(float width) {
-		ElementModifiers.width(sizedButton, width);
+		ElementModifiers.width(button, width);
 		return this;
 	}
 
@@ -327,7 +265,7 @@ public final class Button implements Component {
 	}
 
 	public Button height(float height) {
-		ElementModifiers.height(sizedButton, height);
+		ElementModifiers.height(button, height);
 		return this;
 	}
 
@@ -346,12 +284,12 @@ public final class Button implements Component {
 	}
 
 	public Button size(float width, float height) {
-		ElementModifiers.size(sizedButton, width, height);
+		ElementModifiers.size(button, width, height);
 		return this;
 	}
 
 	public Button size(float size) {
-		ElementModifiers.size(sizedButton, size);
+		ElementModifiers.size(button, size);
 		return this;
 	}
 
@@ -370,12 +308,26 @@ public final class Button implements Component {
 	}
 
 	public Button growX() {
-		sizedButton.growX();
+		button.userObject = "expanding";
+		if (button.parent instanceof Table) {
+			Cell<?> cell = ((Table) button.parent).getCell(button);
+			if (cell != null) {
+				cell.growX();
+				((Table) button.parent).invalidateHierarchy();
+			}
+		}
 		return this;
 	}
 
 	public Button growY() {
-		sizedButton.growY();
+		button.userObject = "expanding";
+		if (button.parent instanceof Table) {
+			Cell<?> cell = ((Table) button.parent).getCell(button);
+			if (cell != null) {
+				cell.growY();
+				((Table) button.parent).invalidateHierarchy();
+			}
+		}
 		return this;
 	}
 
@@ -384,12 +336,12 @@ public final class Button implements Component {
 	}
 
 	public Button gap(float g) {
-		ElementModifiers.gap(sizedButton, g);
+		ElementModifiers.gap(button, g);
 		return this;
 	}
 
 	public Button margin(float m) {
-		sizedButton.margin(m);
+		button.margin(m);
 		return this;
 	}
 
@@ -408,61 +360,65 @@ public final class Button implements Component {
 	}
 
 	public Button margin(float top, float left, float bottom, float right) {
-		sizedButton.margin(top, left, bottom, right);
+		button.margin(top, left, bottom, right);
 		return this;
 	}
 
 	public Button x(float x) {
-		ElementModifiers.x(sizedButton, x);
+		ElementModifiers.x(button, x);
 		return this;
 	}
 
 	public Button y(float y) {
-		ElementModifiers.y(sizedButton, y);
+		ElementModifiers.y(button, y);
 		return this;
 	}
 
 	public Button position(float x, float y) {
-		ElementModifiers.position(sizedButton, x, y);
+		ElementModifiers.position(button, x, y);
 		return this;
 	}
 
 	public Button left() {
-		sizedButton.left();
-		sizedButton.defaults().left();
+		button.left();
+		button.defaults().left();
 		return this;
 	}
 
 	public Button right() {
-		sizedButton.right();
-		sizedButton.defaults().right();
+		button.right();
+		button.defaults().right();
 		return this;
 	}
 
 	public Button center() {
-		sizedButton.center();
-		sizedButton.defaults().center();
+		button.center();
+		button.defaults().center();
 		return this;
 	}
 
 	public Button top() {
-		sizedButton.top();
-		sizedButton.defaults().top();
+		button.top();
+		button.defaults().top();
 		return this;
 	}
 
 	public Button bottom() {
-		sizedButton.bottom();
-		sizedButton.defaults().bottom();
+		button.bottom();
+		button.defaults().bottom();
 		return this;
 	}
 
-	public SizedButton sizedButton() {
-		return sizedButton;
+	public arc.scene.ui.Button button() {
+		return button;
+	}
+
+	public arc.scene.ui.Button sizedButton() {
+		return button;
 	}
 
 	public Button name(String name) {
-		ElementModifiers.name(sizedButton, name);
+		ElementModifiers.name(button, name);
 		return this;
 	}
 
@@ -475,18 +431,18 @@ public final class Button implements Component {
 	}
 
 	public Button draggable(@Nullable Hud hud) {
-		ElementModifiers.draggable(sizedButton, hud);
+		ElementModifiers.draggable(button, hud);
 		return this;
 	}
 
 	public Button draggable(@Nullable Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
-		ElementModifiers.draggable(sizedButton, hud, xSignal, ySignal);
+		ElementModifiers.draggable(button, hud, xSignal, ySignal);
 		return this;
 	}
 
 	@Override
 	public Element element() {
-		return sizedButton;
+		return button;
 	}
 
 	@Override

@@ -16,8 +16,6 @@ import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.display.SolimImage;
 import solim.display.Text;
-import solim.layout.ConstrainedElement;
-import solim.layout.SizeConstraints;
 
 /**
  * Implicit parent stack for declarative UI construction with guaranteed cleanup. Supports
@@ -184,16 +182,19 @@ public final class ParentStack {
 				} else {
 					cell = parent.add(child);
 				}
-				// Apply size constraints stored on the child element to the parent cell.
-				if (cell != null && child instanceof ConstrainedElement) {
-					SizeConstraints constraints = ((ConstrainedElement) child).getSizeConstraints();
-					List<Disposable> effects = constraints.applyToCell(cell);
-					for (Disposable effect : effects) {
-						ComponentContext.register(effect);
+				if (cell != null) {
+					solim.layout.SizeConstraints constraints = null;
+					if (child.userObject instanceof solim.layout.LayoutModifiers) {
+						constraints = ((solim.layout.LayoutModifiers<?>) child.userObject).sizeConstraints();
+					} else if (child.userObject instanceof solim.layout.SizeConstraints) {
+						constraints = (solim.layout.SizeConstraints) child.userObject;
 					}
-				}
-				if (child instanceof SolimImage.SizedImage) {
-					((SolimImage.SizedImage) child).applySpacing();
+					if (constraints != null) {
+						List<Disposable> effects = constraints.applyToCell(cell);
+						for (Disposable effect : effects) {
+							ComponentContext.register(effect);
+						}
+					}
 				}
 			}
 		}

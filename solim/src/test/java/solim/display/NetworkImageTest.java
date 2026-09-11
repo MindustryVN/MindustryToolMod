@@ -117,7 +117,7 @@ class NetworkImageTest {
 
 		assertEquals(64f, img.sizeConstraints().prefWidth.get());
 		assertEquals(48f, img.sizeConstraints().prefHeight.get());
-		assertEquals(Scaling.fill, img.image().getScaling());
+		assertEquals(Scaling.fill, img.getScaling());
 		img.dispose();
 	}
 
@@ -132,8 +132,8 @@ class NetworkImageTest {
 		NetworkImage img = new NetworkImage("https://example.com/large-avatar.png")
 				.size(32f, 32f);
 
-		assertEquals(32f, img.image().getPrefWidth(), "Pref width must remain locked to explicit 32f");
-		assertEquals(32f, img.image().getPrefHeight(), "Pref height must remain locked to explicit 32f");
+		assertEquals(32f, img.sizeConstraints().prefWidth.get(), "Pref width must remain locked to explicit 32f");
+		assertEquals(32f, img.sizeConstraints().prefHeight.get(), "Pref height must remain locked to explicit 32f");
 		img.dispose();
 	}
 }

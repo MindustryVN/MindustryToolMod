@@ -13,11 +13,8 @@ import mindustry.gen.Tex;
 import mindustry.graphics.Pal;
 import mindustry.ui.Fonts;
 import mindustry.world.blocks.power.PowerGraph;
-import solim.layout.ConstrainedElement;
-import solim.layout.SizeConstraints;
 
-public class SplitBar extends Element implements ConstrainedElement {
-    private final SizeConstraints constraints = new SizeConstraints();
+public class SplitBar extends Element {
     private final Seq<PowerGraph> graphs;
     private final Mode mode;
     private final float fontScale;
@@ -37,13 +34,7 @@ public class SplitBar extends Element implements ConstrainedElement {
         this.mode = mode;
         this.scaleSupplier = scaleSupplier;
         this.fontScale = scaleSupplier != null ? scaleSupplier.get() : 1f;
-        this.constraints.growX = true;
         this.userObject = "expanding";
-    }
-
-    @Override
-    public SizeConstraints getSizeConstraints() {
-        return constraints;
     }
 
     @Override

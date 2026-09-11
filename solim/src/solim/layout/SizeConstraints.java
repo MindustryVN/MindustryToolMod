@@ -128,6 +128,26 @@ public final class SizeConstraints {
 	}
 
 	/**
+	 * Immediately applies size constraints to the element's parent cell if the element is
+	 * already attached to a parent Table.
+	 */
+	public void applySizeToParentCell(@Nullable Element element) {
+		if (element != null && element.parent instanceof Table) {
+			Table parentTable = (Table) element.parent;
+			Cell<?> cell = parentTable.getCell(element);
+			if (cell != null) {
+				if (prefWidth != null && prefWidth.get() != null) cell.width(Math.max(0f, prefWidth.get()));
+				if (prefHeight != null && prefHeight.get() != null) cell.height(Math.max(0f, prefHeight.get()));
+				if (minWidth != null && minWidth.get() != null) cell.minWidth(Math.max(0f, minWidth.get()));
+				if (minHeight != null && minHeight.get() != null) cell.minHeight(Math.max(0f, minHeight.get()));
+				if (maxWidth != null && maxWidth.get() != null) cell.maxWidth(Math.max(0f, maxWidth.get()));
+				if (maxHeight != null && maxHeight.get() != null) cell.maxHeight(Math.max(0f, maxHeight.get()));
+				parentTable.invalidateHierarchy();
+			}
+		}
+	}
+
+	/**
 	 * Immediately applies margin constraints to the element's parent cell if the element is
 	 * already attached to a parent Table.
 	 */
