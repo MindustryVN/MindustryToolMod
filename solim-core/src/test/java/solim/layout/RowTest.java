@@ -149,4 +149,19 @@ class RowTest {
 		Row row = new Row();
 		assertNotNull(row.sizeConstraints());
 	}
+
+	@Test
+	void childRowWithWidthActsAsSpacerInParentRow() {
+		Row parent = new Row();
+		Row child = new Row();
+		parent.children(() -> {
+			child.width(40f).minWidth(40f).children(() -> {});
+		});
+
+		assertEquals(1, parent.table().getChildren().size);
+		assertSame(child.table(), parent.table().getChildren().get(0));
+		arc.scene.ui.layout.Cell<?> cell = parent.table().getCell(child.table());
+		assertNotNull(cell);
+		assertEquals(40f, arc.scene.ui.layout.CellAccess.minWidth(cell), 0.01f);
+	}
 }
