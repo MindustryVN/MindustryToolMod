@@ -20,10 +20,10 @@ import mindustry.gen.SendMessageCallPacket;
 import mindustry.gen.SendMessageCallPacket2;
 import mindustry.input.Binding;
 import mindustrytool.components.FileIcon;
-import mindustrytool.config.ConfigGroup;
-import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
+import solim.config.ConfigGroup;
+import solim.config.ConfigValue;
 import mindustrytool.features.translation.providers.DeepLTranslationProvider;
 import mindustrytool.features.translation.providers.DevXTranslationProvider;
 import mindustrytool.features.translation.providers.GeminiTranslationProvider;
@@ -102,7 +102,7 @@ public class TranslationFeature extends Feature {
 				.quickAccess(true)
 				.build());
 
-		config = ConfigGroup.of(getMetadata());
+		config = configGroup();
 
 		providerConfig = config.stringValue("provider", GeminiTranslationProvider.ID);
 		showOriginalConfig = config.boolValue("show-original", true);

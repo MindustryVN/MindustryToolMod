@@ -13,10 +13,10 @@ import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.graphics.MenuRenderer;
 import mindustrytool.Folders;
-import mindustrytool.config.ConfigGroup;
-import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
+import solim.config.ConfigGroup;
+import solim.config.ConfigValue;
 
 public class BackgroundFeature extends Feature {
 
@@ -34,7 +34,7 @@ public class BackgroundFeature extends Feature {
                 .icon(Icon.image)
                 .build());
 
-        config = ConfigGroup.of(getMetadata());
+        config = configGroup();
 
         pathConfig = config.stringValue("path", "");
         opacityConfig = config.intValue("opacity", 100);

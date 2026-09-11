@@ -11,10 +11,10 @@ import java.util.Set;
 import mindustry.Vars;
 import mindustry.game.EventType.ResizeEvent;
 import mindustry.gen.Icon;
-import mindustrytool.config.ConfigGroup;
-import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
+import solim.config.ConfigGroup;
+import solim.config.ConfigValue;
 import solim.signal.Signal;
 
 public class QuickAccessFeature extends Feature {
@@ -48,7 +48,7 @@ public class QuickAccessFeature extends Feature {
                 .quickAccess(false)
                 .build());
 
-        config = ConfigGroup.of(getMetadata());
+        config = configGroup();
 
         opacityConfig = config.floatValue("opacity", 1f);
         scaleConfig = config.floatValue("scale", 1f);

@@ -41,6 +41,7 @@ import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
+import solim.signal.Signals;
 import solim.ui.Dynamic;
 import solim.ui.ForEach;
 import solim.ui.ParentStack;
@@ -434,6 +435,10 @@ public final class UI {
 
     public static <T> Signal<T> createSignal(Function<Runnable, Disposable> callbackRegistrar, Supplier<T> supplier) {
         return EventsUtil.createSignal(callbackRegistrar, supplier);
+    }
+
+    public static Readable<Boolean> isPortrait() {
+        return Signals.isPortrait();
     }
 
     // --- Structural & Dynamic ---

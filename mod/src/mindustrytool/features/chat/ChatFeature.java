@@ -5,13 +5,13 @@ import arc.scene.Element;
 import arc.scene.ui.Dialog;
 import arc.util.Nullable;
 import mindustry.gen.Icon;
-import mindustrytool.config.ConfigGroup;
-import mindustrytool.config.ConfigValue;
-import mindustrytool.config.ContextualConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
-import mindustrytool.features.OrientationSignal;
+import solim.config.ConfigGroup;
+import solim.config.ConfigValue;
+import solim.config.ContextualConfigValue;
 import solim.signal.Signal;
+import solim.signal.Signals;
 import solim.ui.Units;
 
 public class ChatFeature extends Feature {
@@ -48,7 +48,7 @@ public class ChatFeature extends Feature {
                 .quickAccess(true)
                 .build());
 
-        config = ConfigGroup.of(getMetadata());
+        config = configGroup();
 
         opacityConfig = config.floatValue("opacity", 1.0f);
         widthRatioConfig = config.floatValue("width-ratio", 0.6f);
@@ -65,10 +65,10 @@ public class ChatFeature extends Feature {
         float defExpX = sw > 0 ? Math.max(20f, (sw - 600f) / 2f) : 40f;
         float defExpY = sh > 0 ? Math.max(20f, (sh - 400f) / 2f) : 60f;
 
-        collapsedXConfig = collapsedGroup.floatValueKeyed("x", OrientationSignal.isPortrait(), p -> p ? "portrait" : "landscape", defColX);
-        collapsedYConfig = collapsedGroup.floatValueKeyed("y", OrientationSignal.isPortrait(), p -> p ? "portrait" : "landscape", defColY);
-        expandedXConfig = expandedGroup.floatValueKeyed("x", OrientationSignal.isPortrait(), p -> p ? "portrait" : "landscape", defExpX);
-        expandedYConfig = expandedGroup.floatValueKeyed("y", OrientationSignal.isPortrait(), p -> p ? "portrait" : "landscape", defExpY);
+        collapsedXConfig = collapsedGroup.floatValueKeyed("x", Signals.isPortrait(), p -> p ? "portrait" : "landscape", defColX);
+        collapsedYConfig = collapsedGroup.floatValueKeyed("y", Signals.isPortrait(), p -> p ? "portrait" : "landscape", defColY);
+        expandedXConfig = expandedGroup.floatValueKeyed("x", Signals.isPortrait(), p -> p ? "portrait" : "landscape", defExpX);
+        expandedYConfig = expandedGroup.floatValueKeyed("y", Signals.isPortrait(), p -> p ? "portrait" : "landscape", defExpY);
 
         boolean isCol = Boolean.TRUE.equals(collapsedConfig.get());
         Float initX = isCol ? collapsedXConfig.get() : expandedXConfig.get();

@@ -13,10 +13,10 @@ import mindustry.game.EventType.ResizeEvent;
 import mindustry.game.EventType.WorldLoadEvent;
 import mindustry.gen.Icon;
 import mindustrytool.components.FileIcon;
-import mindustrytool.config.ConfigGroup;
-import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
+import solim.config.ConfigGroup;
+import solim.config.ConfigValue;
 import solim.signal.Signal;
 
 /**
@@ -63,7 +63,7 @@ public class TeamResourceFeature extends Feature {
                 .quickAccess(true)
                 .build());
 
-        config = ConfigGroup.of(getMetadata());
+        config = configGroup();
 
         opacityConfig = config.floatValue("opacity", 1f);
         scaleConfig = config.floatValue("scale", 1f);
