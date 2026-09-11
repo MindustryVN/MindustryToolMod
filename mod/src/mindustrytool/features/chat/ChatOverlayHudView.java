@@ -79,9 +79,10 @@ public class ChatOverlayHudView extends BaseComponent {
     }
 
     private Component buildCollapsedBadge() {
-        Readable<Boolean> isConnected = store.connected();
+        Readable<Boolean> hasUnread = store.unreadCount().map(count -> count != null && count > 0);
 
-        return card(Styles.black8)
+        return card()
+                .rounded(10, new Color(0f, 0f, 0f, 0.6f))
                 .children(() -> {
                     button(() -> {
                         feature.collapsedConfig.set(false);
@@ -93,13 +94,10 @@ public class ChatOverlayHudView extends BaseComponent {
                             .children(() -> {
                                 component(new SolimStack()
                                         .layer(() -> image(Icon.chat).size(unit(5), unit(5)).color(Color.white))
-                                        .layer(() -> row().bottom().right().children(() -> {
+                                        .layer(() -> row().top().right().pad(unit(0.5f)).visible(hasUnread).children(() -> {
                                             image(Tex.whiteui)
                                                     .size(unit(1.5f), unit(1.5f))
-                                                    .color(isConnected.map(c -> Boolean.TRUE.equals(c) ? Pal.heal : Color.scarlet));
-                                        }))
-                                        .layer(() -> row().top().right().children(() -> {
-                                            badgeCount(store.unreadCount());
+                                                    .color(Color.scarlet);
                                         })));
                             });
                 });

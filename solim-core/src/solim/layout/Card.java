@@ -252,6 +252,62 @@ public final class Card implements Component, LayoutModifiers<Card> {
 		return this;
 	}
 
+	public Card rounded(int radius) {
+		return rounded(radius, (Color) null);
+	}
+
+	public Card rounded(int radius, @Nullable Color color) {
+		solim.graphics.RoundedDrawable rd = ElementModifiers.rounded(cardButton, radius, color);
+		if (rd != null) {
+			Button.ButtonStyle s = cardButton.getStyle();
+			if (s == null) {
+				s = new Button.ButtonStyle();
+				cardButton.setStyle(s);
+			}
+			s.up = rd;
+		}
+		return this;
+	}
+
+	public Card rounded(int radius, @Nullable Readable<Color> color) {
+		solim.graphics.RoundedDrawable rd = ElementModifiers.rounded(cardButton, radius, color);
+		if (rd != null) {
+			Button.ButtonStyle s = cardButton.getStyle();
+			if (s == null) {
+				s = new Button.ButtonStyle();
+				cardButton.setStyle(s);
+			}
+			s.up = rd;
+		}
+		return this;
+	}
+
+	public Card border(float stroke, @Nullable Color color) {
+		solim.graphics.RoundedDrawable rd = ElementModifiers.border(cardButton, stroke, color);
+		if (rd != null) {
+			Button.ButtonStyle s = cardButton.getStyle();
+			if (s == null) {
+				s = new Button.ButtonStyle();
+				cardButton.setStyle(s);
+			}
+			s.up = rd;
+		}
+		return this;
+	}
+
+	public Card border(float stroke, @Nullable Readable<Color> color) {
+		solim.graphics.RoundedDrawable rd = ElementModifiers.border(cardButton, stroke, color);
+		if (rd != null) {
+			Button.ButtonStyle s = cardButton.getStyle();
+			if (s == null) {
+				s = new Button.ButtonStyle();
+				cardButton.setStyle(s);
+			}
+			s.up = rd;
+		}
+		return this;
+	}
+
 	@Override
 	public void dispose() {
 		for (Disposable d : bindings) {

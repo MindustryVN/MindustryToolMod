@@ -289,9 +289,9 @@ public class ChatMessageListView extends BaseComponent {
                                 .gap(unit(1.5f))
                                 .children(() -> {
                             // Left Avatar or indent spacer
-                            row().width(unit(10)).minWidth(unit(10)).top().left().children(() -> {
+                            row().width(unit(12)).minWidth(unit(12)).top().left().children(() -> {
                                 if (isFirst) {
-                                    new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(10));
+                                    new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(12));
                                 }
                             });
 
