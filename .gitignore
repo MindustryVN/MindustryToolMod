@@ -145,6 +145,7 @@ gradle-app.setting
 /build/
 /mod/build/
 /solim/build/
+/solim-mcp/build/
 /android/build/
 /core/build/
 /desktop/build/
