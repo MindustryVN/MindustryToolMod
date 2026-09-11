@@ -66,7 +66,7 @@ public class ChatChannelListView extends BaseComponent {
         private static final TextButtonStyle selectedStyle = new TextButtonStyle() {
             {
                 down = Styles.flatDown;
-                up =new ColoredDrawable(SELECTED_BG, Styles.flatOver);
+                up =new ColoredDrawable(SELECTED_BG, Tex.whiteui);
                 over = Styles.flatOver;
                 font = Fonts.def;
                 fontColor = Color.white;

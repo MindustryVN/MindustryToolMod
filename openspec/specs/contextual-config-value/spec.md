@@ -1,4 +1,9 @@
-## ADDED Requirements
+# contextual-config-value Specification
+
+## Purpose
+Enables configuration values to dynamically switch their backing persistence storage key based on an ambient reactive discriminant signal (such as screen orientation).
+
+## Requirements
 
 ### Requirement: ContextualConfigValue switches storage key on discriminant change
 `ContextualConfigValue<T, K>` SHALL be a reactive config value that accepts a `Readable<K>` discriminant and a `Function<K, String>` key-suffix mapper. When the discriminant emits a new value, the currently-active storage key SHALL change, the old value SHALL be persisted under the old key, the new value SHALL be loaded from `Core.settings` under the new key (falling back to `defaultValue`), and the reactive signal SHALL be updated to reflect the new value.

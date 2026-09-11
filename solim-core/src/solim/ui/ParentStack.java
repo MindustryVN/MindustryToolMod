@@ -170,6 +170,7 @@ public final class ParentStack {
 			return;
 		}
 		Entry entry = stack.peek();
+		attachPendingComponents(entry.table);
 		doAttach(entry.table, child, entry.attacher);
 	}
 
