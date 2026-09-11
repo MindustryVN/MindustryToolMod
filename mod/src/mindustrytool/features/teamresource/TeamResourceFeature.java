@@ -199,9 +199,12 @@ public class TeamResourceFeature extends Feature {
     @Override
     public void onDisable() {
         if (hudView != null) {
-            hudView.element().remove();
-            hudView.dispose();
+            TeamResourceHudView view = hudView;
             hudView = null;
+            Core.app.post(() -> {
+                view.element().remove();
+                view.dispose();
+            });
         }
         Core.settings.put("coreitems", true);
     }

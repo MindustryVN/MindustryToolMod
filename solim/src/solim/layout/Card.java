@@ -1,9 +1,11 @@
 package solim.layout;
 
 import arc.graphics.Color;
+import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
+import arc.scene.event.SceneEvent;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button;
 import arc.scene.ui.layout.Cell;
@@ -104,6 +106,12 @@ public final class Card implements Component, LayoutModifiers<Card> {
 			if (constraints == null) return super.getMaxHeight();
 			Float v = constraints.maxHeight != null ? constraints.maxHeight.get() : null;
 			return v != null ? Math.max(0f, v) : super.getMaxHeight();
+		}
+
+		@Override
+		public boolean notify(SceneEvent event, boolean capture) {
+			if (getScene() == null) return false;
+			return super.notify(event, capture);
 		}
 	}
 
@@ -277,6 +285,12 @@ public final class Card implements Component, LayoutModifiers<Card> {
 		this.onClick = onClick;
 		if (onClick != null) {
 			cardButton.addListener(new ClickListener() {
+				@Override
+				public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+					if (cardButton.getScene() == null) return false;
+					return super.touchDown(event, x, y, pointer, button);
+				}
+
 				@Override
 				public void clicked(InputEvent event, float x, float y) {
 					if (event != null && event.stopped) {

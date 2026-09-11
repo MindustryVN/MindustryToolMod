@@ -1,23 +1,41 @@
 package mindustrytool.services.auth;
 
+import static solim.ui.Ui.*;
+
 import arc.Core;
 import arc.Events;
+import arc.scene.Element;
 import arc.scene.event.Touchable;
-import arc.scene.ui.layout.Table;
-import arc.util.Align;
 import arc.util.Log;
+import arc.util.Nullable;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import mindustrytool.components.NetworkImage;
 import mindustrytool.events.LoginUriEvent;
 import mindustrytool.events.SessionLoadEvent;
+import mindustrytool.models.response.UserSession;
+import solim.core.Component;
+import solim.modifier.ElementModifiers;
+import solim.signal.Signal;
 
 public class AuthOverlay {
 	private static AuthOverlay instance;
 
-	private Table authWindow;
 	private AuthLoginDialog loginDialog;
+	private final Signal<AuthState> state = Signal.of(new AuthState(false, null, null));
+
+	public static class AuthState {
+		public final boolean isLoading;
+		public final @Nullable Throwable error;
+		public final @Nullable UserSession user;
+
+		public AuthState(boolean isLoading, @Nullable Throwable error, @Nullable UserSession user) {
+			this.isLoading = isLoading;
+			this.error = error;
+			this.user = user;
+		}
+	}
 
 	public static AuthOverlay getInstance() {
 		if (instance == null) {
@@ -33,77 +51,20 @@ public class AuthOverlay {
 	}
 
 	public void initUi() {
-		var wholeViewport = new Table();
-		wholeViewport.name = "authWindow";
-		wholeViewport.setFillParent(true);
-		wholeViewport.top().right();
-
-		authWindow = wholeViewport.table().get();
-
-		authWindow.top().right();
-		authWindow.touchable = Touchable.childrenOnly;
-
 		if (Vars.ui.menuGroup == null) {
 			Log.info("AuthOverlay init skipped: menuGroup null");
 			return;
 		}
 
-		Core.app.post(() -> Vars.ui.menuGroup.addChild(wholeViewport));
-
-		Table content = new Table();
-		content.setBackground(Styles.black6);
-
-		authWindow.add(content).top().right().margin(8f);
-		authWindow.toFront();
+		Core.app.post(() -> {
+			Element overlayEl = buildOverlay().element();
+			overlayEl.name = "authWindow";
+			Vars.ui.menuGroup.addChild(overlayEl);
+			overlayEl.toFront();
+		});
 
 		Events.on(SessionLoadEvent.class, e -> {
-			var user = e.user;
-			var error = e.error;
-			var isLoading = e.isLoading;
-
-			if (isLoading) {
-				content.clear();
-				content.add(Core.bundle.get("auth.session.loading"))
-						.wrapLabel(false)
-						.labelAlign(Align.left)
-						.padLeft(8);
-			} else if (error != null) {
-				content.clear();
-				content.add(Core.bundle.get("auth.session.error"))
-						.labelAlign(Align.left)
-						.padLeft(8);
-				content.add(error.getLocalizedMessage())
-						.labelAlign(Align.left)
-						.padLeft(8)
-						.row();
-				content.button(Core.bundle.get("auth.session.retry"), Icon.refresh, this::startLoginUI);
-
-				Log.err("Failed to load session", error);
-			} else if (user == null) {
-				content.clear();
-				content.button(Core.bundle.get("auth.login"), this::startLoginUI)
-						.wrapLabel(false);
-			} else {
-				content.clear();
-
-				if (user.getImageUrl() != null) {
-					content.add(new NetworkImage(user.getImageUrl())).size(64);
-				}
-
-				if (!Vars.mobile) {
-					content.add(user.getName()).labelAlign(Align.left).padLeft(8);
-				}
-
-				content.touchable = Touchable.enabled;
-				content.clicked(() -> {
-					Vars.ui.showConfirm(
-							Core.bundle.get("auth.logout.confirm-title"),
-							Core.bundle.format("auth.logout.confirm-message", user.getName()),
-							MindustryAuthProvider.getInstance()::logout);
-				});
-			}
-
-			content.pack();
+			state.set(new AuthState(e.isLoading, e.error, e.user));
 		});
 
 		Events.on(LoginUriEvent.class, e -> {
@@ -111,6 +72,86 @@ public class AuthOverlay {
 				Core.app.post(() -> loginDialog.showLoginUrl(e.loginUrl));
 			}
 		});
+	}
+
+	private Component buildOverlay() {
+		return row()
+				.fillParent()
+				.top()
+				.right()
+				.touchable(Touchable.childrenOnly)
+				.children(() -> {
+					dynamic(state, s -> {
+						if (s.isLoading) {
+							return row()
+									.top()
+									.right()
+									.margin(8f)
+									.background(Styles.black6)
+									.padding(unit(2))
+									.children(() -> {
+										text(Core.bundle.get("auth.session.loading"));
+									});
+						}
+
+						if (s.error != null) {
+							return row()
+									.top()
+									.right()
+									.margin(8f)
+									.background(Styles.black6)
+									.gap(unit(2))
+									.padding(unit(2))
+									.children(() -> {
+										text(Core.bundle.get("auth.session.error"));
+										String errText = s.error.getLocalizedMessage() != null
+												? s.error.getLocalizedMessage()
+												: "";
+										if (!errText.isEmpty()) {
+											text(errText);
+										}
+										button(Core.bundle.get("auth.session.retry"), Icon.refresh, this::startLoginUI);
+									});
+						}
+
+						if (s.user == null) {
+							return row()
+									.top()
+									.right()
+									.margin(8f)
+									.background(Styles.black6)
+									.padding(unit(2))
+									.children(() -> {
+										button(Core.bundle.get("auth.login"), this::startLoginUI);
+									});
+						}
+
+						UserSession user = s.user;
+						return card()
+								.top()
+								.right()
+								.margin(8f)
+								.background(Styles.black6)
+								.children(() -> {
+									row().gap(unit(2)).center().children(() -> {
+										if (user.getImageUrl() != null && !user.getImageUrl().isEmpty()) {
+											NetworkImage img = new NetworkImage(user.getImageUrl());
+											ElementModifiers.size(img, 64f);
+											element(img);
+										}
+										if (!Vars.mobile && user.getName() != null) {
+											text(user.getName());
+										}
+									});
+								})
+								.onClick(() -> {
+									Vars.ui.showConfirm(
+											Core.bundle.get("auth.logout.confirm-title"),
+											Core.bundle.format("auth.logout.confirm-message", user.getName()),
+											MindustryAuthProvider.getInstance()::logout);
+								});
+					});
+				});
 	}
 
 	public void startLoginUI() {
@@ -137,8 +178,6 @@ public class AuthOverlay {
 					});
 					return null;
 				});
-
-		// Update dialog with login URL via LoginUriEvent fired by MindustryAuthProvider.
 	}
 
 	public void showLoading() {

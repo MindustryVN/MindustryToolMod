@@ -229,6 +229,13 @@ public final class Ui {
         return img;
     }
 
+    public static <T extends Element> T element(T el) {
+        if (el != null) {
+            ParentStack.attachToParent(el);
+        }
+        return el;
+    }
+
     public static Button button() {
         Button b = new Button();
         ParentStack.attachToParent(b.element());
@@ -244,6 +251,25 @@ public final class Ui {
     public static Button button(String text, @Nullable Runnable onClick) {
         Button b = button(onClick);
         b.children(() -> text(text));
+        return b;
+    }
+
+    public static Button button(Readable<String> text, @Nullable Runnable onClick) {
+        Button b = button(onClick);
+        b.children(() -> text(text));
+        return b;
+    }
+
+    public static Button button(String text, Drawable icon, @Nullable Runnable onClick) {
+        Button b = button(onClick);
+        b.children(() -> {
+            if (icon != null) {
+                image(icon);
+            }
+            if (text != null) {
+                text(text);
+            }
+        });
         return b;
     }
 

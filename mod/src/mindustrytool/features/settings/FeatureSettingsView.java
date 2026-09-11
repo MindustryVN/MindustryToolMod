@@ -17,9 +17,9 @@ import solim.signal.Signal;
 public final class FeatureSettingsView extends BaseComponent {
     private final Signal<String> filter = Signal.of("");
     private final Computed<Float> contentWidth = dvw(90f).map(w -> w - unit(10));
-    private final Computed<Integer> columnCount = new Computed<>(() -> Math.max(1, (int) (contentWidth.get() / 400f)));
-    private final Computed<Seq<Feature>> filteredFeatures = new Computed<>(
-            () -> FeatureManager.getFeatures().select(f -> matchesFilter(f, filter.get().trim().toLowerCase())));
+    private final Computed<Integer> columnCount = contentWidth.map(w -> Math.max(1, (int) (w / 400f)));
+    private final Computed<Seq<Feature>> filteredFeatures = filter.map(
+            q -> FeatureManager.getFeatures().select(f -> matchesFilter(f, q != null ? q.trim().toLowerCase() : "")));
 
     @Override
     protected Element build() {

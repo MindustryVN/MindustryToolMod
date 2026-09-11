@@ -1,5 +1,6 @@
 package solim.layout;
 
+import arc.Core;
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
@@ -99,7 +100,13 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 		Effect.of(() -> {
 			Iterable<T> itemList = items.get();
 			int cols = Math.max(1, columnCount.get() != null ? columnCount.get() : 1);
-			updateItemsAndReflow(itemList, cols);
+			if (table.getScene() != null && Core.app != null) {
+				Core.app.post(() -> {
+					updateItemsAndReflow(itemList, cols);
+				});
+			} else {
+				updateItemsAndReflow(itemList, cols);
+			}
 		});
 
 		return table;

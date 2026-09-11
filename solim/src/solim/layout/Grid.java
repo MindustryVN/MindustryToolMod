@@ -11,6 +11,7 @@ import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 /** Simple grid with fixed or reactive column count and customizable gap. */
 public final class Grid implements Component, LayoutModifiers<Grid> {
@@ -99,6 +100,10 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 		ElementModifiers.gap(table, gap);
 		ParentStack.push(table, (tbl, child) -> {
 			Cell<?> cell = tbl.add(child).pad(gap / 2f);
+			if (Ui.isExpanding(child)) {
+				cell.growX().fillX();
+			}
+			cell.uniformX();
 			if (++count[0] % Math.max(1, columns) == 0) {
 				tbl.row();
 			}
@@ -122,7 +127,11 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 		ElementModifiers.gap(table, gap);
 		int col = 0;
 		for (Element child : children) {
-			table.add(child).pad(gap / 2f);
+			Cell<?> cell = table.add(child).pad(gap / 2f);
+			if (Ui.isExpanding(child)) {
+				cell.growX().fillX();
+			}
+			cell.uniformX();
 			if (++col % Math.max(1, columns) == 0) {
 				table.row();
 			}
@@ -132,7 +141,11 @@ public final class Grid implements Component, LayoutModifiers<Grid> {
 
 	/** Add a child element to the grid; wraps to next row when columns exceeded. */
 	public Grid add(Element child) {
-		table.add(child).pad(gap / 2f);
+		Cell<?> cell = table.add(child).pad(gap / 2f);
+		if (Ui.isExpanding(child)) {
+			cell.growX().fillX();
+		}
+		cell.uniformX();
 		currentCell++;
 		if (currentCell >= columns) {
 			table.row();

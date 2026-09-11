@@ -111,7 +111,11 @@ public class SolimDialog extends BaseDialog implements Component {
         return this;
     }
 
-    public SolimDialog actionButton(String text, Drawable icon, float width, float height, Runnable action) {
+    public SolimDialog actionButton(String text, float width, float height, Runnable action) {
+        return actionButton(text, null, width, height, action);
+    }
+
+    public SolimDialog actionButton(String text, @Nullable Drawable icon, float width, float height, Runnable action) {
         if (buttons != null) {
             Cell<?> cell;
             if (icon != null) {

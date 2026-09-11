@@ -6,10 +6,7 @@ import arc.Core;
 import arc.Events;
 import arc.func.Cons;
 import arc.graphics.Color;
-import arc.input.KeyCode;
 import arc.scene.Element;
-import arc.scene.event.InputEvent;
-import arc.scene.event.InputListener;
 import mindustry.Vars;
 import mindustry.game.EventType.ResizeEvent;
 import mindustry.gen.Icon;
@@ -21,8 +18,10 @@ import solim.core.Component;
 import solim.layout.Direction;
 import solim.layout.SolimStack;
 import solim.overlay.Hud;
+import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
+import solim.ui.Units;
 
 public class ChatOverlayHudView extends BaseComponent {
 
@@ -56,14 +55,7 @@ public class ChatOverlayHudView extends BaseComponent {
         hud.opacity(feature.opacityConfig.signal());
         hud.scale(feature.scaleConfig.signal());
         hud.position(feature.xSignal, feature.ySignal);
-
-        hud.root().addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
-                hud.root().toFront();
-                return false;
-            }
-        });
+        hud.toFrontOnTouch();
 
         Cons<ResizeEvent> resizeListener = e -> {
             keepInScreen();
@@ -72,11 +64,14 @@ public class ChatOverlayHudView extends BaseComponent {
         Events.on(ResizeEvent.class, resizeListener);
         own(() -> Events.remove(ResizeEvent.class, resizeListener));
 
+        own(Effect.of(() -> {
+            isCollapsed.get();
+            Core.app.post(this::keepInScreen);
+        }));
+
         Core.app.post(() -> {
             if (hud != null) {
-                hud.root().invalidateHierarchy();
-                hud.pack();
-                hud.keepInScreen();
+                keepInScreen();
                 hud.root().toFront();
             }
         });
@@ -113,14 +108,16 @@ public class ChatOverlayHudView extends BaseComponent {
 
     private Component buildExpandedWindow() {
         Readable<Float> winWidth = feature.widthRatioConfig.signal().map(r -> {
-            float sw = Core.graphics.getWidth();
+            float sw = Units.screenWidth();
             float ratio = r != null ? r : 0.6f;
-            return Math.max(320f, sw * Math.max(0.3f, Math.min(1.0f, ratio)));
+            float target = sw * Math.max(0.3f, Math.min(0.95f, ratio));
+            return Math.max(320f, Math.min(sw * 0.95f, target));
         });
         Readable<Float> winHeight = feature.heightRatioConfig.signal().map(r -> {
-            float sh = Core.graphics.getHeight();
+            float sh = Units.screenHeight();
             float ratio = r != null ? r : 0.6f;
-            return Math.max(240f, sh * Math.max(0.3f, Math.min(1.0f, ratio)));
+            float target = sh * Math.max(0.3f, Math.min(0.95f, ratio));
+            return Math.max(240f, Math.min(sh * 0.95f, target));
         });
 
         Readable<Boolean> isConnected = store.connected();
@@ -224,6 +221,8 @@ public class ChatOverlayHudView extends BaseComponent {
 
     public void keepInScreen() {
         if (hud != null) {
+            hud.root().invalidateHierarchy();
+            hud.pack();
             hud.keepInScreen();
         }
     }

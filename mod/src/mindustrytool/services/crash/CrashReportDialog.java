@@ -1,10 +1,12 @@
 package mindustrytool.services.crash;
 
+import static solim.ui.Ui.*;
+
 import arc.Core;
 import arc.files.Fi;
-import arc.scene.ui.layout.Scl;
 import arc.util.Log;
-import mindustry.ui.dialogs.BaseDialog;
+import solim.overlay.SolimDialog;
+import solim.signal.Signal;
 
 /**
  * UI dialog for crash report opt-in and submission. Single Responsibility: render consent UI and
@@ -12,47 +14,40 @@ import mindustry.ui.dialogs.BaseDialog;
  * mindustrytool.services.MindustryTool} through the injected sender, never constructing {@code
  * HttpClient}/{@code HttpRequest} or {@code arc.util.Http} directly.
  */
-public class CrashReportDialog extends BaseDialog {
+public class CrashReportDialog extends SolimDialog {
 
 	private static final String KEY_SEND = "mindustrytool.crash-report.send";
 
 	public CrashReportDialog(Fi file, String data, CrashSender sender) {
-		super("@crash-report.title");
-		name = "crashReportDialog";
+		super(Core.bundle.get("crash-report.title"));
+		name("crashReportDialog");
 
 		boolean sendCrashReport = Core.settings.getBool(KEY_SEND, true);
+		Signal<Boolean> sendSignal = Signal.of(sendCrashReport);
+		sendSignal.subscribe(value -> Core.settings.put(KEY_SEND, Boolean.TRUE.equals(value)));
 
 		addCloseButton();
 		closeOnBack();
 
-		cont.table(container -> {
-					container
-							.add("@crash-report.content")
-							.padBottom(10f)
-							.wrapLabel(true)
+		String path = file != null ? file.absolutePath() : "";
+
+		content(() -> {
+			column().growX().gap(unit(2)).padding(unit(2)).children(() -> {
+				text(Core.bundle.get("crash-report.content"))
+						.wrap()
+						.width(500f);
+
+				checkbox(Core.bundle.get("crash-report.send"), sendSignal);
+
+				if (!path.isEmpty()) {
+					text(path)
 							.wrap()
-							.growX()
-							.row();
-					container
-							.check("@crash-report.send", sendCrashReport, value -> Core.settings.put(KEY_SEND, value))
-							.wrapLabel(false)
-							.growX()
-							.row();
-					// Show file path for context; not user-editable.
-					String path = file != null ? file.absolutePath() : "";
-					container
-							.add(path)
-							.padBottom(10f)
-							.wrapLabel(true)
-							.wrap()
-							.growX()
-							.row();
-					container.pack();
-				})
-				.width(Math.min(600, Core.graphics.getWidth() / Scl.scl() / 1.2f));
+							.width(500f);
+				}
+			});
+		});
 
 		// Send only on dialog hide if user still consents; captures sender/data via closure.
-		// Fixes race: checkbox listener already persisted choice, hidden reads latest value.
 		hidden(() -> {
 			if (!Core.settings.getBool(KEY_SEND, true)) return;
 			if (data == null || data.isEmpty()) return;

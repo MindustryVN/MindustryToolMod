@@ -87,7 +87,7 @@ public class BackgroundFeature extends Feature {
     public void applyBackground(Fi file) {
         if (!file.exists() || file.isDirectory()) {
             Core.app.post(() -> {
-                Vars.ui.showInfo("Background file invalid: " + file.absolutePath());
+                Vars.ui.showInfo(Core.bundle.format("feature.background.error.invalid-file", file.absolutePath()));
             });
             return;
         }

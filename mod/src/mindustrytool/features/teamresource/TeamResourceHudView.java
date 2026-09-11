@@ -6,16 +6,15 @@ import arc.Core;
 import arc.Events;
 import arc.func.Cons;
 import arc.graphics.Color;
-import arc.input.KeyCode;
+import arc.math.Mathf;
 import arc.scene.Element;
 import arc.scene.event.InputEvent;
 import arc.scene.event.InputListener;
 import arc.scene.style.Drawable;
 import arc.scene.style.TextureRegionDrawable;
+import arc.scene.ui.layout.Scl;
 import arc.util.Nullable;
 import arc.util.Scaling;
-import arc.math.Mathf;
-import arc.scene.ui.layout.Scl;
 import mindustry.Vars;
 import mindustry.game.EventType.ResizeEvent;
 import mindustry.game.Team;
@@ -92,10 +91,7 @@ public class TeamResourceHudView extends BaseComponent {
                             .children(() -> text(expanded.map(exp -> Boolean.TRUE.equals(exp) ? "▼" : "▶")));
 
                     // Team selector chips (horizontal scroll)
-                    Scroll teamScroll = scroll();
-                    if (teamScroll.pane() != null) {
-                        teamScroll.pane().setScrollingDisabled(false, true);
-                    }
+                    Scroll teamScroll = scroll().scrollingDisabled(false, true);
                     Readable<Float> maxTeamsWidth = hudWidth.map(w -> {
                         float scaleVal = scale.get() != null ? scale.get() : 1f;
                         return Math.max(60f * scaleVal, (w != null ? w : 220f) - 34f * 3.5f * scaleVal);
@@ -138,15 +134,7 @@ public class TeamResourceHudView extends BaseComponent {
         hud.background(bgDrawable);
         hud.opacity(feature.opacityConfig.signal());
         hud.position(feature.xSignal, feature.ySignal);
-
-        // Bring to front on touch
-        hud.root().addListener(new InputListener() {
-            @Override
-            public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
-                hud.root().toFront();
-                return false;
-            }
-        });
+        hud.toFrontOnTouch();
 
         // Screen resize clamping with automatic ownership cleanup
         Cons<ResizeEvent> resizeListener = e -> {
@@ -222,10 +210,10 @@ public class TeamResourceHudView extends BaseComponent {
                             unit -> createUnitCard(unit, unitCardHeight, iconSize, scale)
                         ).growX().gap(unit(1));
                     });
-                }).growX() : row());
+                }).growX() : row()).growX();
 
                 // Power Section
-                dynamic(feature.showPowerConfig.signal(), show -> Boolean.TRUE.equals(show) ? createPowerSection(scale) : row());
+                dynamic(feature.showPowerConfig.signal(), show -> Boolean.TRUE.equals(show) ? createPowerSection(scale) : row()).growX();
             });
         });
     }
@@ -329,7 +317,7 @@ public class TeamResourceHudView extends BaseComponent {
                     .children(() -> {
                         add(storedBar);
                     });
-            }).growX().gap(unit(1)) : row());
+            }).growX().gap(unit(1)) : row()).growX();
         }).growX().gap(unit(1));
     }
 

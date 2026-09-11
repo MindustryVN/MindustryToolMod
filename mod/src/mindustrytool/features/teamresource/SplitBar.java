@@ -38,6 +38,7 @@ public class SplitBar extends Element implements ConstrainedElement {
         this.scaleSupplier = scaleSupplier;
         this.fontScale = scaleSupplier != null ? scaleSupplier.get() : 1f;
         this.constraints.growX = true;
+        this.userObject = "expanding";
     }
 
     @Override

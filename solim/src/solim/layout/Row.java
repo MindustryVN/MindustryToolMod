@@ -1,6 +1,7 @@
 package solim.layout;
 
 import arc.scene.Element;
+import arc.scene.event.Touchable;
 import arc.scene.style.Drawable;
 import arc.scene.ui.layout.Cell;
 import arc.util.Nullable;
@@ -47,6 +48,20 @@ public final class Row implements Component, LayoutModifiers<Row> {
 
 	public Row name(String name) {
 		ElementModifiers.name(table, name);
+		return this;
+	}
+
+	public Row fillParent(boolean fillParent) {
+		table.setFillParent(fillParent);
+		return this;
+	}
+
+	public Row fillParent() {
+		return fillParent(true);
+	}
+
+	public Row touchable(Touchable touchable) {
+		table.touchable = touchable;
 		return this;
 	}
 

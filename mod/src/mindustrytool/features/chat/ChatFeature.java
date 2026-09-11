@@ -10,6 +10,7 @@ import mindustrytool.config.ConfigValue;
 import mindustrytool.features.Feature;
 import mindustrytool.features.FeatureMetadata;
 import solim.signal.Signal;
+import solim.ui.Units;
 
 public class ChatFeature extends Feature {
 
@@ -20,8 +21,13 @@ public class ChatFeature extends Feature {
     public final ConfigValue<Float> heightRatioConfig;
     public final ConfigValue<Boolean> collapsedConfig;
 
-    public final ConfigValue<Float> xConfig;
-    public final ConfigValue<Float> yConfig;
+    public final ConfigGroup collapsedGroup;
+    public final ConfigGroup expandedGroup;
+
+    public final ConfigValue<Float> collapsedXConfig;
+    public final ConfigValue<Float> collapsedYConfig;
+    public final ConfigValue<Float> expandedXConfig;
+    public final ConfigValue<Float> expandedYConfig;
 
     public final Signal<Float> xSignal;
     public final Signal<Float> ySignal;
@@ -35,7 +41,7 @@ public class ChatFeature extends Feature {
     public ChatFeature() {
         super(FeatureMetadata.builder()
                 .id("chat")
-                .icon(Icon.chat)
+                .icon(Icon.planet)
                 .order(20)
                 .enabledByDefault(true)
                 .quickAccess(true)
@@ -49,14 +55,57 @@ public class ChatFeature extends Feature {
         heightRatioConfig = config.floatValue("height-ratio", 0.6f);
         collapsedConfig = config.boolValue("collapsed", false);
 
-        float defX = 40f;
-        float defY = Core.graphics != null ? Core.graphics.getHeight() / 2f : 300f;
+        collapsedGroup = config.group("collapsed");
+        expandedGroup = config.group("expanded");
 
-        xConfig = config.floatValue("x", defX);
-        yConfig = config.floatValue("y", defY);
+        float sw = Units.screenWidth();
+        float sh = Units.screenHeight();
+        float defColX = sw > 0 ? Math.max(10f, sw - 140f) : 800f;
+        float defColY = sh > 0 ? Math.max(10f, sh - 60f) : 500f;
+        float defExpX = sw > 0 ? Math.max(20f, (sw - 600f) / 2f) : 40f;
+        float defExpY = sh > 0 ? Math.max(20f, (sh - 400f) / 2f) : 60f;
 
-        xSignal = xConfig.signal();
-        ySignal = yConfig.signal();
+        collapsedXConfig = collapsedGroup.floatValue("x", Core.settings.getFloat("mindustrytool.chat.collapsed.x", defColX));
+        collapsedYConfig = collapsedGroup.floatValue("y", Core.settings.getFloat("mindustrytool.chat.collapsed.y", defColY));
+        expandedXConfig = expandedGroup.floatValue("x", Core.settings.getFloat("mindustrytool.chat.expanded.x", defExpX));
+        expandedYConfig = expandedGroup.floatValue("y", Core.settings.getFloat("mindustrytool.chat.expanded.y", defExpY));
+
+        boolean isCol = Boolean.TRUE.equals(collapsedConfig.get());
+        Float initX = isCol ? collapsedXConfig.get() : expandedXConfig.get();
+        Float initY = isCol ? collapsedYConfig.get() : expandedYConfig.get();
+
+        xSignal = Signal.of(initX != null ? initX : (isCol ? defColX : defExpX));
+        ySignal = Signal.of(initY != null ? initY : (isCol ? defColY : defExpY));
+
+        xSignal.subscribe(val -> {
+            if (val != null) {
+                if (Boolean.TRUE.equals(collapsedConfig.get())) {
+                    collapsedXConfig.set(val);
+                } else {
+                    expandedXConfig.set(val);
+                }
+            }
+        });
+        ySignal.subscribe(val -> {
+            if (val != null) {
+                if (Boolean.TRUE.equals(collapsedConfig.get())) {
+                    collapsedYConfig.set(val);
+                } else {
+                    expandedYConfig.set(val);
+                }
+            }
+        });
+
+        collapsedConfig.signal().subscribe(col -> {
+            boolean isCollapsed = Boolean.TRUE.equals(col);
+            Float targetX = isCollapsed ? collapsedXConfig.get() : expandedXConfig.get();
+            Float targetY = isCollapsed ? collapsedYConfig.get() : expandedYConfig.get();
+            if (targetX != null) xSignal.set(targetX);
+            if (targetY != null) ySignal.set(targetY);
+            if (hudView != null) {
+                Core.app.post(hudView::keepInScreen);
+            }
+        });
 
         store = new ChatStore();
         service = new ChatService(store, () -> !Boolean.TRUE.equals(collapsedConfig.get()));
@@ -71,10 +120,25 @@ public class ChatFeature extends Feature {
     }
 
     public void resetPosition() {
-        float defX = 40f;
-        float defY = Core.graphics != null ? Core.graphics.getHeight() / 2f : 300f;
-        xConfig.set(defX);
-        yConfig.set(defY);
+        float sw = Units.screenWidth();
+        float sh = Units.screenHeight();
+        float defColX = sw > 0 ? Math.max(10f, sw - 140f) : 800f;
+        float defColY = sh > 0 ? Math.max(10f, sh - 60f) : 500f;
+        float defExpX = sw > 0 ? Math.max(20f, (sw - 600f) / 2f) : 40f;
+        float defExpY = sh > 0 ? Math.max(20f, (sh - 400f) / 2f) : 60f;
+
+        collapsedXConfig.set(defColX);
+        collapsedYConfig.set(defColY);
+        expandedXConfig.set(defExpX);
+        expandedYConfig.set(defExpY);
+
+        boolean isCol = Boolean.TRUE.equals(collapsedConfig.get());
+        xSignal.set(isCol ? defColX : defExpX);
+        ySignal.set(isCol ? defColY : defExpY);
+
+        if (hudView != null) {
+            Core.app.post(hudView::keepInScreen);
+        }
     }
 
     public void resetAppearance() {
@@ -112,9 +176,12 @@ public class ChatFeature extends Feature {
         service.stop();
 
         if (hudView != null) {
-            hudView.element().remove();
-            hudView.dispose();
+            ChatOverlayHudView view = hudView;
             hudView = null;
+            Core.app.post(() -> {
+                view.element().remove();
+                view.dispose();
+            });
         }
     }
 

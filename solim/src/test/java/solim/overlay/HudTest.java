@@ -387,4 +387,26 @@ class HudTest {
 		assertEquals(arc.scene.event.Touchable.enabled, handle.touchable, "Handle touchable should be set to enabled");
 		hud.dispose();
 	}
+
+	@Test
+	void keepInScreenOversizedAndClampingBothBounds() {
+		Hud hud = new Hud();
+		hud.element().setSize(1200f, 900f);
+		hud.position(500f, 500f);
+		hud.keepInScreen();
+
+		// Screen is 1024x768, oversized element should clamp to (0, 0)
+		assertEquals(0f, hud.element().x, 0.01f);
+		assertEquals(0f, hud.element().y, 0.01f);
+
+		// Now resize element to fit screen and place near edge
+		hud.element().setSize(500f, 300f);
+		hud.position(800f, 600f);
+		hud.keepInScreen();
+
+		assertEquals(524f, hud.element().x, 0.01f, "X should clamp to 1024 - 500 = 524");
+		assertEquals(468f, hud.element().y, 0.01f, "Y should clamp to 768 - 300 = 468");
+
+		hud.dispose();
+	}
 }

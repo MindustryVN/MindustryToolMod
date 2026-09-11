@@ -515,6 +515,8 @@ public final class ElementModifiers {
 
             @Override
             public boolean touchDown(InputEvent event, float x, float y, int pointer, KeyCode button) {
+                if (event != null && event.listenerActor != null && handle.getScene() == null)
+                    return false;
                 Hud targetHud = resolveHud();
                 if (targetHud == null)
                     return false;

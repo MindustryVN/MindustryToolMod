@@ -22,21 +22,25 @@ public final class FeatureSettingDialog extends SolimDialog {
         actionButton(
                 Core.bundle.get("feature.button.report-bug"),
                 Icon.infoCircle,
-                () -> Core.app.openURI(Config.DISCORD_INVITE_URL))
-                .setWidth(200);
+                200f,
+                64f,
+                () -> Core.app.openURI(Config.DISCORD_INVITE_URL));
 
-        actionButton("Copy UI tree", () -> {
-            UiNode root = new UiNode(
-                    "Scene", 0f, 0f, Core.graphics.getWidth(), Core.graphics.getHeight(), new ArrayList<>());
+        actionButton(
+                Core.bundle.get("feature.button.copy-ui-tree", "Copy UI tree"),
+                200f,
+                64f,
+                () -> {
+                    UiNode root = new UiNode(
+                            "Scene", 0f, 0f, Core.graphics.getWidth(), Core.graphics.getHeight(), new ArrayList<>());
 
-            discoverSolimElements(
-                    root,
-                    Core.scene.root,
-                    element -> isSolimElement(element) && element instanceof FeatureSettingDialog);
+                    discoverSolimElements(
+                            root,
+                            Core.scene.root,
+                            element -> isSolimElement(element) && element instanceof FeatureSettingDialog);
 
-            Core.app.setClipboardText(JsonUtils.toJsonPretty(root));
-        })
-                .setWidth(200);
+                    Core.app.setClipboardText(JsonUtils.toJsonPretty(root));
+                });
     }
 
     private void discoverSolimElements(UiNode parent, Element element, Predicate<Element> pred) {
@@ -65,13 +69,17 @@ public final class FeatureSettingDialog extends SolimDialog {
     }
 
     private boolean isSolimElement(Element element) {
-        Package pkg = element.getClass().getPackage();
-
-        return pkg != null && pkg.getName().startsWith("solim.") || isSolinPackage(getClass());
+        if (element == null) return false;
+        return isSolimClass(element.getClass());
     }
 
-    private boolean isSolinPackage(Class<?> clazz) {
-        return clazz.getPackageName().startsWith("solim.") || isSolinPackage(clazz.getSuperclass());
+    private boolean isSolimClass(Class<?> clazz) {
+        if (clazz == null || clazz == Object.class) return false;
+        Package pkg = clazz.getPackage();
+        if (pkg != null && pkg.getName().startsWith("solim.")) {
+            return true;
+        }
+        return isSolimClass(clazz.getSuperclass());
     }
 
     private UiNode createNode(Element element) {

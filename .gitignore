@@ -145,6 +145,7 @@ gradle-app.setting
 /build/
 /mod/build/
 /solim/build/
+/solim-mcp/build/
 /android/build/
 /core/build/
 /desktop/build/
@@ -159,11 +160,17 @@ android/libs/
 
 build.bat
 
+.env
 .vscode
+.agents/
 get-pip.py
 /venv/
 /archive
 build/
+.agent/skills/game-developer/
+.agent/skills/i18n-localization/
+.agent/skills/java-architect/
+mod/src/test/
 
 mindustry/
 archive/
@@ -172,4 +179,7 @@ arc/
 .bin
 backup/
 scratch/
+
+*_v*
+*_backup
 
