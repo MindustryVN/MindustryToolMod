@@ -139,6 +139,31 @@ public final class Badge implements Component, LayoutModifiers<Badge> {
         return this;
     }
 
+    public Badge rounded(int radius) {
+        ElementModifiers.rounded(table, radius);
+        return this;
+    }
+
+    public Badge rounded(int radius, @Nullable Color color) {
+        ElementModifiers.rounded(table, radius, color);
+        return this;
+    }
+
+    public Badge rounded(int radius, @Nullable Readable<Color> color) {
+        ElementModifiers.rounded(table, radius, color);
+        return this;
+    }
+
+    public Badge border(float stroke, @Nullable Color color) {
+        ElementModifiers.border(table, stroke, color);
+        return this;
+    }
+
+    public Badge border(float stroke, @Nullable Readable<Color> color) {
+        ElementModifiers.border(table, stroke, color);
+        return this;
+    }
+
     @Override
     public void dispose() {
         for (Disposable d : bindings) {

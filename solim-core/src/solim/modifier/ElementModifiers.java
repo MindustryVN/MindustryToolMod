@@ -1,5 +1,6 @@
 package solim.modifier;
 
+import arc.graphics.Color;
 import arc.input.KeyCode;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
@@ -11,6 +12,7 @@ import arc.scene.ui.Button;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
+import solim.graphics.RoundedDrawable;
 import solim.overlay.Hud;
 import solim.signal.Readable;
 import solim.signal.Signal;
@@ -567,5 +569,60 @@ public final class ElementModifiers {
             curr = curr.parent;
         }
         return false;
+    }
+
+    public static @Nullable RoundedDrawable rounded(@Nullable Element element, int radius) {
+        return rounded(element, radius, (Color) null);
+    }
+
+    public static @Nullable RoundedDrawable rounded(@Nullable Element element, int radius, @Nullable Color color) {
+        if (element == null) return null;
+        RoundedDrawable rd = getOrCreateRounded(element, radius);
+        rd.radius(radius);
+        if (color != null) {
+            rd.fillColor(color);
+        }
+        return rd;
+    }
+
+    public static @Nullable RoundedDrawable rounded(@Nullable Element element, int radius, @Nullable Readable<Color> color) {
+        if (element == null) return null;
+        RoundedDrawable rd = getOrCreateRounded(element, radius);
+        rd.radius(radius);
+        if (color != null) {
+            rd.fillColor(color);
+        }
+        return rd;
+    }
+
+    public static @Nullable RoundedDrawable border(@Nullable Element element, float stroke, @Nullable Color color) {
+        if (element == null) return null;
+        RoundedDrawable rd = getOrCreateRounded(element, 8);
+        rd.border(stroke, color != null ? color : Color.white);
+        return rd;
+    }
+
+    public static @Nullable RoundedDrawable border(@Nullable Element element, float stroke, @Nullable Readable<Color> color) {
+        if (element == null) return null;
+        RoundedDrawable rd = getOrCreateRounded(element, 8);
+        if (color != null) {
+            rd.border(stroke, color);
+        } else {
+            rd.border(stroke, Color.white);
+        }
+        return rd;
+    }
+
+    private static RoundedDrawable getOrCreateRounded(Element element, int defaultRadius) {
+        if (element instanceof Table) {
+            Table table = (Table) element;
+            if (table.getBackground() instanceof RoundedDrawable) {
+                return (RoundedDrawable) table.getBackground();
+            }
+            RoundedDrawable rd = new RoundedDrawable(defaultRadius);
+            table.setBackground(rd);
+            return rd;
+        }
+        return new RoundedDrawable(defaultRadius);
     }
 }

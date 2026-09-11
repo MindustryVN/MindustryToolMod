@@ -1,5 +1,6 @@
 package solim.layout;
 
+import arc.graphics.Color;
 import solim.signal.Readable;
 
 /**
@@ -434,6 +435,43 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 		sizeConstraints().padRight = right;
 		if (this instanceof solim.core.Component) {
 			sizeConstraints().applyMarginToParentCell(((solim.core.Component) this).element());
+		}
+		return self();
+	}
+
+	// ---------- rounded & border ----------
+
+	default SELF rounded(int radius) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.rounded(((solim.core.Component) this).element(), radius);
+		}
+		return self();
+	}
+
+	default SELF rounded(int radius, Color color) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.rounded(((solim.core.Component) this).element(), radius, color);
+		}
+		return self();
+	}
+
+	default SELF rounded(int radius, Readable<Color> color) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.rounded(((solim.core.Component) this).element(), radius, color);
+		}
+		return self();
+	}
+
+	default SELF border(float stroke, Color color) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.border(((solim.core.Component) this).element(), stroke, color);
+		}
+		return self();
+	}
+
+	default SELF border(float stroke, Readable<Color> color) {
+		if (this instanceof solim.core.Component) {
+			solim.modifier.ElementModifiers.border(((solim.core.Component) this).element(), stroke, color);
 		}
 		return self();
 	}

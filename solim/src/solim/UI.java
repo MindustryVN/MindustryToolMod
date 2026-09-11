@@ -1,6 +1,8 @@
 package solim;
 
+import arc.graphics.Color;
 import arc.func.Cons;
+import solim.graphics.RoundedDrawable;
 import arc.func.Func;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
@@ -516,5 +518,19 @@ public final class UI {
         Tabs t = new Tabs(activeTab);
         ParentStack.attachToParent(t.element());
         return t;
+    }
+
+    // --- Rounded & Border Styling ---
+
+    public static RoundedDrawable rounded(int radius) {
+        return new RoundedDrawable(radius);
+    }
+
+    public static RoundedDrawable rounded(int radius, Color color) {
+        return RoundedDrawable.of(radius, color);
+    }
+
+    public static RoundedDrawable rounded(int radius, Color color, float stroke, Color borderColor) {
+        return RoundedDrawable.of(radius, color, stroke, borderColor);
     }
 }

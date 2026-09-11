@@ -1,6 +1,8 @@
 package solim.input;
 
+import arc.graphics.Color;
 import arc.input.KeyCode;
+import solim.graphics.RoundedDrawable;
 import arc.scene.Element;
 import arc.scene.ui.TextField;
 import arc.scene.ui.layout.Cell;
@@ -199,6 +201,66 @@ public final class SolimTextField implements Component {
 	@Override
 	public SolimTextField name(String name) {
 		ElementModifiers.name(field, name);
+		return this;
+	}
+
+	public SolimTextField rounded(int radius) {
+		return rounded(radius, (Color) null);
+	}
+
+	public SolimTextField rounded(int radius, @Nullable Color color) {
+		TextField.TextFieldStyle s = field.getStyle();
+		if (s != null) {
+			if (s.background instanceof RoundedDrawable) {
+				RoundedDrawable rd = (RoundedDrawable) s.background;
+				rd.radius(radius);
+				if (color != null) rd.fillColor(color);
+			} else {
+				s.background = RoundedDrawable.of(radius, color != null ? color : Color.darkGray);
+			}
+		}
+		return this;
+	}
+
+	public SolimTextField rounded(int radius, @Nullable Readable<Color> color) {
+		TextField.TextFieldStyle s = field.getStyle();
+		if (s != null) {
+			if (s.background instanceof RoundedDrawable) {
+				RoundedDrawable rd = (RoundedDrawable) s.background;
+				rd.radius(radius);
+				if (color != null) rd.fillColor(color);
+			} else {
+				RoundedDrawable rd = new RoundedDrawable(radius);
+				if (color != null) rd.fillColor(color);
+				s.background = rd;
+			}
+		}
+		return this;
+	}
+
+	public SolimTextField border(float stroke, @Nullable Color color) {
+		TextField.TextFieldStyle s = field.getStyle();
+		if (s != null) {
+			if (s.background instanceof RoundedDrawable) {
+				((RoundedDrawable) s.background).border(stroke, color != null ? color : Color.white);
+			} else {
+				s.background = RoundedDrawable.of(6, Color.clear, stroke, color != null ? color : Color.white);
+			}
+		}
+		return this;
+	}
+
+	public SolimTextField border(float stroke, @Nullable Readable<Color> color) {
+		TextField.TextFieldStyle s = field.getStyle();
+		if (s != null) {
+			if (s.background instanceof RoundedDrawable) {
+				((RoundedDrawable) s.background).border(stroke, color);
+			} else {
+				RoundedDrawable rd = new RoundedDrawable(6, Color.clear);
+				rd.border(stroke, color);
+				s.background = rd;
+			}
+		}
 		return this;
 	}
 

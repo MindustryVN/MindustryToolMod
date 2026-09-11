@@ -1,6 +1,8 @@
 package solim.overlay;
 
+import arc.graphics.Color;
 import arc.Core;
+import solim.signal.Readable;
 import arc.Events;
 import arc.func.Cons;
 import arc.func.Func;
@@ -254,6 +256,31 @@ public class SolimDialog extends BaseDialog implements Component {
     }
 
     protected void onDispose() {
+    }
+
+    public SolimDialog rounded(int radius) {
+        ElementModifiers.rounded(cont, radius);
+        return this;
+    }
+
+    public SolimDialog rounded(int radius, @Nullable Color color) {
+        ElementModifiers.rounded(cont, radius, color);
+        return this;
+    }
+
+    public SolimDialog rounded(int radius, @Nullable Readable<Color> color) {
+        ElementModifiers.rounded(cont, radius, color);
+        return this;
+    }
+
+    public SolimDialog border(float stroke, @Nullable Color color) {
+        ElementModifiers.border(cont, stroke, color);
+        return this;
+    }
+
+    public SolimDialog border(float stroke, @Nullable Readable<Color> color) {
+        ElementModifiers.border(cont, stroke, color);
+        return this;
     }
 
     @Override

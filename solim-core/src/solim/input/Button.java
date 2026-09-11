@@ -1,6 +1,8 @@
 package solim.input;
 
+import arc.graphics.Color;
 import arc.input.KeyCode;
+import solim.graphics.RoundedDrawable;
 import arc.scene.Element;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
@@ -423,6 +425,68 @@ public final class Button implements Component {
 
 	public Button draggable(@Nullable Hud hud, @Nullable Signal<Float> xSignal, @Nullable Signal<Float> ySignal) {
 		ElementModifiers.draggable(button, hud, xSignal, ySignal);
+		return this;
+	}
+
+	public Button rounded(int radius) {
+		return rounded(radius, (Color) null);
+	}
+
+	public Button rounded(int radius, @Nullable Color color) {
+		RoundedDrawable rd = ElementModifiers.rounded(button, radius, color);
+		if (rd != null) {
+			ButtonStyle s = button.getStyle();
+			if (s == null) {
+				s = new ButtonStyle();
+				button.setStyle(s);
+			}
+			s.up = rd;
+			if (color != null) {
+				Color overColor = color.cpy().mul(1.15f);
+				Color downColor = color.cpy().mul(0.85f);
+				s.over = RoundedDrawable.of(radius, overColor, rd.getStroke(), rd.getBorderColor());
+				s.down = RoundedDrawable.of(radius, downColor, rd.getStroke(), rd.getBorderColor());
+			}
+		}
+		return this;
+	}
+
+	public Button rounded(int radius, @Nullable Readable<Color> color) {
+		RoundedDrawable rd = ElementModifiers.rounded(button, radius, color);
+		if (rd != null) {
+			ButtonStyle s = button.getStyle();
+			if (s == null) {
+				s = new ButtonStyle();
+				button.setStyle(s);
+			}
+			s.up = rd;
+		}
+		return this;
+	}
+
+	public Button border(float stroke, @Nullable Color color) {
+		RoundedDrawable rd = ElementModifiers.border(button, stroke, color);
+		if (rd != null) {
+			ButtonStyle s = button.getStyle();
+			if (s == null) {
+				s = new ButtonStyle();
+				button.setStyle(s);
+			}
+			s.up = rd;
+		}
+		return this;
+	}
+
+	public Button border(float stroke, @Nullable Readable<Color> color) {
+		RoundedDrawable rd = ElementModifiers.border(button, stroke, color);
+		if (rd != null) {
+			ButtonStyle s = button.getStyle();
+			if (s == null) {
+				s = new ButtonStyle();
+				button.setStyle(s);
+			}
+			s.up = rd;
+		}
 		return this;
 	}
 
