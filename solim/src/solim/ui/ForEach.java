@@ -56,7 +56,13 @@ public final class ForEach<T, K> extends BaseComponent {
 		for (Component comp : active.values()) {
 			Element el = comp.element();
 			Cell<?> cell = container.add(el);
-			if (Ui.isExpanding(el)) {
+			solim.layout.SizeConstraints sc = solim.layout.SizeConstraints.find(comp);
+			if (sc == null) {
+				sc = solim.layout.SizeConstraints.find(el);
+			}
+			if (sc != null) {
+				sc.applyToCell(cell);
+			} else if (Ui.isExpanding(el)) {
 				cell.growX();
 			}
 			cell.row();

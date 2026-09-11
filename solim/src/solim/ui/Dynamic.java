@@ -74,7 +74,13 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 				if (currentComponent != null) {
 					Element el = currentComponent.element();
 					Cell<?> cell = container.add(el);
-					if (Ui.isExpanding(el)) {
+					SizeConstraints sc = SizeConstraints.find(currentComponent);
+					if (sc == null) {
+						sc = SizeConstraints.find(el);
+					}
+					if (sc != null) {
+						currentBindings.addAll(sc.applyToCell(cell));
+					} else if (Ui.isExpanding(el)) {
 						cell.growX();
 					}
 				}

@@ -94,6 +94,21 @@ public final class SizeConstraints {
 		this.align = (current | arc.util.Align.right) & ~arc.util.Align.left;
 	}
 
+	public static @Nullable SizeConstraints find(@Nullable Object target) {
+		if (target == null) return null;
+		if (target instanceof LayoutModifiers) {
+			return ((LayoutModifiers<?>) target).sizeConstraints();
+		}
+		if (target instanceof SizeConstraints) {
+			return (SizeConstraints) target;
+		}
+		if (target instanceof Element) {
+			Element el = (Element) target;
+			return find(el.userObject);
+		}
+		return null;
+	}
+
 	/**
 	 * Applies all constraints to the given cell. Static values are applied immediately.
 	 * Reactive values ({@code Signal}, {@code Computed}) install an {@code Effect} that

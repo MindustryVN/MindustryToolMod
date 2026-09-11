@@ -24,5 +24,5 @@
 
 - [x] 4.1 Remove `ConstrainedElement` from `mindustrytool.features.teamresource.SplitBar` in `mod`
 - [x] 4.2 Update test references and comments in `SnapshotIntrospectionTest.java`
-- [ ] 4.3 Update unit tests in `solim` (`LayoutTest`, `ButtonTest`, etc.) to align with native Arc wrapping
-- [ ] 4.4 Run `./gradlew :solim:test` and `./gradlew test` to ensure all tests pass
+- [x] 4.3 Update unit tests in `solim` (`LayoutTest`, `ButtonTest`, etc.) to align with native Arc wrapping
+- [x] 4.4 Run `./gradlew :solim:test` and `./gradlew test` to ensure all tests pass

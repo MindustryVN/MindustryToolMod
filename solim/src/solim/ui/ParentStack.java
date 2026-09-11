@@ -183,12 +183,7 @@ public final class ParentStack {
 					cell = parent.add(child);
 				}
 				if (cell != null) {
-					solim.layout.SizeConstraints constraints = null;
-					if (child.userObject instanceof solim.layout.LayoutModifiers) {
-						constraints = ((solim.layout.LayoutModifiers<?>) child.userObject).sizeConstraints();
-					} else if (child.userObject instanceof solim.layout.SizeConstraints) {
-						constraints = (solim.layout.SizeConstraints) child.userObject;
-					}
+					solim.layout.SizeConstraints constraints = solim.layout.SizeConstraints.find(child);
 					if (constraints != null) {
 						List<Disposable> effects = constraints.applyToCell(cell);
 						for (Disposable effect : effects) {

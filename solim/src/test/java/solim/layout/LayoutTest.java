@@ -595,13 +595,6 @@ class LayoutTest {
 		root.layout();
 
 		Element cardBtn = parentCol.table().getChildren().first();
-		Cell<?> c = parentCol.table().getCells().first();
-		System.out.println("DEBUG cardCenteringInsideColumn: root w=" + root.getWidth() + ", parentCol w=" + parentCol.table().getWidth());
-		System.out.println("DEBUG cell: expandX=" + CellAccess.expandX(c) + ", fillX=" + CellAccess.fillX(c) + ", align=" + CellAccess.align(c));
-		System.out.println("DEBUG cardBtn.userObject=" + cardBtn.userObject);
-		System.out.println("DEBUG c.get() == cardBtn: " + (c.get() == cardBtn));
-		System.out.println("DEBUG cell minW=" + CellAccess.minWidth(c) + ", maxW=" + CellAccess.maxWidth(c));
-		System.out.println("DEBUG cardBtn: w=" + cardBtn.getWidth() + ", prefW=" + cardBtn.getPrefWidth() + ", minW=" + cardBtn.getMinWidth() + ", maxW=" + cardBtn.getMaxWidth());
 		assertEquals(400f, cardBtn.getWidth(), 0.01f);
 		assertEquals(300f, cardBtn.x, 0.01f, "Card with .center() inside column should be centered at x = 300");
 	}
