@@ -1,6 +1,6 @@
 package mindustrytool.features.chat;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.Core;
 import arc.graphics.Color;
@@ -569,7 +569,7 @@ public class ChatMessageListView extends BaseComponent {
                             .style(Styles.flatt)
                             .height(unit(35))
                             .children(() -> {
-                                add(new SchematicImage(schematic).setScaling(Scaling.fit));
+                                component(() -> new SchematicImage(schematic).setScaling(Scaling.fit));
                             });
                 });
             });

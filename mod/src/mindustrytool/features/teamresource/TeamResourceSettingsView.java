@@ -1,6 +1,6 @@
 package mindustrytool.features.teamresource;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.Core;
 import arc.scene.Element;

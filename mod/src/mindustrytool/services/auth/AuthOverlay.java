@@ -1,6 +1,6 @@
 package mindustrytool.services.auth;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.Core;
 import arc.Events;
@@ -135,9 +135,7 @@ public class AuthOverlay {
 								.children(() -> {
 									row().gap(unit(2)).center().children(() -> {
 										if (user.getImageUrl() != null && !user.getImageUrl().isEmpty()) {
-											NetworkImage img = new NetworkImage(user.getImageUrl());
-											ElementModifiers.size(img, 64f);
-											element(img);
+											networkImage(user.getImageUrl()).size(64f);
 										}
 										if (!Vars.mobile && user.getName() != null) {
 											text(user.getName());

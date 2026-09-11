@@ -1,9 +1,8 @@
-// solim — Public UI facade library for Mindustry mods
+// solim-core — Internal engine and component implementations for Solim
 // Shared java/repositories/dependencies are configured in root build.gradle via subprojects.
 apply plugin: 'java-library'
 
 dependencies {
-	api project(':solim-core')
+	// Mindustry/Arc needed at test runtime for Element instantiation in component tests
 	testImplementation "Anuken:Mindustry:${mindustryVersion}"
 }
-

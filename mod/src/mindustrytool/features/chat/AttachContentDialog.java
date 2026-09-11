@@ -8,8 +8,8 @@ import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.FileChooser;
 import mindustry.ui.Styles;
+import solim.UI;
 import solim.overlay.SolimDialog;
-import solim.ui.Ui;
 
 public class AttachContentDialog extends SolimDialog {
 
@@ -20,41 +20,41 @@ public class AttachContentDialog extends SolimDialog {
         this.callback = callback;
 
         children(() -> {
-            Ui.column().grow().padding(Ui.unit(3)).gap(Ui.unit(2)).children(() -> {
-                Ui.button(this::selectSchematicFile)
+            UI.column().grow().padding(UI.unit(3)).gap(UI.unit(2)).children(() -> {
+                UI.button(this::selectSchematicFile)
                         .style(Styles.defaultb)
                         .growX()
-                        .height(Ui.unit(12))
+                        .height(UI.unit(12))
                         .children(() -> {
-                            Ui.row().growX().gap(Ui.unit(2)).children(() -> {
-                                Ui.image(Icon.file).size(Ui.unit(6), Ui.unit(6));
-                                Ui.text(Core.bundle.get("chat.select-file", "Select File (.msch)"))
+                            UI.row().growX().gap(UI.unit(2)).children(() -> {
+                                UI.image(Icon.file).size(UI.unit(6), UI.unit(6));
+                                UI.text(Core.bundle.get("chat.select-file", "Select File (.msch)"))
                                         .color(Color.white)
                                         .left();
                             });
                         });
 
-                Ui.button(this::selectSaveFile)
+                UI.button(this::selectSaveFile)
                         .style(Styles.defaultb)
                         .growX()
-                        .height(Ui.unit(12))
+                        .height(UI.unit(12))
                         .children(() -> {
-                            Ui.row().growX().gap(Ui.unit(2)).children(() -> {
-                                Ui.image(Icon.map).size(Ui.unit(6), Ui.unit(6));
-                                Ui.text(Core.bundle.get("map", "Map / Save (.msav)"))
+                            UI.row().growX().gap(UI.unit(2)).children(() -> {
+                                UI.image(Icon.map).size(UI.unit(6), UI.unit(6));
+                                UI.text(Core.bundle.get("map", "Map / Save (.msav)"))
                                         .color(Color.white)
                                         .left();
                             });
                         });
 
-                Ui.button(this::pasteFromClipboard)
+                UI.button(this::pasteFromClipboard)
                         .style(Styles.defaultb)
                         .growX()
-                        .height(Ui.unit(12))
+                        .height(UI.unit(12))
                         .children(() -> {
-                            Ui.row().growX().gap(Ui.unit(2)).children(() -> {
-                                Ui.image(Icon.paste).size(Ui.unit(6), Ui.unit(6));
-                                Ui.text(Core.bundle.get("chat.paste-link", "Paste from Clipboard"))
+                            UI.row().growX().gap(UI.unit(2)).children(() -> {
+                                UI.image(Icon.paste).size(UI.unit(6), UI.unit(6));
+                                UI.text(Core.bundle.get("chat.paste-link", "Paste from Clipboard"))
                                         .color(Color.white)
                                         .left();
                             });

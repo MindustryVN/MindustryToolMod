@@ -1,6 +1,6 @@
 package mindustrytool.features.quickaccess;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.graphics.Color;
 import arc.scene.Element;

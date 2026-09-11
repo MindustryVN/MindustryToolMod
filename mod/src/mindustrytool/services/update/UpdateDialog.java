@@ -1,6 +1,6 @@
 package mindustrytool.services.update;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.Core;
 import arc.graphics.Color;

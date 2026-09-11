@@ -1,15 +1,13 @@
 package mindustrytool.features.teamresource;
 
-import static solim.ui.Ui.unit;
-
 import arc.Core;
 import arc.scene.Element;
 import mindustry.game.Team;
 import mindustry.gen.Tex;
 import mindustry.ui.Styles;
+import solim.UI;
 import solim.core.BaseComponent;
 import solim.overlay.SolimDialog;
-import solim.ui.Ui;
 
 /**
  * Modal dialog for selecting an active team when many teams exist, using SolimDialog.
@@ -26,11 +24,11 @@ public class TeamResourceAllTeamsDialog extends SolimDialog {
         content(new BaseComponent() {
             @Override
             protected Element build() {
-                return Ui.scroll().size(360f, 280f).children(() -> {
-                    Ui.dynamic(state.validTeamsSignal, teams -> Ui.grid(3).gap(unit(1)).children(() -> {
+                return UI.scroll().size(360f, 280f).children(() -> {
+                    UI.dynamic(state.validTeamsSignal, teams -> UI.grid(3).gap(UI.unit(1)).children(() -> {
                         if (teams != null) {
                             for (Team team : teams) {
-                                Ui.button()
+                                UI.button()
                                         .style(Styles.clearTogglei)
                                         .checked(state.selectedTeamSignal.map(sel -> sel == team))
                                         .onClick(() -> {
@@ -39,9 +37,9 @@ public class TeamResourceAllTeamsDialog extends SolimDialog {
                                         })
                                         .growX()
                                         .children(() -> {
-                                            Ui.row().left().gap(unit(1)).padding(unit(1)).children(() -> {
-                                                Ui.image(Tex.whiteui).size(unit(4)).color(team.color);
-                                                Ui.text(team.localized()).color(team.color);
+                                            UI.row().left().gap(UI.unit(1)).padding(UI.unit(1)).children(() -> {
+                                                UI.image(Tex.whiteui).size(UI.unit(4)).color(team.color);
+                                                UI.text(team.localized()).color(team.color);
                                             });
                                         });
                             }

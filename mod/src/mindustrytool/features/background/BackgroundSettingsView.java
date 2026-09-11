@@ -1,6 +1,6 @@
 package mindustrytool.features.background;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.Core;
 import arc.files.Fi;

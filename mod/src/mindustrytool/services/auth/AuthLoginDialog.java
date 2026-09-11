@@ -1,16 +1,16 @@
 package mindustrytool.services.auth;
 
-import static solim.ui.Ui.*;
+import static solim.UI.*;
 
 import arc.Core;
 import mindustry.Vars;
+import solim.UI;
 import solim.overlay.SolimDialog;
 import solim.signal.Signal;
-import solim.ui.Ui;
 
 public class AuthLoginDialog extends SolimDialog {
 
-	private final Signal<String> loginUrlSignal = Signal.of(null);
+	private final Signal<String> loginUrlSignal = signal();
 
 	public AuthLoginDialog(MindustryAuthProvider authService) {
 		super(Core.bundle.get("auth.login.dialog-title"));
@@ -23,7 +23,7 @@ public class AuthLoginDialog extends SolimDialog {
 					if (url == null || url.isEmpty()) {
 						return text(Core.bundle.get("auth.login.loading"));
 					} else {
-						return Ui.button(() -> {
+						return UI.button(() -> {
 							Core.app.setClipboardText(url);
 							Vars.ui.showInfoFade(Core.bundle.get("auth.login.copied"));
 						}).children(() -> {
