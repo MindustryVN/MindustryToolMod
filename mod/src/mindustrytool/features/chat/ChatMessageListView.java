@@ -180,7 +180,8 @@ public class ChatMessageListView extends BaseComponent {
                                             service.fetchOlderMessages(activeId);
                                         }
                                     });
-                    return virtualList;
+
+                    return virtualList.marginBottom(unit(2));
                 } else {
                     return column().padding(unit(4)).top().left().children(() -> {
                         text(Core.bundle.get("feature.chat.ui.empty-messages", "No messages yet."))

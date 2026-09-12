@@ -90,15 +90,18 @@ public class ChatOverlayHudView extends BaseComponent {
                         store.clearUnread();
                     })
                             .style(Styles.clearNonei)
-                            .size(unit(12), unit(12))
+                            .size(unit(14), unit(14))
                             .draggable(hud, feature.xSignal, feature.ySignal)
                             .children(() -> {
                                 component(new SolimStack()
-                                        .layer(() -> icon(Icon.chat).size(unit(8), unit(8)).color(Color.white))
-                                        .layer(() -> row().top().right().pad(unit(0.5f)).visible(hasUnread).children(() -> {
-                                            image(Tex.whiteui)
-                                                    .size(unit(1.5f), unit(1.5f))
-                                                    .color(Color.scarlet);
+                                        .grow()
+                                        .center()
+                                        .layer(() -> icon(Icon.chat).size(unit(10)).center().grow().color(Color.white))
+                                        .layer(() -> row().top().right().grow().visible(hasUnread).children(() -> {
+                                            image(circle())
+                                                    .margin(unit(1))
+                                                    .size(unit(3))
+                                                    .color(Color.white);
                                         })));
                             });
                 });

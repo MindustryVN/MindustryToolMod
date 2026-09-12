@@ -9,8 +9,6 @@ import arc.scene.ui.Button.ButtonStyle;
 import arc.scene.ui.TextButton.TextButtonStyle;
 
 import java.util.Objects;
-import mindustry.gen.Tex;
-import mindustry.graphics.Pal;
 import mindustry.ui.Fonts;
 import mindustry.ui.Styles;
 import mindustrytool.models.response.ChannelDto;
@@ -104,11 +102,14 @@ public class ChatChannelListView extends BaseComponent {
                                 .grow()
                                 .children(() -> {
                                     text("# " + channel.getName()).left();
+
+                                    spacer();
+
+                                    image(circle())
+                                            .size(unit(3))
+                                            .color(Color.white)
+                                            .visible(hasUnread);
                                 });
-                        image(Tex.whiteui)
-                                .size(unit(1.5f), unit(1.5f))
-                                .color(Pal.heal)
-                                .visible(hasUnread);
                     })
                     .element();
         }
