@@ -18,7 +18,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.display.Text;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 import solim.ui.Ui;
 
 class LayoutTest {
@@ -258,7 +258,7 @@ class LayoutTest {
 
 		widthSignal.set(300f);
 		colorSignal.set(Color.green);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(300f, c.cardButton().getWidth(), 0.01f);
 		assertEquals(Color.green, c.cardButton().color);
 
@@ -661,7 +661,7 @@ class LayoutTest {
 		assertEquals(5f, CellAccess.padTop(g.table().getCells().first()), 0.01f);
 
 		gapSig.set(30f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(15f, CellAccess.padTop(g.table().getCells().first()), 0.01f);
 	}
 
@@ -681,7 +681,7 @@ class LayoutTest {
 		}
 
 		gapSig.set(16f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		for (Cell<?> cell : rg.table().getCells()) {
 			assertEquals(8f, CellAccess.padTop(cell), 0.01f, "Reactive gap change must update all active cells");
 		}

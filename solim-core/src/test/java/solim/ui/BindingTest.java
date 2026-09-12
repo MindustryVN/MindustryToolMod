@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
-import solim.signal.SignalDispatcher;
+import solim.runtime.SignalDispatcher;
 
 class BindingTest {
 

@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
 import solim.signal.Signal;
-import solim.signal.SignalDispatcher;
+import solim.runtime.SignalDispatcher;
 
 class ForEachComponentTest {
 

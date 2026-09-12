@@ -1,5 +1,7 @@
 package solim.core;
 
+import solim.runtime.ComponentContext;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.Core;
@@ -75,7 +77,7 @@ class AmbientOwnershipTest {
 
 		// Reactive bindings update
 		parent.widthSignal.set(200f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(200f, parent.boundElement.getWidth());
 
 		// Disposing parent automatically disposes child, custom disposable, and binding
@@ -87,7 +89,7 @@ class AmbientOwnershipTest {
 
 		// Post-disposal signal update should not affect boundElement
 		parent.widthSignal.set(300f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(200f, parent.boundElement.getWidth());
 	}
 

@@ -11,7 +11,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 import static solim.ui.Ui.*;
 
 class DisplayTest {

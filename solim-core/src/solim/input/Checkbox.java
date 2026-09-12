@@ -7,8 +7,8 @@ import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import java.util.function.Consumer;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
 import solim.signal.Signal;
 
 /** Checkbox widget bound to Signal&lt;Boolean&gt;. */

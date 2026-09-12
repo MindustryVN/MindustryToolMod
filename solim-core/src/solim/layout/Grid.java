@@ -7,11 +7,11 @@ import arc.scene.ui.layout.Table;
 import arc.struct.Seq;
 import arc.util.Nullable;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
+import solim.runtime.ParentStack;
 import solim.signal.Effect;
 import solim.signal.Readable;
-import solim.ui.ParentStack;
 import solim.ui.Ui;
 
 /** Simple grid with fixed or reactive column count and customizable gap. */

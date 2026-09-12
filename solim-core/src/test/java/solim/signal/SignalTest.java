@@ -1,5 +1,7 @@
 package solim.signal;
 
+import solim.runtime.SignalDispatcher;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.atomic.AtomicInteger;

@@ -12,8 +12,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.display.SolimImage;
+import solim.runtime.ParentStack;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
 
 class IconTest {
 

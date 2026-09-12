@@ -147,7 +147,7 @@ class RoundedGraphicsTest {
         // Reactive update
         fillSignal.set(Color.green);
         borderSignal.set(Color.yellow);
-        solim.signal.SignalDispatcher.flush();
+        solim.runtime.SignalDispatcher.flush();
         assertEquals(Color.green, rd.getFillColor());
         assertEquals(Color.yellow, rd.getBorderColor());
 
@@ -155,7 +155,7 @@ class RoundedGraphicsTest {
         rd.dispose();
         fillSignal.set(Color.black);
         borderSignal.set(Color.blue);
-        solim.signal.SignalDispatcher.flush();
+        solim.runtime.SignalDispatcher.flush();
         assertEquals(Color.green, rd.getFillColor(), "Should not update after disposal");
         assertEquals(Color.yellow, rd.getBorderColor(), "Should not update after disposal");
     }

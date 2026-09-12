@@ -396,13 +396,16 @@ public Readable<Boolean> enabled() {
 
 # Solim UI — Mandatory
 
-## Module Separation: Do Not Use `solim-core` in `mod` — Mandatory
+## Module Separation: Internal Engine Isolation (`:solim-runtime`) — Mandatory
 
-**The `mod` module must ONLY depend on `:solim` and `:solim-mcp`. Never add a direct dependency on `:solim-core` in `mod/build.gradle`.**
+**The `mod` module must ONLY depend on `:solim` and `:solim-mcp`. It must NEVER depend on or reference `:solim-runtime`.**
 
-- `solim` is the public API library and facade for mod development (`solim.UI`).
-- `solim-core` contains the internal engine implementation.
-- Mod code must use the public `solim.UI.*` declarative facades and never bypass them to call internal mechanics like `solim.core.ComponentContext` or `solim.ui.ParentStack` directly.
+- `:solim-api` contains core public contracts (`Component`, `Disposable`, `SpacingAware`, `SchedulableEffect`, `ReactiveObserver`).
+- `:solim` is the public API library and facade for mod development (`solim.UI`).
+- `:solim-core` contains public UI components, layouts, and reactive types (`BaseComponent`, `Signal`, `Computed`, `Effect`, `Ui`, etc.).
+- `:solim-runtime` contains the private engine runtime (`ParentStack`, `ComponentContext`, `ReactiveContext`, `SignalDispatcher`, `StructuralReconciler`). It is an internal `implementation` dependency physically excluded from `:mod`'s compile classpath.
+
+Mod code must use the public `solim.UI.*` declarative facades. Attempting to reference `:solim-runtime` classes or calling `own()` will result in compile-time errors.
 
 ## Solim-First
 
@@ -624,13 +627,13 @@ This includes:
 * Input controls
 * Structural reactive children
 
-Application code should not manually manage normal component ownership with APIs such as:
+Application code must not manually manage normal component ownership. `BaseComponent.own()` is package-private and inaccessible outside `solim.core`.
 
-```java
-own(...)
-ownChild(...)
-scope.own(...)
-```
+Instead, use declarative ambient ownership:
+* Use `effect(() -> ...)` for reactive side effects.
+* Use `listen(EventType.class, listener)` for event listeners.
+* Use `createSignal(...)` for event-backed signals.
+* Child components declared in `children()` blocks or instantiated in `build()` are automatically attached and owned.
 
 Components created during `build()` should automatically become children of the current component.
 

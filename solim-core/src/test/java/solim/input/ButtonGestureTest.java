@@ -94,7 +94,7 @@ class ButtonGestureTest {
 		assertEquals(0.8f, el.color.a, 0.001f);
 
 		op.set(0.25f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(0.25f, el.color.a, 0.001f);
 	}
 
@@ -119,7 +119,7 @@ class ButtonGestureTest {
 		assertEquals(48f, btn.button().getHeight(), 0.01f);
 
 		size.set(64f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(64f, btn.button().getWidth(), 0.01f);
 		assertEquals(64f, btn.button().getHeight(), 0.01f);
 	}
@@ -134,7 +134,7 @@ class ButtonGestureTest {
 		assertSame(s1, btn.button().getStyle());
 
 		styleSignal.set(s2);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertSame(s2, btn.button().getStyle());
 
 		btn.dispose();

@@ -11,17 +11,18 @@ import arc.util.Scaling;
 import java.util.ArrayList;
 import java.util.List;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.core.SpacingAware;
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for drawable content. */
-public final class SolimImage implements Component, LayoutModifiers<SolimImage> {
+public final class SolimImage implements Component, LayoutModifiers<SolimImage>, SpacingAware {
 
 	private final Image image;
 	private final List<Disposable> bindings = new ArrayList<>();

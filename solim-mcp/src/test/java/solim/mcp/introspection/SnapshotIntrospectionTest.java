@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
-import solim.core.ComponentContext;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
@@ -86,18 +85,13 @@ class SnapshotIntrospectionTest {
 
 			@Override
 			protected Element build() {
+				UiSnapshot snapshot = UiSnapshot.capture(null);
+				String signals = snapshot.signalsJson().toString();
+				assertTrue(signals.contains("duringBuild"), signals);
 				return new Table();
 			}
 		}
-		Probe probe = new Probe();
-		ComponentContext.push(probe);
-		try {
-			UiSnapshot snapshot = UiSnapshot.capture(null);
-			String signals = snapshot.signalsJson().toString();
-			assertTrue(signals.contains("duringBuild"), signals);
-		} finally {
-			ComponentContext.pop();
-		}
+		new Probe().element();
 	}
 
 	@Test

@@ -89,7 +89,7 @@ class NetworkImageComponentTest {
 		NetworkImage img = new NetworkImage(urlSignal);
 		assertTrue(NetworkImage.isCached("https://example.com/a.png"));
 		urlSignal.set("https://example.com/b.png");
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertTrue(NetworkImage.isCached("https://example.com/b.png"));
 		img.dispose();
 	}

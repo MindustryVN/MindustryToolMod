@@ -115,7 +115,7 @@ public final class ElementModifiers {
                 element.invalidateHierarchy();
             }
         });
-        solim.core.ComponentContext.register(e);
+        solim.runtime.ComponentContext.register(e);
     }
 
     public static void opacity(@Nullable Element element, float opacity) {
@@ -133,7 +133,7 @@ public final class ElementModifiers {
                 opacity(element, val);
             }
         });
-        solim.core.ComponentContext.register(e);
+        solim.runtime.ComponentContext.register(e);
     }
 
     public static void alpha(@Nullable Element element, float alpha) {

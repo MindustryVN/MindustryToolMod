@@ -7,8 +7,8 @@ import arc.scene.style.NinePatchDrawable;
 import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.runtime.ComponentContext;
 import solim.signal.Effect;
 import solim.signal.Readable;
 

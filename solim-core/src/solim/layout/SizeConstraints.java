@@ -7,25 +7,27 @@ import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import solim.core.Disposable;
+import solim.runtime.ComponentContext;
+import solim.runtime.ParentStack;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
 /**
  * Value object that holds all size constraints for a Solim layout component.
- *
- * <p>Mirrors the CSS box model:
- * <ul>
- *   <li>{@code prefWidth/Height} — preferred size (like CSS {@code width/height})</li>
- *   <li>{@code minWidth/Height} — lower bound (like CSS {@code min-width/min-height})</li>
- *   <li>{@code maxWidth/Height} — upper bound (like CSS {@code max-width/max-height})</li>
- *   <li>{@code growX/growY} — independent flex-grow flags (like CSS {@code flex-grow})</li>
- * </ul>
- *
- * <p>{@code growX/growY} are fully independent from {@code prefWidth/prefHeight}: a component
- * can have {@code width(unit(10)).growX()} simultaneously (CSS flex-basis style), where the
- * preferred width is 10 units but the parent cell may still stretch it if it has grow.
  */
 public final class SizeConstraints {
+
+	static {
+		ParentStack.setCellConfigurator((cell, child) -> {
+			SizeConstraints constraints = find(child);
+			if (constraints != null) {
+				List<Disposable> effects = constraints.applyToCell(cell);
+				for (Disposable effect : effects) {
+					ComponentContext.register(effect);
+				}
+			}
+		});
+	}
 
 	/** Preferred width. Null means "no constraint — use natural size". */
 	public @Nullable Readable<Float> prefWidth;

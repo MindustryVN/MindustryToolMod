@@ -10,7 +10,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import solim.core.ComponentContext;
+import solim.core.ReactiveObserver;
+import solim.runtime.ComponentContext;
+import solim.runtime.ReactiveContext;
 
 /** Mutable reactive value. */
 public final class Signal<T> implements Readable<T> {
@@ -49,7 +51,7 @@ public final class Signal<T> implements Readable<T> {
 	@Override
 	public T get() {
 		if (ReactiveContext.current() == null && ComponentContext.current() != null) {
-			Log.warn("[Solim Reactivity Warning] Signal.get() was called during build() of component '@'! This severs reactivity. Pass the Signal/Readable directly to the component or use .map(). If an untracked read is intentional, use .peek().", ComponentContext.current().getClass().getSimpleName());
+			Log.warn("[Solim Reactivity Warning] Signal.get() was called during build()! This severs reactivity. Pass the Signal/Readable directly to the component or use .map(). If an untracked read is intentional, use .peek().");
 		}
 		ReactiveContext.track(this);
 		return value;

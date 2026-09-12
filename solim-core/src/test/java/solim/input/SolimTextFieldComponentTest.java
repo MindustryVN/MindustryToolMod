@@ -60,7 +60,7 @@ void signalUpdatesFieldText() {
     assertEquals("", tf.field().getText());
 
     input.set("hello");
-    solim.signal.SignalDispatcher.flush();
+    solim.runtime.SignalDispatcher.flush();
     assertEquals("hello", tf.field().getText());
     tf.dispose();
 }
@@ -109,11 +109,11 @@ void reactiveDisabledUpdatesFieldDisabled() {
     assertFalse(tf.field().isDisabled());
 
     disabled.set(true);
-    solim.signal.SignalDispatcher.flush();
+    solim.runtime.SignalDispatcher.flush();
     assertTrue(tf.field().isDisabled());
 
     disabled.set(false);
-    solim.signal.SignalDispatcher.flush();
+    solim.runtime.SignalDispatcher.flush();
     assertFalse(tf.field().isDisabled());
     tf.dispose();
 }
@@ -127,11 +127,11 @@ void validatorUpdatesIsValid() {
     assertTrue(tf.isValid());
 
     text.set("ab");
-    solim.signal.SignalDispatcher.flush();
+    solim.runtime.SignalDispatcher.flush();
     assertFalse(tf.isValid());
 
     text.set("abcd");
-    solim.signal.SignalDispatcher.flush();
+    solim.runtime.SignalDispatcher.flush();
     assertTrue(tf.isValid());
     tf.dispose();
 }
@@ -158,7 +158,7 @@ void typeMessageSendMessageClearMessageCycle() {
     tf.onEnter(msg -> {
         sent[0] = msg;
         messageSignal.set("");
-        solim.signal.SignalDispatcher.flush();
+        solim.runtime.SignalDispatcher.flush();
     });
 
     // 1. "type message"

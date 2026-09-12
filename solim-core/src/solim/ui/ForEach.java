@@ -12,6 +12,7 @@ import solim.signal.Readable;
 
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
+import solim.runtime.StructuralReconciler;
 
 /**
  * Keyed reactive list component that efficiently manages child components without rebuilding

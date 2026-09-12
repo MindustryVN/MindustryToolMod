@@ -10,7 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
 import solim.signal.Signal;
-import solim.signal.SignalDispatcher;
+import solim.runtime.SignalDispatcher;
 
 class DynamicComponentTest {
 
@@ -178,7 +178,7 @@ class DynamicComponentTest {
 		assertFalse(dyn.sizeConstraints().growX, "Dynamic must not growX by default");
 
 		solim.layout.Column col = Ui.column().fillParent().top().right().children(() -> {
-			solim.ui.ParentStack.add(dyn);
+			solim.runtime.ParentStack.add(dyn);
 		});
 
 		arc.scene.ui.layout.Table table = col.table();

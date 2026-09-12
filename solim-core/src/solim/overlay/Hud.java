@@ -16,16 +16,16 @@ import java.util.ArrayList;
 import java.util.List;
 import mindustry.game.EventType.ResizeEvent;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.layout.LayoutModifiers;
 import solim.layout.Row;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
+import solim.runtime.ParentStack;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
 
 /**
  * Floating non-modal HUD overlay component.

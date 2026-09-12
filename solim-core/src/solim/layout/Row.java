@@ -11,7 +11,7 @@ import solim.modifier.ElementModifiers;
 import solim.overlay.Hud;
 import solim.signal.Readable;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 import solim.ui.Ui;
 
 /** Row layout — horizontal Table wrapper. */

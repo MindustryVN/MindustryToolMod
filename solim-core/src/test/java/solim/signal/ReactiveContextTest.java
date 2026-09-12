@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import solim.core.ReactiveObserver;
+import solim.runtime.ReactiveContext;
 
 class ReactiveContextTest {
 	@AfterEach
@@ -50,10 +52,10 @@ class ReactiveContextTest {
 	void noThreadLocalImport() throws Exception {
 		// try multiple relative locations because test working dir may vary
 		Path[] candidates = new Path[] {
-			Path.of("solim/src/solim/signal/ReactiveContext.java"),
-			Path.of("src/solim/signal/ReactiveContext.java"),
-			Path.of(System.getProperty("user.dir"), "solim/src/solim/signal/ReactiveContext.java"),
-			Path.of(System.getProperty("user.dir"), "src/solim/signal/ReactiveContext.java")
+			Path.of("solim-runtime/src/solim/runtime/ReactiveContext.java"),
+			Path.of("../solim-runtime/src/solim/runtime/ReactiveContext.java"),
+			Path.of(System.getProperty("user.dir"), "solim-runtime/src/solim/runtime/ReactiveContext.java"),
+			Path.of(System.getProperty("user.dir"), "../solim-runtime/src/solim/runtime/ReactiveContext.java")
 		};
 		String content = null;
 		for (Path p : candidates) {
@@ -68,7 +70,7 @@ class ReactiveContextTest {
 			// walk up to find repo root containing solim folder
 			Path cur = root;
 			for (int i = 0; i < 5; i++) {
-				Path candidate = cur.resolve("solim/src/solim/signal/ReactiveContext.java");
+				Path candidate = cur.resolve("solim-runtime/src/solim/runtime/ReactiveContext.java");
 				if (Files.exists(candidate)) {
 					content = new String(Files.readAllBytes(candidate), StandardCharsets.UTF_8);
 					break;

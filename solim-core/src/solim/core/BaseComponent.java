@@ -12,8 +12,9 @@ import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
+import solim.runtime.ParentStack;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
 
 /**
  * Base class with lazy single-build semantics, ambient lifecycle resource management, and automatic
@@ -83,7 +84,7 @@ public abstract class BaseComponent implements Component {
 		if (cached != null) {
 			return cached;
 		}
-		ComponentContext.push(this);
+		ComponentContext.push(this::own);
 		try {
 			cached = build();
 			if (cached == null) {
@@ -102,11 +103,10 @@ public abstract class BaseComponent implements Component {
 	}
 
 	/**
-	 * Owns a disposable resource: adds it to this component's disposal list and returns it. The
-	 * resource will be disposed (in reverse registration order) when this component is disposed.
-	 * Safe to call with {@code null}.
+	 * Internal framework ownership primitive: adds a disposable resource to this component's
+	 * disposal list and returns it. Package-private: callable only within solim.core framework code.
 	 */
-	public <T extends Disposable> T own(T disposable) {
+	<T extends Disposable> T own(T disposable) {
 		if (disposable != null) {
 			disposables.add(disposable);
 		}

@@ -39,7 +39,7 @@ public final class Switch implements Component {
 				return () -> {};
 			}
 		);
-		solim.core.ComponentContext.register(this);
+		solim.runtime.ComponentContext.register(this);
 	}
 
 	public static Switch of(Signal<Boolean> signal) {

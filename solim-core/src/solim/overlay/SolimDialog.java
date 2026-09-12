@@ -23,8 +23,8 @@ import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ParentStack;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
 
 /**
  * Declarative dialog component for Solim. Wraps a Mindustry BaseDialog while providing

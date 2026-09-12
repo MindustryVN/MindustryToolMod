@@ -11,7 +11,7 @@ import arc.scene.event.InputListener;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.overlay.Hud;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 
 class ScrollTest {
 

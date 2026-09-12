@@ -10,7 +10,9 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import solim.core.ComponentContext;
+import solim.core.ReactiveObserver;
+import solim.runtime.ComponentContext;
+import solim.runtime.ReactiveContext;
 
 /** Lazy computed value with dynamic dependency tracking. */
 public final class Computed<T> implements ReactiveObserver, Readable<T> {
@@ -37,7 +39,7 @@ public final class Computed<T> implements ReactiveObserver, Readable<T> {
 			return cachedValue;
 		}
 		if (ReactiveContext.current() == null && ComponentContext.current() != null) {
-			Log.warn("[Solim Reactivity Warning] Computed.get() was called during build() of component '@'! This severs reactivity. Pass the Computed/Readable directly to the component or use .map(). If an untracked read is intentional, use .peek().", ComponentContext.current().getClass().getSimpleName());
+			Log.warn("[Solim Reactivity Warning] Computed.get() was called during build()! This severs reactivity. Pass the Computed/Readable directly to the component or use .map(). If an untracked read is intentional, use .peek().");
 		}
 		if (dirty || !hasValue) {
 			recompute();

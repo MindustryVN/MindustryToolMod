@@ -1,5 +1,7 @@
 package solim.core;
 
+import solim.runtime.ComponentContext;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.Core;
@@ -10,7 +12,7 @@ import arc.scene.ui.layout.Table;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 import solim.ui.Ui;
 
 class BaseComponentAutoAttachTest {

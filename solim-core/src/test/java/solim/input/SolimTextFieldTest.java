@@ -70,7 +70,7 @@ class SolimTextFieldTest {
 
 		// Update text and submit again
 		text.set("updated text");
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		simulateKey(tf, KeyCode.enter);
 		assertEquals("updated text", submitted[0]);
 
@@ -112,13 +112,13 @@ class SolimTextFieldTest {
 
 		// Signal update that fails validation
 		text.set("ab");
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertFalse(tf.isValid());
 		assertFalse(tf.valid().get());
 
 		// Signal update that passes validation
 		text.set("abcd");
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertTrue(tf.isValid());
 		assertTrue(tf.valid().get());
 
@@ -133,11 +133,11 @@ class SolimTextFieldTest {
 		assertFalse(tf.field().isDisabled());
 
 		disabled.set(true);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertTrue(tf.field().isDisabled());
 
 		disabled.set(false);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertFalse(tf.field().isDisabled());
 
 		tf.dispose();
@@ -152,7 +152,7 @@ class SolimTextFieldTest {
 		tf.onEnter(msg -> {
 			sentMessage[0] = msg;
 			messageSignal.set(""); // Clear message upon sending (e.g. ChatInputView behavior)
-			solim.signal.SignalDispatcher.flush();
+			solim.runtime.SignalDispatcher.flush();
 		});
 
 		// Initial state

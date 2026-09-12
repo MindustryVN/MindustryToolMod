@@ -1,5 +1,7 @@
 package solim.core;
 
+import solim.runtime.ComponentContext;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 import arc.scene.Element;
@@ -12,8 +14,8 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import solim.signal.Effect;
 import solim.signal.Signal;
-import solim.signal.SignalDispatcher;
-import solim.ui.StructuralReconciler;
+import solim.runtime.SignalDispatcher;
+import solim.runtime.StructuralReconciler;
 
 class LifecycleCorrectnessTest {
 

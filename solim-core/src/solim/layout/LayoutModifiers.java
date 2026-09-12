@@ -69,7 +69,7 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 						sizeConstraints().applySizeToParentCell(el);
 					}
 				});
-				solim.core.ComponentContext.register(e);
+				solim.runtime.ComponentContext.register(e);
 			}
 		}
 		return self();
@@ -101,7 +101,7 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 						sizeConstraints().applySizeToParentCell(el);
 					}
 				});
-				solim.core.ComponentContext.register(e);
+				solim.runtime.ComponentContext.register(e);
 			}
 		}
 		return self();
@@ -146,7 +146,7 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 			solim.signal.Effect e = solim.signal.Effect.of(() -> {
 				sizeConstraints().applySizeToParentCell(el);
 			});
-			solim.core.ComponentContext.register(e);
+			solim.runtime.ComponentContext.register(e);
 		}
 		return self();
 	}
@@ -168,7 +168,7 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 			solim.signal.Effect e = solim.signal.Effect.of(() -> {
 				sizeConstraints().applySizeToParentCell(el);
 			});
-			solim.core.ComponentContext.register(e);
+			solim.runtime.ComponentContext.register(e);
 		}
 		return self();
 	}
@@ -192,7 +192,7 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 			solim.signal.Effect e = solim.signal.Effect.of(() -> {
 				sizeConstraints().applySizeToParentCell(el);
 			});
-			solim.core.ComponentContext.register(e);
+			solim.runtime.ComponentContext.register(e);
 		}
 		return self();
 	}
@@ -214,7 +214,7 @@ public interface LayoutModifiers<SELF extends LayoutModifiers<SELF>> {
 			solim.signal.Effect e = solim.signal.Effect.of(() -> {
 				sizeConstraints().applySizeToParentCell(el);
 			});
-			solim.core.ComponentContext.register(e);
+			solim.runtime.ComponentContext.register(e);
 		}
 		return self();
 	}

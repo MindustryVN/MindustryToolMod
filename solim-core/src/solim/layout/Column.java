@@ -8,7 +8,7 @@ import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
 import solim.signal.Readable;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 import solim.ui.Ui;
 
 /** Column layout — vertical Table wrapper. */

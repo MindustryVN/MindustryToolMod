@@ -10,7 +10,7 @@ import arc.scene.ui.layout.CellAccess;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.signal.Signal;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 
 class GridTest {
 
@@ -124,7 +124,7 @@ class GridTest {
 		assertEquals(4f, CellAccess.padTop(g.table().defaults()), 0.01f);
 
 		gap.set(16f);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertEquals(8f, CellAccess.padTop(g.table().defaults()), 0.01f);
 	}
 

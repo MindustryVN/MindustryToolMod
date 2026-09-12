@@ -2,9 +2,9 @@ package solim.input;
 
 import arc.scene.ui.Slider;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
 import solim.signal.Signal;
 
 /** Slider widget bound to Signal&lt;Float&gt;. */

@@ -11,16 +11,17 @@ import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.core.SpacingAware;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
 
 /** Display widget for text content. */
-public final class Text implements Component {
+public final class Text implements Component, SpacingAware {
 
     private final Label label;
     private final List<Disposable> bindings = new ArrayList<>();

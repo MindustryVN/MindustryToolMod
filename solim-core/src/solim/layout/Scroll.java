@@ -13,7 +13,7 @@ import arc.scene.ui.layout.Table;
 import arc.util.Nullable;
 import solim.core.Component;
 import solim.modifier.ElementModifiers;
-import solim.ui.ParentStack;
+import solim.runtime.ParentStack;
 import solim.ui.Ui;
 
 /** Scroll container wrapping a Table in a ScrollPane. */

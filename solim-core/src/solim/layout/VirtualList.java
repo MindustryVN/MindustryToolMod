@@ -17,7 +17,7 @@ import solim.core.Component;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
-import solim.ui.StructuralReconciler;
+import solim.runtime.StructuralReconciler;
 
 /**
  * High-performance virtualized vertical list component.

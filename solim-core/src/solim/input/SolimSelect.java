@@ -48,7 +48,7 @@ public final class SolimSelect<T> implements Component {
 				return () -> {};
 			}
 		);
-		solim.core.ComponentContext.register(this);
+		solim.runtime.ComponentContext.register(this);
 	}
 
 	public static <T> SolimSelect<T> of(Signal<T> signal, List<T> options) {

@@ -55,17 +55,15 @@ public class ChatOverlayHudView extends BaseComponent {
         hud.position(feature.xSignal, feature.ySignal);
         hud.toFrontOnTouch();
 
-        Cons<ResizeEvent> resizeListener = e -> {
+        listen(ResizeEvent.class, e -> {
             keepInScreen();
             Core.app.post(this::keepInScreen);
-        };
-        Events.on(ResizeEvent.class, resizeListener);
-        own(() -> Events.remove(ResizeEvent.class, resizeListener));
+        });
 
-        own(Effect.of(() -> {
+        effect(() -> {
             isCollapsed.get();
             Core.app.post(this::keepInScreen);
-        }));
+        });
 
         Core.app.post(() -> {
             if (hud != null) {

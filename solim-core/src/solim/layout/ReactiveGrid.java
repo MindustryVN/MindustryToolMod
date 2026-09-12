@@ -12,9 +12,11 @@ import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.core.Disposable;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
+import solim.runtime.ParentStack;
+import solim.runtime.StructuralReconciler;
 import solim.signal.Effect;
 import solim.signal.Readable;
-import solim.ui.ParentStack;
 import solim.ui.Ui;
 
 /**
@@ -28,7 +30,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 	private final Readable<? extends Iterable<T>> items;
 	private final Function<T, K> keyExtractor;
 	private final Function<T, Component> itemFactory;
-	private final solim.ui.StructuralReconciler<K, Component> reconciler = new solim.ui.StructuralReconciler<>();
+	private final StructuralReconciler<K, Component> reconciler = new StructuralReconciler<>();
 	private final List<Disposable> itemBindings = new ArrayList<>();
 
 	private Runnable emptyRunnable;
@@ -76,7 +78,7 @@ public final class ReactiveGrid<T, K> extends BaseComponent implements LayoutMod
 
 	public ReactiveGrid<T, K> gap(@Nullable Readable<Float> gapSignal) {
 		if (gapSignal != null) {
-			own(Effect.of(() -> {
+			ComponentContext.register(Effect.of(() -> {
 				Float g = gapSignal.get();
 				if (g != null) {
 					gap(g);

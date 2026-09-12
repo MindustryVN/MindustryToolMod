@@ -137,12 +137,10 @@ public class TeamResourceHudView extends BaseComponent {
         hud.toFrontOnTouch();
 
         // Screen resize clamping with automatic ownership cleanup
-        Cons<ResizeEvent> resizeListener = e -> {
+        listen(ResizeEvent.class, e -> {
             keepInScreen();
             Core.app.post(this::keepInScreen);
-        };
-        Events.on(ResizeEvent.class, resizeListener);
-        own(() -> Events.remove(ResizeEvent.class, resizeListener));
+        });
 
         // Initial layout stabilization
         Core.app.post(() -> {

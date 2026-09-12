@@ -9,8 +9,9 @@ import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
+import solim.runtime.ParentStack;
+import solim.runtime.ReactiveContext;
 import solim.signal.Effect;
-import solim.signal.ReactiveContext;
 import solim.signal.Readable;
 
 /** Structural reactive component for switching dynamic subtrees based on a reactive value. */

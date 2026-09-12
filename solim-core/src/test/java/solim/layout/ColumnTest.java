@@ -91,11 +91,11 @@ class ColumnTest {
 		assertTrue(col.table().visible);
 
 		vis.set(false);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertFalse(col.table().visible);
 
 		vis.set(true);
-		solim.signal.SignalDispatcher.flush();
+		solim.runtime.SignalDispatcher.flush();
 		assertTrue(col.table().visible);
 	}
 
@@ -127,7 +127,7 @@ class ColumnTest {
 		Element child = new Element();
 
 		col.children(() -> {
-			solim.ui.ParentStack.add(child);
+			solim.runtime.ParentStack.add(child);
 		});
 
 		assertEquals(1, col.table().getChildren().size);

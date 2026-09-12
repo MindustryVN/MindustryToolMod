@@ -9,11 +9,11 @@ import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import solim.core.Component;
-import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.layout.LayoutModifiers;
 import solim.layout.SizeConstraints;
 import solim.modifier.ElementModifiers;
+import solim.runtime.ComponentContext;
 import solim.signal.Effect;
 import solim.signal.Readable;
 

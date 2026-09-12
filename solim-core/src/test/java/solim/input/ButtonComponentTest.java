@@ -149,7 +149,7 @@ class ButtonComponentTest {
 	@Test
 	void childrenAddsToButton() {
 		Button btn = new Button().children(() -> {
-			solim.ui.ParentStack.add(new Element());
+			solim.runtime.ParentStack.add(new Element());
 		});
 		assertEquals(1, btn.sizedButton().getChildren().size);
 		btn.dispose();

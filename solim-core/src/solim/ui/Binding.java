@@ -5,7 +5,7 @@ import arc.scene.Element;
 import arc.scene.ui.Button;
 import arc.scene.ui.Label;
 import java.util.function.Consumer;
-import solim.core.ComponentContext;
+import solim.runtime.ComponentContext;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;

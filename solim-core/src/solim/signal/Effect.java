@@ -7,9 +7,14 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 import solim.core.Disposable;
+import solim.core.ReactiveObserver;
+import solim.core.SchedulableEffect;
+import solim.runtime.ComponentContext;
+import solim.runtime.ReactiveContext;
+import solim.runtime.SignalDispatcher;
 
 /** Reactive effect with auto-tracking and cleanup. */
-public final class Effect implements ReactiveObserver, Disposable {
+public final class Effect implements ReactiveObserver, Disposable, SchedulableEffect {
 
 	public interface Cleanup {
 		void add(Runnable runnable);
@@ -76,7 +81,7 @@ public final class Effect implements ReactiveObserver, Disposable {
 	 */
 	private static Effect create(Runnable runnable, Supplier<Runnable> supplier, Consumer<Cleanup> cleanupConsumer) {
 		Effect effect = new Effect(runnable, supplier, cleanupConsumer);
-		solim.core.ComponentContext.register(effect);
+		ComponentContext.register(effect);
 		effect.runEffect();
 		return effect;
 	}
@@ -168,7 +173,8 @@ public final class Effect implements ReactiveObserver, Disposable {
 		SignalDispatcher.enqueue(this);
 	}
 
-	void runPending() {
+	@Override
+	public void runPending() {
 		if (disposed) {
 			pending = false;
 			return;
@@ -177,7 +183,8 @@ public final class Effect implements ReactiveObserver, Disposable {
 		runEffect();
 	}
 
-	void clearPending() {
+	@Override
+	public void clearPending() {
 		pending = false;
 	}
 

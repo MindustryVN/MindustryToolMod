@@ -227,9 +227,12 @@ public class TeamResourceFeature extends Feature {
 
     private static Drawable getFeatureIcon() {
         try {
-            return FileIcon.of("team-resources.png");
-        } catch (Throwable t) {
-            return Icon.layers != null ? Icon.layers : new TextureRegionDrawable();
+            Drawable icon = FileIcon.of("team-resources.png");
+            if (icon != null) {
+                return icon;
+            }
+        } catch (Throwable ignored) {
         }
+        return Icon.layers != null ? Icon.layers : new TextureRegionDrawable();
     }
 }

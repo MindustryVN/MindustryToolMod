@@ -49,11 +49,11 @@ import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
-import solim.signal.SignalDispatcher;
+import solim.runtime.ParentStack;
+import solim.runtime.SignalDispatcher;
 import solim.signal.Signals;
 import solim.ui.Dynamic;
 import solim.ui.ForEach;
-import solim.ui.ParentStack;
 import solim.ui.Units;
 
 /**
