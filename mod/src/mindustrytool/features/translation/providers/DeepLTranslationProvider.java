@@ -5,8 +5,10 @@ import arc.util.serialization.Jval;
 import java.time.Duration;
 import java.util.Locale;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import mindustrytool.features.translation.TranslationFeature;
 import mindustrytool.features.translation.TranslationProvider;
+import mindustrytool.services.HttpException;
 import mindustrytool.services.Request;
 
 /**
@@ -75,7 +77,18 @@ public class DeepLTranslationProvider implements TranslationProvider {
 				.json(body.toString())
 				.withoutAuth()
 				.sendAsync()
-				.thenApply(response -> parseDeepLResponse(response.statusCode(), response.body(), text));
+				.thenApply(response -> parseDeepLResponse(response.statusCode(), response.body(), text))
+				.exceptionally(err -> {
+					Throwable cause = err instanceof CompletionException && err.getCause() != null ? err.getCause() : err;
+					if (cause instanceof HttpException) {
+						HttpException httpErr = (HttpException) cause;
+						throw mapDeepLError(httpErr.statusCode());
+					}
+					if (cause instanceof RuntimeException) {
+						throw (RuntimeException) cause;
+					}
+					throw new RuntimeException(cause);
+				});
 	}
 
 	public static String resolveDeepLLang(String lang) {
@@ -105,26 +118,30 @@ public class DeepLTranslationProvider implements TranslationProvider {
 		}
 	}
 
-	public static String parseDeepLResponse(int statusCode, String jsonResponse, String fallback) {
+	public static RuntimeException mapDeepLError(int statusCode) {
 		if (statusCode == 401 || statusCode == 403) {
-			throw new RuntimeException(Core.bundle != null
+			return new RuntimeException(Core.bundle != null
 					? Core.bundle.get("feature.translation.error.invalid-key", "Invalid API key")
 					: "Invalid API key");
 		}
 		if (statusCode == 429 || statusCode == 456) {
-			throw new RuntimeException(Core.bundle != null
+			return new RuntimeException(Core.bundle != null
 					? Core.bundle.get("feature.translation.error.rate-limit", "Rate limit exceeded")
 					: "Rate limit exceeded");
 		}
 		if (statusCode >= 500) {
-			throw new RuntimeException(Core.bundle != null
+			return new RuntimeException(Core.bundle != null
 					? Core.bundle.get("feature.translation.error.server-error", "Server error")
 					: "Server error");
 		}
+		return new RuntimeException((Core.bundle != null
+				? Core.bundle.get("feature.translation.error.network", "Network error")
+				: "Network error") + " (HTTP " + statusCode + ")");
+	}
+
+	public static String parseDeepLResponse(int statusCode, String jsonResponse, String fallback) {
 		if (statusCode != 200) {
-			throw new RuntimeException((Core.bundle != null
-					? Core.bundle.get("feature.translation.error.network", "Network error")
-					: "Network error") + " (HTTP " + statusCode + ")");
+			throw mapDeepLError(statusCode);
 		}
 
 		if (jsonResponse == null || jsonResponse.trim().isEmpty()) {

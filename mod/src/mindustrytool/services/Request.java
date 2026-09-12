@@ -20,7 +20,13 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Stream;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.JsonNodeFactory;
+
+import arc.util.Nullable;
 import mindustrytool.services.auth.AuthProvider;
+import mindustrytool.utils.JsonUtils;
 
 public final class Request {
 
@@ -279,11 +285,25 @@ public final class Request {
 			int statusCode = conn.getResponseCode();
 			Map<String, List<String>> respHeaders = conn.getHeaderFields();
 
+			if (statusCode < 200 || statusCode >= 400) {
+				InputStream errIn = conn.getErrorStream();
+				if (errIn == null) {
+					try {
+						errIn = conn.getInputStream();
+					} catch (IOException ignored) {
+					}
+				}
+				byte[] errBytes = errIn != null ? readAllBytes(errIn) : new byte[0];
+				String rawBody = errBytes.length > 0 ? new String(errBytes, StandardCharsets.UTF_8) : null;
+				JsonNode errorBody = parseErrorBody(rawBody);
+				throw new HttpException(statusCode, errorBody, rawBody, respHeaders);
+			}
+
 			InputStream in;
 			try {
 				in = conn.getInputStream();
 			} catch (IOException e) {
-				in = conn.getErrorStream();
+				in = new ByteArrayInputStream(new byte[0]);
 			}
 			if (in == null) {
 				in = new ByteArrayInputStream(new byte[0]);
@@ -291,6 +311,17 @@ public final class Request {
 
 			T body = handler.apply(in);
 			return new Response<>(statusCode, respHeaders, body);
+		}
+
+		static @Nullable JsonNode parseErrorBody(@Nullable String rawBody) {
+			if (rawBody == null || rawBody.trim().isEmpty()) {
+				return null;
+			}
+			try {
+				return JsonUtils.readTree(rawBody);
+			} catch (Exception e) {
+				return JsonNodeFactory.instance.textNode(rawBody);
+			}
 		}
 
 		static String resolveUrl(String baseUrl, String url) {

@@ -7,12 +7,16 @@ import arc.graphics.Color;
 import arc.scene.Element;
 import arc.util.Nullable;
 import arc.util.Scaling;
+import arc.util.Timer;
+
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
+import java.util.UUID;
 import mindustry.Vars;
 import mindustry.game.Schematic;
 import mindustry.gen.Icon;
@@ -131,7 +135,7 @@ public class ChatMessageListView extends BaseComponent {
             lastFirstMessageId = firstId;
         });
 
-        Core.app.post(this::scrollToBottom);
+        Timer.schedule(this::scrollToBottom, 1);
 
         return column().grow().top().left().gap(unit(1)).children(() -> {
             dynamic(showEndOfHistory, show -> {
@@ -302,26 +306,74 @@ public class ChatMessageListView extends BaseComponent {
 
         private void buildMessageRow(ParsedChatMessage parsed) {
             ChatMessage raw = parsed.getRaw();
+            String msgId = raw.getId();
             boolean mentioned = (parsed instanceof TextMessage) && ((TextMessage) parsed).isMentionsCurrentUser();
 
-            // Transparent clickable wrapper preserving per-message actions
+            Readable<Set<String>> pendingIds = store.pendingMessageIds();
+            Readable<Set<String>> failedIds = store.failedMessageIds();
+            Readable<Boolean> isPending = pendingIds.map(set -> set != null && set.contains(msgId));
+            Readable<Boolean> isFailed = failedIds.map(set -> set != null && set.contains(msgId));
+
             card().growX().top().left()
                     .onClick(() -> openActions(raw))
                     .children(() -> {
                         row().growX().top().left().gap(unit(1)).children(() -> {
-                            // Accent bar for messages mentioning the current user
                             if (mentioned) {
                                 divider(Direction.Y).color(Pal.accent).width(unit(1));
                             }
 
                             column().growX().top().left().gap(unit(0.5f)).children(() -> {
-                                // Reply target preview
                                 if (raw.getReplyTo() != null && !raw.getReplyTo().isEmpty()) {
                                     buildReplyPreview(raw.getReplyTo());
                                 }
 
-                                // Body
-                                buildMessageBody(parsed);
+                                buildMessageBody(parsed, isPending, isFailed);
+
+                                dynamic(isFailed, failed -> {
+                                    if (Boolean.TRUE.equals(failed)) {
+                                        return row().top().left().gap(unit(1)).padding(unit(0.5f)).children(() -> {
+                                            button(Core.bundle.get("feature.chat.ui.retry", "Retry"), () -> {
+                                                String tempId = "temp_" + UUID.randomUUID();
+                                                String content = raw.getContent();
+                                                String activeChId = store.activeChannelId().peek();
+
+                                                ChatMessage retryMsg = new ChatMessage();
+                                                retryMsg.setId(tempId);
+                                                retryMsg.setCreatedBy(raw.getCreatedBy());
+                                                retryMsg.setCreatedAt(Instant.now().toString());
+                                                retryMsg.setContent(content);
+                                                retryMsg.setReplyTo(raw.getReplyTo());
+                                                retryMsg.setChannelId(activeChId);
+
+                                                store.removeFailedMessage(msgId);
+                                                store.addPendingMessage(tempId);
+                                                store.replaceMessage(msgId, retryMsg);
+
+                                                if (service != null) {
+                                                    service.sendMessage(content, raw.getReplyTo())
+                                                            .whenComplete((realMsg, err) -> {
+                                                                Core.app.post(() -> {
+                                                                    if (err != null) {
+                                                                        store.removePendingMessage(tempId);
+                                                                        store.addFailedMessage(tempId);
+                                                                    } else {
+                                                                        store.removePendingMessage(tempId);
+                                                                        boolean realExists = store.hasMessage(realMsg.getId());
+                                                                        if (realExists) {
+                                                                            store.removeMessage(tempId);
+                                                                        } else {
+                                                                            store.replaceMessage(tempId, realMsg);
+                                                                        }
+                                                                    }
+                                                                });
+                                                            });
+                                                }
+                                            }).style(Styles.defaultt).height(unit(6))
+                                                    .color(Color.scarlet);
+                                        });
+                                    }
+                                    return null;
+                                });
                             });
                         });
                     });
@@ -362,7 +414,17 @@ public class ChatMessageListView extends BaseComponent {
             });
         }
 
-        private void buildMessageBody(ParsedChatMessage parsed) {
+        private void buildMessageBody(ParsedChatMessage parsed, Readable<Boolean> isPending, Readable<Boolean> isFailed) {
+            Readable<Color> bodyColor = new Computed<>(() -> {
+                if (Boolean.TRUE.equals(isFailed.get())) {
+                    return Color.scarlet;
+                }
+                if (Boolean.TRUE.equals(isPending.get())) {
+                    return new Color(1f, 1f, 1f, 0.5f);
+                }
+                return Color.white;
+            });
+
             if (parsed instanceof RoomInviteMessage) {
                 RoomInviteMessage invite = (RoomInviteMessage) parsed;
                 final String link = invite.getConnectLink();
@@ -435,13 +497,13 @@ public class ChatMessageListView extends BaseComponent {
             if (parsed instanceof SchematicMessage) {
                 SchematicMessage schemMsg = (SchematicMessage) parsed;
                 if (schemMsg.getPrefixText() != null && !schemMsg.getPrefixText().isEmpty()) {
-                    text(schemMsg.getPrefixText()).color(Color.white).wrap().left().growX();
+                    text(schemMsg.getPrefixText()).color(bodyColor).wrap().left().growX();
                 }
 
                 buildSchematicCard(schemMsg.getSchematic());
 
                 if (schemMsg.getSuffixText() != null && !schemMsg.getSuffixText().isEmpty()) {
-                    text(schemMsg.getSuffixText()).color(Color.white).wrap().left().growX();
+                    text(schemMsg.getSuffixText()).color(bodyColor).wrap().left().growX();
                 }
                 return;
             }
@@ -449,7 +511,7 @@ public class ChatMessageListView extends BaseComponent {
             if (parsed instanceof TextMessage) {
                 TextMessage txt = (TextMessage) parsed;
                 text(txt.getText())
-                        .color(Color.white)
+                        .color(bodyColor)
                         .left()
                         .wrap()
                         .growX();
@@ -459,7 +521,7 @@ public class ChatMessageListView extends BaseComponent {
             // Fallback
             String fallback = parsed.getContent() != null ? parsed.getContent() : "";
             text(fallback)
-                    .color(Color.white)
+                    .color(bodyColor)
                     .left()
                     .wrap()
                     .growX();

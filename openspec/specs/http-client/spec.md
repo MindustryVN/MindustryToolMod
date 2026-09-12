@@ -130,3 +130,30 @@ The architecture SHALL support `mindustrytool` API with auth, another API with d
 - **WHEN** `src/mindustrytool/services/Request.java` is inspected
 - **THEN** it contains `import java.net.http.HttpRequest` etc. and bodies reference `HttpRequest`, `BodyHandlers`, `BodyPublishers`, `Duration` without `java.net.http.*` prefixes, and contains no `import old.*`
 
+### Requirement: Non-success HTTP status throws HttpException
+
+`Request.sendAsync()` SHALL fail exceptionally with `HttpException` when receiving any HTTP response status code that is `< 200` or `>= 400`. Response status codes in the range `200..399` SHALL be treated as successful and processed by the configured `BodyHandler<T>`.
+
+#### Scenario: Status code 4xx throws HttpException with JSON error body
+- **WHEN** an HTTP request completes with a status code of 400, 401, 403, or 404 and the response body is valid JSON
+- **THEN** `sendAsync()` completes exceptionally with an `HttpException`
+- **AND** `HttpException.statusCode()` returns the response status code
+- **AND** `HttpException.errorBody()` returns a Jackson `JsonNode` representing the parsed JSON structure
+
+#### Scenario: Status code 5xx throws HttpException with text fallback
+- **WHEN** an HTTP request completes with a status code of 500 or 502 and the response body is plain text or HTML
+- **THEN** `sendAsync()` completes exceptionally with an `HttpException`
+- **AND** `HttpException.statusCode()` returns the response status code
+- **AND** `HttpException.errorBody()` returns a Jackson `TextNode` containing the raw response string
+- **AND** `HttpException.rawBody()` returns the raw response string
+
+#### Scenario: Empty error body produces null errorBody
+- **WHEN** an HTTP request completes with a status code >= 400 and an empty response body
+- **THEN** `sendAsync()` completes exceptionally with an `HttpException`
+- **AND** `HttpException.errorBody()` is `null`
+- **AND** `HttpException.rawBody()` is `""` or `null`
+
+#### Scenario: Status codes 2xx and 3xx succeed normally
+- **WHEN** an HTTP request completes with a status code between 200 and 399
+- **THEN** `sendAsync()` completes successfully returning a `Response<T>` containing the parsed body
+

@@ -5,6 +5,8 @@ import static solim.UI.*;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
+import java.time.Instant;
+import java.util.UUID;
 import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
@@ -12,6 +14,7 @@ import mindustry.ui.Styles;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.UserData;
 import mindustrytool.services.auth.AuthOverlay;
+import mindustrytool.services.auth.MindustryAuthProvider;
 import solim.core.BaseComponent;
 import solim.signal.Readable;
 import solim.signal.Signal;
@@ -136,12 +139,44 @@ public class ChatInputView extends BaseComponent {
         ChatMessage replyTarget = store.replyTarget().peek();
         String replyToId = replyTarget != null ? replyTarget.getId() : null;
 
+        String activeChannelId = store.activeChannelId().peek();
+        if (activeChannelId == null || activeChannelId.isEmpty()) {
+            return;
+        }
+
+        String userId = MindustryAuthProvider.getInstance().session().get() != null
+                ? MindustryAuthProvider.getInstance().session().get().getId()
+                : null;
+
+        String tempId = "temp_" + UUID.randomUUID();
+        ChatMessage tempMsg = new ChatMessage();
+        tempMsg.setId(tempId);
+        tempMsg.setCreatedBy(userId);
+        tempMsg.setCreatedAt(Instant.now().toString());
+        tempMsg.setContent(content);
+        tempMsg.setReplyTo(replyToId);
+        tempMsg.setChannelId(activeChannelId);
+
+        store.addPendingMessage(tempId);
+        store.appendMessage(tempMsg, true);
+
         isSending.set(true);
         service.sendMessage(content, replyToId).whenComplete((msg, err) -> {
             Core.app.post(() -> {
                 isSending.set(false);
                 if (err != null) {
+                    store.removePendingMessage(tempId);
+                    store.addFailedMessage(tempId);
                     handleSendError(err);
+                } else {
+                    store.removePendingMessage(tempId);
+                    boolean realExists = store.hasMessage(msg.getId());
+                    if (realExists) {
+                        store.removeMessage(tempId);
+                    } else {
+                        store.replaceMessage(tempId, msg);
+                    }
+                    store.setReplyTarget(null);
                 }
             });
         });

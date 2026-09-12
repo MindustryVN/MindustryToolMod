@@ -4,9 +4,11 @@ import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import mindustrytool.models.response.ChannelDto;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.ChatUser;
@@ -35,6 +37,8 @@ public class ChatStore {
     private final Signal<String> expandedMessageId = Signal.of(null);
     private final Signal<Map<String, String>> translatedMessages = Signal.of(new HashMap<>());
     private final Signal<String> translatingMessageId = Signal.of(null);
+    private final Signal<Set<String>> pendingMessageIds = Signal.of(new HashSet<>());
+    private final Signal<Set<String>> failedMessageIds = Signal.of(new HashSet<>());
     private final Map<String, Readable<UserData>> userComputeds = new HashMap<>();
     private final Computed<String> sessionUsername = MindustryAuthProvider.getInstance().session()
             .map(session -> session != null ? session.getName() : null);
@@ -314,6 +318,99 @@ public class ChatStore {
 
     public void setReplyTarget(@Nullable ChatMessage target) {
         replyTarget.set(target);
+    }
+
+    public Readable<Set<String>> pendingMessageIds() {
+        return pendingMessageIds;
+    }
+
+    public Readable<Set<String>> failedMessageIds() {
+        return failedMessageIds;
+    }
+
+    public void addPendingMessage(String tempId) {
+        if (tempId == null) return;
+        Set<String> set = new HashSet<>(pendingMessageIds.peek());
+        set.add(tempId);
+        pendingMessageIds.set(set);
+    }
+
+    public void removePendingMessage(String tempId) {
+        if (tempId == null) return;
+        Set<String> set = new HashSet<>(pendingMessageIds.peek());
+        set.remove(tempId);
+        pendingMessageIds.set(set);
+    }
+
+    public void addFailedMessage(String tempId) {
+        if (tempId == null) return;
+        Set<String> pending = new HashSet<>(pendingMessageIds.peek());
+        pending.remove(tempId);
+        pendingMessageIds.set(pending);
+        Set<String> failed = new HashSet<>(failedMessageIds.peek());
+        failed.add(tempId);
+        failedMessageIds.set(failed);
+    }
+
+    public void removeFailedMessage(String tempId) {
+        if (tempId == null) return;
+        Set<String> set = new HashSet<>(failedMessageIds.peek());
+        set.remove(tempId);
+        failedMessageIds.set(set);
+    }
+
+    public boolean replaceMessage(String tempId, ChatMessage realMsg) {
+        if (tempId == null || realMsg == null) return false;
+        String chId = realMsg.getChannelId();
+        if (chId == null) return false;
+        Map<String, List<ChatMessage>> current = new HashMap<>(messages.peek() != null ? messages.peek() : Collections.emptyMap());
+        List<ChatMessage> list = current.get(chId);
+        if (list == null) return false;
+        for (int i = 0; i < list.size(); i++) {
+            if (Objects.equals(list.get(i).getId(), tempId)) {
+                List<ChatMessage> newList = new ArrayList<>(list);
+                newList.set(i, realMsg);
+                current.put(chId, newList);
+                messages.set(current);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean removeMessage(String messageId) {
+        if (messageId == null) return false;
+        String chId = activeChannelId.peek();
+        if (chId == null || chId.isEmpty()) return false;
+        Map<String, List<ChatMessage>> current = new HashMap<>(messages.peek() != null ? messages.peek() : Collections.emptyMap());
+        List<ChatMessage> list = current.get(chId);
+        if (list == null) return false;
+        for (int i = 0; i < list.size(); i++) {
+            if (Objects.equals(list.get(i).getId(), messageId)) {
+                List<ChatMessage> newList = new ArrayList<>(list);
+                newList.remove(i);
+                current.put(chId, newList);
+                messages.set(current);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public boolean hasMessage(String messageId) {
+        if (messageId == null) return false;
+        Map<String, List<ChatMessage>> map = messages.peek();
+        if (map == null) return false;
+        for (List<ChatMessage> list : map.values()) {
+            if (list != null) {
+                for (ChatMessage m : list) {
+                    if (Objects.equals(m.getId(), messageId)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     }
 
     public Readable<Map<String, UserData>> userCache() {

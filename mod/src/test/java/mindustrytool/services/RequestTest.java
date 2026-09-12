@@ -2,6 +2,9 @@ package mindustrytool.services;
 
 import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -13,6 +16,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -75,6 +79,34 @@ class RequestTest {
 				try (OutputStream os = exchange.getResponseBody()) {
 					os.write(response);
 				}
+			}
+		});
+		server.createContext("/test-500-text", new HttpHandler() {
+			@Override
+			public void handle(HttpExchange exchange) throws IOException {
+				byte[] response = "Internal Server Error".getBytes(StandardCharsets.UTF_8);
+				exchange.getResponseHeaders().set("Content-Type", "text/plain");
+				exchange.sendResponseHeaders(500, response.length);
+				try (OutputStream os = exchange.getResponseBody()) {
+					os.write(response);
+				}
+			}
+		});
+		server.createContext("/test-502-html", new HttpHandler() {
+			@Override
+			public void handle(HttpExchange exchange) throws IOException {
+				byte[] response = "<html><body>502 Bad Gateway</body></html>".getBytes(StandardCharsets.UTF_8);
+				exchange.getResponseHeaders().set("Content-Type", "text/html");
+				exchange.sendResponseHeaders(502, response.length);
+				try (OutputStream os = exchange.getResponseBody()) {
+					os.write(response);
+				}
+			}
+		});
+		server.createContext("/test-empty-error", new HttpHandler() {
+			@Override
+			public void handle(HttpExchange exchange) throws IOException {
+				exchange.sendResponseHeaders(400, -1);
 			}
 		});
 		server.setExecutor(null);
@@ -202,9 +234,60 @@ class RequestTest {
 		Request client =
 				Request.builder().baseUrl("http://127.0.0.1:" + serverPort).build();
 
-		Request.Response<String> res = client.get("/test-error").sendAsync().get();
-		assertEquals(404, res.statusCode());
-		assertEquals("{\"error\":\"not found\"}", res.body());
+		ExecutionException ex =
+				assertThrows(ExecutionException.class, () -> client.get("/test-error").sendAsync().get());
+		assertTrue(ex.getCause() instanceof HttpException);
+		HttpException httpEx = (HttpException) ex.getCause();
+		assertEquals(404, httpEx.statusCode());
+		assertNotNull(httpEx.errorBody());
+		assertEquals("not found", httpEx.errorBody().get("error").asText());
+		assertEquals("{\"error\":\"not found\"}", httpEx.rawBody());
+	}
+
+	@Test
+	void testErrorResponseTextFallback() throws Exception {
+		Request client =
+				Request.builder().baseUrl("http://127.0.0.1:" + serverPort).build();
+
+		ExecutionException ex =
+				assertThrows(ExecutionException.class, () -> client.get("/test-500-text").sendAsync().get());
+		assertTrue(ex.getCause() instanceof HttpException);
+		HttpException httpEx = (HttpException) ex.getCause();
+		assertEquals(500, httpEx.statusCode());
+		assertNotNull(httpEx.errorBody());
+		assertTrue(httpEx.errorBody().isTextual());
+		assertEquals("Internal Server Error", httpEx.errorBody().asText());
+		assertEquals("Internal Server Error", httpEx.rawBody());
+	}
+
+	@Test
+	void testErrorResponseHtmlFallback() throws Exception {
+		Request client =
+				Request.builder().baseUrl("http://127.0.0.1:" + serverPort).build();
+
+		ExecutionException ex =
+				assertThrows(ExecutionException.class, () -> client.get("/test-502-html").sendAsync().get());
+		assertTrue(ex.getCause() instanceof HttpException);
+		HttpException httpEx = (HttpException) ex.getCause();
+		assertEquals(502, httpEx.statusCode());
+		assertNotNull(httpEx.errorBody());
+		assertTrue(httpEx.errorBody().isTextual());
+		assertEquals("<html><body>502 Bad Gateway</body></html>", httpEx.errorBody().asText());
+		assertEquals("<html><body>502 Bad Gateway</body></html>", httpEx.rawBody());
+	}
+
+	@Test
+	void testEmptyErrorResponse() throws Exception {
+		Request client =
+				Request.builder().baseUrl("http://127.0.0.1:" + serverPort).build();
+
+		ExecutionException ex =
+				assertThrows(ExecutionException.class, () -> client.get("/test-empty-error").sendAsync().get());
+		assertTrue(ex.getCause() instanceof HttpException);
+		HttpException httpEx = (HttpException) ex.getCause();
+		assertEquals(400, httpEx.statusCode());
+		assertNull(httpEx.errorBody());
+		assertTrue(httpEx.rawBody() == null || httpEx.rawBody().isEmpty());
 	}
 
 	@Test

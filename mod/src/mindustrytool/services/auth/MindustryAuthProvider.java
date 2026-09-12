@@ -10,9 +10,11 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import mindustrytool.Config;
 import mindustrytool.events.LoginUriEvent;
 import mindustrytool.models.response.UserSession;
+import mindustrytool.services.HttpException;
 import mindustrytool.services.MindustryTool;
 import mindustrytool.services.Request;
 import solim.signal.Readable;
@@ -139,20 +141,31 @@ public class MindustryAuthProvider implements AuthProvider {
 				.sendAsync()
 				.whenComplete((res, err) -> {
 					if (err != null) {
+						Throwable cause = err;
+						if (cause instanceof CompletionException && cause.getCause() != null) {
+							cause = cause.getCause();
+						}
+						if (cause instanceof HttpException) {
+							HttpException httpErr = (HttpException) cause;
+							if (httpErr.statusCode() == 401) {
+								Core.settings.remove(KEY_ACCESS_TOKEN);
+								Core.settings.remove(KEY_REFRESH_TOKEN);
+								Log.info("Remove tokens after 401");
+								Log.err(httpErr.rawBody());
+								refreshFuture.completeExceptionally(new RuntimeException("Refresh failed: HTTP 401 " + httpErr.rawBody(), httpErr));
+								return;
+							}
+							Log.err("Failed to refresh token: HTTP " + httpErr.statusCode() + " " + httpErr.rawBody());
+							refreshFuture.completeExceptionally(
+									new RuntimeException("Refresh failed: HTTP " + httpErr.statusCode() + " " + httpErr.rawBody(), httpErr));
+							return;
+						}
 						Log.err("Failed to refresh token", err);
 						refreshFuture.completeExceptionally(err);
 						return;
 					}
 					int code = res.statusCode();
 					String body = res.body();
-					if (code == 401) {
-						Core.settings.remove(KEY_ACCESS_TOKEN);
-						Core.settings.remove(KEY_REFRESH_TOKEN);
-						Log.info("Remove tokens after 401");
-						Log.err(body);
-						refreshFuture.completeExceptionally(new RuntimeException("Refresh failed: HTTP 401 " + body));
-						return;
-					}
 					if (code < 200 || code >= 300) {
 						Log.err("Failed to refresh token: HTTP " + code + " " + body);
 						refreshFuture.completeExceptionally(

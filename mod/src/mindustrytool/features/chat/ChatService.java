@@ -158,7 +158,7 @@ public class ChatService {
             return failed;
         }
 
-        return MindustryTool.sendChatMessage("messages", activeId, content, replyTo)
+        return MindustryTool.sendChatMessage("text", activeId, content, replyTo)
                 .thenApply(msg -> {
                     Core.app.post(() -> {
                         store.appendMessage(msg, windowOpenSupplier.get());
@@ -280,7 +280,8 @@ public class ChatService {
     }
 
     public void fetchMissingUsers(List<ChatMessage> messages) {
-        if (messages == null || messages.isEmpty()) return;
+        if (messages == null || messages.isEmpty())
+            return;
         Map<String, UserData> cached = store.userCache().peek();
         List<String> missing = new ArrayList<>();
         for (ChatMessage msg : messages) {
