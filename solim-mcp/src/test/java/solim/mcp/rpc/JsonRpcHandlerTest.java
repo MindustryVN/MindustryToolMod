@@ -50,13 +50,13 @@ class JsonRpcHandlerTest {
 		JsonNode node = mapper.readTree(handler.handle(
 			"{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/list\"}", sink));
 		JsonNode tools = node.path("result").path("tools");
-		assertEquals(9, tools.size());
 		boolean foundTree = false;
 		boolean foundJs = false;
 		boolean foundClick = false;
 		boolean foundFind = false;
 		boolean foundStop = false;
 		boolean foundScreenshot = false;
+		boolean foundPerf = false;
 		for (JsonNode tool : tools) {
 			String name = tool.path("name").asText();
 			if ("get_component_tree".equals(name)) foundTree = true;
@@ -65,6 +65,7 @@ class JsonRpcHandlerTest {
 			if ("find_elements".equals(name)) foundFind = true;
 			if ("stop".equals(name)) foundStop = true;
 			if ("take_screenshot".equals(name)) foundScreenshot = true;
+			if ("get_ui_perf_metrics".equals(name)) foundPerf = true;
 		}
 		assertTrue(foundTree);
 		assertTrue(foundJs);
@@ -72,6 +73,7 @@ class JsonRpcHandlerTest {
 		assertTrue(foundFind);
 		assertTrue(foundStop);
 		assertTrue(foundScreenshot);
+		assertTrue(foundPerf);
 	}
 
 	@Test

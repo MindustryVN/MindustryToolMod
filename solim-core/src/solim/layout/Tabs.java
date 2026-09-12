@@ -93,24 +93,35 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 		Table contentContainer = new Table();
 		contentContainer.top().left();
 		contentContainer.userObject = "expanding";
-		ParentStack.push(contentContainer, Column.ATTACHER);
-		try {
-			if (contentBuilder != null) {
-				contentBuilder.run();
+		tabContents.add(contentContainer);
+		contentStack.add(contentContainer);
+
+		boolean[] built = new boolean[]{false};
+		Runnable mountContent = () -> {
+			if (!built[0]) {
+				built[0] = true;
+				ParentStack.push(contentContainer, Column.ATTACHER);
+				try {
+					if (contentBuilder != null) {
+						contentBuilder.run();
+					}
+				} finally {
+					ParentStack.pop();
+				}
 			}
-		} finally {
-			ParentStack.pop();
-		}
+		};
 
 		Effect eff = Effect.of(() -> {
 			Integer cur = activeTab.get();
-			contentContainer.visible = (cur != null && cur == index);
+			boolean isActive = (cur != null && cur == index);
+			if (isActive) {
+				mountContent.run();
+			}
+			contentContainer.visible = isActive;
+			contentContainer.setLayoutEnabled(isActive);
 		});
 		bindings.add(eff);
 		ComponentContext.register(eff);
-
-		tabContents.add(contentContainer);
-		contentStack.add(contentContainer);
 
 		return this;
 	}

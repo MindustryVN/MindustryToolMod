@@ -56,7 +56,7 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 			if (needsLayout()) {
 				float pw = getPrefWidth();
 				float ph = getPrefHeight();
-				if (pw > 0f && ph > 0f && (Math.abs(getWidth() - pw) > 0.5f || Math.abs(getHeight() - ph) > 0.5f)) {
+				if (pw > 0f && ph > 0f && (Math.abs(getWidth() - pw) > 1.0f || Math.abs(getHeight() - ph) > 1.0f)) {
 					setSize(pw, ph);
 					if (hud != null) {
 						hud.keepInScreen();
@@ -336,10 +336,10 @@ public class Hud implements Component, LayoutModifiers<Hud> {
 
 		root.setPosition(curX, curY);
 
-		if (boundXSignal != null && (boundXSignal.get() == null || boundXSignal.get() != curX)) {
+		if (boundXSignal != null && (boundXSignal.get() == null || Math.abs(boundXSignal.get() - curX) > 0.5f)) {
 			boundXSignal.set(curX);
 		}
-		if (boundYSignal != null && (boundYSignal.get() == null || boundYSignal.get() != curY)) {
+		if (boundYSignal != null && (boundYSignal.get() == null || Math.abs(boundYSignal.get() - curY) > 0.5f)) {
 			boundYSignal.set(curY);
 		}
 	}

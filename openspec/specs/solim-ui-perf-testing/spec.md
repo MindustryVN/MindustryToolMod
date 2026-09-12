@@ -1,10 +1,8 @@
 # solim-ui-perf-testing Specification
 
 ## Purpose
-Provides an automated benchmarking suite and runtime UI profiling instrumentation for Solim UI, enabling measurement and regression testing of layout performance, reactive dispatch latency, Scene2D element scale, and draw-call overhead.
-
-## ADDED Requirements
-
+TBD - created by archiving change solim-ui-perf-testing. Update Purpose after archive.
+## Requirements
 ### Requirement: Headless Layout and Hierarchy Benchmarks
 The system SHALL provide automated headless benchmarks in `solim-core` that measure component instantiation time, element tree size, and `validate()` layout traversal duration for large component collections (100–1,000 items).
 
@@ -40,3 +38,4 @@ The system SHALL provide an MCP tool (`get_ui_perf_metrics`) allowing automated 
 #### Scenario: Querying UI performance metrics via MCP
 - **WHEN** the `get_ui_perf_metrics` tool is called
 - **THEN** it returns a structured JSON report containing FPS, active element counts, visible element counts, layout pass counts, and active reactive bindings.
+

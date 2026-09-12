@@ -36,6 +36,7 @@ import solim.layout.Scroll;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
+import solim.signal.Signal;
 
 public class ChatMessageListView extends BaseComponent {
 
@@ -51,6 +52,7 @@ public class ChatMessageListView extends BaseComponent {
     private @Nullable String lastChannelId = null;
     private int lastMessageCount = 0;
     private @Nullable String lastFirstMessageId = null;
+    private final Signal<Integer> mobileWindowSize = Signal.of(30);
 
     public ChatMessageListView(ChatStore store) {
         this(store, null);
@@ -67,6 +69,12 @@ public class ChatMessageListView extends BaseComponent {
         Readable<Boolean> showEndOfHistory = new Computed<>(() -> {
             Boolean fully = store.activeChannelFullyLoaded().get();
             Boolean has = hasMessages.get();
+            if (Vars.mobile) {
+                var msgs = store.activeMessages().get();
+                int currentWin = mobileWindowSize.get() != null ? mobileWindowSize.get() : 30;
+                boolean allInWindow = msgs == null || msgs.size() <= currentWin;
+                return Boolean.TRUE.equals(fully) && Boolean.TRUE.equals(has) && allInWindow;
+            }
             return Boolean.TRUE.equals(fully) && Boolean.TRUE.equals(has);
         });
 
@@ -75,9 +83,16 @@ public class ChatMessageListView extends BaseComponent {
             if (msgs == null || msgs.isEmpty()) {
                 return Collections.emptyList();
             }
-            List<DisplayMessage> result = new ArrayList<>(msgs.size());
+            List<ChatMessage> effectiveMsgs = msgs;
+            if (Vars.mobile) {
+                int winSize = mobileWindowSize.get() != null ? mobileWindowSize.get() : 30;
+                if (msgs.size() > winSize) {
+                    effectiveMsgs = msgs.subList(msgs.size() - winSize, msgs.size());
+                }
+            }
+            List<DisplayMessage> result = new ArrayList<>(effectiveMsgs.size());
             String lastAuthor = null;
-            for (ChatMessage msg : msgs) {
+            for (ChatMessage msg : effectiveMsgs) {
                 boolean isFirst = !Objects.equals(lastAuthor, msg.getCreatedBy());
                 result.add(new DisplayMessage(msg, isFirst));
                 lastAuthor = msg.getCreatedBy();
@@ -91,6 +106,7 @@ public class ChatMessageListView extends BaseComponent {
                 lastChannelId = chanId;
                 lastMessageCount = 0;
                 lastFirstMessageId = null;
+                mobileWindowSize.set(30);
                 scrollToBottom();
             }
         });
@@ -154,6 +170,13 @@ public class ChatMessageListView extends BaseComponent {
                     .onReachTop(50f, () -> {
                         String activeId = store.activeChannelId().peek();
                         var msgs = store.activeMessages().peek();
+                        if (Vars.mobile && msgs != null) {
+                            int currentWin = mobileWindowSize.peek() != null ? mobileWindowSize.peek() : 30;
+                            if (msgs.size() > currentWin) {
+                                mobileWindowSize.set(Math.min(msgs.size(), currentWin + 20));
+                                return;
+                            }
+                        }
                         if (activeId != null && !activeId.isEmpty() && service != null && msgs != null
                                 && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())
                                 && !store.isFullyLoaded(activeId)) {

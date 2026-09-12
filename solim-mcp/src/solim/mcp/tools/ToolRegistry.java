@@ -30,6 +30,7 @@ public final class ToolRegistry {
 		register(new ClickElementTool(snapshotRoot));
 		register(new ScreenshotTool());
 		register(new ExecuteJsTool());
+		register(new UiPerfMetricsTool(snapshotRoot));
 		register(exitAction != null ? new StopTool(exitAction) : new StopTool());
 	}
 

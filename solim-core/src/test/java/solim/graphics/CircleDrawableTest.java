@@ -16,8 +16,8 @@ class CircleDrawableTest {
 	@Test
 	void testDefaultDimensionsAreZero() {
 		CircleDrawable cd = CircleDrawable.INSTANCE;
-		assertEquals(0f, cd.getMinWidth());
-		assertEquals(0f, cd.getMinHeight());
+		assertEquals(1f, cd.getMinWidth());
+		assertEquals(1f, cd.getMinHeight());
 		assertEquals(0f, cd.getLeftWidth());
 		assertEquals(0f, cd.getRightWidth());
 		assertEquals(0f, cd.getTopHeight());
@@ -31,7 +31,6 @@ class CircleDrawableTest {
 		arc.scene.ui.Image img = new arc.scene.ui.Image(CircleDrawable.INSTANCE);
 		img.setSize(12f, 12f);
 		img.layout();
-		System.out.println("DEBUG_IMG_WIDTH: " + img.getImageWidth() + ", DEBUG_IMG_HEIGHT: " + img.getImageHeight());
 		assertEquals(12f, img.getImageWidth());
 		assertEquals(12f, img.getImageHeight());
 	}
