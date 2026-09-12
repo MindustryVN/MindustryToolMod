@@ -12,16 +12,21 @@ import mindustry.Vars;
 import mindustry.gen.Icon;
 import mindustry.ui.Styles;
 import mindustrytool.events.LoginUriEvent;
-import mindustrytool.events.SessionLoadEvent;
 import mindustrytool.models.response.UserSession;
 import solim.core.Component;
-import solim.signal.Signal;
+import solim.signal.Computed;
 
 public class AuthOverlay {
 	private static AuthOverlay instance;
 
 	private AuthLoginDialog loginDialog;
-	private final Signal<AuthState> state = Signal.of(new AuthState(false, null, null));
+	private final Computed<AuthState> state = new Computed<>(() -> {
+		MindustryAuthProvider auth = MindustryAuthProvider.getInstance();
+		return new AuthState(
+				Boolean.TRUE.equals(auth.sessionLoading().get()),
+				auth.sessionError().get(),
+				auth.session().get());
+	});
 
 	public static class AuthState {
 		public final boolean isLoading;
@@ -59,10 +64,6 @@ public class AuthOverlay {
 			overlayEl.name = "authWindow";
 			Vars.ui.menuGroup.addChild(overlayEl);
 			overlayEl.toFront();
-		});
-
-		Events.on(SessionLoadEvent.class, e -> {
-			state.set(new AuthState(e.isLoading, e.error, e.user));
 		});
 
 		Events.on(LoginUriEvent.class, e -> {

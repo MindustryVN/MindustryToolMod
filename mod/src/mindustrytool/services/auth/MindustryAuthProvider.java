@@ -3,6 +3,7 @@ package mindustrytool.services.auth;
 import arc.Core;
 import arc.Events;
 import arc.util.Log;
+import arc.util.Nullable;
 import arc.util.Timer;
 import arc.util.serialization.Jval;
 import java.time.Duration;
@@ -10,13 +11,12 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.concurrent.CompletableFuture;
 import mindustrytool.Config;
-import mindustrytool.events.LoginEvent;
 import mindustrytool.events.LoginUriEvent;
-import mindustrytool.events.LogoutEvent;
-import mindustrytool.events.SessionLoadEvent;
 import mindustrytool.models.response.UserSession;
 import mindustrytool.services.MindustryTool;
 import mindustrytool.services.Request;
+import solim.signal.Readable;
+import solim.signal.Signal;
 
 /**
  * Merged auth provider for the rewritten codebase. Implements AuthProvider and owns a Request
@@ -35,7 +35,17 @@ public class MindustryAuthProvider implements AuthProvider {
 	private final Request api;
 	private CompletableFuture<Void> refreshFuture;
 	private CompletableFuture<Void> loginFuture;
-	private UserSession currentSession;
+
+	/**
+	 * Single reactive source of truth for session identity (null when no session is loaded).
+	 *
+	 * <p><b>Threading contract:</b> mutated exclusively on the main thread. Solim signals notify
+	 * observers synchronously on the calling thread, so setting from a network callback would run
+	 * UI-bound computeds off the GL thread. All sets go through {@code Core.app.post}.
+	 */
+	private final Signal<UserSession> session = Signal.of(null);
+	private final Signal<Boolean> sessionLoading = Signal.of(false);
+	private final Signal<Throwable> sessionError = Signal.of(null);
 
 	public static MindustryAuthProvider getInstance() {
 		if (instance == null) {
@@ -174,25 +184,50 @@ public class MindustryAuthProvider implements AuthProvider {
 
 	// ─── Session ──────────────────────────────
 
-	public UserSession getSession() {
-		return currentSession;
+	/** Reactive session identity for UI bindings. Prefer this over {@link #getSession()}. */
+	public Readable<UserSession> session() {
+		return session;
+	}
+
+	/** Reactive fetch-in-flight flag for UI bindings. */
+	public Readable<Boolean> sessionLoading() {
+		return sessionLoading;
+	}
+
+	/** Reactive fetch failure for UI bindings (null when no error). */
+	public Readable<Throwable> sessionError() {
+		return sessionError;
+	}
+
+	/**
+	 * Non-subscribing read of the current session for non-reactive contexts (e.g. the static
+	 * chat message parser). Reactive code MUST use {@link #session()} instead so updates propagate.
+	 */
+	public @Nullable UserSession getSession() {
+		return session.peek();
 	}
 
 	public CompletableFuture<UserSession> fetchSession() {
-		Core.app.post(() -> Events.fire(new SessionLoadEvent(currentSession, null, true)));
-		return MindustryTool.getSession().handle((session, err) -> {
+		Core.app.post(() -> {
+			sessionLoading.set(true);
+			sessionError.set(null);
+		});
+		return MindustryTool.getSession().handle((fetched, err) -> {
 			if (err != null) {
 				Throwable cause = err.getCause() != null ? err.getCause() : err;
-				Core.app.post(() -> Events.fire(new SessionLoadEvent(currentSession, cause, false)));
+				Core.app.post(() -> {
+					sessionError.set(cause);
+					sessionLoading.set(false);
+				});
 				throw new RuntimeException(cause);
 			}
-			this.currentSession = session;
-			UserSession finalSession = session;
-			Core.app.post(() -> Events.fire(new SessionLoadEvent(finalSession, null, false)));
-			if (session != null) {
-				Events.fire(session);
-			}
-			return session;
+			UserSession finalSession = fetched;
+			Core.app.post(() -> {
+				session.set(finalSession);
+				sessionError.set(null);
+				sessionLoading.set(false);
+			});
+			return fetched;
 		});
 	}
 
@@ -274,7 +309,6 @@ public class MindustryAuthProvider implements AuthProvider {
 						if (e != null) {
 							future.completeExceptionally(e);
 						} else {
-							Core.app.post(() -> Events.fire(new LoginEvent()));
 							future.complete(null);
 						}
 					});
@@ -309,9 +343,11 @@ public class MindustryAuthProvider implements AuthProvider {
 		Core.settings.remove(KEY_REFRESH_TOKEN);
 		Core.settings.remove(KEY_LOGIN_ID);
 
-		fetchSession();
-
-		Events.fire(new LogoutEvent());
+		Core.app.post(() -> {
+			session.set(null);
+			sessionError.set(null);
+			sessionLoading.set(false);
+		});
 
 		Log.info("Logged out");
 	}

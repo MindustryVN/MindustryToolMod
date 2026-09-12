@@ -1,6 +1,5 @@
 package mindustrytool.features.chat;
 
-import arc.Events;
 import arc.util.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -8,9 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import mindustrytool.events.LoginEvent;
-import mindustrytool.events.LogoutEvent;
-import mindustrytool.events.SessionLoadEvent;
 import mindustrytool.models.response.ChannelDto;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.ChatUser;
@@ -19,10 +15,12 @@ import mindustrytool.services.auth.MindustryAuthProvider;
 import solim.signal.Computed;
 import solim.signal.Readable;
 import solim.signal.Signal;
+import solim.signal.Subscription;
 
 public class ChatStore {
 
-    private final Signal<Boolean> loggedIn = Signal.of(MindustryAuthProvider.getInstance().isLoggedIn());
+    private final Computed<Boolean> loggedIn = new Computed<>(() ->
+            MindustryAuthProvider.getInstance().session().get() != null);
     private final Signal<List<ChannelDto>> channels = Signal.of(Collections.emptyList());
     private final Signal<String> activeChannelId = Signal.of("");
     private final Signal<Map<String, List<ChatMessage>>> messages = Signal.of(new HashMap<>());
@@ -38,6 +36,9 @@ public class ChatStore {
     private final Signal<Map<String, String>> translatedMessages = Signal.of(new HashMap<>());
     private final Signal<String> translatingMessageId = Signal.of(null);
     private final Map<String, Readable<UserData>> userComputeds = new HashMap<>();
+    private final Computed<String> sessionUsername = MindustryAuthProvider.getInstance().session()
+            .map(session -> session != null ? session.getName() : null);
+    private final Subscription sessionSubscription;
 
     private final Computed<List<ChatMessage>> activeMessages = new Computed<>(() -> {
         String activeId = activeChannelId.get();
@@ -86,9 +87,12 @@ public class ChatStore {
     });
 
     public ChatStore() {
-        Events.on(SessionLoadEvent.class, e -> loggedIn.set(MindustryAuthProvider.getInstance().isLoggedIn()));
-        Events.on(LoginEvent.class, e -> loggedIn.set(true));
-        Events.on(LogoutEvent.class, e -> loggedIn.set(false));
+        // Owns parser cache invalidation for the app lifetime (same lifetime as the static cache).
+        // Narrowed to the username so periodic refetches of the same user don't clear the cache.
+        // The prime read is load-bearing: a never-read Computed stays dirty and its listeners
+        // would never fire (see Computed.invalidate).
+        sessionSubscription = sessionUsername.subscribe(username -> ChatMessageParser.clearCache());
+        sessionUsername.peek();
     }
 
     public Readable<Boolean> loggedIn() {
