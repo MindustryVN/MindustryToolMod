@@ -171,10 +171,10 @@ build/
 .agent/skills/i18n-localization/
 .agent/skills/java-architect/
 
-mindustry/
+/mindustry/
 archive/
 bin/
-arc/
+/arc/
 .bin
 backup/
 scratch/
