@@ -35,9 +35,11 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
 		if (this.direction == Direction.Y) {
 			growY();
 			width(1.5f);
+            minWidth(1.5f);
 		} else {
 			growX();
 			height(1.5f);
+            minHeight(1.5f);
 		}
 	}
 

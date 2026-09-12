@@ -15,7 +15,7 @@ import mindustry.ui.Fonts;
 import mindustry.ui.Styles;
 import mindustrytool.models.response.ChannelDto;
 import solim.core.BaseComponent;
-import solim.graphics.ColoredDrawable;
+import solim.graphics.RoundedDrawable;
 import solim.layout.SolimStack;
 import solim.signal.Computed;
 import solim.signal.Readable;
@@ -58,12 +58,19 @@ public class ChatChannelListView extends BaseComponent {
         private static final Color SELECTED_BG = new Color(0.45f, 0.35f, 0.9f, 0.8f);
         private static final TextButtonStyle selectedStyle = new TextButtonStyle() {
             {
-                down = Styles.flatDown;
-                up =new ColoredDrawable(SELECTED_BG, Tex.whiteui);
-                over = Styles.flatOver;
+                down = new RoundedDrawable(unit(2), SELECTED_BG);
+                up = new RoundedDrawable(unit(2), SELECTED_BG);
+                over = new RoundedDrawable(unit(2), SELECTED_BG);
                 font = Fonts.def;
                 fontColor = Color.white;
                 disabledFontColor = Color.gray;
+            }
+        };
+
+        private static final TextButtonStyle defaultStyle = new TextButtonStyle(Styles.cleart) {
+            {
+                down = new RoundedDrawable(unit(2), Color.gray);
+                over = new RoundedDrawable(unit(2), Color.gray);
             }
         };
 
@@ -83,10 +90,11 @@ public class ChatChannelListView extends BaseComponent {
             Readable<Boolean> hasUnread = store.channelUnread(channel.getId())
                     .map(count -> count != null && count > 0);
 
-            Computed<ButtonStyle> style = isSelected.map(s -> s ? selectedStyle : Styles.cleart);
+            Computed<ButtonStyle> style = isSelected.map(s -> s ? selectedStyle : defaultStyle);
 
             SolimStack stack = new SolimStack()
                     .growX()
+                    .marginTop(unit(1))
                     .height(unit(10))
                     .layer(() -> row().grow().left().children(() -> {
                         button(() -> store.setActiveChannelId(channel.getId()))
@@ -94,12 +102,8 @@ public class ChatChannelListView extends BaseComponent {
                                 .margin(unit(1))
                                 .left()
                                 .grow()
-                                .rounded(unit(4))
                                 .children(() -> {
-                                    text("# " + channel.getName())
-                                            .left()
-                                            .color(isSelected.map(sel -> Boolean.TRUE.equals(sel) ? Pal.accent
-                                                    : Color.white));
+                                    text("# " + channel.getName()).left();
                                 });
                         image(Tex.whiteui)
                                 .size(unit(1.5f), unit(1.5f))

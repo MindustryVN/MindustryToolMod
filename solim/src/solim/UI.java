@@ -504,6 +504,10 @@ public final class UI {
         return value * BASE_UNIT;
     }
 
+    public static int unit(int value) {
+        return value * (int) BASE_UNIT;
+    }
+
     public static Computed<Float> dvw(float percentage) {
         return Units.dvw(percentage);
     }

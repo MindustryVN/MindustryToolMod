@@ -125,6 +125,7 @@ public class AuthOverlay {
 						}
 
 						UserSession user = s.user;
+
 						return card()
 								.top()
 								.right()
