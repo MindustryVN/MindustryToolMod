@@ -65,12 +65,12 @@ subprojects{
 
 	dependencies{
 		compileOnly mindustryVersion == "be" ? "Anuken:MindustryBuilds:latest" : "Anuken:Mindustry:$mindustryVersion"
-		compileOnly 'org.projectlombok:lombok:1.18.32'
+		compileOnly 'org.projectlombok:lombok:1.18.36'
 
 		implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.2'
 		implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.2'
 
-		annotationProcessor 'org.projectlombok:lombok:1.18.32'
+		annotationProcessor 'org.projectlombok:lombok:1.18.36'
 
 		testImplementation 'org.junit.jupiter:junit-jupiter:5.10.2'
 		testRuntimeOnly 'org.junit.platform:junit-platform-launcher:1.10.2'

@@ -1,5 +1,6 @@
 package solim.display;
 
+import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.ui.Label;
@@ -45,7 +46,7 @@ public final class Text implements Component {
 	public Text(String text, Label.LabelStyle style) {
 		this.label = style != null
 				? new Label(text != null ? text : "", style)
-				: new Label(text != null ? text : "");
+				: (Core.scene != null ? new Label(text != null ? text : "") : new Label(text != null ? text : "", new Label.LabelStyle()));
 		this.label.name = "solim-text-label";
 	}
 

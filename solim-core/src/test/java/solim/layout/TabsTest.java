@@ -2,22 +2,19 @@ package solim.layout;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import arc.Core;
+import arc.graphics.Color;
 import arc.scene.event.ClickListener;
 import arc.scene.event.InputEvent;
-import org.junit.jupiter.api.Assumptions;
-import org.junit.jupiter.api.BeforeAll;
+import arc.scene.ui.Button.ButtonStyle;
+import arc.scene.ui.layout.Cell;
+import arc.scene.ui.layout.CellAccess;
 import org.junit.jupiter.api.Test;
 import solim.display.Text;
+import solim.graphics.RoundedDrawable;
 import solim.input.Button;
 import solim.signal.Signal;
 
 class TabsTest {
-
-	@BeforeAll
-	static void checkArcContext() {
-		Assumptions.assumeTrue(Core.scene != null, "Arc Core.scene is null; skipping skin-dependent tests");
-	}
 
 	private void simulateClick(Button button) {
 		InputEvent event = new InputEvent();
@@ -26,6 +23,80 @@ class TabsTest {
 				((ClickListener) l).clicked(event, 0f, 0f);
 			}
 		});
+	}
+
+	@Test
+	void headerBarDefaultGapUsesElementModifiers() {
+		Tabs tabs = new Tabs(Signal.of(0));
+		assertEquals(2f, CellAccess.padTop(tabs.headerBar().defaults()), 0.01f);
+		assertEquals(2f, CellAccess.padLeft(tabs.headerBar().defaults()), 0.01f);
+		assertEquals(2f, CellAccess.padBottom(tabs.headerBar().defaults()), 0.01f);
+		assertEquals(2f, CellAccess.padRight(tabs.headerBar().defaults()), 0.01f);
+
+		tabs.tab("Tab 1", () -> {});
+		tabs.tab("Tab 2", () -> {});
+
+		assertEquals(2, tabs.headerBar().getCells().size);
+		for (Cell<?> cell : tabs.headerBar().getCells()) {
+			assertEquals(2f, CellAccess.padTop(cell), 0.01f);
+			assertEquals(2f, CellAccess.padLeft(cell), 0.01f);
+			assertEquals(2f, CellAccess.padBottom(cell), 0.01f);
+			assertEquals(2f, CellAccess.padRight(cell), 0.01f);
+		}
+		tabs.dispose();
+	}
+
+	@Test
+	void headerBarCustomGapUpdatesHeaderBarCells() {
+		Tabs tabs = new Tabs(Signal.of(0));
+		tabs.tab("Tab 1", () -> {});
+		tabs.headerGap(12f);
+
+		assertEquals(6f, CellAccess.padTop(tabs.headerBar().defaults()), 0.01f);
+		for (Cell<?> cell : tabs.headerBar().getCells()) {
+			assertEquals(6f, CellAccess.padTop(cell), 0.01f);
+			assertEquals(6f, CellAccess.padLeft(cell), 0.01f);
+			assertEquals(6f, CellAccess.padBottom(cell), 0.01f);
+			assertEquals(6f, CellAccess.padRight(cell), 0.01f);
+		}
+		tabs.dispose();
+	}
+
+	@Test
+	void tabTriggerDefaultStylingUsesRoundedBorderWithTransparentBackground() {
+		Tabs tabs = new Tabs(Signal.of(0))
+				.tab("Tab A", () -> {})
+				.tab("Tab B", () -> {});
+
+		assertEquals(2, tabs.buttons().size());
+		for (Button btn : tabs.buttons()) {
+			assertTrue(btn.sizedButton().getBackground() instanceof RoundedDrawable);
+			RoundedDrawable rd = (RoundedDrawable) btn.sizedButton().getBackground();
+			assertEquals(10, rd.getRadius());
+			assertEquals(Color.clear, rd.getFillColor());
+			assertEquals(2f, rd.getStroke(), 0.001f);
+			assertEquals(Color.gray, rd.getBorderColor());
+
+			assertSame(rd, btn.sizedButton().getStyle().up);
+			assertNotNull(btn.sizedButton().getStyle().checked);
+			assertTrue(btn.sizedButton().getStyle().checked instanceof RoundedDrawable);
+			assertNotNull(btn.sizedButton().getStyle().over);
+			assertTrue(btn.sizedButton().getStyle().over instanceof RoundedDrawable);
+			assertNotNull(btn.sizedButton().getStyle().down);
+			assertTrue(btn.sizedButton().getStyle().down instanceof RoundedDrawable);
+		}
+		tabs.dispose();
+	}
+
+	@Test
+	void tabTriggerCustomButtonStylePreservedWhenSpecified() {
+		ButtonStyle customStyle = new ButtonStyle();
+		Tabs tabs = new Tabs(Signal.of(0))
+				.tabStyle(customStyle)
+				.tab("Tab A", () -> {});
+
+		assertSame(customStyle, tabs.buttons().get(0).sizedButton().getStyle());
+		tabs.dispose();
 	}
 
 	@Test

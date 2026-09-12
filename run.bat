@@ -61,6 +61,11 @@ if exist "%TARGET_FILE%" (
 :: Build the JAR using Gradle
 echo Building JAR...
 call %BUILD_TOOL%
+if %ERRORLEVEL% neq 0 (
+    echo Build failed!
+    pause
+    exit /b 1
+)
 
 :: Check if JAR was built
 if not exist "%JAR_PATH%" (

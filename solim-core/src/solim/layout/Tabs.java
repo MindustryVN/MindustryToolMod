@@ -1,5 +1,6 @@
 package solim.layout;
 
+import arc.graphics.Color;
 import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button.ButtonStyle;
@@ -12,12 +13,14 @@ import solim.core.ComponentContext;
 import solim.core.Disposable;
 import solim.display.SolimImage;
 import solim.display.Text;
+import solim.graphics.RoundedDrawable;
 import solim.input.Button;
 import solim.modifier.ElementModifiers;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
 import solim.ui.ParentStack;
+import solim.ui.Ui;
 
 /**
  * Tabs layout component: provides a tab header button bar and switches between tab content panels reactively.
@@ -44,6 +47,7 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 		this.headerBar = new Table();
 		this.headerBar.name = "solim-tabs-headerBar";
 		this.headerBar.top().left();
+		ElementModifiers.gap(this.headerBar, 4f);
 		this.root.add(headerBar).growX().row();
 
 		this.contentStack = new SolimStack();
@@ -54,6 +58,15 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 
 	public static Tabs of(Signal<Integer> activeTab) {
 		return new Tabs(activeTab);
+	}
+
+	public Tabs headerGap(float gap) {
+		ElementModifiers.gap(this.headerBar, gap);
+		return this;
+	}
+
+	public Tabs gap(float gap) {
+		return headerGap(gap);
 	}
 
 	public Tabs tabStyle(@Nullable ButtonStyle style) {
@@ -77,15 +90,24 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 		int index = tabButtons.size();
 
 		Button btn = new Button(tabButtonStyle);
+		if (tabButtonStyle == null) {
+			btn.rounded(10, Color.clear).border(2f, Color.gray);
+			ButtonStyle s = btn.sizedButton().getStyle();
+			if (s != null) {
+				s.checked = RoundedDrawable.of(10, new Color(1f, 1f, 1f, 0.12f), 2f, Color.white);
+				s.over = RoundedDrawable.of(10, new Color(1f, 1f, 1f, 0.06f), 2f, Color.lightGray);
+				s.down = RoundedDrawable.of(10, new Color(1f, 1f, 1f, 0.18f), 2f, Color.white);
+			}
+		}
 		btn.onClick(() -> activeTab.set(index));
 		btn.checked(activeTab.map(idx -> idx != null && idx == index));
 		btn.growX();
 
 		btn.children(() -> {
 			if (icon != null) {
-				new SolimImage(icon);
+				Ui.image(icon);
 			}
-			Text.of(title);
+			Ui.text(title);
 		});
 		tabButtons.add(btn);
 		headerBar.add(btn.element()).growX();

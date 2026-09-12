@@ -1,8 +1,8 @@
 // mod-specific configuration — shared java/repositories/dependencies are in root build.gradle
 
 dependencies{
-	compileOnly 'org.projectlombok:lombok:1.18.32'
-	annotationProcessor 'org.projectlombok:lombok:1.18.32'
+	compileOnly 'org.projectlombok:lombok:1.18.36'
+	annotationProcessor 'org.projectlombok:lombok:1.18.36'
 	implementation project(':solim')
 	implementation project(':solim-mcp')
 	testImplementation "Anuken:Mindustry:${mindustryVersion}"

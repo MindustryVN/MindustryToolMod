@@ -493,6 +493,24 @@ public final class Button implements Component {
         return this;
     }
 
+    public Button background(@Nullable arc.scene.style.Drawable drawable) {
+        button.setBackground(drawable);
+        ButtonStyle s = button.getStyle();
+        if (s == null) {
+            s = new ButtonStyle();
+            button.setStyle(s);
+        }
+        s.up = drawable;
+        return this;
+    }
+
+    public Button background(@Nullable Color color) {
+        if (color == null || color.a == 0f) {
+            return background((arc.scene.style.Drawable) null);
+        }
+        return rounded(0, color);
+    }
+
     public Button border(float stroke, @Nullable Color color) {
         RoundedDrawable rd = ElementModifiers.border(button, stroke, color);
         if (rd != null) {
@@ -502,6 +520,15 @@ public final class Button implements Component {
                 button.setStyle(s);
             }
             s.up = rd;
+            if (s.over instanceof RoundedDrawable) {
+                ((RoundedDrawable) s.over).border(stroke, color != null ? color : Color.white);
+            }
+            if (s.down instanceof RoundedDrawable) {
+                ((RoundedDrawable) s.down).border(stroke, color != null ? color : Color.white);
+            }
+            if (s.checked instanceof RoundedDrawable) {
+                ((RoundedDrawable) s.checked).border(stroke, color != null ? color : Color.white);
+            }
         }
         return this;
     }
@@ -515,6 +542,15 @@ public final class Button implements Component {
                 button.setStyle(s);
             }
             s.up = rd;
+            if (s.over instanceof RoundedDrawable) {
+                ((RoundedDrawable) s.over).border(stroke, color);
+            }
+            if (s.down instanceof RoundedDrawable) {
+                ((RoundedDrawable) s.down).border(stroke, color);
+            }
+            if (s.checked instanceof RoundedDrawable) {
+                ((RoundedDrawable) s.checked).border(stroke, color);
+            }
         }
         return this;
     }
