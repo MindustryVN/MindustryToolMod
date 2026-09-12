@@ -16,7 +16,6 @@ import mindustry.ui.Styles;
 import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.Direction;
-import solim.layout.SolimStack;
 import solim.overlay.Hud;
 import solim.signal.Effect;
 import solim.signal.Readable;
@@ -93,7 +92,7 @@ public class ChatOverlayHudView extends BaseComponent {
                             .size(unit(14), unit(14))
                             .draggable(hud, feature.xSignal, feature.ySignal)
                             .children(() -> {
-                                component(new SolimStack()
+                                stack()
                                         .grow()
                                         .center()
                                         .layer(() -> icon(Icon.chat).size(unit(10)).center().grow().color(Color.white))
@@ -102,7 +101,7 @@ public class ChatOverlayHudView extends BaseComponent {
                                                     .margin(unit(1))
                                                     .size(unit(3))
                                                     .color(Color.white);
-                                        })));
+                                        }));
                             });
                 });
     }

@@ -31,6 +31,7 @@ import solim.layout.Grid;
 import solim.layout.ReactiveGrid;
 import solim.layout.Row;
 import solim.layout.Scroll;
+import solim.layout.SolimStack;
 import solim.layout.Spacer;
 import solim.layout.Tabs;
 import solim.overlay.Hud;
@@ -86,12 +87,14 @@ public final class Ui {
         return row().children(r);
     }
 
-    public static Row stack() {
-        return row();
+    public static SolimStack stack() {
+        SolimStack s = new SolimStack();
+        ParentStack.attachToParent(s.element());
+        return s;
     }
 
-    public static Row stack(@Nullable Runnable r) {
-        return row().children(r);
+    public static SolimStack stack(@Nullable Runnable r) {
+        return stack().children(r);
     }
 
     public static Grid grid() {
@@ -447,13 +450,6 @@ public final class Ui {
 
     public static float unit(float value) {
         return value * BASE_UNIT;
-    }
-
-    public static <T extends Component> T component(T comp) {
-        if (comp != null) {
-            ParentStack.attachToParent(ParentStack.isolate(comp::element));
-        }
-        return comp;
     }
 
     public static ColoredDrawable colored(arc.graphics.Color color, Drawable drawable) {

@@ -49,6 +49,13 @@ public final class SolimStack implements Component, LayoutModifiers<SolimStack> 
         return this;
     }
 
+    public SolimStack children(Runnable r) {
+        if (r != null) {
+            layer(r);
+        }
+        return this;
+    }
+
     @Override
     public SizeConstraints sizeConstraints() {
         return constraints;

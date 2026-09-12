@@ -14,6 +14,8 @@ import mindustrytool.features.chat.ChatFeature;
 import mindustrytool.features.quickaccess.QuickAccessFeature;
 import mindustrytool.features.teamresource.TeamResourceFeature;
 import mindustrytool.features.translation.TranslationFeature;
+import mindustrytool.features.browser.schematic.SchematicBrowserFeature;
+import mindustrytool.features.browser.map.MapBrowserFeature;
 import mindustrytool.features.settings.FeatureSettingDialog;
 import mindustrytool.services.PacketReplacer;
 import mindustrytool.services.ServerService;
@@ -48,7 +50,9 @@ public class Main extends Mod {
 				new QuickAccessFeature(),
 				new ChatFeature(),
 				new TeamResourceFeature(),
-				new TranslationFeature());
+				new TranslationFeature(),
+				new SchematicBrowserFeature(),
+				new MapBrowserFeature());
 
 		Events.on(ClientLoadEvent.class, event -> {
 			registerMindustryToolButton();
