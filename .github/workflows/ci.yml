@@ -71,7 +71,7 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: ${{ steps.version.outputs.tag }}
-          name: Mindustry Tool ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
           prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
           generate_release_notes: true
           files: build/libs/MindustryToolModDesktop.jar
