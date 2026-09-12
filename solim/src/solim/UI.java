@@ -11,6 +11,7 @@ import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button.ButtonStyle;
 import arc.util.Nullable;
+import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -36,6 +37,8 @@ import solim.layout.Row;
 import solim.layout.Scroll;
 import solim.layout.Spacer;
 import solim.layout.Tabs;
+import solim.layout.VirtualList;
+import solim.layout.ItemHeightProvider;
 import solim.overlay.Hud;
 import solim.overlay.Popup;
 import solim.overlay.SolimDialog;
@@ -493,6 +496,26 @@ public final class UI {
             Function<T, K> keyExtractor,
             Function<T, Component> itemFactory) {
         return grid(columnCount, items, keyExtractor, itemFactory);
+    }
+
+    public static <T, K> VirtualList<T, K> virtualList(
+            Readable<? extends List<T>> collection,
+            Function<T, K> keyExtractor,
+            ItemHeightProvider<T> heightProvider,
+            Function<T, Component> itemFactory) {
+        VirtualList<T, K> vl = VirtualList.of(collection, keyExtractor, heightProvider, itemFactory);
+        ParentStack.attachToParent(vl.element());
+        return vl;
+    }
+
+    public static <T, K> VirtualList<T, K> virtualList(
+            List<T> items,
+            Function<T, K> keyExtractor,
+            ItemHeightProvider<T> heightProvider,
+            Function<T, Component> itemFactory) {
+        VirtualList<T, K> vl = VirtualList.of(items, keyExtractor, heightProvider, itemFactory);
+        ParentStack.attachToParent(vl.element());
+        return vl;
     }
 
     public static <T extends Component> T component(T comp) {

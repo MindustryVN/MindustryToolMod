@@ -10,43 +10,36 @@ import arc.util.Scaling;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import mindustry.Vars;
 import mindustry.game.Schematic;
-import mindustry.game.Schematics;
 import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.SchematicsDialog.SchematicImage;
-import mindustrytool.features.FeatureManager;
-import mindustrytool.features.translation.TranslationFeature;
+import mindustrytool.features.chat.models.GroupedMessageItem;
+import mindustrytool.features.chat.models.ParsedChatMessage;
+import mindustrytool.features.chat.models.ParsedChatMessage.ImageMessage;
+import mindustrytool.features.chat.models.ParsedChatMessage.MindustryToolLinkMessage;
+import mindustrytool.features.chat.models.ParsedChatMessage.RoomInviteMessage;
+import mindustrytool.features.chat.models.ParsedChatMessage.SchematicMessage;
+import mindustrytool.features.chat.models.ParsedChatMessage.TextMessage;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.models.response.UserData;
-import mindustrytool.services.MindustryTool;
-import mindustrytool.services.auth.MindustryAuthProvider;
 import solim.core.BaseComponent;
 import solim.layout.Direction;
-import solim.layout.Scroll;
+import solim.layout.VirtualList;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
 
 public class ChatMessageListView extends BaseComponent {
 
-    private static final Pattern MINDUSTRY_TOOL_LINK_PATTERN = Pattern
-            .compile("^https?://[^/]+/(?:[^/]+/)?(schematics|maps)/([a-zA-Z0-9_-]+)");
-    private static final Pattern IMAGE_URL_PATTERN = Pattern
-            .compile("^https?://.*\\.(?:png|jpg|jpeg|gif|webp)(?:\\?.*)?$", Pattern.CASE_INSENSITIVE);
-
     private final ChatStore store;
     private final @Nullable ChatService service;
-    private @Nullable Scroll scrollPane;
+    private @Nullable VirtualList<GroupedMessageItem, String> virtualList;
 
     private @Nullable String lastChannelId = null;
     private int lastMessageCount = 0;
@@ -70,19 +63,12 @@ public class ChatMessageListView extends BaseComponent {
             return Boolean.TRUE.equals(fully) && Boolean.TRUE.equals(has);
         });
 
-        Computed<List<DisplayMessage>> displayMessages = new Computed<>(() -> {
+        Readable<List<GroupedMessageItem>> groupedMessages = new Computed<>(() -> {
             List<ChatMessage> msgs = store.activeMessages().get();
             if (msgs == null || msgs.isEmpty()) {
                 return Collections.emptyList();
             }
-            List<DisplayMessage> result = new ArrayList<>(msgs.size());
-            String lastAuthor = null;
-            for (ChatMessage msg : msgs) {
-                boolean isFirst = !Objects.equals(lastAuthor, msg.getCreatedBy());
-                result.add(new DisplayMessage(msg, isFirst));
-                lastAuthor = msg.getCreatedBy();
-            }
-            return result;
+            return ChatMessageGrouper.groupRaw(msgs);
         });
 
         Effect.of(() -> {
@@ -111,17 +97,16 @@ public class ChatMessageListView extends BaseComponent {
                     && Objects.equals(firstId, lastFirstMessageId);
 
             if (isOlderPrepended) {
-                float prevContentHeight = (scrollPane != null && scrollPane.content() != null)
-                        ? scrollPane.content().getPrefHeight()
-                        : 0f;
-                float prevScrollY = (scrollPane != null && scrollPane.pane() != null) ? scrollPane.pane().getScrollY()
+                float prevContentHeight = (virtualList != null) ? virtualList.getTotalHeight() : 0f;
+                float prevScrollY = (virtualList != null && virtualList.pane() != null)
+                        ? virtualList.pane().getScrollY()
                         : 0f;
 
                 Core.app.post(() -> {
-                    if (scrollPane != null && scrollPane.pane() != null && scrollPane.content() != null) {
-                        var pane = scrollPane.pane();
+                    if (virtualList != null && virtualList.pane() != null) {
+                        var pane = virtualList.pane();
                         pane.layout();
-                        float newContentHeight = scrollPane.content().getPrefHeight();
+                        float newContentHeight = virtualList.getTotalHeight();
                         float heightDelta = newContentHeight - prevContentHeight;
                         if (heightDelta > 0) {
                             pane.setScrollYForce(prevScrollY + heightDelta);
@@ -130,8 +115,8 @@ public class ChatMessageListView extends BaseComponent {
                     }
                 });
             } else if (isNewAppended) {
-                if (scrollPane != null && scrollPane.pane() != null) {
-                    var pane = scrollPane.pane();
+                if (virtualList != null && virtualList.pane() != null) {
+                    var pane = virtualList.pane();
                     boolean wasNearBottom = (pane.getMaxY() - pane.getScrollY()) <= 150f;
                     if (wasNearBottom) {
                         scrollToBottom();
@@ -148,9 +133,39 @@ public class ChatMessageListView extends BaseComponent {
         Core.app.post(this::scrollToBottom);
 
         return column().grow().top().left().gap(unit(1)).children(() -> {
-            scrollPane = scroll()
+            dynamic(showEndOfHistory, show -> {
+                if (Boolean.TRUE.equals(show)) {
+                    return row().top().center().growX().padding(unit(2)).children(() -> {
+                        text(Core.bundle.get("feature.chat.ui.end-of-history", "Beginning of chat history"))
+                                .color(Color.gray)
+                                .fontScale(0.85f);
+                    });
+                }
+                return null;
+            });
+
+            dynamic(store.loadingOlder(), loading -> {
+                if (Boolean.TRUE.equals(loading)) {
+                    return row().top().left().padding(unit(2)).children(() -> {
+                        text(Core.bundle.get("feature.chat.ui.loading-older", "Loading older messages..."))
+                                .color(Color.gray)
+                                .fontScale(0.85f)
+                                .left();
+                    });
+                }
+                return null;
+            });
+
+            dynamic(hasMessages, available -> {
+                if (Boolean.TRUE.equals(available)) {
+                    virtualList = virtualList(
+                            groupedMessages,
+                            GroupedMessageItem::getId,
+                            ChatMessageHeightCalculator::calculateHeight,
+                            item -> new MessageItem(item, store, service)
+                    )
                     .grow()
-                    .left()
+                    .overscan(3)
                     .onReachTop(50f, () -> {
                         String activeId = store.activeChannelId().peek();
                         var msgs = store.activeMessages().peek();
@@ -159,63 +174,31 @@ public class ChatMessageListView extends BaseComponent {
                                 && !store.isFullyLoaded(activeId)) {
                             service.fetchOlderMessages(activeId);
                         }
-                    })
-                    .children(() -> {
-                        column().growX().top().left().gap(unit(1)).children(() -> {
-                            dynamic(showEndOfHistory, show -> {
-                                if (Boolean.TRUE.equals(show)) {
-                                    return row().top().center().growX().padding(unit(2)).children(() -> {
-                                        text(Core.bundle.get("feature.chat.ui.end-of-history",
-                                                "Beginning of chat history"))
-                                                        .color(Color.gray)
-                                                        .fontScale(0.85f);
-                                    });
-                                }
-                                return null;
-                            });
-
-                            dynamic(store.loadingOlder(), loading -> {
-                                if (Boolean.TRUE.equals(loading)) {
-                                    return row().top().left().padding(unit(2)).children(() -> {
-                                        text(Core.bundle.get("feature.chat.ui.loading-older",
-                                                "Loading older messages..."))
-                                                        .color(Color.gray)
-                                                        .fontScale(0.85f)
-                                                        .left();
-                                    });
-                                }
-                                return null;
-                            });
-
-                            dynamic(hasMessages, available -> {
-                                if (Boolean.TRUE.equals(available)) {
-                                    return forEach(displayMessages, dm -> dm.message.getId(),
-                                            dm -> new MessageItem(dm, store, service)).growX();
-                                } else {
-                                    return column().padding(unit(4)).top().left().children(() -> {
-                                        text(Core.bundle.get("feature.chat.ui.empty-messages", "No messages yet."))
-                                                .color(Color.gray)
-                                                .fontScale(0.9f)
-                                                .left();
-                                    });
-                                }
-                            }).growX();
-                        });
                     });
+                    return virtualList;
+                } else {
+                    return column().padding(unit(4)).top().left().children(() -> {
+                        text(Core.bundle.get("feature.chat.ui.empty-messages", "No messages yet."))
+                                .color(Color.gray)
+                                .fontScale(0.9f)
+                                .left();
+                    });
+                }
+            }).grow();
         }).element();
     }
 
     public void scrollToBottom() {
-        if (scrollPane != null) {
+        if (virtualList != null) {
             Core.app.post(() -> {
-                if (scrollPane != null && scrollPane.pane() != null) {
-                    var pane = scrollPane.pane();
+                if (virtualList != null && virtualList.pane() != null) {
+                    var pane = virtualList.pane();
                     pane.layout();
                     pane.setScrollYForce(pane.getMaxY());
                     pane.updateVisualScroll();
                     Core.app.post(() -> {
-                        if (scrollPane != null && scrollPane.pane() != null) {
-                            var p = scrollPane.pane();
+                        if (virtualList != null && virtualList.pane() != null) {
+                            var p = virtualList.pane();
                             p.layout();
                             p.setScrollYForce(p.getMaxY());
                             p.updateVisualScroll();
@@ -226,36 +209,27 @@ public class ChatMessageListView extends BaseComponent {
         }
     }
 
-    public static class DisplayMessage {
-        public final ChatMessage message;
-        public final boolean isFirstInGroup;
-
-        public DisplayMessage(ChatMessage message, boolean isFirstInGroup) {
-            this.message = message;
-            this.isFirstInGroup = isFirstInGroup;
-        }
-    }
-
     private static class MessageItem extends BaseComponent {
-        private final DisplayMessage displayMessage;
+        private final GroupedMessageItem item;
         private final ChatStore store;
         private final @Nullable ChatService service;
 
-        public MessageItem(DisplayMessage displayMessage, ChatStore store, @Nullable ChatService service) {
-            this.displayMessage = displayMessage;
+        public MessageItem(GroupedMessageItem item, ChatStore store, @Nullable ChatService service) {
+            this.item = item;
             this.store = store;
             this.service = service;
         }
 
         @Override
         protected Element build() {
-            ChatMessage message = displayMessage.message;
-            boolean isFirst = displayMessage.isFirstInGroup;
+            ParsedChatMessage parsed = item.getMessage();
+            ChatMessage raw = parsed.getRaw();
+            boolean isFirst = item.isFirstInGroup();
 
-            Readable<UserData> user = store.user(message.getCreatedBy());
+            Readable<UserData> user = store.user(raw.getCreatedBy());
             Readable<String> authorName = user.map(u -> (u != null && u.getName() != null && !u.getName().isEmpty())
                     ? u.getName()
-                    : (message.getCreatedBy() != null ? message.getCreatedBy() : "Unknown"));
+                    : (raw.getCreatedBy() != null ? raw.getCreatedBy() : "Unknown"));
 
             Readable<Color> authorColor = user.map(u -> {
                 if (u != null && u.getHighestRole().isPresent()) {
@@ -275,14 +249,13 @@ public class ChatMessageListView extends BaseComponent {
                             ? u.getImageUrl()
                             : null);
 
-            String timeStr = formatTime(message.getCreatedAt());
-            String rawContent = message.getContent() != null ? message.getContent() : "";
-            boolean mentioned = isMentioningCurrentUser(rawContent);
+            String timeStr = formatTime(raw.getCreatedAt());
+            boolean mentioned = (parsed instanceof TextMessage) && ((TextMessage) parsed).isMentionsCurrentUser();
 
             return card()
                     .growX()
                     .top().left()
-                    .onClick(() -> store.toggleExpanded(message.getId()))
+                    .onClick(() -> openActions(raw))
                     .children(() -> {
                         float padTop = isFirst ? unit(1) : unit(0.25f);
                         float padLeft = (isFirst || mentioned) ? unit(1) : (unit(1) + unit(12) + unit(1.5f));
@@ -295,7 +268,7 @@ public class ChatMessageListView extends BaseComponent {
                                 .children(() -> {
                             // Left Avatar or indent spacer
                             if (isFirst) {
-                                new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(12));
+                                new ChatAvatar(authorName, avatarUrl, raw.getCreatedBy(), unit(12));
                             } else if (mentioned) {
                                 row().width(unit(12));
                             }
@@ -307,7 +280,7 @@ public class ChatMessageListView extends BaseComponent {
 
                             // Content area
                             column().growX().top().left().gap(unit(0.5f)).children(() -> {
-                                // Author and timestamp header
+                                // Author and timestamp header + action button
                                 if (isFirst) {
                                     row().growX().top().left().gap(unit(1)).children(() -> {
                                         text(authorName)
@@ -321,105 +294,31 @@ public class ChatMessageListView extends BaseComponent {
                                                     .fontScale(0.8f)
                                                     .left();
                                         }
+
+                                        spacer();
+
+                                        // Action ellipsis / menu button
+                                        button(() -> openActions(raw))
+                                                .style(Styles.clearNonei)
+                                                .size(unit(6), unit(6))
+                                                .children(() -> icon(Icon.menuSmall).size(unit(4), unit(4)));
                                     });
                                 }
 
                                 // Reply target preview
-                                if (message.getReplyTo() != null && !message.getReplyTo().isEmpty()) {
-                                    buildReplyPreview(message.getReplyTo());
+                                if (raw.getReplyTo() != null && !raw.getReplyTo().isEmpty()) {
+                                    buildReplyPreview(raw.getReplyTo());
                                 }
 
                                 // Body
-                                buildMessageBody(rawContent);
-
-                                // Translated text card
-                                dynamic(store.translation(message.getId()), trans -> {
-                                    if (trans != null && !trans.isEmpty()) {
-                                        return card(Styles.black3, () -> {
-                                            column().growX().padding(unit(1)).gap(unit(0.5f)).left().children(() -> {
-                                                row().growX().gap(unit(1)).left().children(() -> {
-                                                    text("[#58a6ff]🌐 " + Core.bundle
-                                                            .get("feature.chat.ui.translated-badge", "Translated"))
-                                                                    .fontScale(0.75f)
-                                                                    .color(Pal.accent);
-                                                });
-                                                text(trans)
-                                                        .color(Color.white)
-                                                        .fontScale(0.9f)
-                                                        .wrap()
-                                                        .left()
-                                                        .growX();
-                                            });
-                                        }).growX();
-                                    }
-                                    return null;
-                                });
-
-                                // Interactive action bar
-                                dynamic(store.expandedMessageId(), expId -> {
-                                    if (Objects.equals(expId, message.getId())) {
-                                        return row().growX().top().left().padding(unit(1)).gap(unit(1)).children(() -> {
-                                            button(Core.bundle.get("button.copy", "Copy"), () -> {
-                                                try {
-                                                    Core.app.setClipboardText(rawContent);
-                                                    Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.copied",
-                                                            "Copied to clipboard!"));
-                                                } catch (Exception ignored) {
-                                                }
-                                                store.toggleExpanded(message.getId());
-                                            }).style(Styles.defaultt).height(unit(7));
-
-                                            button(Core.bundle.get("feature.chat.ui.reply", "Reply"), () -> {
-                                                store.setReplyTarget(message);
-                                                store.toggleExpanded(message.getId());
-                                            }).style(Styles.defaultt).height(unit(7));
-
-                                            button(Core.bundle.get("feature.chat.ui.translate", "Translate"), () -> {
-                                                handleTranslate(message);
-                                            }).style(Styles.defaultt).height(unit(7));
-                                        });
-                                    }
-                                    return null;
-                                });
+                                buildMessageBody(parsed);
                             });
                         });
                     }).element();
         }
 
-        private void handleTranslate(ChatMessage message) {
-            String current = store.translation(message.getId()).peek();
-            if (current != null) {
-                store.setTranslation(message.getId(), null);
-                store.toggleExpanded(message.getId());
-                return;
-            }
-
-            String targetLocale = "en";
-            if (Vars.ui != null && Vars.ui.language != null && Vars.ui.language.getLocale() != null) {
-                targetLocale = Vars.ui.language.getLocale().getLanguage();
-            }
-
-            Vars.ui.showInfoToast(Core.bundle.get("feature.chat.ui.translating", "Translating..."), 2f);
-
-            TranslationFeature tf = FeatureManager.getFeature(TranslationFeature.class);
-            CompletableFuture<String> future;
-            if (tf != null && tf.isEnabled() && tf.getActiveProvider().isConfigured()) {
-                future = tf.translate(message.getContent(), tf.getTargetLanguage());
-            } else {
-                future = MindustryTool.translate(message.getContent(), targetLocale);
-            }
-
-            future.whenComplete((res, err) -> {
-                Core.app.post(() -> {
-                    if (err != null || res == null) {
-                        Vars.ui.showInfoToast(Core.bundle.get("feature.chat.ui.translate-failed", "Translation failed"),
-                                2f);
-                    } else {
-                        store.setTranslation(message.getId(), res);
-                    }
-                    store.toggleExpanded(message.getId());
-                });
-            });
+        private void openActions(ChatMessage message) {
+            new MessageActionDialog(message, store, service).show();
         }
 
         private void buildReplyPreview(String replyToId) {
@@ -453,11 +352,10 @@ public class ChatMessageListView extends BaseComponent {
             });
         }
 
-        private void buildMessageBody(String content) {
-            content = content.trim();
-
-            if (content.startsWith("player-connect://")) {
-                final String link = content;
+        private void buildMessageBody(ParsedChatMessage parsed) {
+            if (parsed instanceof RoomInviteMessage) {
+                RoomInviteMessage invite = (RoomInviteMessage) parsed;
+                final String link = invite.getConnectLink();
                 card().growX().top().left().children(() -> {
                     column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
                         row().growX().top().left().gap(unit(1)).children(() -> {
@@ -479,8 +377,9 @@ public class ChatMessageListView extends BaseComponent {
                 return;
             }
 
-            if (IMAGE_URL_PATTERN.matcher(content).matches()) {
-                final String imageUrl = content;
+            if (parsed instanceof ImageMessage) {
+                ImageMessage img = (ImageMessage) parsed;
+                final String imageUrl = img.getImageUrl();
                 column().growX().top().left().gap(unit(1)).children(() -> {
                     text(imageUrl).color(Color.lightGray).fontScale(0.85f).wrap().left().growX();
                     networkImage(imageUrl)
@@ -492,11 +391,11 @@ public class ChatMessageListView extends BaseComponent {
                 return;
             }
 
-            Matcher matcher = MINDUSTRY_TOOL_LINK_PATTERN.matcher(content);
-            if (matcher.find()) {
-                String fullUrl = matcher.group(0);
-                String type = matcher.group(1);
-                String itemId = matcher.group(2);
+            if (parsed instanceof MindustryToolLinkMessage) {
+                MindustryToolLinkMessage toolLink = (MindustryToolLinkMessage) parsed;
+                final String fullUrl = toolLink.getFullUrl();
+                final String type = toolLink.getType();
+                final String itemId = toolLink.getItemId();
 
                 card().growX().top().left().children(() -> {
                     column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
@@ -523,43 +422,33 @@ public class ChatMessageListView extends BaseComponent {
                 return;
             }
 
-            int schemPos = content.indexOf(Vars.schematicBaseStart);
-            if (schemPos != -1) {
-                int endPos = content.indexOf(" ", schemPos);
-                if (endPos == -1) {
-                    endPos = content.length();
+            if (parsed instanceof SchematicMessage) {
+                SchematicMessage schemMsg = (SchematicMessage) parsed;
+                if (schemMsg.getPrefixText() != null && !schemMsg.getPrefixText().isEmpty()) {
+                    text(schemMsg.getPrefixText()).color(Color.white).wrap().left().growX();
                 }
 
-                String prev = content.substring(0, schemPos).trim();
-                String base64 = content.substring(schemPos, endPos).trim();
-                String after = content.substring(endPos).trim();
+                buildSchematicCard(schemMsg.getSchematic());
 
-                Schematic schematic = null;
-                try {
-                    schematic = Schematics.readBase64(base64);
-                } catch (Exception ignored) {
+                if (schemMsg.getSuffixText() != null && !schemMsg.getSuffixText().isEmpty()) {
+                    text(schemMsg.getSuffixText()).color(Color.white).wrap().left().growX();
                 }
-
-                if (schematic != null) {
-                    if (!prev.isEmpty()) {
-                        final String prevText = prev;
-                        text(prevText).color(Color.white).wrap().left().growX();
-                    }
-
-                    final Schematic finalSchem = schematic;
-                    buildSchematicCard(finalSchem);
-
-                    if (!after.isEmpty()) {
-                        final String afterText = after;
-                        text(afterText).color(Color.white).wrap().left().growX();
-                    }
-                    return;
-                }
+                return;
             }
 
-            // Standard text message
-            final String text = content;
-            text(text)
+            if (parsed instanceof TextMessage) {
+                TextMessage txt = (TextMessage) parsed;
+                text(txt.getText())
+                        .color(Color.white)
+                        .left()
+                        .wrap()
+                        .growX();
+                return;
+            }
+
+            // Fallback
+            String fallback = parsed.getContent() != null ? parsed.getContent() : "";
+            text(fallback)
                     .color(Color.white)
                     .left()
                     .wrap()
@@ -610,21 +499,6 @@ public class ChatMessageListView extends BaseComponent {
                             });
                 });
             });
-        }
-
-        private static boolean isMentioningCurrentUser(String content) {
-            if (content == null || content.isEmpty()) {
-                return false;
-            }
-            try {
-                var session = MindustryAuthProvider.getInstance().getSession();
-                if (session == null || session.getName() == null || session.getName().isEmpty()) {
-                    return false;
-                }
-                return content.toLowerCase().contains(("@" + session.getName()).toLowerCase());
-            } catch (Exception ignored) {
-                return false;
-            }
         }
 
         private void useSchematic(Schematic schematic) {

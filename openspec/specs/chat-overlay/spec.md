@@ -179,15 +179,48 @@ The chat composer SHALL render its text field, attach button, and send button as
 - **THEN** the existing send/reply/attach/validation behavior works exactly as before the visual refresh
 
 ### Requirement: Mobile Frame Rate Stability and Viewport Windowing
-The chat overlay SHALL maintain a minimum target of 55+ FPS on mobile devices when expanded, by restricting the active instantiated element hierarchy in `ChatMessageListView` to a bounded viewport window of recent messages instead of retaining unbounded off-screen message cards.
+The chat overlay SHALL maintain a minimum target of 55+ FPS on mobile and desktop devices when expanded, by rendering the active message feed in `ChatMessageListView` using a true virtualized list (`solim-virtual-list`) that mounts only messages currently intersecting the visible scroll viewport plus overscan.
 
 #### Scenario: Expanding chat window on mobile
 - **WHEN** the chat overlay transitions from collapsed to expanded on a mobile device (`Vars.mobile == true`)
 - **THEN** framerate remains stable above 55 FPS and does not drop by half.
 
 #### Scenario: Viewport windowing in message feed
-- **WHEN** more than 30 messages are loaded in the active channel on mobile
-- **THEN** only the most recent visible messages (up to a bounded window of 25–30 items) are actively mounted in the Scene2D table hierarchy, while preserving scroll offset and pagination triggers.
+- **WHEN** more than 30 messages are loaded in the active channel
+- **THEN** only visible messages plus overscan buffer are actively mounted in the Scene2D hierarchy, preserving scroll offsets and pagination triggers without creating off-screen card widgets.
+
+### Requirement: Early chat message typing and pre-parsing
+The chat system SHALL parse incoming and loaded raw `ChatMessage` instances into typed domain models (`TextMessage`, `SchematicMessage`, `ImageMessage`, `RoomInviteMessage`, `MindustryToolLinkMessage`) before rendering, executing URL regexes and schematic base64 decoding once outside the UI build loop.
+
+#### Scenario: Pre-parsing incoming message
+- **WHEN** a raw `ChatMessage` is received or fetched
+- **THEN** it is immediately parsed into a strongly-typed message model with pre-extracted metadata and cached for rendering
+
+#### Scenario: Schematic base64 decoded once
+- **WHEN** a message containing a Mindustry schematic base64 string is received
+- **THEN** `Schematics.readBase64()` is executed during the parsing pass and the resulting `Schematic` object is retained in the model, preventing redundant decompression during UI passes
+
+### Requirement: Pre-rendering grouping and height caching
+The chat system SHALL group consecutive messages from the same author before rendering and calculate layout heights using static dimensions for fixed components and `GlyphLayout` for wrapped text, caching heights keyed by container width.
+
+#### Scenario: Grouping consecutive author messages
+- **WHEN** multiple consecutive messages in the active channel share the same author ID
+- **THEN** the first message is marked with header and avatar layout, while subsequent messages are marked with text indentation and zero header height
+
+#### Scenario: Cached height calculation by container width
+- **WHEN** message layout heights are requested for a given container width
+- **THEN** static components use fixed heights, text is measured once against available width using `GlyphLayout`, and the computed height is cached until container width changes
+
+### Requirement: Message action popup triggered by ellipsis button
+The chat message view SHALL display an action ellipsis button (`⋮`) on each message item, and clicking it SHALL open a popup dialog providing `Copy`, `Reply`, and `Translate` actions, without mutating the message item's inline height.
+
+#### Scenario: Opening message action popup
+- **WHEN** the user clicks the action ellipsis button on a message card
+- **THEN** an action dialog opens displaying `Copy`, `Reply`, and `Translate` options, while the message card height in the list remains unchanged
+
+#### Scenario: Translating via popup
+- **WHEN** the user selects `Translate` from the message action dialog
+- **THEN** translation is performed and displayed within a popup modal with a copy button, without inserting an expanding card below the message in the virtual list
 
 ### Requirement: Chat Layout Thrashing Prevention
 The expanded chat overlay SHALL NOT trigger cyclic `invalidateHierarchy()` or size mutation during Scene `validate()` passes.
