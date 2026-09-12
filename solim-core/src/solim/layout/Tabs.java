@@ -11,8 +11,6 @@ import java.util.List;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
-import solim.display.SolimImage;
-import solim.display.Text;
 import solim.graphics.RoundedDrawable;
 import solim.input.Button;
 import solim.modifier.ElementModifiers;

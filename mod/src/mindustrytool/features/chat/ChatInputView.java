@@ -15,6 +15,8 @@ import mindustrytool.services.auth.AuthOverlay;
 import solim.core.BaseComponent;
 import solim.signal.Readable;
 import solim.signal.Signal;
+import mindustrytool.components.FileIcon;
+
 
 public class ChatInputView extends BaseComponent {
 
@@ -90,13 +92,13 @@ public class ChatInputView extends BaseComponent {
                             button(() -> new AttachContentDialog(this::handleAttachContent).show())
                                     .style(Styles.defaultb)
                                     .size(unit(10))
-                                    .children(() -> icon(Icon.file).size(unit(5), unit(5)));
+                                    .children(() -> image(FileIcon.of("upload.png")).size(unit(5), unit(5)));
 
                             button(this::onSend)
                                     .style(Styles.defaultb)
                                     .enabled(canSend)
                                     .width(unit(10))
-                                    .children(() -> icon(Icon.play).size(unit(5), unit(5)).color(Pal.accent));
+                                    .children(() -> image(FileIcon.of("send.png")).size(unit(5), unit(5)).color(Pal.accent));
                         });
                     });
                 });
