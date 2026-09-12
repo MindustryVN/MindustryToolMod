@@ -3,8 +3,6 @@ package mindustrytool.features.teamresource;
 import static solim.UI.*;
 
 import arc.Core;
-import arc.Events;
-import arc.func.Cons;
 import arc.graphics.Color;
 import arc.math.Mathf;
 import arc.scene.Element;

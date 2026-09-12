@@ -4,7 +4,7 @@
 Declarative dialog component providing reactive signals, layout helpers, and automatic lifecycle management and disposal of attached content components and resources.
 ## Requirements
 ### Requirement: Automatic Content Component Lifecycle Management
-The `SolimDialog` component SHALL manage content attachment declaratively via `children(Runnable)` using `ParentStack` and SHALL defer executing the content builder until the dialog is shown. It SHALL automatically register any resources and components created within the content builder with its internal disposable registry. The legacy `content(Component)` method SHALL NOT be supported.
+The `SolimDialog` component SHALL manage content attachment declaratively via `children(Runnable)` using `ParentStack` and SHALL defer executing the content builder until the dialog is shown or unwrapped via `dialog()`. It SHALL automatically register any resources and components created within the content builder with its internal disposable registry. The legacy `content(Component)` method SHALL NOT be supported.
 
 #### Scenario: Content builder is not executed on instantiation
 - **WHEN** a `SolimDialog` is instantiated and configured with `children(Runnable contentBuilder)`
@@ -15,6 +15,11 @@ The `SolimDialog` component SHALL manage content attachment declaratively via `c
 - **WHEN** `show()` is invoked on a `SolimDialog` configured with `children(Runnable contentBuilder)`
 - **THEN** `contentBuilder` is executed
 - **AND** its child elements are attached to the dialog's content container via `ParentStack`
+
+#### Scenario: Content builder executed when unwrapped
+- **WHEN** `dialog()` is invoked on a `SolimDialog` configured with `children(Runnable contentBuilder)`
+- **THEN** `contentBuilder` is executed before the wrapped dialog is returned
+- **AND** showing the returned dialog displays the built content
 
 #### Scenario: Content only built once across repeated shows
 - **WHEN** `show()` is invoked multiple times on the same `SolimDialog`

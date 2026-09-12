@@ -134,4 +134,20 @@ class SolimDialogComponentTest {
 		assertSame(d, d.fillParent(true));
 		d.dispose();
 	}
+
+	@Test
+	void dialogUnwrapBuildsContentOnce() {
+		AtomicInteger runCount = new AtomicInteger(0);
+		SolimDialog d = new SolimDialog("Unwrap Test");
+		d.children(runCount::incrementAndGet);
+
+		assertEquals(0, runCount.get());
+		d.dialog();
+		assertEquals(1, runCount.get(), "dialog() must build deferred content");
+		d.cont();
+		d.show();
+		assertEquals(1, runCount.get(), "show/cont/dialog must share a single build");
+		assertSame(d.dialog().cont, d.cont());
+		d.dispose();
+	}
 }

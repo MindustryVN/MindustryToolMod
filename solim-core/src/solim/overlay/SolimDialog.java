@@ -211,8 +211,9 @@ public class SolimDialog implements Component {
         return signal;
     }
 
-    /** Returns the wrapped Mindustry dialog. */
+    /** Returns the wrapped Mindustry dialog, building deferred content first. */
     public BaseDialog dialog() {
+        ensureContentBuilt();
         return wrapped;
     }
 

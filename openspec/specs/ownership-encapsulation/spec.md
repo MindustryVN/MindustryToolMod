@@ -1,5 +1,9 @@
-## ADDED Requirements
+# ownership-encapsulation Specification
 
+## Purpose
+Confine raw ownership primitives to framework internals so application modules use only lifecycle-safe declarative paths.
+
+## Requirements
 ### Requirement: Internal-only ownership primitive
 The framework SHALL confine the raw ownership primitive `BaseComponent.own()` to package `solim.core` (no access modifier) so it is callable only by framework internals and rejected by the compiler in application modules.
 

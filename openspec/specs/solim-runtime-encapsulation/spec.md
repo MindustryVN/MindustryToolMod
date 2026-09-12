@@ -1,5 +1,9 @@
-## ADDED Requirements
+# solim-runtime-encapsulation Specification
 
+## Purpose
+Physically isolate the Solim engine runtime from application modules at compile time while preserving automatic UI mounting.
+
+## Requirements
 ### Requirement: Physical compile-time isolation of Solim runtime
 The framework SHALL place all internal engine classes (`ParentStack`, `ComponentContext`, `ReactiveContext`, `SignalDispatcher`, `StructuralReconciler`, `ElementResolver`, `Binding`, `Ui`) inside the `:solim-runtime` subproject under package `solim.runtime.*`. The `:solim-runtime` subproject SHALL NOT be on `:mod`'s compile classpath.
 
