@@ -11,6 +11,8 @@ import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Button.ButtonStyle;
 import arc.util.Nullable;
+import arc.util.Scaling;
+
 import java.util.List;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -229,11 +231,11 @@ public final class UI {
     }
 
     public static SolimImage icon(Drawable drawable) {
-        return image(Drawables.scalable(drawable));
+        return image(Drawables.scalable(drawable)).scaling(Scaling.fit);
     }
 
     public static SolimImage icon(Readable<Drawable> drawable) {
-        return image(drawable != null ? drawable.map(Drawables::scalable) : null);
+        return image(drawable != null ? drawable.map(Drawables::scalable) : null).scaling(Scaling.fit);
     }
 
     public static NetworkImage networkImage() {

@@ -69,6 +69,7 @@ public class FeatureCard extends BaseComponent {
                                                 .left();
 
                         image(Tex.whiteui).growX()
+                                .scaling(Scaling.stretch)
                                 .color(feature.enabled()
                                         .map(val -> Boolean.TRUE.equals(val) ? Color.green : Color.scarlet))
                                 .height(unit(0.5f));

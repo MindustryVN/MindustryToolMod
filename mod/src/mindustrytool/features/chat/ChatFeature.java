@@ -42,7 +42,7 @@ public class ChatFeature extends Feature {
     public ChatFeature() {
         super(FeatureMetadata.builder()
                 .id("chat")
-                .icon(Icon.planet)
+                .icon(Icon.chat)
                 .order(20)
                 .enabledByDefault(true)
                 .quickAccess(true)
