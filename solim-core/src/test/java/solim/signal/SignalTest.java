@@ -71,9 +71,11 @@ class SignalTest {
 		Effect e = Effect.of(() -> effectVal.set(s.get()));
 		assertEquals("a", effectVal.get());
 		s.set("b");
+		SignalDispatcher.flush();
 		assertEquals("b", effectVal.get(), "Effect should auto-track Signal");
 		e.dispose();
 		s.set("c");
+		SignalDispatcher.flush();
 		assertEquals("b", effectVal.get(), "Disposed effect should not re-run");
 	}
 

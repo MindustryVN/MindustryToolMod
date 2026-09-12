@@ -12,6 +12,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Test;
 import solim.signal.Effect;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 import solim.ui.StructuralReconciler;
 
 class LifecycleCorrectnessTest {
@@ -144,10 +145,12 @@ class LifecycleCorrectnessTest {
 		assertEquals(1, runs.get());
 
 		sig.set(1);
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get());
 
 		comp.dispose();
 		sig.set(2);
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get(), "Auto-registered Effect must be disposed with component");
 	}
 
@@ -163,10 +166,12 @@ class LifecycleCorrectnessTest {
 
 		assertEquals(1, runs.get());
 		sig.set(1);
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get());
 
 		e.dispose();
 		sig.set(2);
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get());
 	}
 

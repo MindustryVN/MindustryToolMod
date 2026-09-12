@@ -49,4 +49,10 @@ class ArcFacadeTest {
 		Element el = UI.arc(new Element());
 		assertNull(el.parent);
 	}
+
+	@Test
+	void initRegistersSignalDispatcher() {
+		UI.init();
+		assertTrue(solim.signal.SignalDispatcher.isRegistered());
+	}
 }

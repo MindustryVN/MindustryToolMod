@@ -97,9 +97,11 @@ class RowTest {
 		assertTrue(row.table().visible);
 
 		vis.set(false);
+		solim.signal.SignalDispatcher.flush();
 		assertFalse(row.table().visible);
 
 		vis.set(true);
+		solim.signal.SignalDispatcher.flush();
 		assertTrue(row.table().visible);
 	}
 

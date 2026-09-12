@@ -91,9 +91,11 @@ class ColumnTest {
 		assertTrue(col.table().visible);
 
 		vis.set(false);
+		solim.signal.SignalDispatcher.flush();
 		assertFalse(col.table().visible);
 
 		vis.set(true);
+		solim.signal.SignalDispatcher.flush();
 		assertTrue(col.table().visible);
 	}
 

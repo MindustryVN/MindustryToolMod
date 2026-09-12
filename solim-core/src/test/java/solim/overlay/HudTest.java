@@ -347,6 +347,7 @@ class HudTest {
 		x.set(150f);
 		y.set(250f);
 		opacity.set(0.3f);
+		solim.signal.SignalDispatcher.flush();
 
 		assertEquals(150f, hud.element().x, 0.01f);
 		assertEquals(250f, hud.element().y, 0.01f);

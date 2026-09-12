@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 
 public class ReactivityBenchmarkTest {
 
@@ -27,6 +28,7 @@ public class ReactivityBenchmarkTest {
         for (int i = 0; i < 1000; i++) {
             source.set(i);
         }
+        SignalDispatcher.flush();
 
         // Measure 10,000 updates
         int iterations = 10000;
@@ -34,6 +36,7 @@ public class ReactivityBenchmarkTest {
         for (int i = 0; i < iterations; i++) {
             source.set(i);
         }
+        SignalDispatcher.flush();
         long elapsedNanos = System.nanoTime() - t0;
         double elapsedMs = elapsedNanos / 1_000_000.0;
 

@@ -4,9 +4,21 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class EffectTest {
+
+	@BeforeEach
+	void setUp() {
+		SignalDispatcher.resetForTests();
+	}
+
+	@AfterEach
+	void tearDown() {
+		SignalDispatcher.resetForTests();
+	}
 
 	@Test
 	void autoTrackSignalsAndComputeds() {
@@ -21,6 +33,7 @@ class EffectTest {
 		assertEquals(1, runs.get());
 		assertEquals(2, last.get());
 		s1.set(2);
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get());
 		assertEquals(4, last.get());
 		e.dispose();
@@ -45,14 +58,17 @@ class EffectTest {
 		assertEquals(1, runs.get());
 		assertEquals(2, e.dependencyCount()); // enabled + username
 		enabled.set(false);
+		SignalDispatcher.flush();
 		assertEquals("player@example.com", last.get());
 		assertEquals(2, runs.get());
 		assertEquals(2, e.dependencyCount()); // enabled + email
 		// old dep should not trigger
 		username.set("NewPlayer");
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get(), "Old dependency should not trigger");
 		assertEquals("player@example.com", last.get());
 		email.set("new@example.com");
+		SignalDispatcher.flush();
 		assertEquals(3, runs.get());
 		assertEquals("new@example.com", last.get());
 		e.dispose();
@@ -69,10 +85,12 @@ class EffectTest {
 		});
 		assertEquals(2, e.dependencyCount());
 		cond.set(false);
+		SignalDispatcher.flush();
 		assertEquals(2, e.dependencyCount());
 		// a should no longer be tracked
 		// we already tested via previous dynamic test, but check counts
 		a.set(10);
+		SignalDispatcher.flush();
 		// should not rerun effect
 		// Use a new effect to verify
 		AtomicInteger runs = new AtomicInteger(0);
@@ -83,9 +101,11 @@ class EffectTest {
 		});
 		runs.set(0);
 		a.set(20);
+		SignalDispatcher.flush();
 		// cond false, so a not dependency, so no run
 		assertEquals(0, runs.get());
 		b.set(30);
+		SignalDispatcher.flush();
 		assertEquals(1, runs.get());
 		e.dispose();
 		e2.dispose();
@@ -103,6 +123,7 @@ class EffectTest {
 		e.dispose();
 		assertTrue(e.isDisposed());
 		s.set(2);
+		SignalDispatcher.flush();
 		assertEquals(1, runs.get());
 		assertDoesNotThrow(e::dispose);
 	}
@@ -120,6 +141,7 @@ class EffectTest {
 		assertEquals(1, effectRuns.get());
 		assertEquals(0, cleanupRuns.get());
 		s.set(2);
+		SignalDispatcher.flush();
 		assertEquals(2, effectRuns.get());
 		assertEquals(1, cleanupRuns.get(), "Cleanup should run before re-run");
 		e.dispose();
@@ -136,6 +158,7 @@ class EffectTest {
 		});
 		assertEquals(0, cleanupRuns.get());
 		s.set(2);
+		SignalDispatcher.flush();
 		assertEquals(1, cleanupRuns.get());
 		e.dispose();
 		assertEquals(2, cleanupRuns.get());
@@ -153,6 +176,7 @@ class EffectTest {
 			cleanup.add(() -> goodCleanup.incrementAndGet());
 		});
 		s.set(2);
+		SignalDispatcher.flush();
 		// second cleanup should still run despite first failing
 		assertEquals(1, goodCleanup.get());
 		e.dispose();
@@ -171,8 +195,10 @@ class EffectTest {
 		assertEquals(1, runs.get());
 		// second run throws but should not break
 		s.set(2);
+		SignalDispatcher.flush();
 		assertEquals(2, runs.get());
 		s.set(3);
+		SignalDispatcher.flush();
 		assertEquals(3, runs.get(), "Effect should continue after error");
 		e.dispose();
 	}

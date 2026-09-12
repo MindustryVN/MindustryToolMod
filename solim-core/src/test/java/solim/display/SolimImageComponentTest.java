@@ -44,6 +44,7 @@ class SolimImageComponentTest {
 		assertEquals(Color.green, img.image().color);
 
 		colorSig.set(Color.blue);
+		solim.signal.SignalDispatcher.flush();
 		assertEquals(Color.blue, img.image().color);
 	}
 

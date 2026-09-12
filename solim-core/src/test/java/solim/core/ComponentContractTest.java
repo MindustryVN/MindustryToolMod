@@ -205,9 +205,11 @@ class ComponentContractTest {
 		comp.element();
 		assertEquals(1, runs.get());
 		sig.set(1);
+		solim.signal.SignalDispatcher.flush();
 		assertEquals(2, runs.get());
 		comp.dispose();
 		sig.set(2);
+		solim.signal.SignalDispatcher.flush();
 		assertEquals(2, runs.get(), "Effect must be disposed with component");
 	}
 }

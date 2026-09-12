@@ -43,6 +43,7 @@ import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 import solim.signal.Signals;
 import solim.ui.Dynamic;
 import solim.ui.ForEach;
@@ -54,7 +55,19 @@ import solim.ui.Units;
  * This class exposes all allowed factory and utility methods for user-facing and mod development.
  */
 public final class UI {
+    static {
+        init();
+    }
+
     private UI() {
+    }
+
+    /**
+     * Initializes Solim runtime hooks, registering the single-frame signal dispatcher with Mindustry.
+     * This method is idempotent and safe to call repeatedly.
+     */
+    public static void init() {
+        SignalDispatcher.register();
     }
 
     private static final float BASE_UNIT = 4f;

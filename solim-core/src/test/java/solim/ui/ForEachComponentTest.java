@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 
 class ForEachComponentTest {
 
@@ -76,6 +77,7 @@ class ForEachComponentTest {
 
 		// Update items to [B, C, D]
 		items.set(Arrays.asList("B", "C", "D"));
+		SignalDispatcher.flush();
 		assertTrue(a.wasDisposed, "Removed item A must be disposed");
 		assertFalse(created.get("B").wasDisposed, "Retained item B must not be disposed");
 

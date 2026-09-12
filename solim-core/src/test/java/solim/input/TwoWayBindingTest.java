@@ -28,6 +28,7 @@ class TwoWayBindingTest {
 		assertEquals(0, setterCalls.get(), "Initial equal value should not trigger setter");
 
 		sig.set("updated");
+		solim.signal.SignalDispatcher.flush();
 		assertEquals("updated", widgetVal[0]);
 		assertEquals(1, setterCalls.get());
 
@@ -84,6 +85,7 @@ class TwoWayBindingTest {
 		assertTrue(listenerRemoved.get(), "Widget listener must be cleaned up on disposal");
 
 		sig.set("B");
+		solim.signal.SignalDispatcher.flush();
 		assertEquals("A", widgetVal[0], "Disposed binding should not propagate signal changes");
 	}
 
@@ -121,6 +123,7 @@ class TwoWayBindingTest {
 
 		// 3. "clear message": signal is cleared on send
 		messageSignal.set("");
+		solim.signal.SignalDispatcher.flush();
 		assertEquals("", widgetVal[0], "Widget must be cleared when signal is cleared");
 		assertEquals("", messageSignal.get(), "Signal must be cleared");
 

@@ -12,6 +12,7 @@ import arc.scene.event.InputEvent;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 import solim.ui.ParentStack;
 
 class CardTest {
@@ -98,6 +99,7 @@ class CardTest {
 		assertEquals(Color.green, c.cardButton().color);
 
 		colorSig.set(Color.blue);
+		SignalDispatcher.flush();
 		assertEquals(Color.blue, c.cardButton().color);
 		c.dispose();
 	}
@@ -111,6 +113,7 @@ class CardTest {
 		assertEquals(200f, c.sizeConstraints().prefWidth.get(), 0.01f);
 
 		widthSig.set(300f);
+		SignalDispatcher.flush();
 		assertEquals(300f, c.cardButton().getWidth(), 0.01f);
 		assertEquals(300f, c.sizeConstraints().prefWidth.get(), 0.01f);
 		c.dispose();
@@ -125,6 +128,7 @@ class CardTest {
 		assertEquals(150f, c.sizeConstraints().prefHeight.get(), 0.01f);
 
 		heightSig.set(200f);
+		SignalDispatcher.flush();
 		assertEquals(200f, c.cardButton().getHeight(), 0.01f);
 		assertEquals(200f, c.sizeConstraints().prefHeight.get(), 0.01f);
 		c.dispose();
@@ -149,6 +153,7 @@ class CardTest {
 		assertTrue(c.cardButton().visible);
 
 		vis.set(false);
+		SignalDispatcher.flush();
 		assertFalse(c.cardButton().visible);
 		c.dispose();
 	}

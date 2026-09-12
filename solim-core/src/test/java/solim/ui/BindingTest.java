@@ -12,6 +12,7 @@ import org.junit.jupiter.api.Test;
 import solim.signal.Computed;
 import solim.signal.Effect;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 
 class BindingTest {
 
@@ -57,9 +58,11 @@ class BindingTest {
 		Effect b = Binding.of((Consumer<String>) t -> target.setText(t), s);
 		assertEquals("Alice", target.text, "Immediate apply on create");
 		s.set("Bob");
+		SignalDispatcher.flush();
 		assertEquals("Bob", target.text, "Update on signal change");
 		b.dispose();
 		s.set("Charlie");
+		SignalDispatcher.flush();
 		assertEquals("Bob", target.text, "Disposed binding does not update");
 	}
 
@@ -71,6 +74,7 @@ class BindingTest {
 		Effect b = Binding.of((Consumer<String>) t -> target.setText(t), text);
 		assertEquals("Count: 1", target.text);
 		count.set(2);
+		SignalDispatcher.flush();
 		assertEquals("Count: 2", target.text);
 		b.dispose();
 	}
@@ -82,6 +86,7 @@ class BindingTest {
 		Effect b = Binding.bind(s, t -> target.setText(t));
 		TestElement ref = target;
 		s.set("b");
+		SignalDispatcher.flush();
 		assertSame(ref, target, "Element not recreated on update");
 		b.dispose();
 	}
@@ -93,6 +98,7 @@ class BindingTest {
 		Effect visible = Binding.of((Consumer<Boolean>) t -> target.setVisible(t), isLoggedIn);
 		assertFalse(target.visible);
 		isLoggedIn.set(true);
+		SignalDispatcher.flush();
 		assertTrue(target.visible);
 		visible.dispose();
 
@@ -100,6 +106,7 @@ class BindingTest {
 		Effect enabled = Binding.of((Consumer<Boolean>) t -> target.setEnabled(t), canSave);
 		assertTrue(target.enabled);
 		canSave.set(false);
+		SignalDispatcher.flush();
 		assertFalse(target.enabled);
 		enabled.dispose();
 	}
@@ -112,6 +119,7 @@ class BindingTest {
 		assertEquals("a", target.get());
 		b.dispose();
 		s.set("b");
+		SignalDispatcher.flush();
 		assertEquals("a", target.get());
 	}
 
@@ -129,6 +137,7 @@ class BindingTest {
 
 		width.set(250f);
 		color.set(Color.green);
+		SignalDispatcher.flush();
 
 		assertEquals(250f, el.getWidth());
 		assertEquals(Color.green, el.color);
@@ -138,6 +147,7 @@ class BindingTest {
 
 		width.set(500f);
 		color.set(Color.blue);
+		SignalDispatcher.flush();
 		assertEquals(250f, el.getWidth());
 		assertEquals(Color.green, el.color);
 	}
@@ -149,6 +159,7 @@ class BindingTest {
 		Effect bVis = Binding.bindVisible(el, vis);
 		assertFalse(el.visible);
 		vis.set(true);
+		SignalDispatcher.flush();
 		assertTrue(el.visible);
 		bVis.dispose();
 
@@ -158,6 +169,7 @@ class BindingTest {
 			Effect bDis = Binding.bindDisabled(btn, dis);
 			assertFalse(btn.isDisabled());
 			dis.set(true);
+			SignalDispatcher.flush();
 			assertTrue(btn.isDisabled());
 			bDis.dispose();
 		}

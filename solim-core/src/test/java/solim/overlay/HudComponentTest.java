@@ -89,6 +89,7 @@ class HudComponentTest {
 		assertEquals(60f, hud.element().y, 0.01f);
 		x.set(150f);
 		y.set(250f);
+		solim.signal.SignalDispatcher.flush();
 		assertEquals(150f, hud.element().x, 0.01f);
 		assertEquals(250f, hud.element().y, 0.01f);
 		hud.dispose();
@@ -101,6 +102,7 @@ class HudComponentTest {
 		hud.opacity(opacity);
 		assertEquals(0.7f, hud.container().color.a, 0.01f);
 		opacity.set(0.3f);
+		solim.signal.SignalDispatcher.flush();
 		assertEquals(0.3f, hud.container().color.a, 0.01f);
 		hud.dispose();
 	}

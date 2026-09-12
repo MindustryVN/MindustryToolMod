@@ -15,6 +15,7 @@ import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
 import solim.layout.ReactiveGrid;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 
 class StructuralReactivityTest {
 
@@ -67,6 +68,7 @@ class StructuralReactivityTest {
 
 		// Switch dynamic subtree
 		toggle.set(false);
+		SignalDispatcher.flush();
 		assertTrue(compA.wasDisposed, "Previous component must be disposed on change");
 		TestComponent compB = instances.get("B");
 		assertEquals("B", compB.id);
@@ -101,6 +103,7 @@ class StructuralReactivityTest {
 
 		// Update items to [B, C, D]
 		items.set(Arrays.asList("B", "C", "D"));
+		SignalDispatcher.flush();
 
 		assertTrue(a.wasDisposed, "Removed item A must be disposed");
 		assertFalse(b.wasDisposed, "Retained item B must not be disposed");
@@ -219,10 +222,12 @@ class StructuralReactivityTest {
 
 		// Changing internalChildSignal must NOT trigger the Dynamic switcher!
 		internalChildSignal.set("updated");
+		SignalDispatcher.flush();
 		assertEquals(1, factoryBuildCount[0], "Updating signal read during child build must not re-run Dynamic factory");
 
 		// Changing switcher MUST trigger the Dynamic switcher
 		switcher.set(false);
+		SignalDispatcher.flush();
 		assertEquals(2, factoryBuildCount[0], "Updating switcher source must trigger Dynamic factory");
 
 		dyn.dispose();

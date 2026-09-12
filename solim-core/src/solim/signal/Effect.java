@@ -115,10 +115,6 @@ public final class Effect implements ReactiveObserver, Disposable {
 			cleanups.add(returned);
 		}
 		updateDependencies(newDeps);
-		if (pending) {
-			pending = false;
-			runEffect();
-		}
 	}
 
 	private void runCleanups() {
@@ -167,17 +163,32 @@ public final class Effect implements ReactiveObserver, Disposable {
 
 	@Override
 	public void invalidate() {
-		if (disposed) return;
-		if (running) {
-			pending = true;
+		if (disposed || pending) return;
+		pending = true;
+		SignalDispatcher.enqueue(this);
+	}
+
+	void runPending() {
+		if (disposed) {
+			pending = false;
 			return;
 		}
+		pending = false;
 		runEffect();
+	}
+
+	void clearPending() {
+		pending = false;
+	}
+
+	boolean isPending() {
+		return pending;
 	}
 
 	public void dispose() {
 		if (disposed) return;
 		disposed = true;
+		pending = false;
 		// unsubscribe from dependencies
 		for (Object dep : new ArrayList<>(dependencies)) {
 			if (dep instanceof Signal) {

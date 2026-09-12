@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
 import solim.signal.Signal;
+import solim.signal.SignalDispatcher;
 
 class DynamicComponentTest {
 
@@ -81,6 +82,7 @@ class DynamicComponentTest {
 		assertEquals("A", compA.id);
 
 		toggle.set(false);
+		SignalDispatcher.flush();
 		assertTrue(compA.wasDisposed, "Previous component must be disposed on change");
 		TestComponent compB = instances.get("B");
 		assertEquals("B", compB.id);
@@ -129,9 +131,11 @@ class DynamicComponentTest {
 		assertEquals(1, factoryBuildCount[0]);
 
 		internalChildSignal.set("updated");
+		SignalDispatcher.flush();
 		assertEquals(1, factoryBuildCount[0], "Updating signal read during child build must not re-run Dynamic factory");
 
 		switcher.set(false);
+		SignalDispatcher.flush();
 		assertEquals(2, factoryBuildCount[0], "Updating switcher source must trigger Dynamic factory");
 		dyn.dispose();
 	}
@@ -150,6 +154,7 @@ class DynamicComponentTest {
 		assertEquals(1, dyn.container().getChildren().size);
 
 		source.set("hide");
+		SignalDispatcher.flush();
 		parent.layout();
 
 		assertFalse(dyn.container().visible);

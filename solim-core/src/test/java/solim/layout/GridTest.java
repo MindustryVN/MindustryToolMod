@@ -124,6 +124,7 @@ class GridTest {
 		assertEquals(4f, CellAccess.padTop(g.table().defaults()), 0.01f);
 
 		gap.set(16f);
+		solim.signal.SignalDispatcher.flush();
 		assertEquals(8f, CellAccess.padTop(g.table().defaults()), 0.01f);
 	}
 
