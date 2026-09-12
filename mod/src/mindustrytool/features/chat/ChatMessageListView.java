@@ -532,7 +532,7 @@ public class ChatMessageListView extends BaseComponent {
         private void buildSchematicCard(Schematic schematic) {
             card().top().left().children(() -> {
                 column().top().left().gap(unit(1)).children(() -> {
-                    row().top().left().gap(unit(1)).children(() -> {
+                    row().growX().top().left().gap(unit(1)).children(() -> {
                         text(schematic.name())
                                 .color(Pal.accent)
                                 .fontScale(0.95f)
@@ -540,34 +540,39 @@ public class ChatMessageListView extends BaseComponent {
                                 .left()
                                 .growX();
 
+                        spacer();
+
                         button(() -> Vars.ui.schematics.showInfo(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("info.title", "Info"))
-                                .children(() -> icon(Icon.info).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.infoSmall).size(unit(5), unit(5)));
 
                         button(() -> Vars.ui.schematics.showExport(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("editor.export", "Export"))
-                                .children(() -> icon(Icon.upload).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.upload).size(unit(5), unit(5)));
 
                         button(() -> Vars.ui.schematics.showEdit(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("schematic.edit", "Edit"))
-                                .children(() -> icon(Icon.pencil).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.pencil).size(unit(5), unit(5)));
 
                         button(() -> useSchematic(schematic))
                                 .style(Styles.clearNonei)
                                 .size(unit(6), unit(6))
                                 .tooltip(Core.bundle.get("feature.chat.ui.schematic.use", "Use"))
-                                .children(() -> icon(Icon.play).size(unit(4), unit(4)));
+                                .children(() -> icon(Icon.play).size(unit(5), unit(5)));
                     });
+
+                    float width = schematic.width / schematic.height * unit(35);
 
                     button(() -> useSchematic(schematic))
                             .style(Styles.flatt)
                             .height(unit(35))
+                            .width(width)
                             .children(() -> {
                                 arc(new SchematicImage(schematic).setScaling(Scaling.fit));
                             });
