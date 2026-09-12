@@ -159,7 +159,7 @@ public class ChatOverlayHudView extends BaseComponent {
                         divider();
 
                         // Inverted to test mobile layout in desktop
-                        if (!Vars.mobile) {
+                        if (Vars.mobile) {
                             buildMobileBody();
                         } else {
                             buildDesktopBody();
