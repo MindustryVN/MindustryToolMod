@@ -4,20 +4,21 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import mindustrytool.features.chat.models.GroupedMessageItem;
+import arc.util.Nullable;
+import mindustrytool.features.chat.models.MessageGroup;
 import mindustrytool.features.chat.models.ParsedChatMessage;
 import mindustrytool.models.response.ChatMessage;
 
 /**
- * Groups consecutive chat messages from the same author, marking first-in-group and last-in-group
- * flags for layout and height calculation.
+ * Groups consecutive chat messages from the same author into composite {@link MessageGroup}
+ * items for rendering.
  */
 public final class ChatMessageGrouper {
 
     private ChatMessageGrouper() {
     }
 
-    public static List<GroupedMessageItem> groupRaw(List<ChatMessage> rawMessages) {
+    public static List<MessageGroup> groupRaw(List<ChatMessage> rawMessages) {
         if (rawMessages == null || rawMessages.isEmpty()) {
             return Collections.emptyList();
         }
@@ -28,19 +29,31 @@ public final class ChatMessageGrouper {
         return group(parsed);
     }
 
-    public static List<GroupedMessageItem> group(List<ParsedChatMessage> messages) {
+    public static List<MessageGroup> group(List<ParsedChatMessage> messages) {
         if (messages == null || messages.isEmpty()) {
             return Collections.emptyList();
         }
-        int n = messages.size();
-        List<GroupedMessageItem> result = new ArrayList<>(n);
-        for (int i = 0; i < n; i++) {
-            ParsedChatMessage cur = messages.get(i);
+        List<MessageGroup> result = new ArrayList<>();
+        List<ParsedChatMessage> current = new ArrayList<>();
+        @Nullable String currentAuthor = null;
+
+        for (ParsedChatMessage cur : messages) {
             String author = cur.getCreatedBy();
-            boolean first = (i == 0) || !Objects.equals(author, messages.get(i - 1).getCreatedBy());
-            boolean last = (i == n - 1) || !Objects.equals(author, messages.get(i + 1).getCreatedBy());
-            result.add(new GroupedMessageItem(cur, first, last));
+            if (!current.isEmpty() && !Objects.equals(author, currentAuthor)) {
+                result.add(toGroup(currentAuthor, current));
+                current = new ArrayList<>();
+            }
+            currentAuthor = author;
+            current.add(cur);
+        }
+        if (!current.isEmpty()) {
+            result.add(toGroup(currentAuthor, current));
         }
         return result;
+    }
+
+    private static MessageGroup toGroup(@Nullable String authorId, List<ParsedChatMessage> messages) {
+        String createdAt = messages.isEmpty() ? null : messages.get(0).getCreatedAt();
+        return new MessageGroup(authorId, createdAt, messages);
     }
 }

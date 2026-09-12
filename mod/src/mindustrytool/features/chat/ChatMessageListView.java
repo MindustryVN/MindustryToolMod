@@ -19,7 +19,7 @@ import mindustry.gen.Icon;
 import mindustry.graphics.Pal;
 import mindustry.ui.Styles;
 import mindustry.ui.dialogs.SchematicsDialog.SchematicImage;
-import mindustrytool.features.chat.models.GroupedMessageItem;
+import mindustrytool.features.chat.models.MessageGroup;
 import mindustrytool.features.chat.models.ParsedChatMessage;
 import mindustrytool.features.chat.models.ParsedChatMessage.ImageMessage;
 import mindustrytool.features.chat.models.ParsedChatMessage.MindustryToolLinkMessage;
@@ -39,7 +39,7 @@ public class ChatMessageListView extends BaseComponent {
 
     private final ChatStore store;
     private final @Nullable ChatService service;
-    private @Nullable VirtualList<GroupedMessageItem, String> virtualList;
+    private @Nullable VirtualList<MessageGroup, String> virtualList;
 
     private @Nullable String lastChannelId = null;
     private int lastMessageCount = 0;
@@ -63,7 +63,7 @@ public class ChatMessageListView extends BaseComponent {
             return Boolean.TRUE.equals(fully) && Boolean.TRUE.equals(has);
         });
 
-        Readable<List<GroupedMessageItem>> groupedMessages = new Computed<>(() -> {
+        Readable<List<MessageGroup>> groupedMessages = new Computed<>(() -> {
             List<ChatMessage> msgs = store.activeMessages().get();
             if (msgs == null || msgs.isEmpty()) {
                 return Collections.emptyList();
@@ -160,11 +160,12 @@ public class ChatMessageListView extends BaseComponent {
                 if (Boolean.TRUE.equals(available)) {
                     virtualList = virtualList(
                             groupedMessages,
-                            GroupedMessageItem::getId,
+                            MessageGroup::getKey,
                             ChatMessageHeightCalculator::calculateHeight,
-                            item -> new MessageItem(item, store, service)
+                            item -> new MessageGroupView(item, store, service)
                     )
                     .grow()
+                    .gap(unit(0.75f))
                     .overscan(3)
                     .onReachTop(50f, () -> {
                         String activeId = store.activeChannelId().peek();
@@ -209,27 +210,27 @@ public class ChatMessageListView extends BaseComponent {
         }
     }
 
-    private static class MessageItem extends BaseComponent {
-        private final GroupedMessageItem item;
+    private static class MessageGroupView extends BaseComponent {
+        private final MessageGroup group;
         private final ChatStore store;
         private final @Nullable ChatService service;
 
-        public MessageItem(GroupedMessageItem item, ChatStore store, @Nullable ChatService service) {
-            this.item = item;
+        public MessageGroupView(MessageGroup group, ChatStore store, @Nullable ChatService service) {
+            this.group = group;
             this.store = store;
             this.service = service;
         }
 
         @Override
         protected Element build() {
-            ParsedChatMessage parsed = item.getMessage();
-            ChatMessage raw = parsed.getRaw();
-            boolean isFirst = item.isFirstInGroup();
+            ParsedChatMessage first = group.getMessage(0);
+            ChatMessage firstRaw = first.getRaw();
+            String authorId = group.getAuthorId();
 
-            Readable<UserData> user = store.user(raw.getCreatedBy());
+            Readable<UserData> user = store.user(authorId);
             Readable<String> authorName = user.map(u -> (u != null && u.getName() != null && !u.getName().isEmpty())
                     ? u.getName()
-                    : (raw.getCreatedBy() != null ? raw.getCreatedBy() : "Unknown"));
+                    : (authorId != null ? authorId : "Unknown"));
 
             Readable<Color> authorColor = user.map(u -> {
                 if (u != null && u.getHighestRole().isPresent()) {
@@ -249,62 +250,70 @@ public class ChatMessageListView extends BaseComponent {
                             ? u.getImageUrl()
                             : null);
 
-            String timeStr = formatTime(raw.getCreatedAt());
-            boolean mentioned = (parsed instanceof TextMessage) && ((TextMessage) parsed).isMentionsCurrentUser();
+            String timeStr = formatTime(group.getCreatedAt());
 
             return card()
                     .growX()
                     .top().left()
-                    .onClick(() -> openActions(raw))
                     .children(() -> {
-                        float padTop = isFirst ? unit(1) : unit(0.25f);
-                        float padLeft = (isFirst || mentioned) ? unit(1) : (unit(1) + unit(12) + unit(1.5f));
-                        float padBottom = unit(0.25f);
-                        float padRight = unit(1);
-
                         row().growX().top().left()
-                                .padding(padTop, padLeft, padBottom, padRight)
+                                .padding(unit(1))
                                 .gap(unit(1.5f))
                                 .children(() -> {
-                            // Left Avatar or indent spacer
-                            if (isFirst) {
-                                new ChatAvatar(authorName, avatarUrl, raw.getCreatedBy(), unit(12));
-                            } else if (mentioned) {
-                                row().width(unit(12));
-                            }
+                            // Shared group avatar on the left, pinned to the top
+                            new ChatAvatar(authorName, avatarUrl, authorId, unit(12)).top();
 
+                            // Right column: header followed by stacked messages
+                            column().growX().top().left().gap(unit(0.5f)).children(() -> {
+                                // Author and timestamp header + action button
+                                row().growX().top().left().gap(unit(1)).children(() -> {
+                                    text(authorName)
+                                            .color(authorColor)
+                                            .fontScale(0.95f)
+                                            .left();
+
+                                    if (!timeStr.isEmpty()) {
+                                        text(timeStr)
+                                                .color(Color.gray)
+                                                .fontScale(0.8f)
+                                                .left();
+                                    }
+
+                                    spacer();
+
+                                    // Action ellipsis / menu button
+                                    button(() -> openActions(firstRaw))
+                                            .style(Styles.clearNonei)
+                                            .size(unit(6), unit(6))
+                                            .children(() -> icon(Icon.menuSmall).size(unit(4), unit(4)));
+                                });
+
+                                // Stacked message rows with a tight gap
+                                column().growX().top().left().gap(unit(0.75f)).children(() -> {
+                                    for (ParsedChatMessage parsed : group.getMessages()) {
+                                        buildMessageRow(parsed);
+                                    }
+                                });
+                            });
+                        });
+                    }).element();
+        }
+
+        private void buildMessageRow(ParsedChatMessage parsed) {
+            ChatMessage raw = parsed.getRaw();
+            boolean mentioned = (parsed instanceof TextMessage) && ((TextMessage) parsed).isMentionsCurrentUser();
+
+            // Transparent clickable wrapper preserving per-message actions
+            card().growX().top().left()
+                    .onClick(() -> openActions(raw))
+                    .children(() -> {
+                        row().growX().top().left().gap(unit(1)).children(() -> {
                             // Accent bar for messages mentioning the current user
                             if (mentioned) {
                                 divider(Direction.Y).color(Pal.accent).width(unit(1));
                             }
 
-                            // Content area
                             column().growX().top().left().gap(unit(0.5f)).children(() -> {
-                                // Author and timestamp header + action button
-                                if (isFirst) {
-                                    row().growX().top().left().gap(unit(1)).children(() -> {
-                                        text(authorName)
-                                                .color(authorColor)
-                                                .fontScale(0.95f)
-                                                .left();
-
-                                        if (!timeStr.isEmpty()) {
-                                            text(timeStr)
-                                                    .color(Color.gray)
-                                                    .fontScale(0.8f)
-                                                    .left();
-                                        }
-
-                                        spacer();
-
-                                        // Action ellipsis / menu button
-                                        button(() -> openActions(raw))
-                                                .style(Styles.clearNonei)
-                                                .size(unit(6), unit(6))
-                                                .children(() -> icon(Icon.menuSmall).size(unit(4), unit(4)));
-                                    });
-                                }
-
                                 // Reply target preview
                                 if (raw.getReplyTo() != null && !raw.getReplyTo().isEmpty()) {
                                     buildReplyPreview(raw.getReplyTo());
@@ -314,7 +323,7 @@ public class ChatMessageListView extends BaseComponent {
                                 buildMessageBody(parsed);
                             });
                         });
-                    }).element();
+                    });
         }
 
         private void openActions(ChatMessage message) {

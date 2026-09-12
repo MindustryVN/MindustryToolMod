@@ -7,6 +7,8 @@ import arc.scene.Element;
 import arc.util.Nullable;
 import solim.core.BaseComponent;
 import solim.display.Badge;
+import solim.layout.LayoutModifiers;
+import solim.layout.SizeConstraints;
 import solim.layout.SolimStack;
 import solim.signal.Readable;
 
@@ -15,7 +17,7 @@ import solim.signal.Readable;
  * Renders with continuous-curvature (Apple-style L4 superellipse) rounded corners on both
  * the fallback badge and the network image layer.
  */
-public class ChatAvatar extends BaseComponent {
+public class ChatAvatar extends BaseComponent implements LayoutModifiers<ChatAvatar> {
 
     private static final Color[] PALETTE = {
             Color.valueOf("ef5350"),
@@ -32,6 +34,7 @@ public class ChatAvatar extends BaseComponent {
     private final Readable<String> avatarUrl;
     private final @Nullable String colorKey;
     private final float size;
+    private final SizeConstraints constraints = new SizeConstraints();
     private int cornerRadius;
 
     public ChatAvatar(String displayName, String avatarUrl, @Nullable String colorKey, float size) {
@@ -54,6 +57,11 @@ public class ChatAvatar extends BaseComponent {
 
     public int getCornerRadius() {
         return cornerRadius;
+    }
+
+    @Override
+    public SizeConstraints sizeConstraints() {
+        return constraints;
     }
 
     @Override
@@ -81,7 +89,9 @@ public class ChatAvatar extends BaseComponent {
                         img.rounded(radius);
                     }
                 });
-        return stack.element();
+        Element el = stack.element();
+        el.userObject = this;
+        return el;
     }
 
     static String initialOf(String name) {

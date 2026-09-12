@@ -9,7 +9,7 @@ import arc.util.pooling.Pools;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import mindustry.ui.Fonts;
-import mindustrytool.features.chat.models.GroupedMessageItem;
+import mindustrytool.features.chat.models.MessageGroup;
 import mindustrytool.features.chat.models.ParsedChatMessage;
 import mindustrytool.features.chat.models.ParsedChatMessage.ImageMessage;
 import mindustrytool.features.chat.models.ParsedChatMessage.MindustryToolLinkMessage;
@@ -35,7 +35,9 @@ public final class ChatMessageHeightCalculator {
     public static final float IMAGE_CARD_HEIGHT = 140f;
     public static final float INVITE_CARD_HEIGHT = 80f;
     public static final float TOOL_LINK_CARD_HEIGHT = 70f;
-    public static final float HORIZONTAL_PADDINGS = 64f; // Left avatar gutter + right margin
+    public static final float HORIZONTAL_PADDINGS = 66f; // 48px avatar + gutter + margins
+    public static final float MESSAGE_GAP = 3f; // unit(0.75f): gap between messages in a group
+    public static final float HEADER_GAP = 2f; // unit(0.5f): gap between group header and first message
 
     private static final Map<String, Float> HEIGHT_CACHE = new ConcurrentHashMap<>();
 
@@ -43,73 +45,73 @@ public final class ChatMessageHeightCalculator {
     }
 
     /**
-     * Calculates the height for a grouped message item at the specified container width.
+     * Calculates the height for a message group at the specified container width.
      */
-    public static float calculateHeight(GroupedMessageItem item, float containerWidth) {
-        if (item == null || item.getMessage() == null) {
+    public static float calculateHeight(MessageGroup group, float containerWidth) {
+        if (group == null || group.getMessageCount() == 0) {
             return 24f;
         }
 
         int widthKey = (int) Math.max(100f, containerWidth);
-        String cacheKey = item.getId() + "_" + item.isFirstInGroup() + "_" + widthKey;
+        String cacheKey = group.getKey() + "_" + widthKey;
         Float cached = HEIGHT_CACHE.get(cacheKey);
         if (cached != null) {
             return cached;
         }
 
-        float height = computeHeight(item, widthKey);
+        float height = computeHeight(group, widthKey);
         HEIGHT_CACHE.put(cacheKey, height);
         return height;
     }
 
-    private static float computeHeight(GroupedMessageItem item, float containerWidth) {
-        ParsedChatMessage msg = item.getMessage();
-        boolean isFirst = item.isFirstInGroup();
-
-        float verticalPadding = isFirst ? (UNIT_1 + UNIT_1) : (UNIT_1 * 1.5f);
-        float contentHeight = 0f;
-
-        // 1. Author and timestamp header
-        if (isFirst) {
-            contentHeight += HEADER_HEIGHT;
-        }
-
-        // 2. Reply preview row
-        if (msg.getReplyTo() != null && !msg.getReplyTo().isEmpty()) {
-            contentHeight += REPLY_PREVIEW_HEIGHT;
-        }
-
-        // 3. Body height by type
+    private static float computeHeight(MessageGroup group, float containerWidth) {
+        float verticalPadding = UNIT_1 + UNIT_1;
         float availableTextWidth = Math.max(100f, containerWidth - HORIZONTAL_PADDINGS);
 
-        if (msg instanceof TextMessage) {
-            TextMessage txt = (TextMessage) msg;
-            contentHeight += measureTextHeight(txt.getText(), availableTextWidth, 0.95f);
-        } else if (msg instanceof SchematicMessage) {
-            SchematicMessage schem = (SchematicMessage) msg;
-            contentHeight += SCHEMATIC_CARD_HEIGHT;
-            if (schem.getPrefixText() != null && !schem.getPrefixText().isEmpty()) {
-                contentHeight += measureTextHeight(schem.getPrefixText(), availableTextWidth, 0.95f);
-            }
-            if (schem.getSuffixText() != null && !schem.getSuffixText().isEmpty()) {
-                contentHeight += measureTextHeight(schem.getSuffixText(), availableTextWidth, 0.95f);
-            }
-        } else if (msg instanceof ImageMessage) {
-            contentHeight += IMAGE_CARD_HEIGHT;
-        } else if (msg instanceof RoomInviteMessage) {
-            contentHeight += INVITE_CARD_HEIGHT;
-        } else if (msg instanceof MindustryToolLinkMessage) {
-            contentHeight += TOOL_LINK_CARD_HEIGHT;
-        } else {
-            contentHeight += 24f;
+        float messagesHeight = 0f;
+        for (ParsedChatMessage msg : group.getMessages()) {
+            messagesHeight += measureMessageHeight(msg, availableTextWidth);
+        }
+        if (group.getMessageCount() > 1) {
+            messagesHeight += MESSAGE_GAP * (group.getMessageCount() - 1);
         }
 
-        // Total height must account for avatar height if it's the first message in the group
-        float total = verticalPadding + contentHeight;
-        if (isFirst) {
-            total = Math.max(AVATAR_SIZE + verticalPadding, total);
-        }
+        float rightColumnHeight = HEADER_HEIGHT + HEADER_GAP + messagesHeight;
+        float total = Math.max(AVATAR_SIZE, rightColumnHeight) + verticalPadding;
         return Math.max(24f, total);
+    }
+
+    private static float measureMessageHeight(ParsedChatMessage msg, float availableTextWidth) {
+        float height = 0f;
+
+        // Reply preview row
+        if (msg.getReplyTo() != null && !msg.getReplyTo().isEmpty()) {
+            height += REPLY_PREVIEW_HEIGHT;
+        }
+
+        // Body height by type
+        if (msg instanceof TextMessage) {
+            TextMessage txt = (TextMessage) msg;
+            height += measureTextHeight(txt.getText(), availableTextWidth, 0.95f);
+        } else if (msg instanceof SchematicMessage) {
+            SchematicMessage schem = (SchematicMessage) msg;
+            height += SCHEMATIC_CARD_HEIGHT;
+            if (schem.getPrefixText() != null && !schem.getPrefixText().isEmpty()) {
+                height += measureTextHeight(schem.getPrefixText(), availableTextWidth, 0.95f);
+            }
+            if (schem.getSuffixText() != null && !schem.getSuffixText().isEmpty()) {
+                height += measureTextHeight(schem.getSuffixText(), availableTextWidth, 0.95f);
+            }
+        } else if (msg instanceof ImageMessage) {
+            height += IMAGE_CARD_HEIGHT;
+        } else if (msg instanceof RoomInviteMessage) {
+            height += INVITE_CARD_HEIGHT;
+        } else if (msg instanceof MindustryToolLinkMessage) {
+            height += TOOL_LINK_CARD_HEIGHT;
+        } else {
+            height += 24f;
+        }
+        return height;
     }
 
     /**
