@@ -286,7 +286,7 @@ public class ChatMessageListView extends BaseComponent {
                                     button(() -> openActions(firstRaw))
                                             .style(Styles.clearNonei)
                                             .size(unit(6), unit(6))
-                                            .children(() -> icon(FileIcon.of("ellipsis-vertical.png")).size(unit(4), unit(4)));
+                                            .children(() -> icon(FileIcon.of("ellipsis-vertical.png")).size(unit(6), unit(6)));
                                 });
 
                                 // Stacked message rows with a tight gap

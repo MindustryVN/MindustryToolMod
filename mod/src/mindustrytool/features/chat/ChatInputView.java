@@ -17,7 +17,6 @@ import solim.signal.Readable;
 import solim.signal.Signal;
 import mindustrytool.components.FileIcon;
 
-
 public class ChatInputView extends BaseComponent {
 
     private final ChatStore store;
@@ -79,7 +78,7 @@ public class ChatInputView extends BaseComponent {
                     card(Styles.black5).growX().children(() -> {
                         row().growX().gap(unit(1)).padding(unit(1)).children(() -> {
                             var input = textField(messageText)
-                                    .placeholder(Core.bundle.get("feature.chat.ui.placeholder", "Message..."))
+                                    .placeholder("  " + Core.bundle.get("feature.chat.ui.placeholder", "Message..."))
                                     .validator(this::isValidInput)
                                     .onEnter(this::onSend)
                                     .disabled(isSending)
@@ -90,15 +89,16 @@ public class ChatInputView extends BaseComponent {
                             input.field().getStyle().focusedBackground = input.field().getStyle().background;
 
                             button(() -> new AttachContentDialog(this::handleAttachContent).show())
-                                    .style(Styles.defaultb)
+                                    .style(Styles.cleart)
                                     .size(unit(10))
-                                    .children(() -> image(FileIcon.of("upload.png")).size(unit(5), unit(5)));
+                                    .children(() -> image(FileIcon.of("upload.png")).size(unit(6), unit(6)));
 
                             button(this::onSend)
-                                    .style(Styles.defaultb)
+                                    .style(Styles.cleart)
                                     .enabled(canSend)
-                                    .width(unit(10))
-                                    .children(() -> image(FileIcon.of("send.png")).size(unit(5), unit(5)).color(Pal.accent));
+                                    .size(unit(10))
+                                    .children(() -> image(FileIcon.of("send.png")).size(unit(6), unit(6))
+                                            .color(Pal.accent));
                         });
                     });
                 });
@@ -119,6 +119,7 @@ public class ChatInputView extends BaseComponent {
             Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.empty-content", "Message cannot be empty."));
             return;
         }
+
         if (!isValidInput(content)) {
             return;
         }
