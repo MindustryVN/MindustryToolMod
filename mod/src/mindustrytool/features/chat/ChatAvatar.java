@@ -63,6 +63,7 @@ public class ChatAvatar extends BaseComponent {
         int radius = cornerRadius;
 
         SolimStack stack = new SolimStack()
+                .size(size, size)
                 .layer(() -> {
                     Badge fallback = badge(initial);
                     if (radius > 0) {

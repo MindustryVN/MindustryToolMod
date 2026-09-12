@@ -284,16 +284,21 @@ public class ChatMessageListView extends BaseComponent {
                     .top().left()
                     .onClick(() -> store.toggleExpanded(message.getId()))
                     .children(() -> {
+                        float padTop = isFirst ? unit(1) : unit(0.25f);
+                        float padLeft = (isFirst || mentioned) ? unit(1) : (unit(1) + unit(12) + unit(1.5f));
+                        float padBottom = unit(0.25f);
+                        float padRight = unit(1);
+
                         row().growX().top().left()
-                                .padding(isFirst ? unit(1) : unit(0.25f), unit(1), unit(0.25f), unit(1))
+                                .padding(padTop, padLeft, padBottom, padRight)
                                 .gap(unit(1.5f))
                                 .children(() -> {
                             // Left Avatar or indent spacer
-                            row().width(unit(12)).minWidth(unit(12)).top().left().children(() -> {
-                                if (isFirst) {
-                                    new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(12));
-                                }
-                            });
+                            if (isFirst) {
+                                new ChatAvatar(authorName, avatarUrl, message.getCreatedBy(), unit(12));
+                            } else if (mentioned) {
+                                row().width(unit(12));
+                            }
 
                             // Accent bar for messages mentioning the current user
                             if (mentioned) {
