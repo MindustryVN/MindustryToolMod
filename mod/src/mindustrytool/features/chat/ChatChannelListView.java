@@ -16,7 +16,6 @@ import mindustry.ui.Styles;
 import mindustrytool.models.response.ChannelDto;
 import solim.core.BaseComponent;
 import solim.graphics.RoundedDrawable;
-import solim.layout.SolimStack;
 import solim.signal.Computed;
 import solim.signal.Readable;
 
@@ -92,11 +91,12 @@ public class ChatChannelListView extends BaseComponent {
 
             Computed<ButtonStyle> style = isSelected.map(s -> s ? selectedStyle : defaultStyle);
 
-            SolimStack stack = new SolimStack()
+            return row()
                     .growX()
                     .marginTop(unit(1))
                     .height(unit(10))
-                    .layer(() -> row().grow().left().children(() -> {
+                    .left()
+                    .children(() -> {
                         button(() -> store.setActiveChannelId(channel.getId()))
                                 .style(style)
                                 .margin(unit(1))
@@ -109,9 +109,8 @@ public class ChatChannelListView extends BaseComponent {
                                 .size(unit(1.5f), unit(1.5f))
                                 .color(Pal.heal)
                                 .visible(hasUnread);
-                    }));
-
-            return stack.element();
+                    })
+                    .element();
         }
     }
 }

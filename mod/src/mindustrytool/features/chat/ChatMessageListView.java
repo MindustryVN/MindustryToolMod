@@ -171,7 +171,7 @@ public class ChatMessageListView extends BaseComponent {
                                                         .fontScale(0.85f);
                                     });
                                 }
-                                return row();
+                                return null;
                             });
 
                             dynamic(store.loadingOlder(), loading -> {
@@ -184,7 +184,7 @@ public class ChatMessageListView extends BaseComponent {
                                                         .left();
                                     });
                                 }
-                                return row();
+                                return null;
                             });
 
                             dynamic(hasMessages, available -> {
@@ -347,7 +347,7 @@ public class ChatMessageListView extends BaseComponent {
                                             });
                                         }).growX();
                                     }
-                                    return row();
+                                    return null;
                                 });
 
                                 // Interactive action bar
@@ -374,7 +374,7 @@ public class ChatMessageListView extends BaseComponent {
                                             }).style(Styles.defaultt).height(unit(7));
                                         });
                                     }
-                                    return row();
+                                    return null;
                                 });
                             });
                         });

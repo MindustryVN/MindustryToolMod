@@ -11,102 +11,104 @@ import solim.display.SolimImage;
 import solim.signal.Readable;
 
 /**
- * Divider line supporting horizontal (X) and vertical (Y) directions.
- * Uses an Image instead of a Table for lightweight rendering.
+ * Divider line supporting horizontal (X) and vertical (Y) directions. Uses an
+ * Image instead of a Table for lightweight rendering.
  */
 public final class Divider implements Component, LayoutModifiers<Divider> {
-	private final SolimImage image;
-	private final Direction direction;
+    private final SolimImage image;
+    private final Direction direction;
 
-	public Divider() {
-		this(Direction.X);
-	}
+    public Divider() {
+        this(Direction.X);
+    }
 
-	public Divider(Direction direction) {
-		this.direction = direction != null ? direction : Direction.X;
-		Drawable white = (Core.atlas != null && Core.atlas.has("whiteui"))
-				? Core.atlas.drawable("whiteui")
-				: null;
+    public Divider(Direction direction) {
+        this.direction = direction != null ? direction : Direction.X;
+        Drawable white = (Core.atlas != null && Core.atlas.has("whiteui"))
+                ? Core.atlas.drawable("whiteui")
+                : null;
 
-		this.image = new SolimImage(white);
-		this.image.element().name = "solim-divider";
-		this.image.color(new Color(1f, 1f, 1f, 0.15f));
+        this.image = new SolimImage(white);
+        this.image.element().name = "solim-divider";
+        this.image.color(new Color(1f, 1f, 1f, 0.15f));
 
-		if (this.direction == Direction.Y) {
-			growY();
-			width(1.5f);
+        if (this.direction == Direction.Y) {
+            growY();
+            width(1.5f);
             minWidth(1.5f);
-		} else {
-			growX();
-			height(1.5f);
+            marginBottom(1);
+        } else {
+            growX();
+            height(1.5f);
             minHeight(1.5f);
-		}
-	}
+            marginRight(1);
+        }
+    }
 
-	public Direction direction() {
-		return direction;
-	}
+    public Direction direction() {
+        return direction;
+    }
 
-	public SolimImage solimImage() {
-		return image;
-	}
+    public SolimImage solimImage() {
+        return image;
+    }
 
-	public Image image() {
-		return image.image();
-	}
+    public Image image() {
+        return image.image();
+    }
 
-	public Divider color(Color color) {
-		image.color(color);
-		return this;
-	}
+    public Divider color(Color color) {
+        image.color(color);
+        return this;
+    }
 
-	public Divider color(Readable<Color> color) {
-		image.color(color);
-		return this;
-	}
+    public Divider color(Readable<Color> color) {
+        image.color(color);
+        return this;
+    }
 
-	@Override
-	public Divider width(float width) {
-		image.width(width);
-		return this;
-	}
+    @Override
+    public Divider width(float width) {
+        image.width(width);
+        return this;
+    }
 
-	@Override
-	public Divider width(@Nullable Readable<Float> width) {
-		image.width(width);
-		return this;
-	}
+    @Override
+    public Divider width(@Nullable Readable<Float> width) {
+        image.width(width);
+        return this;
+    }
 
-	@Override
-	public Divider height(float height) {
-		image.height(height);
-		return this;
-	}
+    @Override
+    public Divider height(float height) {
+        image.height(height);
+        return this;
+    }
 
-	@Override
-	public Divider height(@Nullable Readable<Float> height) {
-		image.height(height);
-		return this;
-	}
+    @Override
+    public Divider height(@Nullable Readable<Float> height) {
+        image.height(height);
+        return this;
+    }
 
-	@Override
-	public Element element() {
-		return image.element();
-	}
+    @Override
+    public Element element() {
+        return image.element();
+    }
 
-	@Override
-	public SizeConstraints sizeConstraints() {
-		return image.sizeConstraints();
-	}
+    @Override
+    public SizeConstraints sizeConstraints() {
+        return image.sizeConstraints();
+    }
 
-	@Override
-	public Divider name(String name) {
-		image.name(name);
-		return this;
-	}
+    @Override
+    public Divider name(String name) {
+        image.name(name);
+        return this;
+    }
 
-	@Override
-	public void dispose() {
-		image.dispose();
-	}
+    @Override
+    public void dispose() {
+        image.dispose();
+    }
 }
