@@ -12,6 +12,6 @@ public class BackgroundSettingsDialog extends SolimDialog {
         addCloseButton();
         closeOnBack();
 
-        content(new BackgroundSettingsView(feature));
+        children(() -> new BackgroundSettingsView(feature));
     }
 }

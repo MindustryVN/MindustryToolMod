@@ -16,6 +16,6 @@ public class FeatureHelpDialog extends SolimDialog {
 		addCloseButton();
 		closeOnBack();
 
-		content(new FeatureHelpView(feature));
+		children(() -> new FeatureHelpView(feature));
 	}
 }

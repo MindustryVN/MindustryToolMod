@@ -18,6 +18,6 @@ public class TeamResourceSettingsDialog extends SolimDialog {
 
         actionButton(Core.bundle.get("team-resources.reset-to-defaults", "Reset to Defaults"), Icon.refresh, 250f, 64f, feature::resetToDefaults);
 
-        content(new TeamResourceSettingsView(feature));
+        children(() -> new TeamResourceSettingsView(feature));
     }
 }

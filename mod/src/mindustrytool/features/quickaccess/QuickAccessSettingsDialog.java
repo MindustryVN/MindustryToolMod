@@ -12,6 +12,6 @@ public class QuickAccessSettingsDialog extends SolimDialog {
         addCloseButton();
         closeOnBack();
 
-        content(new QuickAccessSettingsView(feature));
+        children(() -> new QuickAccessSettingsView(feature));
     }
 }

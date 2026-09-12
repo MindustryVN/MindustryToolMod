@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.feedback.Alert;
 import solim.feedback.Avatar;
@@ -40,20 +41,21 @@ class OverlayFeedbackTest {
 	@Test
 	void dialogContentComponentAutomaticallyDisposed() {
 		AtomicBoolean disposed = new AtomicBoolean(false);
-		Component testComp = new Component() {
+
+		SolimDialog d = new SolimDialog("Lifecycle Test");
+		d.children(() -> new BaseComponent() {
 			@Override
-			public Element element() {
+			protected Element build() {
 				return new Table();
 			}
 
 			@Override
 			public void dispose() {
+				super.dispose();
 				disposed.set(true);
 			}
-		};
-
-		SolimDialog d = new SolimDialog("Lifecycle Test");
-		d.content(testComp);
+		});
+		d.ensureContentBuilt();
 		assertFalse(disposed.get());
 
 		d.dispose();

@@ -18,7 +18,7 @@ public final class FeatureSettingDialog extends SolimDialog {
         name("featureSettingDialog");
         addCloseButton();
         closeOnBack();
-        content(new FeatureSettingsView());
+        children(() -> new FeatureSettingsView());
 
         actionButton(
                 Core.bundle.get("feature.button.report-bug"),

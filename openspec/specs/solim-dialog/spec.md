@@ -2,23 +2,27 @@
 
 ## Purpose
 Declarative dialog component providing reactive signals, layout helpers, and automatic lifecycle management and disposal of attached content components and resources.
-
 ## Requirements
-
 ### Requirement: Automatic Content Component Lifecycle Management
-The `SolimDialog` component SHALL automatically manage the lifecycle of any `Component` passed to its `content(Component)` method by registering the component's disposal with its internal disposable registry.
+The `SolimDialog` component SHALL manage content attachment declaratively via `children(Runnable)` using `ParentStack` and SHALL defer executing the content builder until the dialog is shown. It SHALL automatically register any resources and components created within the content builder with its internal disposable registry. The legacy `content(Component)` method SHALL NOT be supported.
 
-#### Scenario: Component content registered and disposed
-- **WHEN** a `Component` is attached to a `SolimDialog` via `content(Component)`
-- **THEN** the component is added to the dialog layout and registered as a `Disposable` with the dialog
+#### Scenario: Content builder is not executed on instantiation
+- **WHEN** a `SolimDialog` is instantiated and configured with `children(Runnable contentBuilder)`
+- **THEN** `contentBuilder` is not executed during instantiation
+- **AND** no child elements or reactive bindings are created before the dialog is shown
 
-#### Scenario: Dialog disposal cleans up content component
-- **WHEN** `dispose()` is invoked on a `SolimDialog` with an attached `Component`
-- **THEN** the attached component's `dispose()` method is automatically called
+#### Scenario: Content builder executed lazily when shown
+- **WHEN** `show()` is invoked on a `SolimDialog` configured with `children(Runnable contentBuilder)`
+- **THEN** `contentBuilder` is executed
+- **AND** its child elements are attached to the dialog's content container via `ParentStack`
 
-#### Scenario: Subclasses do not need manual disposal override
-- **WHEN** a subclass of `SolimDialog` attaches a `Component` via `content(Component)`
-- **THEN** disposing the dialog disposes the component without the subclass overriding `onDispose()`
+#### Scenario: Content only built once across repeated shows
+- **WHEN** `show()` is invoked multiple times on the same `SolimDialog`
+- **THEN** `contentBuilder` is only executed once and existing elements are preserved
+
+#### Scenario: Dialog disposal cleans up content components
+- **WHEN** `dispose()` is invoked on a `SolimDialog` whose content was built
+- **THEN** all attached components and resources are automatically disposed
 
 ### Requirement: Full Screen by Default
 The `SolimDialog` component SHALL enable `fillParent(true)` by default to fill the entire viewport width and height, matching standard Mindustry dialog behavior, while allowing callers to override it via `fillParent(boolean)`.

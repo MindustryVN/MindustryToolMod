@@ -37,6 +37,8 @@ public class SolimDialog implements Component {
     private final List<Disposable> disposables = new ArrayList<>();
     private boolean isShown = false;
     private boolean isDisposed = false;
+    private @Nullable Runnable contentBuilder;
+    private boolean contentBuilt = false;
 
     /**
      * Mirrors the wrapped dialog element's name for convenient reads.
@@ -65,20 +67,22 @@ public class SolimDialog implements Component {
 
     public static SolimDialog of(String title, Runnable content) {
         SolimDialog d = new SolimDialog(title);
-        d.content(content);
+        d.children(content);
         return d;
     }
 
-    public SolimDialog content(@Nullable Component component) {
-        if (component != null) {
-            wrapped.cont.add(component.element()).grow().expand();
-            registerDisposable(component::dispose);
-        }
+    public SolimDialog content(@Nullable Runnable contentBuilder) {
+        return children(contentBuilder);
+    }
+
+    public SolimDialog children(@Nullable Runnable contentBuilder) {
+        this.contentBuilder = contentBuilder;
         return this;
     }
 
-    public SolimDialog content(@Nullable Runnable contentBuilder) {
-        if (contentBuilder != null) {
+    public void ensureContentBuilt() {
+        if (!contentBuilt && contentBuilder != null) {
+            contentBuilt = true;
             BaseComponent comp = new BaseComponent() {
                 @Override
                 protected Element build() {
@@ -94,11 +98,6 @@ public class SolimDialog implements Component {
             registerDisposable(comp::dispose);
             comp.element();
         }
-        return this;
-    }
-
-    public SolimDialog children(@Nullable Runnable contentBuilder) {
-        return content(contentBuilder);
     }
 
     public SolimDialog actionButton(String text, Runnable action) {
@@ -219,6 +218,7 @@ public class SolimDialog implements Component {
 
     /** Returns the wrapped dialog's content table. */
     public Table cont() {
+        ensureContentBuilt();
         return wrapped.cont;
     }
 
@@ -280,6 +280,7 @@ public class SolimDialog implements Component {
     }
 
     public SolimDialog show(Scene scene) {
+        ensureContentBuilt();
         isShown = true;
         if (scene != null || Core.scene != null) {
             wrapped.show(scene != null ? scene : Core.scene);

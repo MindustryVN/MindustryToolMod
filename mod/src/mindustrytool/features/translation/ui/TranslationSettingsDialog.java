@@ -16,6 +16,6 @@ public class TranslationSettingsDialog extends SolimDialog {
 
 		actionButton(Core.bundle.get("feature.translation.settings.reset", "Reset to Defaults"), Icon.refresh, 220f, 64f, feature::resetToDefaults);
 
-		content(new TranslationSettingsView(feature));
+		children(() -> new TranslationSettingsView(feature));
 	}
 }

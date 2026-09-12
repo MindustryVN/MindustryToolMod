@@ -6,9 +6,11 @@ import arc.Core;
 import arc.scene.Element;
 import arc.scene.ui.layout.Table;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import solim.core.BaseComponent;
 import solim.core.Component;
 
 class SolimDialogComponentTest {
@@ -48,22 +50,51 @@ class SolimDialogComponentTest {
 	@Test
 	void dialogContentComponentAutomaticallyDisposed() {
 		AtomicBoolean disposed = new AtomicBoolean(false);
-		Component testComp = new Component() {
+
+		SolimDialog d = new SolimDialog("Lifecycle Test");
+		d.children(() -> new BaseComponent() {
 			@Override
-			public Element element() {
+			protected Element build() {
 				return new Table();
 			}
 
 			@Override
 			public void dispose() {
+				super.dispose();
 				disposed.set(true);
 			}
-		};
-		SolimDialog d = new SolimDialog("Lifecycle Test");
-		d.content(testComp);
+		});
+		d.ensureContentBuilt();
 		assertFalse(disposed.get());
 		d.dispose();
 		assertTrue(disposed.get(), "Attached content component must be disposed when dialog is disposed");
+	}
+
+	@Test
+	void dialogChildrenExecutedLazily() {
+		AtomicBoolean built = new AtomicBoolean(false);
+		SolimDialog d = new SolimDialog("Lazy Test");
+		d.children(() -> built.set(true));
+
+		assertFalse(built.get(), "Children builder must not run during dialog instantiation");
+
+		d.ensureContentBuilt();
+		assertTrue(built.get(), "Children builder must run when ensureContentBuilt is called");
+		d.dispose();
+	}
+
+	@Test
+	void dialogChildrenOnlyExecutedOnce() {
+		AtomicInteger runCount = new AtomicInteger(0);
+		SolimDialog d = new SolimDialog("Single Execution Test");
+		d.children(runCount::incrementAndGet);
+
+		assertEquals(0, runCount.get());
+		d.ensureContentBuilt();
+		assertEquals(1, runCount.get());
+		d.ensureContentBuilt();
+		assertEquals(1, runCount.get(), "Children builder must only be executed once");
+		d.dispose();
 	}
 
 	@Test

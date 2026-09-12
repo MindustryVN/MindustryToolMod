@@ -12,6 +12,6 @@ public class ChatSettingsDialog extends SolimDialog {
         addCloseButton();
         closeOnBack();
 
-        content(new ChatSettingsView(feature));
+        children(() -> new ChatSettingsView(feature));
     }
 }
