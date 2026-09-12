@@ -17,7 +17,6 @@ import mindustrytool.services.auth.MindustryAuthProvider;
 import solim.signal.Computed;
 import solim.signal.Readable;
 import solim.signal.Signal;
-import solim.signal.Subscription;
 
 public class ChatStore {
 
@@ -42,7 +41,6 @@ public class ChatStore {
     private final Map<String, Readable<UserData>> userComputeds = new HashMap<>();
     private final Computed<String> sessionUsername = MindustryAuthProvider.getInstance().session()
             .map(session -> session != null ? session.getName() : null);
-    private final Subscription sessionSubscription;
 
     private final Computed<List<ChatMessage>> activeMessages = new Computed<>(() -> {
         String activeId = activeChannelId.get();
@@ -91,11 +89,7 @@ public class ChatStore {
     });
 
     public ChatStore() {
-        // Owns parser cache invalidation for the app lifetime (same lifetime as the static cache).
-        // Narrowed to the username so periodic refetches of the same user don't clear the cache.
-        // The prime read is load-bearing: a never-read Computed stays dirty and its listeners
-        // would never fire (see Computed.invalidate).
-        sessionSubscription = sessionUsername.subscribe(username -> ChatMessageParser.clearCache());
+        sessionUsername.subscribe(username -> ChatMessageParser.clearCache());
         sessionUsername.peek();
     }
 

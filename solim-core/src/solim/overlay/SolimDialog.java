@@ -274,6 +274,11 @@ public class SolimDialog implements Component {
         return this;
     }
 
+    public SolimDialog maxWidth(float maxWidth) {
+        wrapped.cont.defaults().maxWidth(maxWidth);
+        return this;
+    }
+
     public SolimDialog show(Scene scene) {
         isShown = true;
         if (scene != null || Core.scene != null) {

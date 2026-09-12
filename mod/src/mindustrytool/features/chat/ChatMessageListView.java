@@ -167,20 +167,19 @@ public class ChatMessageListView extends BaseComponent {
                             groupedMessages,
                             MessageGroup::getKey,
                             ChatMessageHeightCalculator::calculateHeight,
-                            item -> new MessageGroupView(item, store, service)
-                    )
-                    .grow()
-                    .gap(unit(0.75f))
-                    .overscan(3)
-                    .onReachTop(50f, () -> {
-                        String activeId = store.activeChannelId().peek();
-                        var msgs = store.activeMessages().peek();
-                        if (activeId != null && !activeId.isEmpty() && service != null && msgs != null
-                                && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())
-                                && !store.isFullyLoaded(activeId)) {
-                            service.fetchOlderMessages(activeId);
-                        }
-                    });
+                            item -> new MessageGroupView(item, store, service))
+                                    .grow()
+                                    .gap(unit(0.75f))
+                                    .overscan(3)
+                                    .onReachTop(50f, () -> {
+                                        String activeId = store.activeChannelId().peek();
+                                        var msgs = store.activeMessages().peek();
+                                        if (activeId != null && !activeId.isEmpty() && service != null && msgs != null
+                                                && !msgs.isEmpty() && !Boolean.TRUE.equals(store.loadingOlder().peek())
+                                                && !store.isFullyLoaded(activeId)) {
+                                            service.fetchOlderMessages(activeId);
+                                        }
+                                    });
                     return virtualList;
                 } else {
                     return column().padding(unit(4)).top().left().children(() -> {
@@ -265,42 +264,43 @@ public class ChatMessageListView extends BaseComponent {
                                 .padding(unit(1))
                                 .gap(unit(1.5f))
                                 .children(() -> {
-                            // Shared group avatar on the left, pinned to the top
-                            new ChatAvatar(authorName, avatarUrl, authorId, unit(12)).top();
+                                    // Shared group avatar on the left, pinned to the top
+                                    new ChatAvatar(authorName, avatarUrl, authorId, unit(12)).top();
 
-                            // Right column: header followed by stacked messages
-                            column().growX().top().left().gap(unit(0.5f)).children(() -> {
-                                // Author and timestamp header + action button
-                                row().growX().top().left().gap(unit(1)).children(() -> {
-                                    text(authorName)
-                                            .color(authorColor)
-                                            .fontScale(0.95f)
-                                            .left();
+                                    // Right column: header followed by stacked messages
+                                    column().growX().top().left().gap(unit(0.5f)).children(() -> {
+                                        // Author and timestamp header + action button
+                                        row().growX().top().left().gap(unit(1)).children(() -> {
+                                            text(authorName)
+                                                    .color(authorColor)
+                                                    .fontScale(0.95f)
+                                                    .left();
 
-                                    if (!timeStr.isEmpty()) {
-                                        text(timeStr)
-                                                .color(Color.gray)
-                                                .fontScale(0.8f)
-                                                .left();
-                                    }
+                                            if (!timeStr.isEmpty()) {
+                                                text(timeStr)
+                                                        .color(Color.gray)
+                                                        .fontScale(0.8f)
+                                                        .left();
+                                            }
 
-                                    spacer();
+                                            spacer();
 
-                                    // Action ellipsis / menu button
-                                    button(() -> openActions(firstRaw))
-                                            .style(Styles.clearNonei)
-                                            .size(unit(6), unit(6))
-                                            .children(() -> icon(FileIcon.of("ellipsis-vertical.png")).size(unit(6), unit(6)));
+                                            // Action ellipsis / menu button
+                                            button(() -> openActions(firstRaw))
+                                                    .style(Styles.clearNonei)
+                                                    .size(unit(6), unit(6))
+                                                    .children(() -> icon(FileIcon.of("ellipsis-vertical.png"))
+                                                            .size(unit(6), unit(6)));
+                                        });
+
+                                        // Stacked message rows with a tight gap
+                                        column().growX().top().left().gap(unit(0.75f)).children(() -> {
+                                            for (ParsedChatMessage parsed : group.getMessages()) {
+                                                buildMessageRow(parsed);
+                                            }
+                                        });
+                                    });
                                 });
-
-                                // Stacked message rows with a tight gap
-                                column().growX().top().left().gap(unit(0.75f)).children(() -> {
-                                    for (ParsedChatMessage parsed : group.getMessages()) {
-                                        buildMessageRow(parsed);
-                                    }
-                                });
-                            });
-                        });
                     }).element();
         }
 
@@ -358,7 +358,8 @@ public class ChatMessageListView extends BaseComponent {
                                                                         store.addFailedMessage(tempId);
                                                                     } else {
                                                                         store.removePendingMessage(tempId);
-                                                                        boolean realExists = store.hasMessage(realMsg.getId());
+                                                                        boolean realExists = store
+                                                                                .hasMessage(realMsg.getId());
                                                                         if (realExists) {
                                                                             store.removeMessage(tempId);
                                                                         } else {
@@ -414,7 +415,8 @@ public class ChatMessageListView extends BaseComponent {
             });
         }
 
-        private void buildMessageBody(ParsedChatMessage parsed, Readable<Boolean> isPending, Readable<Boolean> isFailed) {
+        private void buildMessageBody(ParsedChatMessage parsed, Readable<Boolean> isPending,
+                Readable<Boolean> isFailed) {
             Readable<Color> bodyColor = new Computed<>(() -> {
                 if (Boolean.TRUE.equals(isFailed.get())) {
                     return Color.scarlet;
@@ -528,9 +530,9 @@ public class ChatMessageListView extends BaseComponent {
         }
 
         private void buildSchematicCard(Schematic schematic) {
-            card().growX().top().left().children(() -> {
-                column().growX().top().left().padding(unit(1.5f)).gap(unit(1)).children(() -> {
-                    row().growX().top().left().gap(unit(1)).children(() -> {
+            card().top().left().children(() -> {
+                column().top().left().gap(unit(1)).children(() -> {
+                    row().top().left().gap(unit(1)).children(() -> {
                         text(schematic.name())
                                 .color(Pal.accent)
                                 .fontScale(0.95f)

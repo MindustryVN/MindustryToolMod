@@ -3,6 +3,9 @@ package mindustrytool.features.chat;
 import arc.Core;
 import arc.graphics.Color;
 import arc.util.Nullable;
+
+import static solim.UI.*;
+
 import java.util.concurrent.CompletableFuture;
 import mindustry.Vars;
 import mindustry.graphics.Pal;
@@ -11,7 +14,6 @@ import mindustrytool.features.FeatureManager;
 import mindustrytool.features.translation.TranslationFeature;
 import mindustrytool.models.response.ChatMessage;
 import mindustrytool.services.MindustryTool;
-import solim.UI;
 import solim.overlay.SolimDialog;
 import solim.signal.Signal;
 
@@ -39,10 +41,13 @@ public class MessageActionDialog extends SolimDialog {
             this.translatedText.set(existingTranslation);
         }
 
+        addCloseButton();
+        maxWidth(Vars.mobile ? dvh(80).get() : dvh(40).get());
+
         children(() -> {
-            UI.column().growX().padding(UI.unit(3)).gap(UI.unit(2)).children(() -> {
+            column().growX().padding(unit(3)).gap(unit(2)).children(() -> {
                 // Action: Copy
-                UI.button(Core.bundle.get("feature.chat.ui.copy", "Copy"), () -> {
+                button(Core.bundle.get("feature.chat.ui.copy", "Copy"), () -> {
                     try {
                         String content = message.getContent() != null ? message.getContent() : "";
                         Core.app.setClipboardText(content);
@@ -50,25 +55,25 @@ public class MessageActionDialog extends SolimDialog {
                     } catch (Throwable ignored) {
                     }
                     hide();
-                }).style(Styles.defaultb).growX().height(UI.unit(10));
+                }).style(Styles.defaultb).growX().height(unit(10));
 
                 // Action: Reply
-                UI.button(Core.bundle.get("feature.chat.ui.reply", "Reply"), () -> {
+                button(Core.bundle.get("feature.chat.ui.reply", "Reply"), () -> {
                     store.setReplyTarget(message);
                     hide();
-                }).style(Styles.defaultb).growX().height(UI.unit(10));
+                }).style(Styles.defaultb).growX().height(unit(10));
 
                 // Action: Translate
-                UI.button(Core.bundle.get("feature.chat.ui.translate", "Translate"), this::performTranslate)
+                button(Core.bundle.get("feature.chat.ui.translate", "Translate"), this::performTranslate)
                         .style(Styles.defaultb)
                         .growX()
-                        .height(UI.unit(10));
+                        .height(unit(10));
 
                 // Translation result area
-                UI.dynamic(translating, isTranslating -> {
+                dynamic(translating, isTranslating -> {
                     if (Boolean.TRUE.equals(isTranslating)) {
-                        return UI.row().growX().center().padding(UI.unit(2)).children(() -> {
-                            UI.text(Core.bundle.get("feature.chat.ui.translating", "Translating..."))
+                        return row().growX().center().padding(unit(2)).children(() -> {
+                            text(Core.bundle.get("feature.chat.ui.translating", "Translating..."))
                                     .color(Color.gray)
                                     .fontScale(0.9f);
                         });
@@ -76,30 +81,30 @@ public class MessageActionDialog extends SolimDialog {
                     return null;
                 });
 
-                UI.dynamic(translatedText, text -> {
+                dynamic(translatedText, text -> {
                     if (text != null && !text.isEmpty()) {
-                        return UI.card(Styles.black3, () -> {
-                            UI.column().growX().padding(UI.unit(2)).gap(UI.unit(1.5f)).left().children(() -> {
-                                UI.row().growX().gap(UI.unit(1)).left().children(() -> {
-                                    UI.text("[#58a6ff]🌐 " + Core.bundle.get("feature.chat.ui.translated-badge", "Translated"))
+                        return card(Styles.black3, () -> {
+                            column().growX().padding(unit(2)).gap(unit(1.5f)).left().children(() -> {
+                                row().growX().gap(unit(1)).left().children(() -> {
+                                    text("[#58a6ff]🌐 " + Core.bundle.get("feature.chat.ui.translated-badge", "Translated"))
                                             .fontScale(0.8f)
                                             .color(Pal.accent);
                                 });
 
-                                UI.text(text)
+                                text(text)
                                         .color(Color.white)
                                         .fontScale(0.95f)
                                         .wrap()
                                         .left()
                                         .growX();
 
-                                UI.button(Core.bundle.get("feature.chat.ui.copy-translation", "Copy Translation"), () -> {
+                                button(Core.bundle.get("feature.chat.ui.copy-translation", "Copy Translation"), () -> {
                                     try {
                                         Core.app.setClipboardText(text);
                                         Vars.ui.showInfoFade(Core.bundle.get("feature.chat.ui.copied", "Copied to clipboard!"));
                                     } catch (Throwable ignored) {
                                     }
-                                }).style(Styles.defaultt).height(UI.unit(7));
+                                }).style(Styles.defaultt).height(unit(7));
                             });
                         }).growX();
                     }
@@ -107,8 +112,6 @@ public class MessageActionDialog extends SolimDialog {
                 });
             });
         });
-
-        addCloseButton();
     }
 
     private void performTranslate() {
