@@ -37,6 +37,7 @@ public class ChatStore {
     private final Signal<String> expandedMessageId = Signal.of(null);
     private final Signal<Map<String, String>> translatedMessages = Signal.of(new HashMap<>());
     private final Signal<String> translatingMessageId = Signal.of(null);
+    private final Map<String, Readable<UserData>> userComputeds = new HashMap<>();
 
     private final Computed<List<ChatMessage>> activeMessages = new Computed<>(() -> {
         String activeId = activeChannelId.get();
@@ -315,8 +316,14 @@ public class ChatStore {
         return userCache;
     }
 
-    public Readable<UserData> user(String userId) {
-        return userCache.map(map -> map != null ? map.get(userId) : null);
+    public Readable<UserData> user(@Nullable String userId) {
+        String key = userId != null ? userId : "";
+        Readable<UserData> existing = userComputeds.get(key);
+        if (existing == null) {
+            existing = userCache.map(map -> (map != null && !key.isEmpty()) ? map.get(key) : null);
+            userComputeds.put(key, existing);
+        }
+        return existing;
     }
 
     public void putUsers(List<UserData> users) {

@@ -10,6 +10,7 @@ import java.util.function.Function;
 import solim.core.Component;
 import solim.core.ComponentContext;
 import solim.core.Disposable;
+import solim.signal.ReactiveContext;
 
 /**
  * Shared keyed reconciliation manager for structural reactive components (such as {@link ForEach}
@@ -52,13 +53,15 @@ public final class StructuralReconciler<K, C extends Component> implements Dispo
 
 				C comp = activeComponents.get(key);
 				if (comp == null) {
-					comp = ParentStack.isolate(() -> {
-						C c = factory.apply(item);
-						if (c != null) {
-							c.element();
-						}
-						return c;
-					});
+					comp = ReactiveContext.untracked(() ->
+						ParentStack.isolate(() -> {
+							C c = factory.apply(item);
+							if (c != null) {
+								c.element();
+							}
+							return c;
+						})
+					);
 				}
 				if (comp != null) {
 					nextComponents.put(key, comp);

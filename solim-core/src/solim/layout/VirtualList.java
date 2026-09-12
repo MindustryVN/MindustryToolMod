@@ -385,6 +385,7 @@ public final class VirtualList<T, K> extends BaseComponent implements LayoutModi
     }
 
     public class VirtualContainer extends WidgetGroup {
+        private boolean inLayout = false;
 
         @Override
         public float getPrefWidth() {
@@ -398,12 +399,21 @@ public final class VirtualList<T, K> extends BaseComponent implements LayoutModi
 
         @Override
         public void layout() {
-            float curWidth = getWidth();
-            if (curWidth > 0 && Math.abs(curWidth - lastMeasuredWidth) > 1f) {
-                recalculateHeights(curWidth);
-                reconcileVisible();
+            if (inLayout) {
+                super.layout();
+                return;
             }
-            super.layout();
+            inLayout = true;
+            try {
+                float curWidth = getWidth();
+                if (curWidth > 0 && Math.abs(curWidth - lastMeasuredWidth) > 1f) {
+                    recalculateHeights(curWidth);
+                    reconcileVisible();
+                }
+                super.layout();
+            } finally {
+                inLayout = false;
+            }
         }
     }
 }

@@ -180,4 +180,46 @@ class VirtualListTest {
         assertTrue(a.wasDisposed);
         assertEquals(0, vl.getMountedCount());
     }
+
+    @Test
+    void childSignalReadsDoNotAttachToCollectionObserver() {
+        Signal<String> childSignal = Signal.of("initial");
+        java.util.concurrent.atomic.AtomicInteger childBuildCount = new java.util.concurrent.atomic.AtomicInteger(0);
+
+        class ReactiveChild extends BaseComponent {
+            @Override
+            protected Element build() {
+                childBuildCount.incrementAndGet();
+                // Reading a child signal during component build
+                String val = childSignal.get();
+                Element el = new Element();
+                el.name = val;
+                return el;
+            }
+        }
+
+        Signal<List<String>> listSignal = Signal.of(Collections.singletonList("item1"));
+        VirtualList<String, String> vl = new VirtualList<>(
+                listSignal,
+                id -> id,
+                (id, w) -> 50f,
+                id -> new ReactiveChild()
+        );
+        vl.element();
+        SignalDispatcher.flush();
+
+        assertEquals(1, childBuildCount.get());
+
+        // Mutate child signal
+        childSignal.set("updated");
+
+        // The collection observer should NOT be queued in SignalDispatcher
+        assertEquals(0, SignalDispatcher.size(), "Child signal mutation must not trigger VirtualList collection effect");
+        SignalDispatcher.flush();
+
+        // childBuildCount should still be 1 (not rebuilt by collection effect)
+        assertEquals(1, childBuildCount.get());
+
+        vl.dispose();
+    }
 }

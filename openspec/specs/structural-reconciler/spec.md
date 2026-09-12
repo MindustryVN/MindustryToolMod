@@ -33,3 +33,10 @@ A shared reconciler utility SHALL exist (e.g., `StructuralReconciler`) that impl
 - **WHEN** `ReactiveGrid` reconciles a new data set
 - **THEN** it delegates to `StructuralReconciler` for lifecycle management
 
+### Requirement: Reconciler untracked reactive isolation
+The `StructuralReconciler` SHALL instantiate new components and build their initial elements inside an untracked reactive context (`ReactiveContext.untracked`) so that signal accesses during child component initialization do not leak into outer collection observers.
+
+#### Scenario: Child component creation does not register dependencies with ambient effect
+- **WHEN** a collection observer effect triggers reconciliation and new items are constructed that read reactive signals during build
+- **THEN** those signal reads are not recorded as dependencies of the collection observer effect
+

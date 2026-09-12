@@ -31,4 +31,19 @@ public class GroupedMessageItem {
     public boolean isLastInGroup() {
         return lastInGroup;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        GroupedMessageItem that = (GroupedMessageItem) o;
+        return firstInGroup == that.firstInGroup
+                && lastInGroup == that.lastInGroup
+                && java.util.Objects.equals(getId(), that.getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return java.util.Objects.hash(getId(), firstInGroup, lastInGroup);
+    }
 }

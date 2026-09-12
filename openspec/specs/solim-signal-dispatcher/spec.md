@@ -21,14 +21,18 @@ The reactive system SHALL queue invalidated `Effect`s and execute them at most o
 - **THEN** the observing effect executes once in each flush (twice in total)
 
 ### Requirement: Cascading effect processing during flush
-The dispatcher SHALL continue processing effects that become dirty while another effect is executing during `flush()` until all pending effects are exhausted, up to an iteration safety limit.
+The dispatcher SHALL continue processing effects that become dirty while another effect is executing during `flush()` until all pending effects are exhausted, using generation-based batch passes up to an iteration safety limit. A single flush pass SHALL drain all currently queued effects without incrementing the cascading generation limit.
 
 #### Scenario: Effect dirtied during execution of another effect
 - **WHEN** Effect A modifies Signal B during `flush()`, which invalidates Effect B
-- **THEN** Effect B is enqueued and executed within the same `flush()` cycle
+- **THEN** Effect B is enqueued and executed within a subsequent cascade pass of the same `flush()` cycle
+
+#### Scenario: Large batch of independent effects does not trip cycle limit
+- **WHEN** a single flush cycle contains more than 100 queued effects that do not produce recursive cascade loops
+- **THEN** all effects execute completely without triggering an infinite reactive loop warning
 
 #### Scenario: Cycle detection limits infinite execution
-- **WHEN** effects cause a circular dependency that repeatedly enqueues effects exceeding 100 iterations
+- **WHEN** effects cause a circular dependency that repeatedly enqueues effects exceeding the cascade depth threshold
 - **THEN** the dispatcher terminates the flush loop, logs an error, and clears the queue
 
 ### Requirement: Disposed effect skipping

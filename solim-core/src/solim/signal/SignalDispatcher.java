@@ -12,7 +12,7 @@ import mindustry.game.EventType.Trigger;
  * invalidations to run at most once per Mindustry frame.
  */
 public final class SignalDispatcher {
-	private static final int MAX_FLUSH_ITERATIONS = 100;
+	private static final int MAX_CASCADE_DEPTH = 100;
 	private static final Queue<Effect> queue = new ArrayDeque<>();
 	private static boolean registered = false;
 	private static boolean flushing = false;
@@ -55,17 +55,17 @@ public final class SignalDispatcher {
 	/**
 	 * Flushes and executes all pending effects in FIFO order on the caller's thread.
 	 * Newly invalidated effects dirtied during execution are drained within the same flush
-	 * up to a safety threshold to prevent infinite cycles.
+	 * across cascade passes up to a safety threshold to prevent infinite cycles.
 	 */
 	public static void flush() {
 		if (flushing) return;
 		flushing = true;
 		try {
-			int iterations = 0;
+			int pass = 0;
 			while (!queue.isEmpty()) {
-				if (++iterations > MAX_FLUSH_ITERATIONS) {
-					Log.err("[Solim] Infinite reactive loop detected in SignalDispatcher (exceeded @ iterations). Clearing @ pending effects.",
-							MAX_FLUSH_ITERATIONS, queue.size());
+				if (++pass > MAX_CASCADE_DEPTH) {
+					Log.err("[Solim] Infinite reactive loop detected in SignalDispatcher (exceeded @ cascade iterations). Clearing @ pending effects.",
+							MAX_CASCADE_DEPTH, queue.size());
 					for (Effect remaining : queue) {
 						remaining.clearPending();
 					}
@@ -73,18 +73,21 @@ public final class SignalDispatcher {
 					break;
 				}
 
-				Effect effect = queue.poll();
-				if (effect == null) continue;
+				int batchSize = queue.size();
+				for (int i = 0; i < batchSize; i++) {
+					Effect effect = queue.poll();
+					if (effect == null) continue;
 
-				if (effect.isDisposed()) {
-					effect.clearPending();
-					continue;
-				}
+					if (effect.isDisposed()) {
+						effect.clearPending();
+						continue;
+					}
 
-				try {
-					effect.runPending();
-				} catch (Throwable t) {
-					Log.err("[Solim] Error executing reactive effect", t);
+					try {
+						effect.runPending();
+					} catch (Throwable t) {
+						Log.err("[Solim] Error executing reactive effect", t);
+					}
 				}
 			}
 		} finally {

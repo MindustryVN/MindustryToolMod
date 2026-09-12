@@ -241,6 +241,40 @@ class SignalDispatcherTest {
 	}
 
 	@Test
+	void largeBatchOfNonCyclicalEffectsExecutesCompletelyInSingleFlush() {
+		int effectCount = 200;
+		Signal<Integer> source = Signal.of(0);
+		AtomicInteger executedCount = new AtomicInteger(0);
+		java.util.List<Effect> effects = new java.util.ArrayList<>();
+
+		for (int i = 0; i < effectCount; i++) {
+			effects.add(Effect.of(() -> {
+				source.get();
+				executedCount.incrementAndGet();
+			}));
+		}
+
+		// Initial run on creation
+		assertEquals(effectCount, executedCount.get());
+		executedCount.set(0);
+
+		// Dirty all effects
+		source.set(1);
+		assertEquals(effectCount, SignalDispatcher.size());
+		assertEquals(0, executedCount.get());
+
+		// Flush should drain all 200 effects in a single pass without false infinite loop detection
+		SignalDispatcher.flush();
+
+		assertEquals(effectCount, executedCount.get());
+		assertEquals(0, SignalDispatcher.size());
+
+		for (Effect effect : effects) {
+			effect.dispose();
+		}
+	}
+
+	@Test
 	void cyclicEffectsTerminateSafelyWithoutHanging() {
 		Signal<Integer> loopSignal = Signal.of(0);
 
