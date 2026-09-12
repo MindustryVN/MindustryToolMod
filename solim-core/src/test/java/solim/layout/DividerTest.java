@@ -66,4 +66,12 @@ class DividerTest {
 		assertEquals(arc.graphics.Color.green, d.image().color);
 		assertEquals(2f, d.sizeConstraints().prefHeight.get());
 	}
+
+	@Test
+	void dividerStretchesDrawableToFillCell() {
+		// Scaling.fit would shrink the square source pixel into a centered dot
+		// instead of a line, rendering the divider effectively invisible.
+		assertEquals(arc.util.Scaling.stretch, new Divider(Direction.X).solimImage().getScaling());
+		assertEquals(arc.util.Scaling.stretch, new Divider(Direction.Y).solimImage().getScaling());
+	}
 }

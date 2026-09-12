@@ -76,12 +76,16 @@ public class ChatInputView extends BaseComponent {
                 row().growX().gap(unit(1)).children(() -> {
                     card(Styles.black5).growX().children(() -> {
                         row().growX().gap(unit(1)).padding(unit(1)).children(() -> {
-                            textField(messageText)
+                            var input = textField(messageText)
                                     .placeholder(Core.bundle.get("feature.chat.ui.placeholder", "Message..."))
                                     .validator(this::isValidInput)
                                     .onEnter(this::onSend)
                                     .disabled(isSending)
+                                    .rounded(12, Color.clear)
+                                    .border(1.5f, Color.darkGray)
                                     .growX();
+                            // Keep rounding while focused: the skin's focused drawable is square.
+                            input.field().getStyle().focusedBackground = input.field().getStyle().background;
 
                             button(() -> new AttachContentDialog(this::handleAttachContent).show())
                                     .style(Styles.defaultb)

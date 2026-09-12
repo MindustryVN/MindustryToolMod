@@ -124,10 +124,10 @@ public class ChatOverlayHudView extends BaseComponent {
                 .width(winWidth)
                 .height(winHeight)
                 .children(() -> {
-                    column().grow().padding(unit(2)).children(() -> {
+                    column().grow().children(() -> {
                         // Window Action Bar (draggable bar wrapping title & action buttons)
                         row().growX()
-                                .background(Styles.black5)
+                                .background(colored(new Color(0.45f, 0.35f, 0.9f, 0.3f), Tex.whiteui))
                                 .padding(unit(1), unit(2), unit(1), unit(2))
                                 .gap(unit(2))
                                 .draggable(hud, feature.xSignal, feature.ySignal)

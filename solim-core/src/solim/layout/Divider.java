@@ -6,6 +6,7 @@ import arc.scene.Element;
 import arc.scene.style.Drawable;
 import arc.scene.ui.Image;
 import arc.util.Nullable;
+import arc.util.Scaling;
 import solim.core.Component;
 import solim.display.SolimImage;
 import solim.signal.Readable;
@@ -31,6 +32,9 @@ public final class Divider implements Component, LayoutModifiers<Divider> {
         this.image = new SolimImage(white);
         this.image.element().name = "solim-divider";
         this.image.color(new Color(1f, 1f, 1f, 0.15f));
+        // Stretch (not fit): the source is a square pixel, and fit would shrink it
+        // into a centered dot instead of a line filling the cell.
+        this.image.scaling(Scaling.stretch);
 
         if (this.direction == Direction.Y) {
             growY();
