@@ -3,6 +3,7 @@ package solim.ui;
 import arc.scene.Element;
 import arc.scene.ui.layout.Cell;
 import arc.scene.ui.layout.Table;
+import java.util.Objects;
 import java.util.function.Function;
 import solim.core.BaseComponent;
 import solim.core.Component;
@@ -25,6 +26,7 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 	private final Readable<T> source;
 	private final Function<T, Component> factory;
 	private Component currentComponent;
+	private T lastValue;
 	private final java.util.List<solim.core.Disposable> currentBindings = new java.util.ArrayList<>();
 
 	public Dynamic(Readable<T> source, Function<T, Component> factory) {
@@ -51,6 +53,10 @@ public final class Dynamic<T> extends BaseComponent implements LayoutModifiers<D
 		applyContainerAlign();
 		Effect.of(() -> {
 			T value = source.get();
+			if (Objects.equals(value, lastValue)) {
+				return;
+			}
+			lastValue = value;
 			if (currentComponent != null) {
 				currentComponent.dispose();
 				currentComponent = null;
