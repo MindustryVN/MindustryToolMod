@@ -11,7 +11,6 @@ import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import solim.core.BaseComponent;
-import solim.core.Component;
 
 class SolimDialogComponentTest {
 

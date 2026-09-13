@@ -160,13 +160,14 @@ public class ChatOverlayHudView extends BaseComponent {
 
                         divider();
 
-                        dynamic(Units.dvw, width -> {
-                            if (width < 1280) {
+                        dynamic(Units.width(), width -> {
+                            if (width < 1000) {
                                 return buildMobileBody();
                             } else {
                                 return buildDesktopBody();
                             }
-                        });
+                        })
+                        .growX();
                     });
                 });
     }
