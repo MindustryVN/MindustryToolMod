@@ -29,15 +29,17 @@ public final class ChatMessageHeightCalculator {
     public static final float UNIT_1 = 4f;
     public static final float AVATAR_SIZE = 48f; // unit(12)
     public static final float AVATAR_GAP = 6f;   // unit(1.5f)
-    public static final float HEADER_HEIGHT = 22f;
+    public static final float HEADER_HEIGHT = 24f; // unit(6) ellipsis button and title row
     public static final float REPLY_PREVIEW_HEIGHT = 24f;
     public static final float SCHEMATIC_CARD_HEIGHT = 180f;
     public static final float IMAGE_CARD_HEIGHT = 140f;
     public static final float INVITE_CARD_HEIGHT = 80f;
     public static final float TOOL_LINK_CARD_HEIGHT = 70f;
-    public static final float HORIZONTAL_PADDINGS = 66f; // 48px avatar + gutter + margins
+    public static final float HORIZONTAL_PADDINGS = 82f; // 48px avatar + 6px gap + 8px card padding + 4px inner gap + 16px scrollbar & gutter allowance
     public static final float MESSAGE_GAP = 3f; // unit(0.75f): gap between messages in a group
     public static final float HEADER_GAP = 2f; // unit(0.5f): gap between group header and first message
+    public static final float MESSAGE_CARD_PADDING = 8f; // vertical padding for message item card
+    public static final float FONT_SCALE = 1.0f;
 
     private static final Map<String, Float> HEIGHT_CACHE = new ConcurrentHashMap<>();
 
@@ -82,7 +84,7 @@ public final class ChatMessageHeightCalculator {
     }
 
     private static float measureMessageHeight(ParsedChatMessage msg, float availableTextWidth) {
-        float height = 0f;
+        float height = MESSAGE_CARD_PADDING;
 
         // Reply preview row
         if (msg.getReplyTo() != null && !msg.getReplyTo().isEmpty()) {
@@ -92,15 +94,15 @@ public final class ChatMessageHeightCalculator {
         // Body height by type
         if (msg instanceof TextMessage) {
             TextMessage txt = (TextMessage) msg;
-            height += measureTextHeight(txt.getText(), availableTextWidth, 0.95f);
+            height += measureTextHeight(txt.getText(), availableTextWidth, FONT_SCALE);
         } else if (msg instanceof SchematicMessage) {
             SchematicMessage schem = (SchematicMessage) msg;
             height += SCHEMATIC_CARD_HEIGHT;
             if (schem.getPrefixText() != null && !schem.getPrefixText().isEmpty()) {
-                height += measureTextHeight(schem.getPrefixText(), availableTextWidth, 0.95f);
+                height += measureTextHeight(schem.getPrefixText(), availableTextWidth, FONT_SCALE);
             }
             if (schem.getSuffixText() != null && !schem.getSuffixText().isEmpty()) {
-                height += measureTextHeight(schem.getSuffixText(), availableTextWidth, 0.95f);
+                height += measureTextHeight(schem.getSuffixText(), availableTextWidth, FONT_SCALE);
             }
         } else if (msg instanceof ImageMessage) {
             height += IMAGE_CARD_HEIGHT;
@@ -119,7 +121,7 @@ public final class ChatMessageHeightCalculator {
      */
     public static float measureTextHeight(@Nullable String text, float wrapWidth, float fontScale) {
         if (text == null || text.trim().isEmpty()) {
-            return 16f;
+            return 18f * fontScale;
         }
 
         Font font = null;
@@ -137,18 +139,20 @@ public final class ChatMessageHeightCalculator {
 
                 layout.setText(font, text, Color.white, wrapWidth, Align.left, true);
                 float h = layout.height;
+                // Match Arc's Label.getPrefHeight() which accounts for line descent spacing (-2 * descent)
+                float descentCorrection = -font.getDescent() * 2f;
 
                 font.getData().setScale(oldScaleX, oldScaleY);
                 Pools.free(layout);
-                return Math.max(16f, h + 4f);
+                return Math.max(18f * fontScale, h + descentCorrection);
             } catch (Throwable ignored) {
             }
         }
 
         // Fallback for headless tests where Fonts.def is not initialized
-        float charsPerLine = Math.max(10f, wrapWidth / (8f * fontScale));
+        float charsPerLine = Math.max(10f, wrapWidth / (9f * fontScale));
         int estimatedLines = (int) Math.ceil(text.length() / charsPerLine);
-        return Math.max(16f, estimatedLines * (16f * fontScale));
+        return Math.max(18f * fontScale, estimatedLines * (20f * fontScale));
     }
 
     public static void clearCache() {

@@ -500,13 +500,13 @@ public class ChatMessageListView extends BaseComponent {
             if (parsed instanceof SchematicMessage) {
                 SchematicMessage schemMsg = (SchematicMessage) parsed;
                 if (schemMsg.getPrefixText() != null && !schemMsg.getPrefixText().isEmpty()) {
-                    text(schemMsg.getPrefixText()).color(bodyColor).wrap().left().growX();
+                    text(schemMsg.getPrefixText()).color(bodyColor).fontScale(1.0f).wrap().left().growX();
                 }
 
                 buildSchematicCard(schemMsg.getSchematic());
 
                 if (schemMsg.getSuffixText() != null && !schemMsg.getSuffixText().isEmpty()) {
-                    text(schemMsg.getSuffixText()).color(bodyColor).wrap().left().growX();
+                    text(schemMsg.getSuffixText()).color(bodyColor).fontScale(1.0f).wrap().left().growX();
                 }
                 return;
             }
@@ -515,6 +515,7 @@ public class ChatMessageListView extends BaseComponent {
                 TextMessage txt = (TextMessage) parsed;
                 text(txt.getText())
                         .color(bodyColor)
+                        .fontScale(1.0f)
                         .left()
                         .wrap()
                         .growX();
@@ -525,6 +526,7 @@ public class ChatMessageListView extends BaseComponent {
             String fallback = parsed.getContent() != null ? parsed.getContent() : "";
             text(fallback)
                     .color(bodyColor)
+                    .fontScale(1.0f)
                     .left()
                     .wrap()
                     .growX();

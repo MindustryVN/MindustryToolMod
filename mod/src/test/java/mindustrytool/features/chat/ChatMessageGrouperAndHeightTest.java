@@ -127,8 +127,10 @@ class ChatMessageGrouperAndHeightTest {
                 raw("2", "alice", "Second"))).get(0);
 
         float textWidth = Math.max(100f, 400f - ChatMessageHeightCalculator.HORIZONTAL_PADDINGS);
-        float first = ChatMessageHeightCalculator.measureTextHeight("First", textWidth, 0.95f);
-        float second = ChatMessageHeightCalculator.measureTextHeight("Second", textWidth, 0.95f);
+        float first = ChatMessageHeightCalculator.measureTextHeight("First", textWidth, ChatMessageHeightCalculator.FONT_SCALE)
+                + ChatMessageHeightCalculator.MESSAGE_CARD_PADDING;
+        float second = ChatMessageHeightCalculator.measureTextHeight("Second", textWidth, ChatMessageHeightCalculator.FONT_SCALE)
+                + ChatMessageHeightCalculator.MESSAGE_CARD_PADDING;
         float expected = Math.max(ChatMessageHeightCalculator.AVATAR_SIZE,
                 ChatMessageHeightCalculator.HEADER_HEIGHT + ChatMessageHeightCalculator.HEADER_GAP
                         + first + second + ChatMessageHeightCalculator.MESSAGE_GAP) + 8f;
