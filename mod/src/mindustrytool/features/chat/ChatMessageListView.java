@@ -16,7 +16,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-import java.util.UUID;
 import mindustry.Vars;
 import mindustry.game.Schematic;
 import mindustry.gen.Icon;
@@ -215,7 +214,7 @@ public class ChatMessageListView extends BaseComponent {
         }
     }
 
-    private static class MessageGroupView extends BaseComponent {
+    static class MessageGroupView extends BaseComponent {
         private final MessageGroup group;
         private final ChatStore store;
         private final @Nullable ChatService service;
@@ -257,55 +256,57 @@ public class ChatMessageListView extends BaseComponent {
 
             String timeStr = formatTime(group.getCreatedAt());
 
-            return card()
+            return row()
                     .growX()
                     .top().left()
+                    .padding(ChatMessageHeightCalculator.UNIT_1)
                     .children(() -> {
-                        row().growX().top().left()
-                                .padding(unit(1))
-                                .gap(unit(1.5f))
-                                .children(() -> {
-                                    // Shared group avatar on the left, pinned to the top
-                                    new ChatAvatar(authorName, avatarUrl, authorId, unit(12)).top();
+                        // Shared group avatar on the left, pinned to the top
+                        new ChatAvatar(authorName, avatarUrl, authorId, ChatMessageHeightCalculator.AVATAR_SIZE)
+                                .top()
+                                .marginRight(ChatMessageHeightCalculator.AVATAR_GAP);
 
-                                    // Right column: header followed by stacked messages
-                                    column().growX().top().left().gap(unit(0.5f)).children(() -> {
-                                        // Author and timestamp header + action button
-                                        row().growX().top().left().gap(unit(1)).children(() -> {
-                                            text(authorName)
-                                                    .color(authorColor)
-                                                    .fontScale(0.95f)
+                        // Right column: header followed by stacked messages
+                        column().growX().top().left().children(() -> {
+                            // Author and timestamp header + action button
+                            row().growX().top().left()
+                                    .height(ChatMessageHeightCalculator.HEADER_HEIGHT + ChatMessageHeightCalculator.HEADER_GAP)
+                                    .children(() -> {
+                                        text(authorName)
+                                                .color(authorColor)
+                                                .fontScale(0.95f)
+                                                .left();
+
+                                        if (!timeStr.isEmpty()) {
+                                            text(timeStr)
+                                                    .color(Color.gray)
+                                                    .fontScale(0.8f)
+                                                    .marginLeft(unit(1))
                                                     .left();
+                                        }
 
-                                            if (!timeStr.isEmpty()) {
-                                                text(timeStr)
-                                                        .color(Color.gray)
-                                                        .fontScale(0.8f)
-                                                        .left();
-                                            }
+                                        spacer();
 
-                                            spacer();
-
-                                            // Action ellipsis / menu button
-                                            button(() -> openActions(firstRaw))
-                                                    .style(Styles.clearNonei)
-                                                    .size(unit(6), unit(6))
-                                                    .children(() -> icon(FileIcon.of("ellipsis-vertical.png"))
-                                                            .size(unit(6), unit(6)));
-                                        });
-
-                                        // Stacked message rows with a tight gap
-                                        column().growX().top().left().gap(unit(0.75f)).children(() -> {
-                                            for (ParsedChatMessage parsed : group.getMessages()) {
-                                                buildMessageRow(parsed);
-                                            }
-                                        });
+                                        // Action ellipsis / menu button
+                                        button(() -> openActions(firstRaw))
+                                                .style(Styles.clearNonei)
+                                                .size(unit(6), unit(6))
+                                                .children(() -> icon(FileIcon.of("ellipsis-vertical.png"))
+                                                        .size(unit(6), unit(6)));
                                     });
-                                });
+
+                            // Stacked message rows
+                            column().growX().top().left().children(() -> {
+                                var messages = group.getMessages();
+                                for (int i = 0; i < messages.size(); i++) {
+                                    buildMessageRow(messages.get(i), i > 0);
+                                }
+                            });
+                        });
                     }).element();
         }
 
-        private void buildMessageRow(ParsedChatMessage parsed) {
+        private void buildMessageRow(ParsedChatMessage parsed, boolean hasPrevious) {
             ChatMessage raw = parsed.getRaw();
             String msgId = raw.getId();
             boolean mentioned = (parsed instanceof TextMessage) && ((TextMessage) parsed).isMentionsCurrentUser();
@@ -315,70 +316,31 @@ public class ChatMessageListView extends BaseComponent {
             Readable<Boolean> isPending = pendingIds.map(set -> set != null && set.contains(msgId));
             Readable<Boolean> isFailed = failedIds.map(set -> set != null && set.contains(msgId));
 
-            card().growX().top().left()
-                    .onClick(() -> openActions(raw))
-                    .children(() -> {
-                        row().growX().top().left().gap(unit(1)).children(() -> {
+            var card = card().growX().top().left()
+                    .onClick(() -> openActions(raw));
+            if (hasPrevious) {
+                card.marginTop(ChatMessageHeightCalculator.MESSAGE_GAP);
+            }
+            card.children(() -> {
+                row().growX().top().left()
+                        .padding(ChatMessageHeightCalculator.MESSAGE_CARD_PADDING / 2f)
+                        .children(() -> {
                             if (mentioned) {
-                                divider(Direction.Y).color(Pal.accent).width(unit(1));
+                                divider(Direction.Y).color(Pal.accent).width(unit(1)).marginRight(unit(1));
                             }
 
-                            column().growX().top().left().gap(unit(0.5f)).children(() -> {
-                                if (raw.getReplyTo() != null && !raw.getReplyTo().isEmpty()) {
+                            if (raw.getReplyTo() != null && !raw.getReplyTo().isEmpty()) {
+                                column().growX().top().left().children(() -> {
                                     buildReplyPreview(raw.getReplyTo());
-                                }
-
-                                buildMessageBody(parsed, isPending, isFailed);
-
-                                dynamic(isFailed, failed -> {
-                                    if (Boolean.TRUE.equals(failed)) {
-                                        return row().top().left().gap(unit(1)).padding(unit(0.5f)).children(() -> {
-                                            button(Core.bundle.get("feature.chat.ui.retry", "Retry"), () -> {
-                                                String tempId = "temp_" + UUID.randomUUID();
-                                                String content = raw.getContent();
-                                                String activeChId = store.activeChannelId().peek();
-
-                                                ChatMessage retryMsg = new ChatMessage();
-                                                retryMsg.setId(tempId);
-                                                retryMsg.setCreatedBy(raw.getCreatedBy());
-                                                retryMsg.setCreatedAt(Instant.now().toString());
-                                                retryMsg.setContent(content);
-                                                retryMsg.setReplyTo(raw.getReplyTo());
-                                                retryMsg.setChannelId(activeChId);
-
-                                                store.removeFailedMessage(msgId);
-                                                store.addPendingMessage(tempId);
-                                                store.replaceMessage(msgId, retryMsg);
-
-                                                if (service != null) {
-                                                    service.sendMessage(content, raw.getReplyTo())
-                                                            .whenComplete((realMsg, err) -> {
-                                                                Core.app.post(() -> {
-                                                                    if (err != null) {
-                                                                        store.removePendingMessage(tempId);
-                                                                        store.addFailedMessage(tempId);
-                                                                    } else {
-                                                                        store.removePendingMessage(tempId);
-                                                                        boolean realExists = store
-                                                                                .hasMessage(realMsg.getId());
-                                                                        if (realExists) {
-                                                                            store.removeMessage(tempId);
-                                                                        } else {
-                                                                            store.replaceMessage(tempId, realMsg);
-                                                                        }
-                                                                    }
-                                                                });
-                                                            });
-                                                }
-                                            }).style(Styles.defaultt).height(unit(6))
-                                                    .color(Color.scarlet);
-                                        });
-                                    }
-                                    return null;
+                                    column().growX().top().left().marginTop(ChatMessageHeightCalculator.REPLY_GAP).children(() -> {
+                                        buildMessageBody(parsed, isPending, isFailed);
+                                    });
                                 });
-                            });
+                            } else {
+                                buildMessageBody(parsed, isPending, isFailed);
+                            }
                         });
-                    });
+            });
         }
 
         private void openActions(ChatMessage message) {
@@ -406,8 +368,8 @@ public class ChatMessageListView extends BaseComponent {
             }
 
             final String displaySnippet = targetSnippet;
-            row().growX().top().left().gap(unit(1)).padding(unit(0.5f)).children(() -> {
-                icon(Icon.rightSmall).size(unit(4), unit(4)).color(Color.gray);
+            row().growX().top().left().height(ChatMessageHeightCalculator.REPLY_PREVIEW_HEIGHT).children(() -> {
+                icon(Icon.rightSmall).size(unit(4), unit(4)).color(Color.gray).marginRight(unit(1));
                 text(displaySnippet)
                         .color(Color.gray)
                         .fontScale(0.8f)

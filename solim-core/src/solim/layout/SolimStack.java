@@ -43,8 +43,11 @@ public final class SolimStack implements Component, LayoutModifiers<SolimStack> 
     }
 
     public SolimStack layer(Runnable r) {
-        Row layerRow = new Row();
-        layerRow.children(r);
+        Row layerRow = solim.runtime.ParentStack.isolate(() -> {
+            Row row = new Row();
+            row.children(r);
+            return row;
+        });
         stack.add(layerRow.element());
         return this;
     }

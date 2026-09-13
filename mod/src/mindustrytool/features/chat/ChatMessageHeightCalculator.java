@@ -31,14 +31,16 @@ public final class ChatMessageHeightCalculator {
     public static final float AVATAR_GAP = 6f;   // unit(1.5f)
     public static final float HEADER_HEIGHT = 24f; // unit(6) ellipsis button and title row
     public static final float REPLY_PREVIEW_HEIGHT = 24f;
+    public static final float REPLY_GAP = 2f; // unit(0.5f): gap between reply preview and message body
     public static final float SCHEMATIC_CARD_HEIGHT = 180f;
     public static final float IMAGE_CARD_HEIGHT = 140f;
     public static final float INVITE_CARD_HEIGHT = 80f;
     public static final float TOOL_LINK_CARD_HEIGHT = 70f;
-    public static final float HORIZONTAL_PADDINGS = 82f; // 48px avatar + 6px gap + 8px card padding + 4px inner gap + 16px scrollbar & gutter allowance
+    public static final float HORIZONTAL_PADDINGS = 70f; // 4px outer left + 48px avatar + 6px gap + 4px inner left + 4px inner right + 4px outer right
+    public static final float MENTION_EXTRA_PADDING = 8f; // unit(1) divider width + unit(1) gap
     public static final float MESSAGE_GAP = 3f; // unit(0.75f): gap between messages in a group
     public static final float HEADER_GAP = 2f; // unit(0.5f): gap between group header and first message
-    public static final float MESSAGE_CARD_PADDING = 8f; // vertical padding for message item card
+    public static final float MESSAGE_CARD_PADDING = 8f; // vertical padding for message item card (4f top + 4f bottom)
     public static final float FONT_SCALE = 1.0f;
 
     private static final Map<String, Float> HEIGHT_CACHE = new ConcurrentHashMap<>();
@@ -68,11 +70,10 @@ public final class ChatMessageHeightCalculator {
 
     private static float computeHeight(MessageGroup group, float containerWidth) {
         float verticalPadding = UNIT_1 + UNIT_1;
-        float availableTextWidth = Math.max(100f, containerWidth - HORIZONTAL_PADDINGS);
 
         float messagesHeight = 0f;
         for (ParsedChatMessage msg : group.getMessages()) {
-            messagesHeight += measureMessageHeight(msg, availableTextWidth);
+            messagesHeight += measureMessageHeight(msg, containerWidth);
         }
         if (group.getMessageCount() > 1) {
             messagesHeight += MESSAGE_GAP * (group.getMessageCount() - 1);
@@ -83,12 +84,15 @@ public final class ChatMessageHeightCalculator {
         return Math.max(24f, total);
     }
 
-    private static float measureMessageHeight(ParsedChatMessage msg, float availableTextWidth) {
+    private static float measureMessageHeight(ParsedChatMessage msg, float containerWidth) {
         float height = MESSAGE_CARD_PADDING;
+
+        boolean mentioned = (msg instanceof TextMessage) && ((TextMessage) msg).isMentionsCurrentUser();
+        float availableTextWidth = Math.max(20f, containerWidth - HORIZONTAL_PADDINGS - (mentioned ? MENTION_EXTRA_PADDING : 0f));
 
         // Reply preview row
         if (msg.getReplyTo() != null && !msg.getReplyTo().isEmpty()) {
-            height += REPLY_PREVIEW_HEIGHT;
+            height += REPLY_PREVIEW_HEIGHT + REPLY_GAP;
         }
 
         // Body height by type
@@ -120,14 +124,17 @@ public final class ChatMessageHeightCalculator {
      * Measures the height of wrapped text using Arc's {@link GlyphLayout}.
      */
     public static float measureTextHeight(@Nullable String text, float wrapWidth, float fontScale) {
-        if (text == null || text.trim().isEmpty()) {
-            return 18f * fontScale;
-        }
-
         Font font = null;
         try {
             font = Fonts.def;
         } catch (Throwable ignored) {
+        }
+
+        if (text == null || text.trim().isEmpty()) {
+            if (font != null) {
+                return (font.getCapHeight() - font.getDescent() * 2f) * fontScale;
+            }
+            return 18f * fontScale;
         }
 
         if (font != null) {
@@ -144,7 +151,7 @@ public final class ChatMessageHeightCalculator {
 
                 font.getData().setScale(oldScaleX, oldScaleY);
                 Pools.free(layout);
-                return Math.max(18f * fontScale, h + descentCorrection);
+                return h + descentCorrection;
             } catch (Throwable ignored) {
             }
         }

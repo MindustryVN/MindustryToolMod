@@ -5,7 +5,6 @@ import static solim.UI.*;
 import arc.Core;
 import arc.graphics.Color;
 import arc.scene.Element;
-import mindustry.Vars;
 import mindustry.game.EventType.ResizeEvent;
 import mindustry.gen.Icon;
 import mindustry.gen.Tex;
@@ -161,18 +160,19 @@ public class ChatOverlayHudView extends BaseComponent {
 
                         divider();
 
-                        // Inverted to test mobile layout in desktop
-                        if (Vars.mobile) {
-                            buildMobileBody();
-                        } else {
-                            buildDesktopBody();
-                        }
+                        dynamic(Units.dvw, width -> {
+                            if (width < 1280) {
+                                return buildMobileBody();
+                            } else {
+                                return buildDesktopBody();
+                            }
+                        });
                     });
                 });
     }
 
-    private void buildDesktopBody() {
-        row().grow().children(() -> {
+    private Component buildDesktopBody() {
+        return row().grow().children(() -> {
             // Channel List
             row().width(unit(60)).growY().children(() -> {
                 new ChatChannelListView(store);
