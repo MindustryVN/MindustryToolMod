@@ -103,16 +103,20 @@ public class ChatOverlayHudView extends BaseComponent {
 
     private Component buildExpandedWindow() {
         Readable<Float> winWidth = feature.widthRatioConfig.signal().map(r -> {
-            float sw = Units.screenWidth();
+            float sw = Units.width().get();
+            float maxW = sw * 0.95f;
             float ratio = r != null ? r : 0.6f;
             float target = sw * Math.max(0.3f, Math.min(0.95f, ratio));
-            return Math.max(320f, Math.min(sw * 0.95f, target));
+            float minW = Math.min(320f, maxW);
+            return Math.max(minW, Math.min(maxW, target));
         });
         Readable<Float> winHeight = feature.heightRatioConfig.signal().map(r -> {
-            float sh = Units.screenHeight();
+            float sh = Units.height().get();
+            float maxH = sh * 0.95f;
             float ratio = r != null ? r : 0.6f;
             float target = sh * Math.max(0.3f, Math.min(0.95f, ratio));
-            return Math.max(240f, Math.min(sh * 0.95f, target));
+            float minH = Math.min(240f, maxH);
+            return Math.max(minH, Math.min(maxH, target));
         });
 
         Readable<Boolean> isConnected = store.connected();
@@ -120,6 +124,8 @@ public class ChatOverlayHudView extends BaseComponent {
         return card(Styles.black8)
                 .width(winWidth)
                 .height(winHeight)
+                .maxWidth(Units.dvw(95f))
+                .maxHeight(Units.dvh(95f))
                 .children(() -> {
                     column().grow().children(() -> {
                         // Window Action Bar (draggable bar wrapping title & action buttons)

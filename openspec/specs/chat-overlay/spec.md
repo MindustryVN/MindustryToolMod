@@ -38,7 +38,7 @@ The system SHALL provide a collapsed floating badge display when collapsedConfig
 - **THEN** the badge label updates reactively to reflect the current unread count
 
 ### Requirement: Expanded Chat Window
-The system SHALL provide an expanded chat view consisting of a header action bar, channel navigation, message feed, user roster, and composer input area. The action bar header SHALL render with a white background (`Tex.whiteui`) and SHALL be draggable across its entire area (including title text, status indicator, and spacer background) while keeping settings and collapse buttons fully clickable. The message feed SHALL wrap all message text cleanly within the message card width without horizontal overflow. The expanded window SHALL use a dark three-pane visual style: the selected channel row is highlighted, message rows show avatar with username + timestamp headers, member rows show presence dots, and the composer renders as a rounded input bar.
+The system SHALL provide an expanded chat view consisting of a header action bar, channel navigation, message feed, user roster, and composer input area. The action bar header SHALL render with a white background (`Tex.whiteui`) and SHALL be draggable across its entire area (including title text, status indicator, and spacer background) while keeping settings and collapse buttons fully clickable. The message feed SHALL wrap all message text cleanly within the message card width without horizontal overflow. The expanded window SHALL use a dark three-pane visual style: the selected channel row is highlighted, message rows show avatar with username + timestamp headers, member rows show presence dots, and the composer renders as a rounded input bar. The expanded window SHALL stay within the visible viewport: its width SHALL NOT exceed 95% of viewport width and its height SHALL NOT exceed 95% of viewport height, its preferred size SHALL reactively track viewport changes including phone rotation, and its minimum sizes SHALL never force overflow on small viewports.
 
 #### Scenario: Collapsing the chat window
 - **WHEN** the user clicks the collapse button or presses the Escape key
@@ -67,6 +67,18 @@ The system SHALL provide an expanded chat view consisting of a header action bar
 #### Scenario: Message rows show avatar, username and timestamp
 - **WHEN** a first-in-group message is rendered
 - **THEN** the row shows the author avatar, the role-colored username and the gray timestamp on a single header line with the content below
+
+#### Scenario: Expanded window stays within viewport on rotation
+- **WHEN** the device rotates (or the window resizes) while the expanded chat window is open
+- **THEN** the card width does not exceed 95% of the new viewport width and the card height does not exceed 95% of the new viewport height, with no part of the card rendered off-screen beyond repositioning
+
+#### Scenario: Preferred size tracks viewport and ratio configs
+- **WHEN** the viewport size or the width/height ratio configs change
+- **THEN** the preferred window size recomputes as `viewport * clamped ratio`, clamped to 95% of the viewport
+
+#### Scenario: Minimum sizes never force overflow
+- **WHEN** the viewport is so small that 95% of the viewport is below the 320x240 minimums
+- **THEN** the window shrinks to fit the viewport instead of forcing the minimum size off-screen
 
 ### Requirement: Responsive Mobile and Desktop Layout
 The system SHALL provide a multi-pane layout on desktop screens and a tabbed navigation interface (Channels, Messages, Members) on mobile devices (Vars.mobile).
