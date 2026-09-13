@@ -19,6 +19,9 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Set up Android build tools
+        run: echo "${ANDROID_HOME}/build-tools/34.0.0" >> $GITHUB_PATH
+
       - name: Set up JDK 17
         uses: actions/setup-java@v4
         with:
@@ -34,15 +37,15 @@ jobs:
       - name: Run verification checks (all subprojects)
         run: ./gradlew check
 
-      - name: Build Desktop Mod JAR
-        run: ./gradlew jar
+      - name: Build Mod JAR
+        run: ./gradlew deploy
 
       - name: Upload PR Artifact
         if: github.event_name == 'pull_request'
         uses: actions/upload-artifact@v4
         with:
           name: MindustryToolMod-PR-${{ github.event.pull_request.number }}
-          path: build/libs/MindustryToolModDesktop.jar
+          path: build/libs/MindustryToolMod.jar
           if-no-files-found: error
 
       - name: Determine Version and Release Tag
@@ -74,6 +77,6 @@ jobs:
           name: ${{ steps.version.outputs.tag }}
           prerelease: ${{ steps.version.outputs.prerelease == 'true' }}
           generate_release_notes: true
-          files: build/libs/MindustryToolModDesktop.jar
+          files: build/libs/MindustryToolMod.jar
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
