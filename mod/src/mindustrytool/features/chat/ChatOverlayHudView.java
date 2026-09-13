@@ -3,8 +3,6 @@ package mindustrytool.features.chat;
 import static solim.UI.*;
 
 import arc.Core;
-import arc.Events;
-import arc.func.Cons;
 import arc.graphics.Color;
 import arc.scene.Element;
 import mindustry.Vars;
@@ -17,7 +15,6 @@ import solim.core.BaseComponent;
 import solim.core.Component;
 import solim.layout.Direction;
 import solim.overlay.Hud;
-import solim.signal.Effect;
 import solim.signal.Readable;
 import solim.signal.Signal;
 import solim.ui.Units;

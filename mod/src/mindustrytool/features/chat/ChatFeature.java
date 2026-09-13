@@ -51,8 +51,8 @@ public class ChatFeature extends Feature {
         config = configGroup();
 
         opacityConfig = config.floatValue("opacity", 1.0f);
-        widthRatioConfig = config.floatValue("width-ratio", 0.6f);
-        heightRatioConfig = config.floatValue("height-ratio", 0.6f);
+        widthRatioConfig = config.floatValue("width-ratio", 0.9f);
+        heightRatioConfig = config.floatValue("height-ratio", 0.9f);
         collapsedConfig = config.boolValue("collapsed", false);
 
         collapsedGroup = config.group("collapsed");

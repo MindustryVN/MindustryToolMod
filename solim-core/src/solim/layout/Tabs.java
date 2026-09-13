@@ -100,6 +100,7 @@ public final class Tabs implements Component, LayoutModifiers<Tabs> {
 		btn.onClick(() -> activeTab.set(index));
 		btn.checked(activeTab.map(idx -> idx != null && idx == index));
 		btn.growX();
+        btn.height(48);
 
 		btn.children(() -> {
 			if (icon != null) {
